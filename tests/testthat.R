@@ -1,4 +1,4 @@
 library(testthat)
-library(eva.app)
+library(planting.shade)
 
-test_check("eva.app")
+test_check("planting.shade")

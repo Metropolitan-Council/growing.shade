@@ -85,13 +85,13 @@ mod_ndvi_map_server <- function(input, output, session,
                            options = leafletOptions(pane = "Aerial Imagery"),
                            group = "Aerial Imagery") %>%
           
-          addMapPane(name = "Carto Positron", zIndex = 200) %>%
-          addProviderTiles("CartoDB.PositronNoLabels",
-                           group = "Carto Positron"
+          addMapPane(name = "Map", zIndex = 200) %>%
+          addProviderTiles("Esri.WorldTopoMap", #CartoDB.PositronNoLabels",
+                           group = "Map"
           ) %>%
-          addProviderTiles("CartoDB.PositronOnlyLabels",
-                           options = leafletOptions(pane = "Carto Positron"),
-                           group = "Carto Positron") %>%
+          # addProviderTiles("CartoDB.PositronOnlyLabels",
+          #                  options = leafletOptions(pane = "Carto Positron"),
+          #                  group = "Carto Positron") %>%
           addPolygons(data = tract_geo(),
                       color = "#0054A4",
                       fill = FALSE) %>%
@@ -111,7 +111,7 @@ mod_ndvi_map_server <- function(input, output, session,
             position = "bottomright",
             baseGroups = c(
               "Aerial Imagery",
-              "Carto Positron"
+              "Map"
             ),
             overlayGroups = c(
               "NDVI"
