@@ -14,6 +14,9 @@ Planting shade concept is a merger of:
     and Brookings Institution.
 -   NDVI analyses
 
+An interactive version of this analysis currently lives at:
+<https://metrotransitmn.shinyapps.io/growing-shade/>
+
 <!-- ## MetCouncil's contributions -->
 <!-- We have tried to make an RShiny application that is highly portable, well documented, and requires minimal coding in order to lower the bar for other regions who might like to implement this type of analysis.  -->
 <!-- At the most basic level, users may upload an Excel document containing 2 sheets. Users can also leverage R scripts to aggregate disparate data sources.  -->
