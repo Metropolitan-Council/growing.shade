@@ -1,0 +1,54 @@
+Package: eva.app
+Title: Economic Values Atlas for the Twin Cities
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Metropolitan Council",
+             role = "cph"),
+      person(given = "Ellen",
+             family = "Esch",
+             role = c("cre", "aut"),
+             email = "ellen.esch@metc.state.mn.us",
+             comment = c(ORCID = "https://orcid.org/0000-0002-4253-0910")),
+       person(given = "Liz",
+             family = "Roten",
+             role = "aut",
+             email = "liz.roten@metc.state.mn.us"))
+Description: PKG_DESC.
+License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
+Imports: 
+    config (>= 0.3),
+    councilR (>= 0.1.0),
+    dplyr (>= 1.0.0),
+    golem (>= 0.2.1),
+    leaflet (>= 2.0.3),
+    leaflet.extras (>= 1.0.0),
+    magrittr (>= 1.5),
+    sf (>= 0.9.3),
+    shiny (>= 1.4.0.2),
+    htmltools (>= 0.5.1.1),
+    cowplot (>= 1.1.0),
+    tibble (>= 3.0.4),
+    forcats (>= 0.5.1),
+    stringr (>= 1.4.0),
+    ggplot2 (>= 3.3.3),
+    fmsb (>= 0.7.0),
+    tidyr (>= 1.1.3),
+    processx (>= 3.5.0), 
+    shinyjs (>= 2.0.0),
+    shinyWidgets (>= 0.6.0),
+    readxl(>= 1.3.1)
+Suggests: 
+    data.table (>= 1.12.8),
+    fs (>= 1.4.1),
+    janitor (>= 2.0.1),
+    readxl (>= 1.3.1),
+    testthat (>= 2.3.2),
+    tigris (>= 0.9.4)    
+Remotes:
+    Metropolitan-Council/councilR
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1

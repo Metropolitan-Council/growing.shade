@@ -1,0 +1,13 @@
+name: surface-w-purpose
+title: surface-w-purpose
+username:
+account: metrotransitmn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4045990
+bundleId: 4530711
+url: https://metrotransitmn.shinyapps.io/surface-w-purpose/
+when: 1619625206.99977
+lastSyncTime: 1619625206.99978
+asMultiple: FALSE
+asStatic: FALSE

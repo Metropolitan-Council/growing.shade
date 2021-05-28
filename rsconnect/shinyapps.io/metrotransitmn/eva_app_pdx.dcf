@@ -1,0 +1,13 @@
+name: eva_app_pdx
+title: eva_app_pdx
+username:
+account: metrotransitmn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3940116
+bundleId: 4472248
+url: https://metrotransitmn.shinyapps.io/eva_app_pdx/
+when: 1618437144.16445
+lastSyncTime: 1618437144.16446
+asMultiple: FALSE
+asStatic: FALSE
