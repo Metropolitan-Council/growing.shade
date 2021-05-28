@@ -5,7 +5,7 @@
 #' 
 #' @noRd
 app_sys <- function(...){
-  system.file(..., package = "eva.app")
+  system.file(..., package = "planting.shade")
 }
 
 

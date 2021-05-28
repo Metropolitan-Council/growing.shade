@@ -65,7 +65,7 @@ mod_stories_ui <- function(id){
     
     # shiny::div(
     #   id = "stories",
-    #   includeMarkdown(system.file("app/www/stories.md", package = "eva.app"))
+    #   includeMarkdown(system.file("app/www/stories.md", package = "planting.shade"))
     # )
   )
 }

@@ -12,7 +12,7 @@ mod_intro_ui <- function(id){
   tagList(
     shiny::div(
       id = "intro",
-      includeMarkdown(system.file("app/www/intro.md", package = "eva.app"))
+      includeMarkdown(system.file("app/www/intro.md", package = "planting.shade"))
     )
   )
 }

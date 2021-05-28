@@ -12,7 +12,7 @@ mod_next_ui <- function(id){
   tagList(
     shiny::div(
       id = "next",
-      includeMarkdown(system.file("app/www/next.md", package = "eva.app"))
+      includeMarkdown(system.file("app/www/next.md", package = "planting.shade"))
     )
   )
 }

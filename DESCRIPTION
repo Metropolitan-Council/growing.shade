@@ -1,5 +1,5 @@
-Package: eva.app
-Title: Economic Values Atlas for the Twin Cities
+Package: planting.shade
+Title: Tree Planting Prioritization tool for the Twin Cities
 Version: 0.0.0.9000
 Authors@R: 
     c(person(given = "Metropolitan Council",
@@ -8,11 +8,7 @@ Authors@R:
              family = "Esch",
              role = c("cre", "aut"),
              email = "ellen.esch@metc.state.mn.us",
-             comment = c(ORCID = "https://orcid.org/0000-0002-4253-0910")),
-       person(given = "Liz",
-             family = "Roten",
-             role = "aut",
-             email = "liz.roten@metc.state.mn.us"))
+             comment = c(ORCID = "https://orcid.org/0000-0002-4253-0910"))
 Description: PKG_DESC.
 License: MIT + file LICENSE
 Depends: 

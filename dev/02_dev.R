@@ -44,7 +44,7 @@ usethis::use_test( "app" )
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("eva.app")
+usethis::use_vignette("planting.shade")
 devtools::build_vignettes()
 
 ## Code coverage ----

@@ -25,7 +25,7 @@ mod_notes_ui <- function(id){
     # div(style="display: inline-block;", embed(src="www/notes.pdf", height="100%")
     # shiny::div(
     #   id = "notes",
-    #   includeMarkdown(system.file("app/www/notes.pdf", package = "eva.app"))
+    #   includeMarkdown(system.file("app/www/notes.pdf", package = "planting.shade"))
     ),
     br(),br()
   )

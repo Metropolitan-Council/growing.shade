@@ -4,6 +4,6 @@
 
 pkgload::load_all(export_all = FALSE, helpers = FALSE, attach_testthat = FALSE)
 options("golem.app.prod" = TRUE)
-eva.app::run_app() # add parameters here (if any)
+planting.shade::run_app() # add parameters here (if any)
 
 

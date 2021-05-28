@@ -12,7 +12,7 @@ mod_where_ui <- function(id){
   tagList(
     shiny::div(
       id = "where",
-      includeMarkdown(system.file("app/www/where.md", package = "eva.app"))
+      includeMarkdown(system.file("app/www/where.md", package = "planting.shade"))
     )
   )
 }
