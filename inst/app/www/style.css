@@ -60,6 +60,7 @@ body {
 	font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
 	background-color: var(--council-white);
 	color: var(--council-black);
+	/*max-width: 1200px; */
 }
 
 p {
@@ -245,12 +246,12 @@ hr {
 /* Parallax Section */
 .banner {
 	color: var(--council-blue); /*/#000000;/*/
-	background: url("../www/3026.png");/*/url('https://farm9.staticflickr.com/8316/7949510262_a4c1932dbc_z.jpg');/*/
-	/*/background-image: url('https://static.pexels.com/photos/467659/pexels-photo-467659.jpeg');/*/
-/*/	height: 600px; /*/
+	background: url("../www/3026.png");
 	min-height: 300px;
 	max-height: 600px; 
 	max-width: 1600px;
+	margin-left: auto;
+	margin-right: auto;
 	width: inherit;
 	background-attachment: fixed;
 	background-size: cover;
