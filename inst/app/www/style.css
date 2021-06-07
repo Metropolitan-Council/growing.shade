@@ -253,7 +253,7 @@ hr {
 	background: url("../www/3026.png");
 	min-height: 300px;
 	max-height: 600px; 
-	max-width: 1600px;
+	/*max-width: 1600px;*/
 	margin-left: auto;
 	margin-right: auto;
 	width: inherit;
