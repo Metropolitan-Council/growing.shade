@@ -29,6 +29,15 @@ Planting shade concept is a merger of:
 
 An interactive version of this analysis currently lives at:  https://metrotransitmn.shinyapps.io/growing-shade/
 
+## Things to add
+
+- land use layer (can i add this to the raster?)
+- temporal aspect?
+- citizen sci + biodiversity
+- filtering stories; eric north, rennie
+- climate adaptation, species; leslie brandt
+- scenario planning, hillary waters, kristin mroz
+
 <!-- ## MetCouncil's contributions -->
 
 <!-- We have tried to make an RShiny application that is highly portable, well documented, and requires minimal coding in order to lower the bar for other regions who might like to implement this type of analysis.  -->

@@ -11,15 +11,19 @@ tree canopy cover is something we care about. However, knowing where
 opportunities lie to build or enhance tree canopy cover is a real
 challenge.
 
-<br> On this page, you’ll find an online collection of stories about
-trees and an interactive tool to highlight priority areas for tree
-planting and canopy maintenance in the seven-county Twin Cities metro
-area. We suggest using a desktop browser for the best experience. Scroll
-down to start using the tool.
+<br> On this page, you’ll find:
 
-<br> This is a quick and dirty test to see if this works. And/or if it
-would be useful to jump start future conversations. If this seems like a
-useful approach, let’s think more critically about everything!!!!!!
+-   A brief history and rationale around tree planting efforts
+-   An online collection of “tree success” stories
+-   An interactive tool to highlight priority areas for tree planting
+-   A scenario planning thing
+
+We suggest using a desktop browser for the best experience. Scroll down
+to start using the tool.
+
+<br> **This interactive application is intended to jump start future
+conversations. What seems useful? What is missing? What is superfluous?
+What is working and not working from a user experience perspective?**
 
 <br>
 <hr>
@@ -68,11 +72,13 @@ underscore the importance of continuing to plant trees: <br> <br>
 <br> The benefits of planting trees are numerous: <br> <br>
 
 -   **Community health**: Trees can improve community livability and
-    beauty. Mental and physical wellness of residents…
+    beauty. Mental and physical wellness of residents… Legacy of
+    redlining + concerns over green gentrification…
 -   **Ecosystem health**: Trees can improve ecosystem health and climate
-    resilience….
--   **Business opportunity**: Trees have value, lumber, maple syrup,
-    christmas trees, tree maintenance industry, fruit trees
+    resilience…. Clean air, clean water, habitat for biodiversity….
+-   **Business opportunity**: Trees have value and create jobs - lumber
+    industry, maple syrup, christmas trees, tree maintenance industry,
+    fruit trees, tree nurseries and garden centers,
 -   **Reduce costs**: Energy savings…
 
 <!-- <br> -->
