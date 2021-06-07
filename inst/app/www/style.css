@@ -60,7 +60,9 @@ body {
 	font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
 	background-color: var(--council-white);
 	color: var(--council-black);
-	/*max-width: 1200px; */
+	max-width: 1200px; 
+	margin-left: auto;
+	margin-right: auto;
 }
 
 p {
@@ -113,8 +115,10 @@ hr {
 	color: var(--council-blue);
 	font-size: 16pt; 
 	text-transform: uppercase;
-	margin-right: 0px;
-	margin-left: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	/*margin-right: 0px;
+	margin-left: 0px;*/
   font-family: Bold-Condensed, "Helvetica", "Tahoma", "Geneva", "Arial Narrow", "Arial", sans-serif;
 	height: 95px;
 	width: 100%;
