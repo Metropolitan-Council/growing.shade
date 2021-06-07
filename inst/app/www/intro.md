@@ -18,12 +18,13 @@ challenge.
 -   An interactive tool to highlight priority areas for tree planting
 -   A scenario planning thing
 
-We suggest using a desktop browser for the best experience. Scroll down
-to start using the tool.
+<br> We suggest using a desktop browser for the best experience. Scroll
+down to start using the tool.
 
 <br> **This interactive application is intended to jump start future
-conversations. What seems useful? What is missing? What is superfluous?
-What is working and not working from a user experience perspective?**
+conversations. What seems useful? What is missing from the conversation?
+What is superfluous? What is working and not working from a user
+experience perspective?**
 
 <br>
 <hr>

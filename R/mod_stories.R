@@ -16,57 +16,10 @@ mod_stories_ui <- function(id){
                     p("Growing shade looks differently across the region. Here are some stories and ideas to better contextualize this work and to inspire imagination at what the future could look like."),
                     br(),
                     p("Move around and zoom on the map below to explore regional stories. Click icons for more information about all the cool stuff happening here. We'd love to add your story to the map, please contact us if you're willing to do an interview or if you have a news story to share!")),
+             br(),
              column(width = 7, align = "center",
                     leafletOutput(ns("storymap"), height = 600, width = 600)))
     
-    # p("Growing shade looks differently across the region. Here are some stories and ideas to better contextualize this work and to inspire imagination at what the future could look like."),
-    # br(),
-    # p("Move around and zoom on the map below to explore regional stories. Click icons for more information about all the cool stuff happening here. We'd love to add your story to the map, please contact us if you're willing to do an interview or if you have a news story to share!"),
-    # br(),
-    # fluidRow(column(width = 12),
-    #          style = "background-color:#0054A4;",
-    #          HTML("<h3 style='color:white;'>Region-wide</h3>")),
-    # fluidRow(column(width = 4,
-    #                 HTML("<center><img src='www/logging.png' height='200px' class = 'circimg' alt='old sawmill picture'/img></center>")),
-    #          column(width = 4,
-    #                 HTML('<div style="position: absolute; bottom: 0; left: 0.5em; width: 400px; font-weight: bold; color: white;">
-    #                 <img src=www/logging.png height=200px class = circimg alt=old sawmill picture/img></center>
-    #                        <p>(text to appear at the bottom left of the image)</p>
-    #                        </div>'))),
-    # 
-    # fluidRow(column(width = 12, 
-    #                 h2("Stories"),
-    #                 p("The reasons for planting trees looks different all over our region. Explore some stories here.")),
-    #          br()),
-    # 
-    #          HTML("<center><h3>Logging</h3></center>"),
-    # fluidRow(column(width = 4,
-    #                 HTML("<center><img src='www/logging.png' height='200px'  alt='old sawmill picture'/img></center>")),
-    #          column(width = 8,
-    #          HTML(paste0("<p>Over the last 200 years, our region has experienced profound land cover changes. Commericial logging in Minnesota began in 1839 with the founding of a sawmill in Marine on St. Croix. This created a legacy of reduced tree cover which still persists today. Learn more about our region's widespread deforestation by <a href = 'https://www.mnhs.org/foresthistory/learn/logging' target = '_blank'>visiting the Minnesota Historical Society website</a> or <a href = 'https://www.youtube.com/watch?v=HhqP6ghXKaU&t=1s' target = '_blank'>watching a video about logging in Stillwater.</a></p>")))),
-    #   br(),
-    # 
-    # HTML("<center><h3>Invasive species</h3></center>"),
-    # fluidRow(column(width = 4,
-    #                 HTML("<center><img src='www/eab.png' height='200px'  alt='picture of Emerald Ash borer'/img></center>")),
-    #          column(width = 8,
-    #                 HTML(paste0("<p>Spread of invasive species like the Emerald Ash borer (invasive insect) or Dutch elm disease (invasive pathogen) threaten trees and the benefits they provide. Costing millions of dollars to manage with results that often fail to save trees, such invasive species have left the region with new canopy gaps. Read a story about <a href = 'https://www.mprnews.org/story/2015/03/15/ash-borer' target = '_blank'>towns currently managing the Emerald Ash Borer</a> and look at a <a href = 'http://collections.mnhs.org/mnhistorymagazine/articles/65/v65i02p44-53.pdf' target = '_blank'>report of how Dutch elm devastated trees in Minneapolis and St. Paul.</a></p>")))),
-    # br(),
-    # 
-    # HTML("<center><h3>Extreme weather</h3></center>"),
-    # fluidRow(column(width = 4,
-    #                 HTML("<center><img src='www/tornado.jpeg' height='200px'  alt='picture of Emerald Ash borer'/img></center>")),
-    #          column(width = 8,
-    #                 HTML(paste0("<p>Extreme weather events like tornados and straight line winds are natural occurances in our region, although climate change can intensify their severity. Trees are suceptible to damage by these storms, and revegetation after weather events has been a challenge faced <a href = 'https://sahanjournal.com/climate/northside-tornado-recovery/' target = '_blank'>in North Minneapolis</a> as well as other communities in our region.</a></p>")))),
-    # br(),
-    # fluidRow(
-    #   column(12, align = "center",
-    # leafletOutput(ns("storymap"), height = 600, width = 600)))#'80%')))#,
-    
-    # shiny::div(
-    #   id = "stories",
-    #   includeMarkdown(system.file("app/www/stories.md", package = "planting.shade"))
-    # )
   )
 }
 
@@ -75,6 +28,8 @@ mod_stories_ui <- function(id){
 #' @noRd 
 mod_stories_server <- function(input, output, session){
   ns <- session$ns
+  html_legend <- "<img src='http://leafletjs.com/examples/custom-icons/leaf-green.png'>green<br/>
+<img src='http://leafletjs.com/examples/custom-icons/leaf-red.png'>red"
 
   output$storymap <- renderLeaflet({
   leaflet() %>%
@@ -114,7 +69,7 @@ mod_stories_server <- function(input, output, session){
                # color = "green",
                icon = icon_community,
                popup = ("Frogtown Green has been planting trees in gravel beds <a href = 'https://www.frogtowngreen.com/tree-frogs-pop-up-park
-'>Read more about their tree planting.</a><img src = 'www/ftg.jpeg' height = 200>")) %>%
+'>Read more about their tree planting.</a><img src = 'www/ftg.png' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -93.23,
                lat = 44.95,
@@ -125,7 +80,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "yellow",
                icon = icon_bus,
-               popup = ("Salvaging dead and diseased urban trees can give them a new life as wood floors, tables, or other useful produts. <a href = 'https://www.youtube.com/watch?v=_UeVStNvy3s&t=2s'>Watch a movie trailer about urban wood milling.</a> or learn more about local business <a href = 'https://woodfromthehood.com/about/'> Wood From the Hood producing 'wood with a zipcode'</a><img src='www/wfh.jpeg' height = 200>.")) %>%
+               popup = ("Salvaging dead and diseased urban trees can give them a new life as wood floors, tables, or other useful produts. <a href = 'https://www.youtube.com/watch?v=_UeVStNvy3s&t=2s'>Watch a movie trailer about urban wood milling</a> or learn more about local business <a href = 'https://woodfromthehood.com/about/'> Wood From the Hood</a>. <img src='www/wfh.jpeg' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -93.27,
                lat = 44.98,
@@ -136,7 +91,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "red",
                icon = icon_cost,
-               popup = ("Green roofs help reduce energy costs and reduce stormwater runoff. While often unsuitable for trees, greening roofs is another tool to know about. <a href = 'https://hclib.tumblr.com/post/123827675417/the-minneapolis-central-library-green-roof'>Read more about the Minneapolis Central Library's green roof here.</a>")) %>%
+               popup = ("Green roofs help reduce energy costs and reduce stormwater runoff. While often unsuitable for trees, greening roofs is another tool to know about. <a href = 'https://hclib.tumblr.com/post/123827675417/the-minneapolis-central-library-green-roof'>Read more about the Minneapolis Central Library's green roof here.</a><img src='www/greenroof.jpeg' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -92.89,
                lat = 45.01,
@@ -146,8 +101,8 @@ mod_stories_server <- function(input, output, session){
                # opacity = 1,
                # fillOpacity = 1,
                # color = "yellow",
-               icon = icon_cost,
-               popup = ("Planting trees is a business for some Minnesota locals. Watch a <a href = 'https://www.youtube.com/watch?v=8n3IprkT5SE'>video about a local Christmas tree farm.</a> or read an <a href = 'https://www.mprnews.org/story/2018/12/05/christmas-tree-sustainability-footprint-real-artificial'>article about their sustainability footprint</a>.<img src='www/xmas.jpeg' height=200>")) %>%
+               icon = icon_bus,
+               popup = ("Planting trees is a business for some Minnesota locals. Watch a <a href = 'https://www.youtube.com/watch?v=8n3IprkT5SE'>video about a local Christmas tree farm</a> or read an <a href = 'https://www.mprnews.org/story/2018/12/05/christmas-tree-sustainability-footprint-real-artificial'>article about their sustainability footprint</a>.<img src='www/xmas.jpeg' height=200>")) %>%
       
       addAwesomeMarkers(lng = -93.56,
                  lat = 44.93,
@@ -191,7 +146,12 @@ mod_stories_server <- function(input, output, session){
                  # fillOpacity = 1,
                  # color = "blue",
                  icon = icon_community,
-                 popup = ("<a href = 'http://www.urbangreenforpeople.com/heritagetrees.html'>Woodbury trees have cultural importance.</a><br><img src='www/woodbury.jpeg' height=200>"))
+                 popup = ("Traditional Ecological Knowledge (TEK) and the cultural importance of trees is recognized in the city of Woodbury’s urban tree canopy plan. <a href = 'http://www.urbangreenforpeople.com/heritagetrees.html'>Read more here.</a><br><img src='www/woodbury.jpeg' height=200>")) %>%
+      
+      addAwesomeMarkers(lng = -93.09,
+                        lat = 44.947,
+                        icon = icon_community,
+                        popup = ("Parking lots are an untapped space to plant trees. <a href = 'https://www.minnpost.com/cityscape/2012/05/needed-fix-parking-blight-lots-trees/'>Read a local opinion piece here.</a><br><img src='www/parkinglot.jpeg' height=150>"))
     
   }
   )
