@@ -73,6 +73,19 @@ mod_map_overview_server <- function(input, output, session,
       #   zoomLevels = 13:20
       # ) %>%
       
+      addMapPane("riverlake", zIndex = 429) %>%
+      addPolygons(
+        data = planting.shade::river_lake,
+        group = "Rivers & Lakes",
+        stroke = FALSE,
+        # weight = 0.5,
+        color = "black",
+        fill = TRUE,
+        fillColor = "black",
+        fillOpacity = 0.9,
+        options = pathOptions(pane = "riverlake")
+      ) %>%
+      
       hideGroup("Active transit stops") %>%
       
       ### add layer control

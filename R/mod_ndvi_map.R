@@ -38,8 +38,8 @@ mod_ndvi_map_server <- function(input, output, session,
     #   filter(GEOID == tract_selections$selected_tract)
     
     lowndvi_raster <- raster::raster("./data/lowndvi.tif") %>%
-      # raster::crop(eva_tract_geometry %>% 
-             # filter(GEOID == "27053980000"))
+      # raster::crop(eva_tract_geometry %>%
+      # filter(GEOID == "27053980000"))
       raster::crop(tract_geo())
     
     crs(lowndvi_raster) <- sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
@@ -47,6 +47,15 @@ mod_ndvi_map_server <- function(input, output, session,
     return(lowndvi_raster)
   })
   
+  
+  # lowndvi_raster <- raster::raster("./data/lowndvi.tif") %>%
+  #   raster::crop(eva_tract_geometry %>%
+  #   filter(GEOID == "27053980000"))
+  # leaflet() %>%
+  #   addRasterImage(lowndvi_raster,
+  #                  # colors = pal,
+  #                  opacity = .7,
+  #                  group = "NDVI") 
   
   output$ndvimap <- renderLeaflet({ 
     if(identical(tract_selections$selected_tract, character(0))) {
@@ -56,7 +65,7 @@ mod_ndvi_map_server <- function(input, output, session,
         addLabelOnlyMarkers(
           lng = -92.89,
           lat = 45.01,
-          label = HTML("Click on an area in the Step 2 map<br>for a detailed map of areas which may<br>be suitable for new tree plantings."),
+          label = HTML("Click on an area in the Step 2 map<br>for detailed information of areas which may<br>be suitable for new tree plantings."),
           labelOptions = labelOptions(noHide = T,
                                       style = list(
                                       "color" = "#0054A4",

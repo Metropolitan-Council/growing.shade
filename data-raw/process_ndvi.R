@@ -2,7 +2,7 @@
 library(raster)
 
 s2 <- raster("./data-raw/greenest_map_metc_2020.tif") %>%
-  round(., 1) #%>% #round ndvi values
+  round(., 2) #%>% #round ndvi values
   # trim() #get rid of nas
 s2[s2 > .5 ] = NA #large ndvi values aren't relevant for this project
 writeRaster(s2, './data/lowndvi.tif', overwrite=TRUE)
@@ -58,7 +58,7 @@ leaflet() %>%
 #   st_as_sf()
 
 #######
-# show full ndvi values
+# map ndvi values
 #######
 tract_geometry <- tigris::tracts(
   state = "MN",
@@ -71,14 +71,10 @@ tract<- tract_geometry %>%
   filter(GEOID10 == "27163070406")# "27053109100")
 
 test <- s2 %>% 
-  raster::crop(tract) %>%
-  round(., 2) #round ndvi values
+  raster::crop(tract) #%>%
+  # round(., 2) #round ndvi values
 
-# pal <- colorNumeric(c("#67000d", "#fcbba1"),#greens("#FFFFFF", "#009a00"), 
-#                     values(test),
-#                     na.color = "transparent")
-pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(test),
-                    na.color = "transparent")
+pal <- colorBin("Reds", values(test), pretty = T, na.color = "transparent", reverse = TRUE)
 
 leaflet() %>%
   addMapPane(name = "Carto Positron", zIndex = 200) %>%
@@ -100,12 +96,12 @@ leaflet() %>%
   
   # addMapPane("NDVI", zIndex = 431) %>%
   addRasterImage(test, 
-                 # colors = pal, 
+                 colors = pal,
                  opacity = .7,
                  group = "NDVI") %>%
-  # addLegend(pal = pal, 
-  #           values = values(test),
-  #           title = "Greenness (NDVI)") %>%
+  addLegend(pal = pal,
+            values = values(test),
+            title = "Greenness (NDVI)") %>%
   
   addLayersControl(
     position = "bottomright",
@@ -116,6 +112,11 @@ leaflet() %>%
     overlayGroups = c(
       "NDVI"
     ))
+
+#### 
+# try bringing in landuse and mapping
+####
+glu <- 
 
 # ######
 # ### show only low ndvi as polygons
