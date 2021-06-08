@@ -65,7 +65,7 @@ mod_ndvi_map_server <- function(input, output, session,
         addLabelOnlyMarkers(
           lng = -92.89,
           lat = 45.01,
-          label = HTML("Click on an area in the Step 2 map<br>for detailed information of areas which may<br>be suitable for new tree plantings."),
+          label = HTML("Click on an area<br>in the Step 2 map<br>for detailed information <br>of areas which may<br>be suitable for new <br>tree plantings."),
           labelOptions = labelOptions(noHide = T,
                                       style = list(
                                       "color" = "#0054A4",

@@ -16,9 +16,9 @@ The Growing Shade project recognizes that trees provide critical ecosystem servi
 <br>
 On this page, you'll find:
 
-- A brief history and rationale around tree planting efforts
-- An online collection of "tree success" stories
-- An interactive tool to highlight priority areas for tree planting
+- A brief history and rationale around tree planting efforts (Why plant more trees?)
+- An online collection of "tree success" stories (Story map)
+- An interactive tool to highlight priority areas for tree planting (Where to plant trees?)
 - A scenario planning thing
 
 <br>
