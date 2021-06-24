@@ -1,10 +1,9 @@
 
-## Where to plant trees?
-
-<br>
+<!-- # Where to plant trees? -->
+<!-- <br> -->
 
 There are many dimensions that can and should be considered when
-deciding where to plant trees.
+deciding where to plant trees. <br>
 
 -   **Existing tree cover**: knowing which areas have relatively low
     tree cover versus areas that have relatively high tree cover can
@@ -29,9 +28,13 @@ deciding where to plant trees.
 
 <br> This tool aggregates data to help facilitate discussions around
 enhancing our region’s tree canopy in order to improve climate
-resilience, livability, economic opportunity, and beauty.
-<!-- Select variables of interest at the left and update map to view results. Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero). Click on any tract to get more information. -->
+resilience, livability, economic opportunity, and beauty. See the
+Methods tab for more information. **Note, the detailed ‘priority zones’
+is based off of “greenspace” work right now. It will be updated to
+better reflect tree canopy detail before the technical meeting on June
+28 - thanks for your patience!**
 
+<!-- Select variables of interest at the left and update map to view results. Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero). Click on any tract to get more information. -->
 <!-- <br> -->
 <!-- There is the capability to plot the human dimensions at the Census block group level (finer resolution than tracts, which are shown here). The data pieces are not yet aggregated in that way, however. As this is just a proof-of-concept idea, so I figured it didn't matter. All the data pieces are weighted equally, but we could weight them differently too. This is just my take on this and would need much more work/input/etc. if we wish to continue down this avenue..... -->
 

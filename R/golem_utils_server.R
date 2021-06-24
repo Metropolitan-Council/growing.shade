@@ -151,3 +151,8 @@ icon_bus <- leaflet::awesomeIcons(
   library = "ion",
   markerColor = "green"
 )
+
+story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx") %>%
+  dplyr::group_by(topic) %>%
+  dplyr::count() %>%
+  dplyr::ungroup()

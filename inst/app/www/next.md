@@ -3,7 +3,10 @@
 
 <br> Most importantly, this was a quick(ish) test to see if I could pull
 things together! IF any of this seems useful, it needs some
-collaboration!
+collaboration! **Check back closer to the technical meeting on June 28
+in order to see some progress (hopefully!) towards some of these items.
+It will be more conceptual, to provide a jumping off point for
+discussions we might wish to have. Thanks again for your patience.**
 
 <br> Further, I am thinking that it could be cool to entertain these
 ideas:

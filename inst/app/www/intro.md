@@ -1,5 +1,5 @@
 
-# Welcome to the Growing Shade Project
+# Welcome to the Growing Shade Project - beta version to consider
 
 <br> The Growing Shade project recognizes that trees provide critical
 ecosystem services and are important components of both natural and
@@ -7,81 +7,76 @@ built environments. With a desire to create healthy places for people to
 live (mitigate heat islands and/or reduce home cooling costs, reduce
 localized flooding risk, improve mental health, etc.) and a resilient
 future (carbon sequestration, biodiversity, etc.), building or enhancing
-tree canopy cover is something we care about. However, knowing where
-opportunities lie to build or enhance tree canopy cover is a real
-challenge.
-
-<br> On this page, you’ll find:
-
--   A brief history and rationale around tree planting efforts
--   An online collection of “tree success” stories
--   An interactive tool to highlight priority areas for tree planting
--   A scenario planning thing
+tree canopy cover is an actionable step.
 
 <br> We suggest using a desktop browser for the best experience. Scroll
 down to start using the tool.
 
-<br> **This interactive application is intended to jump start future
-conversations. What seems useful? What is missing from the conversation?
-What is superfluous? What is working and not working from a user
-experience perspective?**
+<br>
+
+## What this tool does
+
+This interactive provides stories and data to identify areas where an
+enhanced tree canopy could have a disproportionately positive benefit
+for people and environment. Stories provide a narrative to contextualize
+the importance of this work within our region. Users can customize data
+variables to reflect specific priorities towards identifying tree
+planting opportunities. Data is also provided towards helping
+stakeholders evaluate other considerations involved with tree plantings,
+such as cost-benefit analysis and species considerations.
+
+<br>
+
+## What this tool cannot do
+
+Users can create valuable, data-driven analyses through this tool. Our
+experience and research tells us that data cannot substitute for
+engagement with prioritized stakeholders to understand
+community-specific concerns or opportunities. The on-the-ground
+knowledge of residents and the expertise of practitioners are valuable
+sources of information necessary to enhance and refine the shared
+understanding of this data.
+
+<br>
+
+## Who can use this tool
+
+We developed this interactive primarily for regional foresters and
+stakeholders involved in aspects of natural resource management and
+environmental justice. The tool is available for anyone who wants
+tree-centric information about the intersection between people with the
+built and natural environments.
 
 <br>
 <hr>
 
 <br>
 
-## Why plant more trees?
-
-<br> Apart from the benefits that trees can provide, there are three key
-challenges that our region’s tree canopy faces. These challenges
-underscore the importance of continuing to plant trees: <br> <br>
-
--   **Logging**: Over the last 200 years, Minnesota has experienced
-    profound land cover changes. Commercial logging in Minnesota began
-    in 1839 with the founding of a sawmill in Marine on St. Croix in
-    Washington County. This created a legacy of reduced tree cover which
-    still persists today. Learn more about our region’s widespread
-    deforestation by
-    <a href = 'https://www.mnhs.org/foresthistory/learn/logging' target = '_blank'>visiting
-    the Minnesota Historical Society website</a> or
-    <a href = 'https://www.youtube.com/watch?v=HhqP6ghXKaU&t=1s' target = '_blank'>watching
-    a video about logging in Stillwater</a>.
--   **Invasive species**: Spread of invasive species like the Emerald
-    Ash borer (invasive insect) or Dutch elm disease (invasive pathogen)
-    threaten trees and the benefits they provide. Costing millions of
-    dollars to manage with results that often fail to save trees, such
-    invasive species have left the region with new canopy gaps. Read a
-    story about
-    <a href = 'https://www.mprnews.org/story/2015/03/15/ash-borer' target = '_blank'>towns
-    currently managing the Emerald Ash Borer</a> and look at a
-    <a href = 'http://collections.mnhs.org/mnhistorymagazine/articles/65/v65i02p44-53.pdf' target = '_blank'>report
-    of how Dutch elm devastated trees in Minneapolis and St. Paul</a>.
--   **Extreme weather**: Extreme weather events like tornadoes and
-    straight line winds are natural occurrences in our region, although
-    climate change can intensify their severity. Trees are susceptible
-    to damage by these storms, and re-vegetation after weather events
-    has been a challenge faced
-    <a href = 'https://sahanjournal.com/climate/northside-tornado-recovery/' target = '_blank'>in
-    North Minneapolis</a> as well as other communities in our region.
+<!-- # Why grow shade? -->
+<!-- <br> -->
+<!-- Placeholder, text and images for the narrative will go here. Benefits of planting trees, challenges, etc. -->
+<!-- <br> -->
+<!-- For brainstorming purposes, here are two ideas for showing how people connect with trees (an interactive story map or an interactive story generator). Of course, there are many other ways to consider doing something like this.   -->
 
 <br>
-<center>
-<img src="www/schematic.png" alt = "challenges and opportunities of planting trees">
-</center>
 
-<br> The benefits of planting trees are numerous: <br> <br>
-
--   **Community health**: Trees can improve community livability and
-    beauty. Mental and physical wellness of residents… Legacy of
-    redlining + concerns over green gentrification…
--   **Ecosystem health**: Trees can improve ecosystem health and climate
-    resilience…. Clean air, clean water, habitat for biodiversity….
--   **Business opportunity**: Trees have value and create jobs - lumber
-    industry, maple syrup, christmas trees, tree maintenance industry,
-    fruit trees, tree nurseries and garden centers,
--   **Reduce costs**: Energy savings…
-
+<!-- <br> -->
+<!-- Apart from the benefits that trees can provide, there are three key challenges that our region's tree canopy faces. These challenges underscore the importance of continuing to plant trees: -->
+<!-- <br> -->
+<!-- <br> -->
+<!-- - **Logging**: Over the last 200 years, Minnesota has experienced profound land cover changes. Commercial logging in Minnesota began in 1839 with the founding of a sawmill in Marine on St. Croix in Washington County. This created a legacy of reduced tree cover which still persists today. Learn more about our region's widespread deforestation by <a href = 'https://www.mnhs.org/foresthistory/learn/logging' target = '_blank'>visiting the Minnesota Historical Society website</a> or <a href = 'https://www.youtube.com/watch?v=HhqP6ghXKaU&t=1s' target = '_blank'>watching a video about logging in Stillwater</a>. -->
+<!-- - **Invasive species**: Spread of invasive species like the Emerald Ash borer (invasive insect) or Dutch elm disease (invasive pathogen) threaten trees and the benefits they provide. Costing millions of dollars to manage with results that often fail to save trees, such invasive species have left the region with new canopy gaps. Read a story about <a href = 'https://www.mprnews.org/story/2015/03/15/ash-borer' target = '_blank'>towns currently managing the Emerald Ash Borer</a> and look at a <a href = 'http://collections.mnhs.org/mnhistorymagazine/articles/65/v65i02p44-53.pdf' target = '_blank'>report of how Dutch elm devastated trees in Minneapolis and St. Paul</a>. -->
+<!-- - **Extreme weather**: Extreme weather events like tornadoes and straight line winds are natural occurrences in our region, although climate change can intensify their severity. Trees are susceptible to damage by these storms, and re-vegetation after weather events has been a challenge faced <a href = 'https://sahanjournal.com/climate/northside-tornado-recovery/' target = '_blank'>in North Minneapolis</a> as well as other communities in our region. -->
+<!-- <br> -->
+<!-- <center><img src="www/schematic.png" alt = "challenges and opportunities of planting trees"></center> -->
+<!-- <br> -->
+<!-- The benefits of planting trees are numerous: -->
+<!-- <br> -->
+<!-- <br> -->
+<!-- - **Community health**: Trees can improve community livability and beauty. Mental and physical wellness of residents... Legacy of redlining + concerns over green gentrification... -->
+<!-- - **Ecosystem health**: Trees can improve ecosystem health and climate resilience.... Clean air, clean water, habitat for biodiversity.... -->
+<!-- - **Business opportunity**: Trees have value and create jobs - lumber industry, maple syrup, christmas trees, tree maintenance industry, fruit trees, tree nurseries and garden centers,  -->
+<!-- - **Reduce costs**: Energy savings... -->
 <!-- <br> -->
 <!-- There are many dimensions that can and should be considered when deciding where to plant trees. -->
 <!-- - **Existing tree cover**: knowing which areas have relatively low tree cover versus areas that have relatively high tree cover can help direct tree planting efforts.  -->
@@ -104,4 +99,3 @@ underscore the importance of continuing to plant trees: <br> <br>
 <!-- - "Greenness" (normalized difference vegetation index (NDVI) from Sentinel-2, peak NDVI in 2020 aggregated to the block group level and also at 10x10m resolution) -->
 <!-- - Equity considerations data -->
 <!-- - Existing land use -->
-<hr>

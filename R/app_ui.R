@@ -12,9 +12,7 @@ app_ui <- function(request) {
     # List the first level UI elements here 
  
     navbarPage(title = div(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")),
-      # title = img(src="www/main-logo.png", height = "70px"), 
       id = "navBar",
-                # theme = "www/style.css",
                 collapsible = TRUE,
                 # inverse = TRUE,
                 # windowTitle = "EVA",
@@ -31,13 +29,39 @@ app_ui <- function(request) {
                         
                         mod_intro_ui("intro_ui_1"), br(), 
                         
-                        mod_stories_ui("stories_ui_1"), br(), hr(), br(),
+                        fluidRow(
+                          HTML("<section style=' background-image:url(./www/3789.png); 
+                         min-height: 700px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Why grow shade?</h1>
+                                     <p class='parallax_description'>Explore the science and stories behind tree planting efforts.</p>
+                                     </section>
+                                     ")
+                        ), br(),
+                        HTML("Placeholder, text and images for the narrative will go here. <br><br>Benefits of planting trees, challenges, etc. For brainstorming purposes, here are two ideas for showing how people connect with trees (an interactive story map or an interactive story generator). Of course, there are many other ways to consider doing something like this."),
+                        
+                        mod_stories_ui("stories_ui_1"), br(), br(), #hr(), br(),
+                        
+                        # mod_why_ui("why_ui_1"),
+                        
+                        mod_story_generator_ui("story_generator_ui_1"), br(), hr(), br(),
+                        
+                        fluidRow(
+                          HTML("<section style=' background-image:url(./www/2678.png); 
+                         min-height: 700px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Where to plant trees?</h1>
+                                     <p class='parallax_description'>An interactive tool to help guide decision making.</p>
+                                     </section>
+                                     ")
+                        ), br(),
 
                         mod_where_ui("where_ui_1"), br(), 
                         
-                        fluidRow(column(width = 3, h3("Step 1: Select priority variables"), p("Select variables and click 'update map'."), br(), hr(), mod_map_selections_ui("map_selections_ui_1")),
-                                 column(width = 5, h3("Step 2: View region-wide priority areas"), p("Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero)."), hr(), mod_map_overview_ui("map_overview_ui_1")),
-                                 column(width = 4, h3("Step 3: Detailed priority areas"), p("Click on any area in Step 2 to see more detailed spatial locations which are in need of greening and may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."), hr(), mod_ndvi_map_ui("ndvi_map_ui_1"))),
+                        fluidRow(#column(width = 3, 
+                          h3("Step 1: Select priority variables"), p("Select variables and click 'update map'."), br(),# hr(), 
+                          mod_map_selections_ui("map_selections_ui_1")), hr(),
+                        fluidRow(
+                                 column(width = 6, h3("Step 2: View region-wide priority areas"), p("Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero)."), br(), mod_map_overview_ui("map_overview_ui_1")),
+                                 column(width = 6, h3("Step 3: Detailed priority areas"), p("Click on any area in Step 2 to see more detailed spatial locations which are in need of greening and may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."), br(), br(), mod_ndvi_map_ui("ndvi_map_ui_1"))),
                         
                         br(),hr(),br(),
                         
@@ -57,6 +81,10 @@ app_ui <- function(request) {
                         # #                 hr()
                         # #                 # mod_evabar_ui("evabar_ui_1")
                         # #                 )),
+                        
+                        # mod_biodiversity_ui("biodiversity_ui_1"),
+                        # br(), hr(), br(),
+                        
                         fluidRow(
                                  column(width = 12,
                                         mod_next_ui("next_ui_1")

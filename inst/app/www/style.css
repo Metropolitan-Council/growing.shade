@@ -248,6 +248,17 @@ hr {
 
 
 /* Parallax Section */
+.bannergeneric {
+	color: var(--council-blue); /*/#000000;/*/
+	/*max-width: 1600px;*/
+	margin-left: auto;
+	margin-right: auto;
+	width: inherit;
+	background-attachment: fixed;
+	background-size: cover;
+	padding-bottom: 50%;
+	background-repeat: no-repeat;
+}
 .banner {
 	color: var(--council-blue); /*/#000000;/*/
 	background: url("../www/3026.png");

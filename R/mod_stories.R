@@ -10,7 +10,7 @@
 mod_stories_ui <- function(id){
   ns <- NS(id)
   tagList(
-    h2("Story map"),
+    h2("Story map - option for showing personal stories"),
     br(),
     fluidRow(column(width = 5, 
                     p("Growing shade looks differently across the region. Here are some stories and ideas to better contextualize this work and to inspire imagination at what the future could look like."),
@@ -57,7 +57,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "green",
                icon = icon_community,
-               popup = ("Local artist Seitu Jones' Frogtown Farm project aims to create more greenspace in the heart of St. Paul's least forested neighborhood. <a href = 'https://forecastpublicart.org/seitu-jones/'>Read more about the work here.</a><img src = 'www/jones.jpeg' height = 200>")) %>%
+               popup = ("Local artist Seitu Jones' Frogtown Farm project aims to create more greenspace in the heart of St. Paul's least forested neighborhood. <a href = 'https://forecastpublicart.org/seitu-jones/' target='_blank'>Read more about the work here.</a><img src = 'www/jones.jpeg' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -93.10,
                lat = 44.96,
@@ -69,7 +69,7 @@ mod_stories_server <- function(input, output, session){
                # color = "green",
                icon = icon_community,
                popup = ("Frogtown Green has been planting trees in gravel beds <a href = 'https://www.frogtowngreen.com/tree-frogs-pop-up-park
-'>Read more about their tree planting.</a><img src = 'www/ftg.png' height = 200>")) %>%
+' target='_blank'>Read more about their tree planting.</a><img src = 'www/ftg.png' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -93.23,
                lat = 44.95,
@@ -80,7 +80,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "yellow",
                icon = icon_bus,
-               popup = ("Salvaging dead and diseased urban trees can give them a new life as wood floors, tables, or other useful produts. <a href = 'https://www.youtube.com/watch?v=_UeVStNvy3s&t=2s'>Watch a movie trailer about urban wood milling</a> or learn more about local business <a href = 'https://woodfromthehood.com/about/'> Wood From the Hood</a>. <img src='www/wfh.jpeg' height = 200>")) %>%
+               popup = ("Salvaging dead and diseased urban trees can give them a new life as wood floors, tables, or other useful produts. <a href = 'https://www.youtube.com/watch?v=_UeVStNvy3s&t=2s'>Watch a movie trailer about urban wood milling</a> or learn more about local business <a href = 'https://woodfromthehood.com/about/' target='_blank'> Wood From the Hood</a>. <img src='www/wfh.jpeg' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -93.27,
                lat = 44.98,
@@ -91,7 +91,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "red",
                icon = icon_cost,
-               popup = ("Green roofs help reduce energy costs and reduce stormwater runoff. While often unsuitable for trees, greening roofs is another tool to know about. <a href = 'https://hclib.tumblr.com/post/123827675417/the-minneapolis-central-library-green-roof'>Read more about the Minneapolis Central Library's green roof here.</a><img src='www/greenroof.jpeg' height = 200>")) %>%
+               popup = ("Green roofs help reduce energy costs and reduce stormwater runoff. While often unsuitable for trees, greening roofs is another tool to know about. <a href = 'https://hclib.tumblr.com/post/123827675417/the-minneapolis-central-library-green-roof' target='_blank'>Read more about the Minneapolis Central Library's green roof here.</a><img src='www/greenroof.jpeg' height = 200>")) %>%
     
       addAwesomeMarkers(lng = -92.89,
                lat = 45.01,
@@ -102,7 +102,7 @@ mod_stories_server <- function(input, output, session){
                # fillOpacity = 1,
                # color = "yellow",
                icon = icon_bus,
-               popup = ("Planting trees is a business for some Minnesota locals. Watch a <a href = 'https://www.youtube.com/watch?v=8n3IprkT5SE'>video about a local Christmas tree farm</a> or read an <a href = 'https://www.mprnews.org/story/2018/12/05/christmas-tree-sustainability-footprint-real-artificial'>article about their sustainability footprint</a>.<img src='www/xmas.jpeg' height=200>")) %>%
+               popup = ("Planting trees is a business for some Minnesota locals. Watch a <a href = 'https://www.youtube.com/watch?v=8n3IprkT5SE'>video about a local Christmas tree farm</a> or read an <a href = 'https://www.mprnews.org/story/2018/12/05/christmas-tree-sustainability-footprint-real-artificial' target='_blank'>article about their sustainability footprint</a>.<img src='www/xmas.jpeg' height=200>")) %>%
       
       addAwesomeMarkers(lng = -93.56,
                  lat = 44.93,
@@ -113,7 +113,7 @@ mod_stories_server <- function(input, output, session){
                  # fillOpacity = 1,
                  # color = "blue",
                  icon = icon_ecosystem,
-                 popup = ("Planting trees helped restore shoreline on Lake Minnetonka's Big Island. <a href = 'https://www.minnehahacreek.org/project/big-island-restoration'>Read the success story</a>.<img src='www/bi.jpeg' height = 200>")) %>%
+                 popup = ("Planting trees helped restore shoreline on Lake Minnetonka's Big Island. <a href = 'https://www.minnehahacreek.org/project/big-island-restoration' target='_blank'>Read the success story</a>.<img src='www/bi.jpeg' height = 200>")) %>%
       
       addAwesomeMarkers(lng = -93.07,
                  lat = 44.57,
@@ -124,7 +124,7 @@ mod_stories_server <- function(input, output, session){
                  # fillOpacity = 1,
                  # color = "blue",
                  icon = icon_cost,
-                 popup = ("Windbreaks are cool and tie agricultural communities into the story, SWCD work etc. <a href = 'https://www.agupdate.com/iowafarmertoday/news/livestock/windbreaks-pay-off-in-brutal-february/article_2b6d02b2-a836-11eb-ac32-b392c3805937.html'>Article from Iowa</a>.<br><img src='www/wb.jpeg' height=100>")) %>%
+                 popup = ("Windbreaks are cool and tie agricultural communities into the story, SWCD work etc. <a href = 'https://www.agupdate.com/iowafarmertoday/news/livestock/windbreaks-pay-off-in-brutal-february/article_2b6d02b2-a836-11eb-ac32-b392c3805937.html' target='_blank'>Article from Iowa</a>.<br><img src='www/wb.jpeg' height=100>")) %>%
       
       addAwesomeMarkers(lng = -93.35,
                  lat = 45.31,
@@ -135,7 +135,7 @@ mod_stories_server <- function(input, output, session){
                  # fillOpacity = 1,
                  # color = "blue",
                  icon = icon_bus,
-                 popup = ("Trees also provide food. <a href = 'https://www.startribune.com/anoka-county-natives-defy-naysayers-to-open-apple-orchard/225065272/'>Read the story of Remick's Orchard</a>.<img src='www/ro.jpeg' height=200>")) %>%
+                 popup = ("Trees also provide food. <a href = 'https://www.startribune.com/anoka-county-natives-defy-naysayers-to-open-apple-orchard/225065272/' target='_blank'>Read the story of Remick's Orchard</a>.<img src='www/ro.jpeg' height=200>")) %>%
       
       addAwesomeMarkers(lng = -92.94,
                  lat = 44.91,
@@ -146,12 +146,12 @@ mod_stories_server <- function(input, output, session){
                  # fillOpacity = 1,
                  # color = "blue",
                  icon = icon_community,
-                 popup = ("Traditional Ecological Knowledge (TEK) and the cultural importance of trees is recognized in the city of Woodbury’s urban tree canopy plan. <a href = 'http://www.urbangreenforpeople.com/heritagetrees.html'>Read more here.</a><br><img src='www/woodbury.jpeg' height=200>")) %>%
+                 popup = ("Traditional Ecological Knowledge (TEK) and the cultural importance of trees is recognized in the city of Woodbury’s urban tree canopy plan. <a href = 'http://www.urbangreenforpeople.com/heritagetrees.html' target='_blank'>Read more here.</a><br><img src='www/woodbury.jpeg' height=200>")) %>%
       
       addAwesomeMarkers(lng = -93.09,
                         lat = 44.947,
                         icon = icon_community,
-                        popup = ("Parking lots are an untapped space to plant trees. <a href = 'https://www.minnpost.com/cityscape/2012/05/needed-fix-parking-blight-lots-trees/'>Read a local opinion piece here.</a><br><img src='www/parkinglot.jpeg' height=150>"))
+                        popup = ("Parking lots are an untapped space to plant trees. <a href = 'https://www.minnpost.com/cityscape/2012/05/needed-fix-parking-blight-lots-trees/' target='_blank'>Read a local opinion piece here.</a><br><img src='www/parkinglot.jpeg' height=150>"))
     
   }
   )

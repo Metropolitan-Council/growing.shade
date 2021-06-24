@@ -8,7 +8,7 @@ Authors@R:
              family = "Esch",
              role = c("cre", "aut"),
              email = "ellen.esch@metc.state.mn.us",
-             comment = c(ORCID = "https://orcid.org/0000-0002-4253-0910"))
+             comment = c(ORCID = "https://orcid.org/0000-0002-4253-0910")))
 Description: PKG_DESC.
 License: MIT + file LICENSE
 Depends: 
@@ -31,10 +31,11 @@ Imports:
     ggplot2 (>= 3.3.3),
     fmsb (>= 0.7.0),
     tidyr (>= 1.1.3),
-    processx (>= 3.5.0), 
+    processx (>= 3.5.0),
     shinyjs (>= 2.0.0),
     shinyWidgets (>= 0.6.0),
-    readxl(>= 1.3.1)
+    readxl (>= 1.3.1),
+    pkgload
 Suggests: 
     data.table (>= 1.12.8),
     fs (>= 1.4.1),

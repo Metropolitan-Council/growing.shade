@@ -9,6 +9,7 @@ app_server <- function( input, output, session ) {
   
   callModule(mod_intro_server, "intro_ui_1")
   callModule(mod_stories_server, "stories_ui_1")
+  callModule(mod_story_generator_server, "story_generator_ui_1")
   callModule(mod_where_server, "where_ui_1")
   callModule(mod_next_server, "nexte_ui_1")
   
@@ -40,6 +41,9 @@ app_server <- function( input, output, session ) {
              tract_selections = tract_selections,
              map_util = map_util)
   
+  callModule(mod_biodiversity_server, "biodiversity_ui_1")
+  
   callModule(mod_next_server, "next_ui_1")
+  
   
   }
