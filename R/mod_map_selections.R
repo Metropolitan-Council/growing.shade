@@ -12,6 +12,7 @@ mod_map_selections_ui <- function(id){
   tagList(
     
     fluidRow(column(width = 4, shinyWidgets::pickerInput(ns("peopleInput"),
+                                                         width = '90%',
                               label = shiny::HTML(paste0("<h4>Equity & People</h4>", "<p style='font-size:16px'>Variables about people.</p>")), # style='font-size:20px' 'color=#0054A4'>
                               choices = filter(eva_vars, type == "people")$name, 
                               options = list(`actions-box` = TRUE, 
@@ -21,6 +22,7 @@ mod_map_selections_ui <- function(id){
                               selected = filter(eva_vars, type == "people")$name)),
     # hr(),
     column(width = 4, shinyWidgets::pickerInput(ns("placeInput"),
+                                                width = '90%',
                               label = shiny::HTML("<h4>Infrastructure & Environment</h4>", "<p style='font-size:16px'>Variables about the natural or built environment.</p>"), 
                               choices=filter(eva_vars, type == "environment")$name, 
                               options = list(`actions-box` = TRUE, 
@@ -32,13 +34,19 @@ mod_map_selections_ui <- function(id){
     # hr(),
     # 
     column(width=4,shinyWidgets::pickerInput(ns("treeInput"),
-                              label = shiny::HTML("<h4>Existing canopy</h4>", "<p style='font-size:16px'>Variables about existing tree canopy.</p>"), 
+                                             width = '90%',
+                              label = shiny::HTML("<h4>Existing tree canopy</h4>", "<p style='font-size:16px'>Variables about the existing tree canopy.</p>"), 
                               choices=filter(eva_vars, type == "tree")$name, 
                               options = list(`actions-box` = TRUE, 
                                              size = 10,
                                              `selected-text-format` = "count > 1"), 
                               multiple = T,
                               selected = filter(eva_vars, type == "tree")$name))),
+    # radioButtons(ns("weight"),
+    #              label = shiny::HTML("<h4>Variable weights</h4>", "<p style='font-size:16px'>Choose how tract scores are calculated.</p>"),
+    #              choices = c("Weight all variables equally", "Weight all categories equally"),
+    #              selected = "Weight all variables equally",
+    #              inline = T), br(),
     
     # hr(),
     # shinyWidgets::pickerInput(ns("businessInput"),
@@ -51,7 +59,7 @@ mod_map_selections_ui <- function(id){
     #                           selected = filter(eva_vars, type == "business")$name),
     # 
     # hr(),
-    actionButton(ns("goButton"), "Update map", class = "btn-success"),
+    actionButton(ns("goButton"), "Update map", class = "btn-success", style='padding:7px; font-size:16px'),
     
     # shiny::h4("Selected variables"),
     # textOutput(ns("selectedvars0")), #if want to print variables on shiny this works
@@ -116,4 +124,4 @@ mod_map_selections_server <- function(input, output, session){
     
 ## To be copied in the server
 # callModule(mod_map_selections_server, "map_selections_ui_1")
- 
+

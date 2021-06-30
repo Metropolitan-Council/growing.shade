@@ -30,8 +30,8 @@ mod_map_overview_server <- function(input, output, session,
   output$map <- renderLeaflet({ #  map --------
     leaflet() %>%
       setView(
-        lat = st_coordinates(map_centroid)[2], #44.963,
-        lng = st_coordinates(map_centroid)[1], #-93.22,
+        lat = 44.963, #st_coordinates(map_centroid)[2], #,
+        lng = -93.22, #st_coordinates(map_centroid)[1], #,
         zoom = 10
       ) %>%
       addMapPane(name = "Stamen Toner", zIndex = 430) %>%
@@ -223,3 +223,4 @@ mod_map_overview_server <- function(input, output, session,
 ## To be copied in the server
 # callModule(mod_map_overview_server, "map_overview_ui_1")
  
+

@@ -71,6 +71,18 @@ rmarkdown::render("notes.Rmd",
                   )
 )
 
+rmarkdown::render("./R/methods.Rmd",
+                  output_format = "github_document", # -----
+                  output_file = "methods.md", output_dir = "inst/app/www",
+                  params = list(
+                    actor_id = "esch",
+                    data_date = Sys.Date(),
+                    sha = system("git rev-parse --short HEAD",
+                                 intern = TRUE
+                    )
+                  )
+)
+
 
 # Document and reload your package
 golem::document_and_reload()

@@ -32,30 +32,6 @@ mod_ndvi_map_server <- function(input, output, session,
   })
   
   
-  make_ndvi_vals <-  reactive({
-    
-    # tract_geo <- eva_tract_geometry %>% 
-    #   filter(GEOID == tract_selections$selected_tract)
-    
-    lowndvi_raster <- raster::raster("./data/lowndvi.tif") %>%
-      # raster::crop(eva_tract_geometry %>%
-      # filter(GEOID == "27053980000"))
-      raster::crop(tract_geo())
-    
-    crs(lowndvi_raster) <- sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    
-    return(lowndvi_raster)
-  })
-  
-  
-  # lowndvi_raster <- raster::raster("./data/lowndvi.tif") %>%
-  #   raster::crop(eva_tract_geometry %>%
-  #   filter(GEOID == "27053980000"))
-  # leaflet() %>%
-  #   addRasterImage(lowndvi_raster,
-  #                  # colors = pal,
-  #                  opacity = .7,
-  #                  group = "NDVI") 
   
   output$ndvimap <- renderLeaflet({ 
     if(identical(tract_selections$selected_tract, character(0))) {
@@ -70,78 +46,174 @@ mod_ndvi_map_server <- function(input, output, session,
                                       style = list(
                                       "color" = "#0054A4",
                                       "font-size" = "12px"))
-      # setView(
-      # lat = st_coordinates(map_centroid)[2], #44.963,
-      # lng = st_coordinates(map_centroid)[1], #-93.22,
-      # zoom = 12
     )
       } else{
         library(raster)
-        # print(make_ndvi_vals())
-        # pal <- colorNumeric(c("#67000d", "#fcbba1"), values(make_ndvi_vals()),
-        #                     na.color = "transparent")
-        
-        pal <- colorBin("Reds", values(make_ndvi_vals()), pretty = T, na.color = "transparent", reverse = TRUE)
 
+        pal <- colorNumeric(c("#67000d", "#fcbba1"), 0:1,
+                            na.color = "transparent")
         leaflet() %>%
-          
           addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
           addProviderTiles(
             provider = providers$Esri.WorldImagery,
-            group = "Aerial Imagery"
+            group = "Aerial Imagery",
+            layerId = "base"
           ) %>%
           addProviderTiles("CartoDB.PositronOnlyLabels",
-                           options = leafletOptions(pane = "Aerial Imagery"),
-                           group = "Aerial Imagery") %>%
+                           # options = leafletOptions(pane = "Aerial Imagery"),
+                           group = "Aerial Imagery",
+                           options = c(zIndex = 210),
+                           layerId = "labs") %>%
+            addPolygons(data = tract_geo(),
+                        color = "#0054A4",
+                        fill = FALSE,
+                        layerId = "tractoutline") %>%
+            leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
           
-          addMapPane(name = "Map", zIndex = 200) %>%
-          addProviderTiles("Esri.WorldTopoMap", #CartoDB.PositronNoLabels",
-                           group = "Map"
-          ) %>%
-          # addProviderTiles("CartoDB.PositronOnlyLabels",
-          #                  options = leafletOptions(pane = "Carto Positron"),
-          #                  group = "Carto Positron") %>%
-          addPolygons(data = tract_geo(),
-                      color = "#0054A4",
-                      fill = FALSE) %>%
-          leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
+          # addRasterImage(make_trees(),
+          #                color = "#ffffff",
+          #                opacity = 0,
+          #                layerId = "Trees",
+          #                group = "Trees") %>%
           
-            addMapPane("NDVI", zIndex = 431) %>%
-          addRasterImage(make_ndvi_vals(),
+          # addRasterImage(ag %>%
+          #                  raster::crop(tract_geo()),
+          #                colors = pal,
+          #                opacity = .7,
+          #                layerId = "Agriculture",
+          #                group = "Canopy gaps") %>%
+
+          # addRasterImage(ind %>%
+          #                  raster::crop(tract_geo()),
+          #                colors = pal,
+          #                opacity = .7,
+          #                layerId = "Industrial",
+          #                group = "Canopy gaps") %>%
+
+          addRasterImage(inst %>%
+                           raster::crop(tract_geo()),
                          colors = pal,
                          opacity = .7,
-                         group = "NDVI") %>%
-          addLegend(pal = pal,
-                    position = "topright",
-                    values = values(make_ndvi_vals()),
-                    title = "Greenness (NDVI)") %>%
+                         layerId = "Institutional",
+                         group = "Canopy gaps") %>%
+
+          # addRasterImage(mixed %>%
+          #                  raster::crop(tract_geo()),
+          #                colors = pal,
+          #                opacity = .7,
+          #                layerId = "Mixed use",
+          #                group = "Canopy gaps") %>%
           
+          addRasterImage(parkgc %>%
+                           raster::crop(tract_geo()),
+                         colors = pal,
+                         opacity = .7,
+                         layerId = "Parks and golf courses",
+                         group = "Canopy gaps") %>%
+
+          addRasterImage(residential %>%
+                           raster::crop(tract_geo()),
+                         colors = pal,
+                         opacity = .7,
+                         layerId = "Residential",
+                         group = "Canopy gaps") %>%
+          
+          # addRasterImage(retoff %>%
+          #                  raster::crop(tract_geo()),
+          #                colors = pal,
+          #                opacity = .7,
+          #                layerId = "Retail and office",
+          #                group = "Canopy gaps") %>%
+          
+          addRasterImage(undev %>%
+                           raster::crop(tract_geo()),
+                         colors = pal,
+                         opacity = .7,
+                         layerId = "Undeveloped",
+                         group = "Canopy gaps") %>%
+          
+        
+          leaflet.multiopacity::addOpacityControls(layerId = c(#"Agriculture",
+                                                               # "Industrial",
+                                                               "Institutional",
+                                                               # "Mixed use",
+                                                               "Parks and golf courses",
+                                                               "Residential",
+                                                               # "Retail and office",
+                                                               "Undeveloped"
+                                                               # "Trees"
+                                                               ),
+                                                   collapsed = T, position = "bottomright",
+                                                   title = "<strong>Opacity control by land use</strong>",
+                                                   # renderOnLayerAdd = TRUE
+          ) %>%
+          
+          addLegend(pal = pal,
+                    values = 0:1,
+                    title = "Greenness (NDVI)") %>%
           addLayersControl(
             position = "bottomright",
             baseGroups = c(
-              "Aerial Imagery",
-              "Map"
+              "Aerial Imagery"
             ),
             overlayGroups = c(
-              "NDVI"
-            ))
+              "Canopy gaps"
+              # "Trees"
+            )) 
+        
+        
+        
+        
+        
+        
+        
+        # pal <- colorBin("Reds", values(make_ndvi_vals()), pretty = T, na.color = "transparent", reverse = TRUE)
+        # 
+        # leaflet() %>%
+        #   
+        #   addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
+        #   addProviderTiles(
+        #     provider = providers$Esri.WorldImagery,
+        #     group = "Aerial Imagery"
+        #   ) %>%
+        #   addProviderTiles("CartoDB.PositronOnlyLabels",
+        #                    options = leafletOptions(pane = "Aerial Imagery"),
+        #                    group = "Aerial Imagery") %>%
+        #   
+        #   addMapPane(name = "Map", zIndex = 200) %>%
+        #   addProviderTiles("Esri.WorldTopoMap", 
+        #                    group = "Map"
+        #   ) %>%
+        # 
+        #   addPolygons(data = tract_geo(),
+        #               color = "#0054A4",
+        #               fill = FALSE) %>%
+        #   leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
+        #   
+        #     addMapPane("NDVI", zIndex = 431) %>%
+        #   addRasterImage(make_ndvi_vals(),
+        #                  colors = pal,
+        #                  opacity = .7,
+        #                  group = "NDVI") %>%
+        #   addLegend(pal = pal,
+        #             position = "topright",
+        #             values = values(make_ndvi_vals()),
+        #             title = "Greenness (NDVI)") %>%
+        #   
+        #   addLayersControl(
+        #     position = "bottomright",
+        #     baseGroups = c(
+        #       "Aerial Imagery",
+        #       "Map"
+        #     ),
+        #     overlayGroups = c(
+        #       "NDVI"
+        #     ))
       
     } 
       })
   
-  
-  #   
-  #   addLayersControl(
-  #     position = "bottomright",
-  #     baseGroups = c(
-  #       "Carto Positron",
-  #       "Aerial Imagery"
-  #     ),
-  #     overlayGroups = c(
-  #       "NDVI"
-  #     ))
-  # })
-  # }
+
  
 }
     

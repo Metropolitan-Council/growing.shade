@@ -29,10 +29,17 @@ deciding where to plant trees. <br>
 <br> This tool aggregates data to help facilitate discussions around
 enhancing our region’s tree canopy in order to improve climate
 resilience, livability, economic opportunity, and beauty. See the
-Methods tab for more information. **Note, the detailed ‘priority zones’
-is based off of “greenspace” work right now. It will be updated to
-better reflect tree canopy detail before the technical meeting on June
-28 - thanks for your patience!**
+Methods tab for more information.
+
+<br> **Note, the detailed ‘priority areas’ does take a while to load,
+because there are a lot of areas without trees. Mapping ‘NOT priority
+areas’, or areas with existing trees, would be faster but potentially
+less useful. We can absolutely map different geographies below (think
+city boundaries rather than tract boundaries for instance), allow for
+users to download customized reports, and/or allow users to “weight” the
+priority variables differently (ie select different numbers of variables
+across categories, but weight each category equally). We’d just need to
+think what would be truly useful rather than distracting.**
 
 <!-- Select variables of interest at the left and update map to view results. Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero). Click on any tract to get more information. -->
 <!-- <br> -->

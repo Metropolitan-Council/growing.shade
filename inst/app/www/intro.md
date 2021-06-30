@@ -9,8 +9,8 @@ localized flooding risk, improve mental health, etc.) and a resilient
 future (carbon sequestration, biodiversity, etc.), building or enhancing
 tree canopy cover is an actionable step.
 
-<br> We suggest using a desktop browser for the best experience. Scroll
-down to start using the tool.
+<br> **We suggest using a desktop browser for the best experience.
+Scroll down to start using the tool.**
 
 <br>
 

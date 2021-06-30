@@ -31,13 +31,18 @@ app_ui <- function(request) {
                         
                         fluidRow(
                           HTML("<section style=' background-image:url(./www/3789.png); 
-                         min-height: 700px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
-                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Why grow shade?</h1>
+                         min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Why grow shade?</h1><br>
                                      <p class='parallax_description'>Explore the science and stories behind tree planting efforts.</p>
                                      </section>
                                      ")
                         ), br(),
+                        
+                        
+                        
                         HTML("Placeholder, text and images for the narrative will go here. <br><br>Benefits of planting trees, challenges, etc. For brainstorming purposes, here are two ideas for showing how people connect with trees (an interactive story map or an interactive story generator). Of course, there are many other ways to consider doing something like this."),
+                        
+                        # mod_video_ui("video_ui_1"),
                         
                         mod_stories_ui("stories_ui_1"), br(), br(), #hr(), br(),
                         
@@ -47,26 +52,26 @@ app_ui <- function(request) {
                         
                         fluidRow(
                           HTML("<section style=' background-image:url(./www/2678.png); 
-                         min-height: 700px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
-                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Where to plant trees?</h1>
+                         min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Where to plant trees?</h1><br>
                                      <p class='parallax_description'>An interactive tool to help guide decision making.</p>
                                      </section>
                                      ")
                         ), br(),
 
-                        mod_where_ui("where_ui_1"), br(), 
+                        mod_where_ui("where_ui_1"), br(), hr(),
                         
                         fluidRow(#column(width = 3, 
-                          h3("Step 1: Select priority variables"), p("Select variables and click 'update map'."), br(),# hr(), 
+                          h3("Step 1: Select priority variables"), p("Select variables and click 'update map.' Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values. We can easily include any variables in the equity considerations dataset: https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations Or in the American Community Survey dataset: https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs"), br(),# hr(), 
                           mod_map_selections_ui("map_selections_ui_1")), hr(),
                         fluidRow(
                                  column(width = 6, h3("Step 2: View region-wide priority areas"), p("Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero)."), br(), mod_map_overview_ui("map_overview_ui_1")),
-                                 column(width = 6, h3("Step 3: Detailed priority areas"), p("Click on any area in Step 2 to see more detailed spatial locations which are in need of greening and may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."), br(), br(), mod_ndvi_map_ui("ndvi_map_ui_1"))),
+                                 column(width = 6, h3("Step 3: Detailed priority areas"), p("Click on any area in Step 2 to see more detailed spatial locations which are in need of greening and may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening. No commerical or industrial land uses are shown (but can change!)."), br(), mod_ndvi_map_ui("ndvi_map_ui_1"))),
                         
                         br(),hr(),br(),
                         
                         # fluidRow(column(width = 12, mod_next_ui("next_ui_1"))), br()
-                        
+                        # Highways, railways, airports, and agricultural fields are not elligible for greening. Showing tree locations instead would be faster
                         
                         
                         # sidebarPanel(width = 3, 
@@ -84,6 +89,26 @@ app_ui <- function(request) {
                         
                         # mod_biodiversity_ui("biodiversity_ui_1"),
                         # br(), hr(), br(),
+                        
+                        fluidRow(
+                          HTML("<section style=' background-image:url(./www/2413.png); 
+                         min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>What else to consider?</h1><br>
+                                     <p class='parallax_description'>Information to inform which species may be suitable for planting and the potential economic value of taking action.</p>
+                                     </section>
+                                     ")
+                        ), br(),
+                        
+                        mod_biodiversity_ui("biodiversity_ui_1"),
+                        
+                        fluidRow(
+                          HTML("<section style=' background-image:url(./www/3900.png); 
+                         min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
+                                     <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Beta version feedback?</h1><br>
+                                     <p class='parallax_description'>Should we pursue this? and other thoughts.....</p>
+                                     </section>
+                                     ")
+                        ), br(),
                         
                         fluidRow(
                                  column(width = 12,
