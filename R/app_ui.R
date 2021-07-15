@@ -24,6 +24,8 @@ app_ui <- function(request) {
                   "body {padding-top: 75px;}"),
                
                tabPanel("HOME", 
+                        mod_storymap_ui("storymap_ui_1"),
+                        
                         
                         mod_home_ui("home_ui_1"), br(), br(),
                         
