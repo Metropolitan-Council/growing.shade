@@ -22,8 +22,8 @@ mod_map_overview_ui <- function(id){
 #' @noRd 
 mod_map_overview_server <- function(input, output, session,
                                     map_selections,
-                                    map_util#,
-                                    # current_tab
+                                    map_util,
+                                    current_tab
                                     ){
   ns <- session$ns
   
@@ -126,13 +126,14 @@ mod_map_overview_server <- function(input, output, session,
   
   toListen_mainleaflet <- reactive({
     list(
-      # current_tab,
+      current_tab,
       map_util$map_data2,
       map_selections$goButton
     )
   })
   
-  observeEvent(toListen_mainleaflet(),
+  observeEvent(ignoreInit = TRUE,
+               toListen_mainleaflet(),
                {
                  if (is.null(map_util$map_data2)) {
                    print('nodata')
