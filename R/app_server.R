@@ -28,6 +28,14 @@ app_server <- function( input, output, session ) {
              map_util = map_util)#,
              # current_tab = input$nav)
   
+  callModule(
+    mod_main_leaflet_server,
+    "main_leaflet_ui_1",
+    map_util,
+    map_selections,
+    current_tab = input$nav
+  )
+  
   observe({print(tract_selections$selected_tract)}) #to check that tract clicking is working
   
   callModule(mod_ndvi_map_server, "ndvi_map_ui_1",
