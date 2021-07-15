@@ -12,7 +12,7 @@ app_ui <- function(request) {
     # List the first level UI elements here 
  
     navbarPage(title = div(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")),
-      id = "navBar",
+      id = "nav",
                 collapsible = TRUE,
                 # inverse = TRUE,
                 # windowTitle = "EVA",
@@ -48,8 +48,10 @@ app_ui <- function(request) {
                         
                         # mod_why_ui("why_ui_1"),
                         
-                        mod_story_generator_ui("story_generator_ui_1"), br(), hr(), br(),
-                        
+                        mod_story_generator_ui("story_generator_ui_1"), br(), hr(), br()),
+      tabPanel("Use the tool",
+               br(), br(), br(),
+               # mod_main_leaflet_ui("main_leaflet_ui_1"), br(), br(),
                         fluidRow(
                           HTML("<section style=' background-image:url(./www/2678.png); 
                          min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>

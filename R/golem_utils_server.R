@@ -169,7 +169,13 @@ parkgc <- raster::raster("./data/greenest2020_glu2016_treemask_golfpark.tif")
 retoff <- raster::raster("./data/greenest2020_glu2016_treemask_retail_office.tif")
 undev <- raster::raster("./data/greenest2020_glu2016_treemask_undev.tif")
 
-
+# startdata <- (eva_data_main %>%
+#                 dplyr::group_by(tract_string) %>%
+#                 dplyr::summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
+#                 dplyr::left_join(planting.shade::eva_tract_geometry, by = c("tract_string" = "GEOID")) %>%
+#                 sf::st_as_sf() %>%
+#                 sf::st_transform(4326) %>%
+#                 dplyr::mutate(RANK = dplyr::min_rank(dplyr::desc(MEAN))) )
 
 
 
