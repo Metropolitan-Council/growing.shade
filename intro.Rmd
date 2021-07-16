@@ -8,13 +8,13 @@ output:
 #   sha: "sha"
 ---
 
-# Welcome to the Growing Shade Project - beta version to consider
+# Welcome to the Growing Shade Project
 
 <br>
 The Growing Shade project recognizes that trees provide critical ecosystem services and are important components of both natural and built environments. With a desire to create healthy places for people to live (mitigate heat islands and/or reduce home cooling costs, reduce localized flooding risk, improve mental health, etc.) and a resilient future (carbon sequestration, biodiversity, etc.), building or enhancing tree canopy cover is an actionable step. 
 
 <br>
-**We suggest using a desktop browser for the best experience. Scroll down to start using the tool.**
+**We suggest using a desktop browser for the best experience. Click the tabs at the top of the page to start using the tool.**
 
 <br>
 
@@ -36,7 +36,6 @@ We developed this interactive primarily for regional foresters and stakeholders 
 
 
 <br>
-<hr>
 <br>
 
 <!-- # Why grow shade? -->

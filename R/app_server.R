@@ -12,6 +12,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_story_generator_server, "story_generator_ui_1")
   callModule(mod_where_server, "where_ui_1")
   callModule(mod_next_server, "nexte_ui_1")
+  mod_storymap_server("storymap_ui_1")
   
   map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1")
   

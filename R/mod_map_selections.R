@@ -11,6 +11,14 @@ mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
     
+    fluidRow(radioButtons(
+                            ns("input_distance"),
+                            label = HTML("<h3>Step 1: Select priority variables</h3>
+                                         <p>Select a preset or 'custom' variables and click 'update map.' Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values.</p>"),
+                            choices = c("Climate change", "Environmental justice", "Public health", "Custom"),
+                            selected = c("Environmental justice"),
+                            inline = TRUE)),
+    
     fluidRow(column(width = 4, shinyWidgets::pickerInput(ns("peopleInput"),
                                                          width = '90%',
                               label = shiny::HTML(paste0("<h4>Equity & People</h4>", "<p style='font-size:16px'>Variables about people.</p>")), # style='font-size:20px' 'color=#0054A4'>
