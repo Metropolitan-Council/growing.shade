@@ -82,20 +82,23 @@ eva_data_raw <- equity_data_raw %>%
 ###################
 
 ## -------------------------------describe data
-eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value,
-                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity",
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity",
-                          "pbipoc", "% people of color", "people", "high_opportunity",
-                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity",
-                          "p_65up", "% people age 65 or older", "people",  "high_opportunity",
-                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity",
-                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity",
-                          # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity",
-                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity",
+#cc (climate change preset) = prim_flood, avg_temp, ndvi
+#ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
+#ph (public health preset)
+eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph,
+                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 0, 0,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 1,
+                          "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0,
+                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 1, 
+                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 1, 
+                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1,
+                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0,
+                          # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
+                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1, 
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity",
-                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity",
-                          "env_cancer", "Lifetime cancer risk from inhalation of air toxins", "people", "high_opportunity"
+                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 1, 1, 
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 0, 0, 
+                          "env_cancer", "Lifetime cancer risk from inhalation of air toxins", "people", "high_opportunity", 0, 1, 1
                           )
 
 ###################
