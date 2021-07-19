@@ -59,7 +59,9 @@ equity_data_raw <- equity %>%
          phhi_qntl1,
          green_roof,
          env_cancer,
-         luse_green) %>%
+         luse_green,
+         tr_ej,
+         env_cancer) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh) %>% #"mutate" reformats any variables that need it
@@ -87,11 +89,13 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value,
                           "p_0017", "% people age 17 or younger", "people",  "high_opportunity",
                           "p_65up", "% people age 65 or older", "people",  "high_opportunity",
                           "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity",
-                          "phhi_qntl1", "% households with annual income less than $35,000", "people",  "high_opportunity",
+                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity",
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity",
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity",
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity"
+                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity",
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity",
+                          "env_cancer", "Lifetime cancer risk from inhalation of air toxins", "people", "high_opportunity"
                           )
 
 ###################
