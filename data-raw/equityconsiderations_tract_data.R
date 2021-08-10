@@ -95,7 +95,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1, 
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 1, 1, 
+                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1, 
                           "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 0, 0
                           )
 
@@ -162,3 +162,4 @@ metadata <- eva_data_main %>%
   dplyr::count() %>%
   dplyr::ungroup()
 
+metadata %>% filter(ph == 1) %>% .$name

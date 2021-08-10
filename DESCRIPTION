@@ -16,6 +16,7 @@ Depends:
 Imports: 
     config (>= 0.3),
     councilR (>= 0.1.0),
+    shinyhelper (>= 0.3.2),
     dplyr (>= 1.0.0),
     golem (>= 0.2.1),
     leaflet (>= 2.0.3),

@@ -1,35 +1,23 @@
 
-# Where to plant trees
+This tool aggregates data to help facilitate discussions and identify
+priority areas to enhance our region’s tree canopy. While the tool is
+fully customizable, regional priority layers have been identified for
+key presets:
 
-<br> This tool aggregates data to help facilitate discussions and
-identify priority areas to enhance our region’s tree canopy. See the
-Methods tab for more information.
+-   **Climate change**: Trees can mitigate some consequences of climate
+    change by cooling land surface temperatures and reducing flooding.
+    Use this preset to identify areas most at risk from climate
+    change.<br>
+-   **Environmental justice**: The natural and built environments
+    intersect with income, race, and ethnicity. This preset identifies
+    areas and people facing disproportionately negative consequences of
+    environmental decisions.<br>
+-   **Public health**: Trees improve air quality and cool land surface
+    temperatures which can lead to better health outcomes, particularly
+    for sensitive populations. Use this preset to identify areas where
+    trees could most improve health outcomes.
+-   **Custom**: Select this option to customize the prioritization
+    variables.
 
-<br> While the tool is fully customizable, regional priority layers have
-been identified for three key presets including:
-
--   **Climate change**: This preset considers variables about the
-    natural environment (existing tree canopy), and the intersection of
-    the natural and built environments (proportion of developed acres in
-    primary flood zone, average land surface temperature on a hot day).
-    <br>
--   **Environmental justice**: This preset considers demographics
-    historically excluded from and disproportionately affected by
-    environmental decision makers (proportion of non-White residents,
-    share of households with annual income less than $35,000, cancer
-    risk), and variables about the intersection of the natural and built
-    environments (proportion of developed acres in primary flood zone,
-    average land surface temperature on a hot day, existing tree
-    canopy).<br>
--   **Public health**: This preset considers demographics which are
-    vulnerable to heat-related illness (proportion of residents less
-    than 18 or greater than 64 years old), health-related risks which
-    can be mitigated by trees (lifetime cancer risk from inhalation of
-    air toxins, average land surface temperature on a hot day), and
-    characteristics about the existing tree canopy (existing tree
-    canopy).
-
-<br>
+<br> The “Methods” tab has more information.
 <hr>
-
-<br>

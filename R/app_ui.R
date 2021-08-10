@@ -39,7 +39,7 @@ app_ui <- function(request) {
                fluidRow(
                  mod_preset_selections_ui("preset_selections_ui_1"),
                  # h3("Step 1: Select priority variables"), p("Select a preset or 'custom' variables and click 'update map.' Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values."), 
-                 br(),
+                 # br(),
                  mod_map_selections_ui("map_selections_ui_1")), hr(),
                fluidRow(
                  column(width = 6, h3("Step 2: View region-wide priority areas"), p("Warm and bright (yellow, orange) values and high ranks correspond to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Cool and dark colors (black, purple) correspond to lower opportunity areas (values closer to zero)."), br(), mod_map_overview_ui("map_overview_ui_1")),

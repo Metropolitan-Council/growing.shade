@@ -10,14 +10,16 @@
 mod_preset_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
- 
-    fluidRow(radioButtons(
+    fluidRow(column(width = 6, radioButtons(
       ns("presetInput"),
-      label = HTML("<h3>Step 1: Select priority variables</h3>
-                                         <p>Start with a preset of variables and customize as needed. Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values.</p>"),
+      label = h3("Step 1: Select priority"),
       choices = c("Climate change", "Environmental justice", "Public health", "Custom"),
       selected = c("Environmental justice"),
-      inline = TRUE))
+      inline = TRUE) %>% 
+        shinyhelper::helper(
+          type = "markdown",
+          content = "PresetHelp"
+        )))
     
   )
 }

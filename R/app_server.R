@@ -6,6 +6,7 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
+  shinyhelper::observe_helpers(help_dir = "inst/app/www")
   
   callModule(mod_intro_server, "intro_ui_1")
   callModule(mod_stories_server, "stories_ui_1")
@@ -16,13 +17,14 @@ app_server <- function( input, output, session ) {
   
   preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
                                                     # current_tab = input$nav)
-  observe({print(paste0("preset selection: ", preset_selections$preset))})
+  
+  # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
   map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1",
                                preset_selections,
                                current_tab = input$nav)
   
-  observe({print(map_selections$allInputs)}) #to check that selections are working
+  # observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
   
   map_util <- callModule(mod_map_utils_server, "map_utils_ui_1",
                          map_selections = map_selections)
