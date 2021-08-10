@@ -11,35 +11,19 @@ mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
     
-    # fluidRow(radioButtons(
-    #                         ns("presetInput"),
-    #                         label = HTML("<h3>Step 1: Select priority variables</h3>
-    #                                      <p>Select a preset or 'custom' variables and click 'update map.' Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values.</p>"),
-    #                         choices = c("Climate change" = "cc", "Environmental justice", "Public health", "Custom"),
-    #                         selected = c("Environmental justice"),
-    #                         inline = TRUE)),
-    
-    fluidRow(column(width = 4, shinyWidgets::pickerInput(ns("peopleInput"),
-                                                         width = '90%',
-                              label = shiny::HTML(paste0("<h4>Equity & People</h4>", "<p style='font-size:16px'>Variables about people.</p>")), # style='font-size:20px' 'color=#0054A4'>
-                              choices = filter(eva_vars, type == "people")$name, 
-                              options = list(`actions-box` = TRUE, 
-                                             size = 10,
-                                             `selected-text-format` = "count > 1"), 
-                              multiple = T,
-                              # selected = peopleoptions$opts
-                              
-                                
-                              #   if (ns("presetInput") == "Climate change") {
-                              #   dplyr::filter(eva_vars, type == "people", cc == 1)$name
-                              # } else if (ns("presetInput") == "Environmental justice"){
-                              #   dplyr::filter(eva_vars, type == "people", ej == 1)$name
-                              # } else if (ns("presetInput") == "Public health") {
-                              #   dplyr::filter(eva_vars, type == "people", ph == 1)$name
-                              # } else if (ns("presetInput") == "Custom") {
-                              #   dplyr::filter(eva_vars, type == "people")$name
-                              # }
-                                )),
+    fluidRow(
+      column(width = 4, uiOutput(ns("peopleoptions"))),
+      # column(width = 4, shinyWidgets::pickerInput(ns("peopleInput"),
+      #                                                    width = '90%',
+      #                         label = shiny::HTML(paste0("<h4>Equity & People</h4>", "<p style='font-size:16px'>Variables about people.</p>")), # style='font-size:20px' 'color=#0054A4'>
+      #                         choices = if (preset_selections$preset == "Environmental justice") {
+      #                           filter(eva_vars, type == "people", ej ==1)$name
+      #                           } else {filter(eva_vars, type == "people")$name}, 
+      #                         options = list(`actions-box` = TRUE, 
+      #                                        size = 10,
+      #                                        `selected-text-format` = "count > 1"), 
+      #                         multiple = T,
+      #                           )),
     # hr(),
     column(width = 4, shinyWidgets::pickerInput(ns("placeInput"),
                                                 width = '90%',
@@ -49,15 +33,6 @@ mod_map_selections_ui <- function(id){
                                              size = 10,
                                              `selected-text-format` = "count > 1"), 
                               multiple = T#,
-                              # selected = if (ns("presetInput") == "Climate change") {
-                              #   filter(eva_vars, type == "environment", cc == 1)$name
-                              # } else if (ns("presetInput") == "Environmental justice"){
-                              #   filter(eva_vars, type == "environment", ej == 1)$name
-                              # } else if (ns("presetInput") == "Public health") {
-                              #   filter(eva_vars, type == "environment", ph == 1)$name
-                              # } else if (ns("presetInput") == "Custom") {
-                              #   filter(eva_vars, type == "environment")$name
-                              # }
                               )),
     
     # hr(),
@@ -69,16 +44,7 @@ mod_map_selections_ui <- function(id){
                               options = list(`actions-box` = TRUE, 
                                              size = 10,
                                              `selected-text-format` = "count > 1"), 
-                              multiple = T#,
-                              # selected = if (ns("presetInput") == "Climate change") {
-                              #   filter(eva_vars, type == "tree", cc == 1)$name
-                              # } else if (ns("presetInput") == "Environmental justice"){
-                              #   filter(eva_vars, type == "tree", ej == 1)$name
-                              # } else if (ns("presetInput") == "Public health") {
-                              #   filter(eva_vars, type == "tree", ph == 1)$name
-                              # } else if (ns("presetInput") == "Custom") {
-                              #   filter(eva_vars, type == "tree")$name
-                              # }
+                              multiple = T
                               ))
     ),
     # radioButtons(ns("weight"),
@@ -117,32 +83,33 @@ mod_map_selections_server <- function(input, output, session,
                                       current_tab){
   ns <- session$ns
   
-  #uncomment if want to print variables included
-  # output$selectedvars0 <- renderText({
-  #   input$goButton
-  #   a <- isolate(input$peopleInput)
-  #   b <- isolate(input$placeInput)
-  #   c <- isolate(input$businessInput)
-  #   toprint <- paste(a, b, c, sep = "; ")
-  #   toprint
-  #   })
+  output$peopleoptions <- renderUI({
+    ns <- session$ns
+    tagList(  
+      test <- shinyWidgets::pickerInput(ns("peopleoptions"), 
+                                label = shiny::HTML(paste0("<h3>People & Equity</h3>")),
+                                choices = filter(metadata, type == "people") %>% .$name,
+                                options = list(`actions-box` = TRUE,
+                                               size = 20,
+                                               `selected-text-format` = "count > 1"),
+                                multiple = T,
+                                width = '90%',
+                                selected = if (preset_selections$preset == "Environmental justice") {
+                                  filter(metadata, type == "people", ej == 1) %>% .$name
+                                  } else {filter(metadata, type == "people") %>% .$name}))
+      return(if (preset_selections$preset == "Custom") {test} else {test %>% shinyjs::disabled()})
+      
+    
+  })
+
   
-  # output$selectedvars25 <- renderText(input$peopleInput %>% rbind(input$placeInput))
-  
-  # peopleoptions <- reactiveValues()
-  # observeEvent(preset_selections$presetInput,{
-  #   peopleoptions$opts <- if (ns("presetInput") == "Climate change") {
-  #       filter(eva_vars, type == "people", cc == 1)$name
-  #     } else if (ns("presetInput") == "Environmental justice"){
-  #       filter(eva_vars, type == "people", ej == 1)$name
-  #     } else if (ns("presetInput") == "Public health") {
-  #       filter(eva_vars, type == "people", ph == 1)$name
-  #     } else if (ns("presetInput") == "Custom") {
-  #       filter(eva_vars, type == "people")$name
-  #     }
+  # observe({
+  #   if (preset_selections$preset == "Public health") {
+  #     shinyjs::disable("peopleoptions")
+  #   } else {
+  #     shinyjs::enable("peopleoptions")
+  #   }
   # })
-  # return(peopleoptions)
-  
   
   input_values <- reactiveValues() # start with an empty reactiveValues object.
   
@@ -159,19 +126,6 @@ mod_map_selections_server <- function(input, output, session,
       rbind(as_tibble(input$treeInput)) %>%
       rbind(as_tibble(input$presetInput))
   }, ignoreNULL = FALSE)
-  
-  
-  # observeEvent(input$peopleInput, { # only update when the user changes the eva input
-  #   input_values$peopleInput <- input$peopleInput # create/update the eva input value in our reactiveValues object
-  # })
-  # 
-  # observeEvent(input$placeInput, { # only update when the user changes the eva input
-  #   input_values$placeInput <- input$placeInput # create/update the eva input value in our reactiveValues object
-  # })
-  # 
-  # observeEvent(input$businessInput, { # only update when the user changes the eva input
-  #   input_values$businessInput <- input$businessInput # create/update the eva input value in our reactiveValues object
-  # })
   
   return(input_values)
   
