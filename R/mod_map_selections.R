@@ -86,7 +86,7 @@ mod_map_selections_server <- function(input, output, session,
   output$peopleoptions <- renderUI({
     ns <- session$ns
     tagList(  
-      test <- shinyWidgets::pickerInput(ns("peopleoptions"), 
+      a <- shinyWidgets::pickerInput(ns("peopleoptions"), 
                                 label = shiny::HTML(paste0("<h3>People & Equity</h3>")),
                                 choices = filter(metadata, type == "people") %>% .$name,
                                 options = list(`actions-box` = TRUE,
@@ -96,10 +96,13 @@ mod_map_selections_server <- function(input, output, session,
                                 width = '90%',
                                 selected = if (preset_selections$preset == "Environmental justice") {
                                   filter(metadata, type == "people", ej == 1) %>% .$name
-                                  } else {filter(metadata, type == "people") %>% .$name}))
-      return(if (preset_selections$preset == "Custom") {test} else {test %>% shinyjs::disabled()})
-      
-    
+                                  } else if (preset_selections$preset == "Public health") {
+                                    filter(metadata, type == "people", ph == 1) %>% .$name
+                                  } else if (preset_selections$preset == "Climate change") {
+                                    filter(metadata, type == "people", cc == 1) %>% .$name
+                                  } else if (preset_selections$preset == "Custom") {
+                                    filter(metadata, type == "people") %>% .$name}))
+      return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
   })
 
   
