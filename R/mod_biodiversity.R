@@ -93,7 +93,8 @@ mod_biodiversity_server <- function(input, output, session){
   ns <- session$ns
   
   spp <- readr::read_csv("./data/SEMinn-Deciduous-recommended - Sheet1.csv",
-                         skip = 1) %>%
+                         skip = 1,
+                         col_types = cols()) %>%
     # rename(height = `Height (feet)`,
     #        width= `Width (feet)`) %>%
     mutate(`Height (feet)` = as.numeric(gsub("[+]", "", `Height (feet)`)),

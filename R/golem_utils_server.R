@@ -81,7 +81,7 @@ require(magrittr)
 load('./data/eva_data_main.rda')
 
 eva_vars <- eva_data_main %>%
-  dplyr::group_by(type, name, variable, interpret_high_value) %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
   dplyr::count() %>%
   dplyr::ungroup()
 
@@ -155,7 +155,8 @@ icon_bus <- leaflet::awesomeIcons(
   markerColor = "green"
 )
 
-story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx") %>%
+story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx",
+                                      col_types = "text") %>%
   dplyr::group_by(topic) %>%
   dplyr::count() %>%
   dplyr::ungroup()
@@ -168,14 +169,3 @@ residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.
 parkgc <- raster::raster("./data/greenest2020_glu2016_treemask_golfpark.tif")
 retoff <- raster::raster("./data/greenest2020_glu2016_treemask_retail_office.tif")
 undev <- raster::raster("./data/greenest2020_glu2016_treemask_undev.tif")
-
-# startdata <- (eva_data_main %>%
-#                 dplyr::group_by(tract_string) %>%
-#                 dplyr::summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
-#                 dplyr::left_join(planting.shade::eva_tract_geometry, by = c("tract_string" = "GEOID")) %>%
-#                 sf::st_as_sf() %>%
-#                 sf::st_transform(4326) %>%
-#                 dplyr::mutate(RANK = dplyr::min_rank(dplyr::desc(MEAN))) )
-
-
-

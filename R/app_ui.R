@@ -37,6 +37,7 @@ app_ui <- function(request) {
                fluidRow(mod_where_ui("where_ui_1")), 
                
                fluidRow(
+                 mod_preset_selections_ui("preset_selections_ui_1"),
                  # h3("Step 1: Select priority variables"), p("Select a preset or 'custom' variables and click 'update map.' Resulting values for each tract ranges from 0-10, and represents an average of standardized and scaled raw values."), 
                  br(),
                  mod_map_selections_ui("map_selections_ui_1")), hr(),

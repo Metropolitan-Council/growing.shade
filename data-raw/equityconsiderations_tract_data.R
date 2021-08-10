@@ -60,8 +60,7 @@ equity_data_raw <- equity %>%
          green_roof,
          env_cancer,
          luse_green,
-         tr_ej,
-         env_cancer) %>%
+         tr_ej) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh) %>% #"mutate" reformats any variables that need it
@@ -97,8 +96,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1, 
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
                           "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 1, 1, 
-                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 0, 0, 
-                          "env_cancer", "Lifetime cancer risk from inhalation of air toxins", "people", "high_opportunity", 0, 1, 1
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 0, 0
                           )
 
 ###################
@@ -157,18 +155,10 @@ usethis::use_data(eva_data_main, overwrite = TRUE)
 # write_csv(eva_data_main, "./eva_data_main.csv")
 
 # ########
-# # create some static data for SwP tabealu style
+# # create metadata
 # #########
-# equity_swp_data <- eva_data_main %>%
-#   filter(variable %in% c("ppov185", "pbipoc", "prim_flood", "avg_temp")) %>%
-#   group_by(tract_string) %>%
-#   summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
-#   # left_join(eva_tract_geometry, by = c("tract_string" = "GEOID")) %>%
-#   # st_as_sf() %>%
-#   # st_transform(4326) %>%
-#   mutate(RANK = min_rank(desc(MEAN))) %>%
-#   rename(PPL_ENV_VALUE = MEAN,
-#          PPL_ENV_RANK = RANK,
-#          GEOID10 = tract_string)
-# 
-# write_csv(eva_data_main, "./data/equity_swp_data.csv")
+metadata <- eva_data_main %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
+  dplyr::count() %>%
+  dplyr::ungroup()
+

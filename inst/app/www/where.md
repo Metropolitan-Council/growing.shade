@@ -16,8 +16,8 @@ been identified for three key presets including:
 -   **Environmental justice**: This preset considers demographics
     historically excluded from and disproportionately affected by
     environmental decision makers (proportion of non-White residents,
-    share of households with annual income less than $35,000), and
-    variables about the intersection of the natural and built
+    share of households with annual income less than $35,000, cancer
+    risk), and variables about the intersection of the natural and built
     environments (proportion of developed acres in primary flood zone,
     average land surface temperature on a hot day, existing tree
     canopy).<br>
