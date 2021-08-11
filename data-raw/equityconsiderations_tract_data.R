@@ -35,6 +35,8 @@ tract_ndvi <- read_csv("./data-raw/NDVI_metc_tracts_s2_2020.csv") %>%
 ###################
 
 ## ----------- equity considerations data
+# HOLC_PYLW	Share of tract's land acreage falling in the yellow ("Definitely Declining") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
+# HOLC_PRED	Share of tract's land acreage falling in the red ("Hazardous") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
 
 temp <- tempfile()
 download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_equity_considerations/xlsx_society_equity_considerations.zip",
