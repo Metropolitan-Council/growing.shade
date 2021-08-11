@@ -11,7 +11,7 @@ requireNamespace("readxl", quietly = TRUE)
 requireNamespace("fs", quietly = TRUE)
 requireNamespace("janitor", quietly = TRUE)
 requireNamespace("tidyverse", quietly = TRUE)
-
+library(tidyverse)
 # # # and this works when not inside a package
 # library("readxl") #if you get an error message, run `install.packages('readxl')` or the equivalent
 # library("janitor")
@@ -162,4 +162,4 @@ metadata <- eva_data_main %>%
   dplyr::count() %>%
   dplyr::ungroup()
 
-metadata %>% filter(ph == 1) %>% .$name
+usethis::use_data(metadata, overwrite = TRUE)
