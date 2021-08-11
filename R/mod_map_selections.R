@@ -62,7 +62,7 @@ mod_map_selections_server <- function(input, output, session,
                                     filter(metadata, type == "people", cc == 1) %>% .$name
                                   } else if (preset_selections$preset == "Custom") {
                                     filter(metadata, type == "people") %>% .$name}))
-      return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
+    return(if (preset_selections$preset == "Custom") {a} else {})#{a} else {a %>% shinyjs::disabled()})
   })
   
   
@@ -70,7 +70,7 @@ mod_map_selections_server <- function(input, output, session,
     ns <- session$ns
     tagList(  
       a <- shinyWidgets::pickerInput(ns("placeInput"), 
-                                     label = shiny::HTML(paste0("<h4>Infrastructure & Environment</h4>")),
+                                     label = shiny::HTML(paste0("<h4>Environment & Climate</h4>")),
                                      choices = filter(metadata, type == "environment") %>% .$name,
                                      options = list(`actions-box` = TRUE,
                                                     size = 20,
@@ -85,7 +85,7 @@ mod_map_selections_server <- function(input, output, session,
                                        filter(metadata, type == "environment", cc == 1) %>% .$name
                                      } else if (preset_selections$preset == "Custom") {
                                        filter(metadata, type == "environment") %>% .$name}))
-    return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
+    return(if (preset_selections$preset == "Custom") {a} else {})#{a} else {a %>% shinyjs::disabled()})
   })
   
   output$treeInput <- renderUI({
@@ -107,7 +107,7 @@ mod_map_selections_server <- function(input, output, session,
                                        filter(metadata, type == "tree", cc == 1) %>% .$name
                                      } else if (preset_selections$preset == "Custom") {
                                        filter(metadata, type == "tree") %>% .$name}))
-    return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
+    return(if (preset_selections$preset == "Custom") {a} else {})#{a} else {a %>% shinyjs::disabled()})
   })
 
   
