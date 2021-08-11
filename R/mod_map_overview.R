@@ -32,7 +32,7 @@ mod_map_overview_server <- function(input, output, session,
       setView(
         lat = 44.963, #st_coordinates(map_centroid)[2], #,
         lng = -93.22, #st_coordinates(map_centroid)[1], #,
-        zoom = 10
+        zoom = 9
       ) %>%
       addMapPane(name = "Stamen Toner", zIndex = 430) %>%
       addProviderTiles("Stamen.TonerLines",
