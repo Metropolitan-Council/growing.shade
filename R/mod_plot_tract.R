@@ -10,9 +10,11 @@
 mod_plot_tract_ui <- function(id){
   ns <- NS(id)
   tagList(
+    fluidRow(h3("Step 3: Make a report"),
+             p("This tool is primarily intended to identify locations where new tree plantings could have disproportionately positive impacts. However, there is more detail about trees across the region. Please generate a report if you are in need of more detail about a specific area.")),
     fluidRow(radioButtons(
       ns("geo"),
-      label = h3("Step 3: Make a report"),
+      label = h3("Report region"),
       choices = c("Selected tract from above", "A specific city", "Greater MN and WI"),
       selected = c("Selected tract from above"),
       inline = F) ),
