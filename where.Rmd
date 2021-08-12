@@ -7,13 +7,5 @@ output:
 #   data_date: "2020-03-26"
 #   sha: "sha"
 ---
-This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. While the tool is fully customizable, regional priority layers have been identified for key presets:
-
-- **Climate change**: Trees can mitigate some consequences of climate change by cooling land surface temperatures and reducing flooding. Use this preset to identify areas most at risk from climate change.<br>
-- **Environmental justice**: The natural and built environments intersect with income, race, and ethnicity. This preset identifies areas and people facing disproportionately negative consequences of environmental decisions.<br>
-- **Public health**: Trees improve air quality and cool land surface temperatures which can lead to better health outcomes, particularly for sensitive populations. Use this preset to identify areas where trees could most improve health outcomes.
-- **Custom**: Select this option to customize the prioritization variables.
-
-<br>
-The "Methods" tab has more information.
+This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The "Methods" tab has more information.
 <hr>

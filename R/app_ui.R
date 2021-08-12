@@ -34,20 +34,21 @@ app_ui <- function(request) {
       tabPanel("Use the tool",
                br(), br(), br(),
               
-               fluidRow(mod_where_ui("where_ui_1")), 
-               
+               fluidRow(p("This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The Methods tab has more information.")), #mod_where_ui("where_ui_1")), 
+               hr(),
                fluidRow(
                  mod_preset_selections_ui("preset_selections_ui_1"),
                  # br(),
                  mod_map_selections_ui("map_selections_ui_1")), hr(),
                fluidRow(
-                 column(width = 6, h3("Step 2: Region-wide priority areas"), p("Warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). "), br(), mod_map_overview_ui("map_overview_ui_1")),
-                 column(width = 6, h3("Step 3: Detailed priority areas"), p("Click on an area in Step 2 for detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."), br(), mod_ndvi_map_ui("ndvi_map_ui_1"))),
-               br(), br(),
-               
-               h2("Make a report"), p("is it too much clutter if we keep adding text here")
-               # downloadButton(outputId = ns("download_button"), label = "Download a report for the selected tract above"),
-               # downloadButton(outputId = ns("download_button2"), label = "Download a report for a city")
+                 h3("Step 2: Explore priority areas"),
+                 p("The map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."),br(),
+                 column(width = 6, mod_map_overview_ui("map_overview_ui_1")),
+                 column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1"))),
+               br(), 
+               hr(),
+               fluidRow(mod_plot_tract_ui("plot_tract_ui_1")),
+               br(),br(), br()
                ),
                
                

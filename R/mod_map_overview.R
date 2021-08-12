@@ -129,7 +129,7 @@ mod_map_overview_server <- function(input, output, session,
           "Aerial Imagery"
         ),
         overlayGroups = c(
-          "Scores",
+          "Priority scores",
           # "Rivers & Lakes",
           "Active transit stops",
           "Historically redlined areas"
@@ -176,7 +176,7 @@ mod_map_overview_server <- function(input, output, session,
                      addMapPane("score", zIndex = 400) %>%
                      addPolygons(
                        data = map_util$map_data2 %>% st_transform(4326),
-                       group = "Scores",
+                       group = "Priority scores",
                        stroke = TRUE,
                        color =  councilR::colors$suppGray,
                        opacity = 0.9,
@@ -207,8 +207,8 @@ mod_map_overview_server <- function(input, output, session,
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
                        title = "Average scores",
                        position = "topright",
-                       group = "Scores",
-                       layerId = "Scores",
+                       group = "Priority scores",
+                       layerId = "Priority scores",
                        pal = colorNumeric(
                          n = 5,
                          palette = "magma",

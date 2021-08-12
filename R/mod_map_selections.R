@@ -47,7 +47,7 @@ mod_map_selections_server <- function(input, output, session,
     ns <- session$ns
     tagList(  
       a <- shinyWidgets::pickerInput(ns("peopleInput"), 
-                                label = shiny::HTML(paste0("<h4>People & Equity</h4>")),
+                                label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
                                 choices = filter(metadata, type == "people") %>% .$name,
                                 options = list(`actions-box` = TRUE,
                                                size = 20,
@@ -70,7 +70,7 @@ mod_map_selections_server <- function(input, output, session,
     ns <- session$ns
     tagList(  
       a <- shinyWidgets::pickerInput(ns("placeInput"), 
-                                     label = shiny::HTML(paste0("<h4>Environment & Climate</h4>")),
+                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
                                      choices = filter(metadata, type == "environment") %>% .$name,
                                      options = list(`actions-box` = TRUE,
                                                     size = 20,
@@ -93,7 +93,7 @@ mod_map_selections_server <- function(input, output, session,
     tagList(  
       
       a <- shinyWidgets::pickerInput(ns("treeInput"), 
-                                     label = shiny::HTML(paste0("<h4>Existing tree canopy</h4>")),
+                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
                                      choices = filter(metadata, type == "tree") %>% .$name,
                                      options = list(`actions-box` = TRUE,
                                                     size = 20,

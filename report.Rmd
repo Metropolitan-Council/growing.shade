@@ -1,0 +1,27 @@
+---
+title: "Test report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+params:
+  selected_tract: NA
+urlcolor: blue
+---
+
+```{r}
+#This is the selected tract.
+params$selected_tract
+```
+
+A test to see a downloaded report for a given tract.
+
+# Status of the tree canopy
+
+Understand how the tree canopy of the selected region compares to other geographies across the region.
+
+# Equity analysis
+
+Understand how people and trees interact, and where the selected geography compares.
+
+# Trees past and present (with lessons for the future)
+
+Something about tree community composition. 
