@@ -10,13 +10,10 @@
 mod_preset_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
-    fluidRow(column(width = 3, h3("Step 1: Customize") %>% 
-      shinyhelper::helper(
-        type = "markdown",
-        content = "PresetHelp"
-      ))),
-    fluidRow(p("While the tool is fully customizable, regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus.")),
-    fluidRow(column(width = 6, radioButtons(
+
+    p("While the tool is fully customizable, regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus."),
+    fluidRow(column(width = 12, 
+    radioButtons(
       ns("presetInput"),
       label = h4("Preset"),
       choices = c("Climate change", "Environmental justice", "Public health", "Custom"),

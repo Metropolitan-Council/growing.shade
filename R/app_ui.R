@@ -36,18 +36,29 @@ app_ui <- function(request) {
               
                fluidRow(p("This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The Methods tab has more information.")), #mod_where_ui("where_ui_1")), 
                hr(),
-               fluidRow(
-                 mod_preset_selections_ui("preset_selections_ui_1"),
+               fluidRow(column(width = 12,
+                               h3("Step 1: Customize") %>% 
+                                                 shinyhelper::helper(
+                                                   type = "markdown",
+                                                   content = "PresetHelp"
+                                                 ))),
+                 fluidRow(column(width = 12, 
+                                 HTML("<section style='max-width:1200px; margin:auto'>"),
+                                 mod_preset_selections_ui("preset_selections_ui_1"),
+                                 HTML("</style>"))),
                  # br(),
-                 mod_map_selections_ui("map_selections_ui_1")), hr(),
-               fluidRow(
+                 fluidRow(HTML("<section style='max-width:1200px; margin:auto'>"), mod_map_selections_ui("map_selections_ui_1"), HTML("</style>"), hr()),
+               fluidRow(column(width = 12,
                  h3("Step 2: Explore priority areas"),
-                 p("The map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."),br(),
+                 p("The map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening.")),br(),
                  column(width = 6, mod_map_overview_ui("map_overview_ui_1")),
                  column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1"))),
                br(), 
                hr(),
-               fluidRow(mod_plot_tract_ui("plot_tract_ui_1")),
+               fluidRow(column(width = 12, 
+                               HTML("<section style='max-width:1200px; margin:auto'>"),
+                               mod_plot_tract_ui("plot_tract_ui_1"),
+                               HTML("</style>"))),
                br(),br(), br()
                ),
                
