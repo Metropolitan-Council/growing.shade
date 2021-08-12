@@ -43,18 +43,9 @@ app_ui <- function(request) {
       tabPanel(
         "Use the tool",
         br(),
-        br(),
-        br(),
-        
-        fluidRow(
-          p(
-            "This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The Methods tab has more information."
-          )
-        ),
-        hr(),
         sidebarPanel(
           width = 3,
-          h3("Step 1: Customize") %>%
+          h3("Customize") %>%
             shinyhelper::helper(type = "markdown",
                                 content = "PresetHelp"),
           mod_preset_selections_ui("preset_selections_ui_1"),

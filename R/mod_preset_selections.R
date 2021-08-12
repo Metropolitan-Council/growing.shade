@@ -11,7 +11,7 @@ mod_preset_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
 
-    p("While the tool is fully customizable, regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus."),
+    p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus."),
     fluidRow(column(width = 12, 
     radioButtons(
       ns("presetInput"),
