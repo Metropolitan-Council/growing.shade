@@ -95,6 +95,30 @@ rmarkdown::render("inst/app/www/PresetHelp.Rmd",
                   )
 )
 
+rmarkdown::render("inst/app/www/PriorityMapHelp.Rmd",
+                  output_format = "github_document", # -----
+                  output_file = "PriorityMapHelp.md", output_dir = "inst/app/www",
+                  params = list(
+                    actor_id = "esch",
+                    data_date = Sys.Date(),
+                    sha = system("git rev-parse --short HEAD",
+                                 intern = TRUE
+                    )
+                  )
+)
+
+rmarkdown::render("inst/app/www/PlantingMapHelp.Rmd",
+                  output_format = "github_document", # -----
+                  output_file = "PlantingMapHelp.md", output_dir = "inst/app/www",
+                  params = list(
+                    actor_id = "esch",
+                    data_date = Sys.Date(),
+                    sha = system("git rev-parse --short HEAD",
+                                 intern = TRUE
+                    )
+                  )
+)
+
 
 # Document and reload your package
 golem::document_and_reload()

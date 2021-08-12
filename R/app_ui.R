@@ -61,15 +61,17 @@ app_ui <- function(request) {
           mod_map_selections_ui("map_selections_ui_1")
         ),
         mainPanel(
-          HTML("<div style='max-width:100%; margin:0; padding:0'>"),
-          h3("Step 2: Explore priority areas"),
-          p(
-            "The overview map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the detail map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."
-          ),
-          column(width = 6, 
+          HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
+          p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+          column(width = 6, h3("Priority map")%>%
+                   shinyhelper::helper(type = "markdown",
+                                       content = "PriorityMapHelp"),
                  mod_map_overview_ui("map_overview_ui_1")),
-          column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1")),
-          HTML("</div>")
+          column(width = 6, h3("Planting map")%>%
+                   shinyhelper::helper(type = "markdown",
+                                       content = "PlantingMapHelp"),
+                 mod_ndvi_map_ui("ndvi_map_ui_1")),
+          HTML("</container>")
         ),
         br(),
         hr(), 

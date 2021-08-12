@@ -1,0 +1,12 @@
+---
+output: 
+  github_document:
+    html_preview: false
+# params: 
+#   actor_id: "esch" 
+#   data_date: "2020-03-26"
+#   sha: "sha"
+---
+<span align="left">
+
+The priority map uses warm and bright colors (yellow, orange) show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10).
