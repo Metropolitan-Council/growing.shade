@@ -29,7 +29,7 @@ app_ui <- function(request) {
                         mod_intro_ui("intro_ui_1"), br()),
       tabPanel("narrative",
                br(), br(),
-               mod_storymap_ui("storymap_ui_1")),
+               (mod_storymap_ui("storymap_ui_1"))),
       
       tabPanel("Use the tool",
                br(), br(), br(),

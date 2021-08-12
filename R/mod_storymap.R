@@ -43,9 +43,8 @@ mod_storymap_server <- function(id){
     # })
     
     output$storymap <- renderUI({
-      my_test <- HTML("<div><body style='max-width:3000px'><iframe src='https://arcgis.metc.state.mn.us/portal/apps/storymaps/stories/f530052fb2494a63984d1062346396bf' style='width:100%; margin:0 !important;padding:0;height:80vh;border:none'</iframe></body></div>")
-      # my_test <- tags$iframe(src= "https://arcgis.metc.state.mn.us/portal/apps/storymaps/stories/f530052fb2494a63984d1062346396bf", 
-                             # style='width:100% !important; margin:0 !important;padding:0;height:80vh;border:none')
+      my_test <- HTML("<div style='max-width:3000px'><body><iframe src='https://arcgis.metc.state.mn.us/portal/apps/storymaps/stories/f530052fb2494a63984d1062346396bf' style='width:100%; margin:0 !important;padding:0;height:80vh;border:none'</iframe></body></div>")
+      # my_test <- tags$iframe(src= "https://arcgis.metc.state.mn.us/portal/apps/storymaps/stories/f530052fb2494a63984d1062346396bf", style='width:100% !important; margin:0 !important;padding:0;height:80vh;border:none')
       my_test
     })
  

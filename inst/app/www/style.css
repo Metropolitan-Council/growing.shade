@@ -68,7 +68,7 @@ body {
 	font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
 	background-color: var(--council-white);
 	color: var(--council-black);
-	max-width: 1200px; 
+	/*max-width: 1200px; */
 	margin-left: auto;
 	margin-right: auto;
 }
