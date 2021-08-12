@@ -68,6 +68,36 @@ mod_map_overview_server <- function(input, output, session,
         fillColor = "black",# councilR::colors$transitRed,
         options = pathOptions(pane = "trans")
       ) %>%
+      
+      addMapPane("redline", zIndex = 431) %>%
+      addPolygons(
+        data = redline,
+        group = "Historically redlined areas",
+        stroke = T,
+          smoothFactor = 1,
+          # weight = 0.5,
+          color = "black",##ED1B2E",
+          fill = FALSE,
+          fillColor = "#ED1B2E",
+          fillOpacity = 1,
+        options = pathOptions(pane = "redline")
+      ) %>%
+      
+      addMapPane("redline2", zIndex = 300) %>%
+      addPolygons(
+        data = redline,
+        group = "Historically redlined areas",
+        stroke = F,
+        smoothFactor = 1,
+        # weight = 0.5,
+        color = "black",##ED1B2E",
+        fill = T,
+        fillColor = "black", # "#ED1B2E",
+        fillOpacity = 1,
+        options = pathOptions(pane = "redline2")
+      ) %>%
+      
+      
       # groupOptions(
       #   group = "Active transit stops",
       #   zoomLevels = 13:20
@@ -101,11 +131,13 @@ mod_map_overview_server <- function(input, output, session,
         overlayGroups = c(
           "Scores",
           # "Rivers & Lakes",
-          "Active transit stops"
+          "Active transit stops",
+          "Historically redlined areas"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>%
-      hideGroup(c("Transit"#, 
+      hideGroup(c("Transit",
+                  "Historically redlined areas"
                   # "Rivers & Lakes"
                   )) %>%
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE)

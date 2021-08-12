@@ -19,9 +19,9 @@ download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_
   destfile = temp
 )
 redline <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
-  st_transform(4326) %>%
   filter(HSG_SCALE == "Hazardous" | HSG_SCALE == "Definitely Declining") %>%
-  st_union()
+  st_union() %>%
+  st_transform(4326) 
 
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
 

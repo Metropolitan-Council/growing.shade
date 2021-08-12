@@ -62,7 +62,8 @@ equity_data_raw <- equity %>%
          green_roof,
          env_cancer,
          luse_green,
-         tr_ej) %>%
+         tr_ej,
+         holc_pred) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh) %>% #"mutate" reformats any variables that need it
@@ -88,7 +89,7 @@ eva_data_raw <- equity_data_raw %>%
 #ph (public health preset)
 eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph,
                           "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 0, 0,
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 1,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0,
                           "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0,
                           "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 1, 
                           "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 1, 
@@ -98,7 +99,8 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1, 
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
                           "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1, 
-                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 0, 0
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0,
+                          "holc_pred", "Share of tract's land acreage falling in the red zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)", "people", "high_opportunity", 0, 1, 0
                           )
 
 ###################
