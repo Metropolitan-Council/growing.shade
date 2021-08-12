@@ -18,7 +18,7 @@ mod_preset_selections_ui <- function(id){
       label = h4("Preset"),
       choices = c("Climate change", "Environmental justice", "Public health", "Custom"),
       selected = c("Environmental justice"),
-      inline = TRUE)))
+      inline = F)))
     
   )
 }

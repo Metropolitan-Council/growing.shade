@@ -11,56 +11,78 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # List the first level UI elements here 
  
-    navbarPage(title = div(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")),
+    navbarPage(
+      title = div(
+        img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")
+      ),
       id = "nav",
-                collapsible = TRUE,
-                # inverse = TRUE,
-                # windowTitle = "EVA",
-                position = "fixed-top",
-                header = tags$style(
-                  ".navbar-right {
+      collapsible = TRUE,
+      position = "fixed-top",
+      header = tags$style(
+        ".navbar-right {
                        float: right !important;
                        }",
-                  "body {padding-top: 75px;}"),
-               
-               tabPanel("HOME", 
-                        br(), br(),
-                        mod_home_ui("home_ui_1"), br(), br(),
-                        mod_intro_ui("intro_ui_1"), br()),
+        "body {padding-top: 75px;}"
+      ),
+      
+      tabPanel(
+        "HOME",
+        br(),
+        br(),
+        mod_home_ui("home_ui_1"),
+        br(),
+        br(),
+        mod_intro_ui("intro_ui_1"),
+        br()
+      ),
       tabPanel("narrative",
                br(), br(),
                (mod_storymap_ui("storymap_ui_1"))),
       
-      tabPanel("Use the tool",
-               br(), br(), br(),
-              
-               fluidRow(p("This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The Methods tab has more information.")), #mod_where_ui("where_ui_1")), 
-               hr(),
-               fluidRow(column(width = 12,
-                               h3("Step 1: Customize") %>% 
-                                                 shinyhelper::helper(
-                                                   type = "markdown",
-                                                   content = "PresetHelp"
-                                                 ))),
-                 fluidRow(column(width = 12, 
-                                 HTML("<section style='max-width:1200px; margin:auto'>"),
-                                 mod_preset_selections_ui("preset_selections_ui_1"),
-                                 HTML("</style>"))),
-                 # br(),
-                 fluidRow(HTML("<section style='max-width:1200px; margin:auto'>"), mod_map_selections_ui("map_selections_ui_1"), HTML("</style>"), hr()),
-               fluidRow(column(width = 12,
-                 h3("Step 2: Explore priority areas"),
-                 p("The map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening.")),br(),
-                 column(width = 6, mod_map_overview_ui("map_overview_ui_1")),
-                 column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1"))),
-               br(), 
-               hr(),
-               fluidRow(column(width = 12, 
-                               HTML("<section style='max-width:1200px; margin:auto'>"),
-                               mod_plot_tract_ui("plot_tract_ui_1"),
-                               HTML("</style>"))),
-               br(),br(), br()
-               ),
+      
+      tabPanel(
+        "Use the tool",
+        br(),
+        br(),
+        br(),
+        
+        fluidRow(
+          p(
+            "This tool aggregates data to help facilitate discussions and identify priority areas to enhance our region’s tree canopy. The Methods tab has more information."
+          )
+        ),
+        hr(),
+        sidebarPanel(
+          width = 3,
+          h3("Step 1: Customize") %>%
+            shinyhelper::helper(type = "markdown",
+                                content = "PresetHelp"),
+          mod_preset_selections_ui("preset_selections_ui_1"),
+          mod_map_selections_ui("map_selections_ui_1")
+        ),
+        mainPanel(
+          HTML("<div style='max-width:100%; margin:0; padding:0'>"),
+          h3("Step 2: Explore priority areas"),
+          p(
+            "The overview map on the left uses warm and bright (yellow, orange) colors show to ‘opportunity zones’ where new tree plantings could have disproportionately positive impacts (values closer to 10). Clicking on an area within this map to activate the detail map on the right. The map on the right shows detailed locations which may be suitable for tree planting. Darker red colors (and NDVI values closer to zero) indicate greater need for greening."
+          ),
+          column(width = 6, 
+                 mod_map_overview_ui("map_overview_ui_1")),
+          column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1")),
+          HTML("</div>")
+        ),
+        br(),
+        hr(), 
+        fluidRow(column(
+          width = 12,
+          HTML("<section style='max-width:1200px; margin:auto'>"),
+          mod_plot_tract_ui("plot_tract_ui_1"),
+          HTML("</style>")
+        )),
+        br(),
+        br(),
+        br()
+      ), 
                
                
     #   tabPanel("other",

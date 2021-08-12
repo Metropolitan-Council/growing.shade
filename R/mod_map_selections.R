@@ -10,11 +10,9 @@
 mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
-    
-    fluidRow(
-      column(width = 4, uiOutput(ns("peopleInput"))),
-      column(width = 4, uiOutput(ns("placeInput"))),
-      column(width = 4, uiOutput(ns("treeInput"))))#,
+      uiOutput(ns("peopleInput")),
+      uiOutput(ns("placeInput")),
+      uiOutput(ns("treeInput"))#,
     # radioButtons(ns("weight"),
     #              label = shiny::HTML("<h4>Variable weights</h4>", "<p style='font-size:16px'>Choose how tract scores are calculated.</p>"),
     #              choices = c("Weight all variables equally", "Weight all categories equally"),
