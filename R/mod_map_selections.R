@@ -22,7 +22,8 @@ mod_map_selections_ui <- function(id){
                     "Custom"
                   ), 
                   selected = "Custom"
-      ),
+      ) %>%
+        shinyhelper::helper(type = "markdown", content = "PresetHelp"),
       
       conditionalPanel(
         ns = ns,
