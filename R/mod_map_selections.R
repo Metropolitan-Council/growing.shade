@@ -11,8 +11,11 @@ mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
     
-    wellPanel(
+    absolutePanel(
       id = "controls",
+      class = "panel panel-default", fixed = FALSE,
+      draggable = TRUE, top = "30%", left = "10%", right = "auto", bottom = "auto",
+      width = 330, height = "auto",
       radioButtons(ns("preset"), h3("Select preset"),
                   choices = c(
                     "Climate change",

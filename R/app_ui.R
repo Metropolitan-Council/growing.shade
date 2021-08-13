@@ -43,8 +43,20 @@ app_ui <- function(request) {
       tabPanel(
         "Use the tool",
         br(),
-        sidebarPanel(width = 3,
-                     mod_map_selections_ui("map_selections_ui_1")),
+        
+        # tabPanel(
+        #   "Map",
+        #   mod_leaflet_ui(id = "leaflet_ui_1"),
+        #   mod_input_demos_ui(id = "input_demos_ui_1")
+        # )
+        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus."),
+        p("Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to activate a planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+        br(),
+        mod_map_overview_ui("map_overview_ui_1"),
+        mod_map_selections_ui("map_selections_ui_1"),
+        br(),
+        # sidebarPanel(width = 3,
+        #              mod_map_selections_ui("map_selections_ui_1")),
         # sidebarPanel(
         #   width = 3,
         #   h3("Customize") %>%
@@ -55,11 +67,12 @@ app_ui <- function(request) {
         # ),
         mainPanel(
           HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
-          p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
-          column(width = 6, h3("Priority map")%>%
-                   shinyhelper::helper(type = "markdown",
-                                       content = "PriorityMapHelp"),
-                 mod_map_overview_ui("map_overview_ui_1")),
+          # p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+          # column(width = 6, h3("Priority map")%>%
+          #          shinyhelper::helper(type = "markdown",
+          #                              content = "PriorityMapHelp") #,
+          #        # mod_map_overview_ui("map_overview_ui_1")
+          #        ),
           column(width = 6, h3("Planting map")%>%
                    shinyhelper::helper(type = "markdown",
                                        content = "PlantingMapHelp"),
