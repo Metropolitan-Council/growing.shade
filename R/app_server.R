@@ -24,7 +24,8 @@ app_server <- function( input, output, session ) {
                                preset_selections,
                                current_tab = input$nav)
   
-  # observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
+  observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
+  observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
   
   map_util <- callModule(mod_map_utils_server, "map_utils_ui_1",
                          map_selections = map_selections)
