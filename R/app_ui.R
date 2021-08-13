@@ -43,14 +43,16 @@ app_ui <- function(request) {
       tabPanel(
         "Use the tool",
         br(),
-        sidebarPanel(
-          width = 3,
-          h3("Customize") %>%
-            shinyhelper::helper(type = "markdown",
-                                content = "PresetHelp"),
-          mod_preset_selections_ui("preset_selections_ui_1"),
-          mod_map_selections_ui("map_selections_ui_1")
-        ),
+        sidebarPanel(width = 3,
+                     mod_map_selections_ui("map_selections_ui_1")),
+        # sidebarPanel(
+        #   width = 3,
+        #   h3("Customize") %>%
+        #     shinyhelper::helper(type = "markdown",
+        #                         content = "PresetHelp"),
+        #   mod_preset_selections_ui("preset_selections_ui_1"),
+        #   mod_map_selections_ui("map_selections_ui_1")
+        # ),
         mainPanel(
           HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
           p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),

@@ -86,7 +86,7 @@ mod_map_selections_ui <- function(id){
 #'
 #' @noRd 
 mod_map_selections_server <- function(input, output, session,
-                                      preset_selections,
+                                      # preset_selections,
                                       current_tab){
   ns <- session$ns
   

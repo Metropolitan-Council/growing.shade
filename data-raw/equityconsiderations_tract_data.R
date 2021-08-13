@@ -77,6 +77,7 @@ equity_data_raw <- equity %>%
 
 eva_data_raw <- equity_data_raw %>% 
   full_join(tract_ndvi %>% rename(tr10 = GEOID10)) %>%
+  mutate(ndvi2 = ndvi) %>%
   rename(tract_string = tr10) #and for this project, I need to rename the tract variable
 
 ###################
@@ -87,20 +88,21 @@ eva_data_raw <- equity_data_raw %>%
 #cc (climate change preset) = prim_flood, avg_temp, ndvi
 #ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
 #ph (public health preset)
-eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph,
-                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 0, 0,
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0,
-                          "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0,
-                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 1, 
-                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 1, 
-                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1,
-                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0,
+eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
+                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 0, 0, 0,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
+                          "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0, 0,
+                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 1, 0, 
+                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 1,  0,
+                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
+                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
-                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1, 
+                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1, 
-                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0,
-                          "holc_pred", "Share of tract's land acreage falling in the red zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)", "people", "high_opportunity", 0, 1, 0
+                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1,  0,
+                          "ndvi2", "Average greenness (tract avg. of max NDVI in 2020) INVERSE", "tree", "high_opportunity", 1, 0, 1, 1,
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
+                          "holc_pred", "Share of tract's land acreage redlined (Minneapolis and Saint Paul only)", "people", "high_opportunity", 0, 1, 0, 0
                           )
 
 ###################

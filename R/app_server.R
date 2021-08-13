@@ -15,13 +15,13 @@ app_server <- function( input, output, session ) {
   callModule(mod_next_server, "nexte_ui_1")
   mod_storymap_server("storymap_ui_1")
   
-  preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
-                                                    # current_tab = input$nav)
+  # preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
+  #                                                   # current_tab = input$nav)
   
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
   map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1",
-                               preset_selections,
+                               # preset_selections,
                                current_tab = input$nav)
   
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
