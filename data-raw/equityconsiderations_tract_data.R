@@ -164,7 +164,7 @@ usethis::use_data(eva_data_main, overwrite = TRUE)
 # # create metadata
 # #########
 metadata <- eva_data_main %>%
-  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
   dplyr::count() %>%
   dplyr::ungroup()
 

@@ -30,21 +30,32 @@ mod_map_utils_server <- function(input, output, session,
   
   #but we want to get a single averaged value for every tract to put on the map
   make_map_data2 <- reactive({
-    p <- eva_data_main %>%
-      filter(name %in% map_selections$allInputs$value) %>%
+    
+    step1 <- if (map_selections$preset == "Climate change") {
+      eva_data_main %>%
+        filter(name %in% metadata$name[metadata$cc == 1])
+    } else if (map_selections$preset == "Conservation") {
+      eva_data_main %>%
+        filter(name %in% metadata$name[metadata$cons == 1])
+      } else if (map_selections$preset == "Environmental justice") {
+        eva_data_main %>%
+          filter(name %in% metadata$name[metadata$ej == 1])
+      } else if (map_selections$preset == "Public health") {
+        eva_data_main %>%
+          filter(name %in% metadata$name[metadata$ph == 1])
+      } else if (map_selections$preset == "Custom") {
+        eva_data_main %>%
+          filter(name %in% map_selections$allInputs$value)}
+    
+    step2 <- step1 %>%
       group_by(tract_string) %>%
       summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
       left_join(eva_tract_geometry, by = c("tract_string" = "GEOID")) %>%
       st_as_sf() %>%
       st_transform(4326) %>%
       mutate(RANK = min_rank(desc(MEAN)))
- 
-    # leaflet() %>%
-    #   setView(lat = 44.963, lng = -93.22, zoom = 9) %>%
-    #   addMapPane(name = "Stamen Toner", zIndex = 430) %>%
-    #   addPolygons(data = p)
 
-    return(p)
+    return(step2)
   })
   
   ##-------------
