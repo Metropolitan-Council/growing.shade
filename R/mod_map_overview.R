@@ -129,12 +129,13 @@ mod_map_overview_server <- function(input, output, session,
         # overlayGroups = c(),
         baseGroups = c(
           "Carto Positron",
-          "Stamen Toner",
-          "Aerial Imagery"
+          "Aerial Imagery",
+          "Stamen Toner"
         ),
         overlayGroups = c(
           "score",
           # "Rivers & Lakes",
+          "Trees",
           "Active transit stops",
           "Historically redlined areas"
         ),
@@ -232,7 +233,15 @@ mod_map_overview_server <- function(input, output, session,
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
-                     ) 
+                     ) %>%
+                       addRasterImage(trees %>%
+                                        raster::crop(filter(eva_tract_geometry, GEOID == "27123031701")),
+                                      colors = "black", #pal,
+                                      opacity = .7,
+                                      layerId = "Trees",
+                                      group = "Trees"#,
+                                      # project = FALSE)
+                       )
                      
                    
                  }
