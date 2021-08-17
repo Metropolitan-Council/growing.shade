@@ -50,7 +50,7 @@ app_ui <- function(request) {
         #   mod_input_demos_ui(id = "input_demos_ui_1")
         # )
         h1("Priority map"),
-        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to activate a planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND HIGHWAYS???, effectively resulting in a planting map."),
         br(),
         mod_map_overview_ui("map_overview_ui_1"),
         mod_map_selections_ui("map_selections_ui_1"),

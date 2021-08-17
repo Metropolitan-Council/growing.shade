@@ -128,12 +128,12 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
-          "Carto Positron",
           "Aerial Imagery",
+          "Carto Positron",
           "Stamen Toner"
         ),
         overlayGroups = c(
-          "score",
+          "Priority score",
           # "Rivers & Lakes",
           "Trees",
           "Active transit stops",
@@ -164,8 +164,7 @@ mod_map_overview_server <- function(input, output, session,
   toListen_mainleaflet <- reactive({
     list(
       current_tab,
-      map_util$map_data2#,
-      # input$map_shape_click
+      map_util$map_data2
     )
   })
   
@@ -174,27 +173,14 @@ mod_map_overview_server <- function(input, output, session,
                {
                  if (is.null(map_util$map_data2)) {
                    print('nodata')
-                 # } else if (is.null(input$map_shape_click) == "FALSE") {#(is.null(input$map_shape_click) == "FALSE") {
-                 #   print("add ndvi")
-                 #   leafletProxy("map") %>%
-                 #     clearGroup("score") %>%
-                 #     addMapPane("score", zIndex = 400) %>%
-                 #     addPolygons(
-                 #       group = "score",
-                 #       data = map_util$map_data2 %>% 
-                 #         # filter(tract_string != "27123036100") %>%
-                 #         filter(tract_string != (map_util$map_data2$tract_string[map_util$map_data2$tract_string == input$map_shape_click$id])) %>%
-                 #         st_transform(4326))
-                   
-                   
-                 } else {
+                   } else {
                    print("rendering polygons")
                    leafletProxy("map") %>%
-                     clearGroup("score") %>%
-                     addMapPane("score", zIndex = 150) %>%
+                     clearGroup("Priority score") %>%
+                     addMapPane("Priority score", zIndex = 150) %>%
                      addPolygons(
                        data = map_util$map_data2 %>% st_transform(4326),
-                       group = "score",
+                       group = "Priority score",
                        stroke = TRUE,
                        color =  councilR::colors$suppGray,
                        opacity = 0.9,
@@ -216,7 +202,7 @@ mod_map_overview_server <- function(input, output, session,
                        popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
                                        "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
                                        "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2)),
-                       options = pathOptions(pane = "score"),
+                       options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%
                      # maybe want to add this: https://stackoverflow.com/questions/42245302/shiny-leaflet-highlight-polygon
@@ -233,25 +219,14 @@ mod_map_overview_server <- function(input, output, session,
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
-                     ) #%>%
-                       # addRasterImage(trees %>%
-                       #                  raster::crop(filter(eva_tract_geometry, GEOID == "27123031701")), #"27123031701")),
-                       #                  
-                       #                colors = "black", #pal,
-                       #                opacity = .7,
-                       #                layerId = "Trees",
-                       #                group = "Trees"#,
-                       #                # project = FALSE)
-                       # )
-                     
-                   
+                     ) 
                  }
                })
   
   observeEvent(ignoreInit = TRUE,
                input$map_shape_click$id,
                {
-                 print(input$map_shape_click)
+                 # print(input$map_shape_click)
                  leafletProxy("map") %>%
                    addRasterImage(trees %>%
                                     raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
