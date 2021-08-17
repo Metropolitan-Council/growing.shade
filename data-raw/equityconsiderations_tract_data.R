@@ -169,3 +169,11 @@ metadata <- eva_data_main %>%
   dplyr::ungroup()
 
 usethis::use_data(metadata, overwrite = TRUE)
+
+
+
+#####
+# create list of cities
+####
+ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
+usethis::use_data(ctus, overwrite = TRUE)

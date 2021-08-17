@@ -13,13 +13,40 @@ mod_plot_tract_ui <- function(id){
     # fluidRow(h3("Step 3: Make a report"),
     #          p("This tool is primarily intended to identify locations where new tree plantings could have disproportionately positive impacts. However, there is more detail about trees across the region. Please generate a report if you are in need of more detail about a specific area.")),
     # fluidRow(
+    
+    
+    
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract from above", "A specific city", "Greater MN and WI"),
+      choices = c("Selected tract from above", "City (MetCouncil region only)", "County (within MN or WI)"),
       selected = c("Selected tract from above"),
       inline = F 
       ),
+      
+      conditionalPanel(
+        ns = ns,
+        condition = "input.geo == 'City (MetCouncil region only)'",
+        
+        shinyWidgets::pickerInput(ns("cityInput"), 
+                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
+                                  choices = ctus,
+                                  options = list(size = 20),
+                                  multiple = F,
+                                  selected = "Afton" #filter(metadata, type == "people")[1, 2]
+        )),
+      conditionalPanel(
+        ns = ns,
+        condition = "input.geo == 'County (within MN or WI)'",
+        
+        shinyWidgets::pickerInput(ns("stateInput"), 
+                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Placeholder</span></h4>")),
+                                  choices = c("Minnesota", "Wisconsin"),
+                                  options = list(size = 5),
+                                  multiple = F,
+                                  selected = "Minnesota" #filter(metadata, type == "people")[1, 2]
+        )),
+      
     
     downloadButton(ns("tract_report"), "Generate a report")
     
