@@ -16,6 +16,7 @@ mod_map_selections_ui <- function(id){
       class = "panel panel-default", 
       fixed = FALSE,
       draggable = TRUE, top = "30%", left = "10%", right = "auto", bottom = "auto",
+      style = "padding: 7px",
       width = "auto", height = "auto",
       HTML('<button data-toggle="collapse" data-target="#demo">Customizations</button>'),
       tags$div(id = 'demo',  class="collapse in",
