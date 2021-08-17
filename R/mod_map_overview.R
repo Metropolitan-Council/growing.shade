@@ -10,7 +10,7 @@
 mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(
-    leafletOutput(ns("map"), height = 700)#, width = '80%')#,
+    leafletOutput(ns("map"), height = 750)#, width = '80%')#,
     
     # wellPanel(textOutput(ns("selected_tract")))
     
