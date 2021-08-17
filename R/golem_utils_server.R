@@ -169,3 +169,4 @@ residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.
 parkgc <- raster::raster("./data/greenest2020_glu2016_treemask_golfpark.tif")
 retoff <- raster::raster("./data/greenest2020_glu2016_treemask_retail_office.tif")
 undev <- raster::raster("./data/greenest2020_glu2016_treemask_undev.tif")
+trees <- raster::raster("./data/tree_raster.tif")

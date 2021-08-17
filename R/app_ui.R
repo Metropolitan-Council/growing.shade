@@ -49,38 +49,41 @@ app_ui <- function(request) {
         #   mod_leaflet_ui(id = "leaflet_ui_1"),
         #   mod_input_demos_ui(id = "input_demos_ui_1")
         # )
-        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus."),
-        p("Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to activate a planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+        h1("Priority map"),
+        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to activate a planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
         br(),
         mod_map_overview_ui("map_overview_ui_1"),
         mod_map_selections_ui("map_selections_ui_1"),
         br(),
-        # sidebarPanel(width = 3,
-        #              mod_map_selections_ui("map_selections_ui_1")),
-        # sidebarPanel(
-        #   width = 3,
-        #   h3("Customize") %>%
-        #     shinyhelper::helper(type = "markdown",
-        #                         content = "PresetHelp"),
-        #   mod_preset_selections_ui("preset_selections_ui_1"),
-        #   mod_map_selections_ui("map_selections_ui_1")
+        # # sidebarPanel(width = 3,
+        # #              mod_map_selections_ui("map_selections_ui_1")),
+        # # sidebarPanel(
+        # #   width = 3,
+        # #   h3("Customize") %>%
+        # #     shinyhelper::helper(type = "markdown",
+        # #                         content = "PresetHelp"),
+        # #   mod_preset_selections_ui("preset_selections_ui_1"),
+        # #   mod_map_selections_ui("map_selections_ui_1")
+        # # ),
+        # mainPanel(
+        #   HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
+        #   # p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
+        #   # column(width = 6, h3("Priority map")%>%
+        #   #          shinyhelper::helper(type = "markdown",
+        #   #                              content = "PriorityMapHelp") #,
+        #   #        # mod_map_overview_ui("map_overview_ui_1")
+        #   #        ),
+        #   column(width = 6, h3("Planting map")%>%
+        #            shinyhelper::helper(type = "markdown",
+        #                                content = "PlantingMapHelp"),
+        #          mod_ndvi_map_ui("ndvi_map_ui_1")),
+        #   HTML("</container>")
         # ),
-        mainPanel(
-          HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
-          # p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
-          # column(width = 6, h3("Priority map")%>%
-          #          shinyhelper::helper(type = "markdown",
-          #                              content = "PriorityMapHelp") #,
-          #        # mod_map_overview_ui("map_overview_ui_1")
-          #        ),
-          column(width = 6, h3("Planting map")%>%
-                   shinyhelper::helper(type = "markdown",
-                                       content = "PlantingMapHelp"),
-                 mod_ndvi_map_ui("ndvi_map_ui_1")),
-          HTML("</container>")
-        ),
         br(),
         hr(), 
+        fluidRow(h2("Planting map"),
+                 p("This tool is primarily intended to identify locations where new tree plantings could have disproportionately positive impacts. However, it is also important to know where you can plant.")),
+        # fluidRow(column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1"))),
         fluidRow(column(
           width = 12,
           HTML("<section style='max-width:1200px; margin:auto'>"),

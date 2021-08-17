@@ -223,3 +223,142 @@ mod_ndvi_map_server <- function(input, output, session,
 ## To be copied in the server
 # callModule(mod_ndvi_map_server, "ndvi_map_ui_1")
  
+
+# library(leaflet); library(tidyverse); library(raster); library(sf)
+# pal <- colorNumeric(c("#67000d", "#fcbba1"), 0:1,
+#                     na.color = "transparent")
+# residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.tif")
+# trees <- raster::raster("./data/tree_raster.tif")
+# 
+# test <- filter(eva_tract_geometry, GEOID == "27123031701")
+# bg <- eva_tract_geometry %>% left_join(eva_data_main %>% filter(variable == "p_65up") %>% rename(GEOID = tract_string)) %>% st_transform(4326)
+# leaflet()%>%
+#   setView(lat = 44.97, lng = -93.05, zoom = 13
+#   ) %>%
+#   addMapPane(name = "Aerial Imagery", zIndex = 0) %>%
+#   addMapPane("Priority scores", zIndex = 150) %>%
+#   addProviderTiles(
+#     provider = providers$Esri.WorldImagery,
+#     group = "Aerial Imagery",
+#     layerId = "base",
+#     options = pathOptions(pane = "Aerial Imagery")
+#   ) %>%
+#   addProviderTiles("CartoDB.PositronOnlyLabels",
+#                    group = "Aerial Imagery",
+#                    options = c(zIndex = 210),
+#                    layerId = "labs") %>%
+#   addPolygons(
+#     data = bg, #%>% filter(GEOID != "27123031701"),
+#     group = "Priority scores",
+#     stroke = TRUE,
+#     color =  councilR::colors$suppGray,
+#     opacity = 0.9,
+#     weight = 0.5, #0.25,
+#     fillOpacity = 0.7,
+#     options = pathOptions(pane = "Priority scores")
+#     ) %>%
+#   addPolygons(data = test,
+#               color = "#0054A4",
+#               fill = FALSE,
+#               layerId = "tractoutline") %>%
+#   addRasterImage(trees %>%
+#                  raster::crop(test),
+#                colors = "black", #pal,
+#                opacity = .7,
+#                layerId = "residential",
+#                group = "Trees") %>%
+#   addLayersControl(
+#         position = "bottomright",
+#         baseGroups = c(
+#           "Aerial Imagery"
+#         ),
+#         overlayGroups = c(
+#           "Trees", "Priority scores"
+#         ))
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# leaflet()%>%
+#   setView(lat = 44.97, lng = -93.05, zoom = 13
+#   ) %>%
+#   addMapPane("background_map", zIndex = 100) %>%  # Level 1: bottom
+#   addMapPane("polygons", zIndex = 150) %>%        # Level 2: middle
+#   addMapPane("labels", zIndex = 430) %>%          # Level 3: top
+#   addProviderTiles(
+#     providers$Esri.WorldImagery,
+#     options = pathOptions(pane = "background_map"),
+#     group = "aerial image"
+#   ) %>%
+#   addLayersControl(
+#     position = "bottomright",
+#     baseGroups = c("aerial image"),
+#     overlayGroups = c("labels", "polygons")
+#   )%>%
+#   addPolygons(
+#     data = bg, stroke = T, smoothFactor = 0.2,
+#     fillOpacity = 0.5, #fillColor = ~color_pal(value),
+#     options = pathOptions(pane = "polygons"),
+#     group = "polygons"
+#   )  %>%
+#   addRasterImage(trees %>%
+#                    raster::crop(test),
+#                  colors = "black", #pal,
+#                  opacity = .7,
+#                  layerId = "residential",
+#                  group = "labels")
+#   # addMapPane(name = "Aerial Imagery", zIndex = -10) %>%
+#   addMapPane("Priority scores", zIndex = 200) %>%
+#   addMapPane("Trees", zIndex = 430) %>%
+#   addProviderTiles(
+#     provider = providers$Esri.WorldImagery,
+#     group = "Aerial Imagery",
+#     layerId = "base"
+#   ) %>%
+#   addProviderTiles("CartoDB.PositronOnlyLabels",
+#                    group = "Aerial Imagery",
+#                    options = c(zIndex = 210),
+#                    layerId = "labs") %>%
+#   addPolygons(
+#     data = bg, #%>% filter(GEOID != "27123031701"),
+#     group = "Priority scores",
+#     stroke = TRUE,
+#     color =  councilR::colors$suppGray,
+#     opacity = 0.9,
+#     weight = 0.5, #0.25,
+#     fillOpacity = 0.7,
+#     options = pathOptions(pane = "Priority scores")
+#   ) %>%
+#   addPolygons(data = test,
+#               color = "#0054A4",
+#               fill = FALSE,
+#               layerId = "tractoutline") %>%
+#   addRasterImage(trees %>%
+#                    raster::crop(test),
+#                  colors = "black", #pal,
+#                  opacity = .7,
+#                  layerId = "residential",
+#                  group = "Trees") %>%
+#   addLayersControl(
+#     position = "bottomright",
+#     baseGroups = c(
+#       "Aerial Imagery"
+#     ),
+#     overlayGroups = c(
+#       "Trees", "Priority scores"
+#     ))
+# 
+# # nhd_wms_url <- "https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WmsServer"
+# # leaflet() %>%
+# #   setView(        lat = 44.963,
+# #                   lng = -93.42,
+# #                   zoom = 10) %>%
+# #   addTiles('https://arcgis.metc.state.mn.us/server/rest/services/GISLibrary/GeneralizedLandUse2020/FeatureServer',
+# #            options = providerTileOptions(noWrap = TRUE), group="World Imagery")
+# #   # addWMSTiles(nhd_wms_url, layers = "0")
