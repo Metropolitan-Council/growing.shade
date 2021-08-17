@@ -10,7 +10,7 @@
 mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(
-    leafletOutput(ns("map"), height = 600)#, width = '80%')#,
+    leafletOutput(ns("map"), height = 750)#, width = '80%')#,
     
     # wellPanel(textOutput(ns("selected_tract")))
     
@@ -34,28 +34,35 @@ mod_map_overview_server <- function(input, output, session,
         lng = -93.42,
         zoom = 9
       ) %>%
-      addMapPane(name = "Stamen Toner", zIndex = 430) %>%
+      addMapPane(name = "Stamen Toner", zIndex = 100) %>%
+      addMapPane(name = "Carto Positron", zIndex = 100) %>%
+      addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
+      addMapPane("redline", zIndex = 160) %>%
+      addMapPane("redline2", zIndex = 110) %>%
+      addMapPane("trans", zIndex = 400) %>%
       addProviderTiles("Stamen.TonerLines",
                        group = "Stamen Toner"
       ) %>%
       addProviderTiles("Stamen.TonerLabels", 
-                       options = leafletOptions(pane = "Stamen Toner"),
+                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
                        group = "Stamen Toner") %>%
-      
-      addMapPane(name = "Carto Positron", zIndex = 430) %>%
       addProviderTiles("CartoDB.PositronOnlyLabels", 
-                       options = leafletOptions(pane = "Carto Positron"),
+                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+                       group = "Aerial Imagery") %>%
+      addProviderTiles("CartoDB.PositronOnlyLabels", 
+                       options = c(zIndex = 400),#pathOptions(pane = "Carto Positron"),
                        group = "Carto Positron") %>%
       addProviderTiles("CartoDB.PositronNoLabels",
-                       group = "Carto Positron"
+                       group = "Carto Positron",
+                       options = pathOptions(pane = "Carto Positron")
       ) %>%
       addProviderTiles(
         provider = providers$Esri.WorldImagery,
-        group = "Aerial Imagery"
+        group = "Aerial Imagery",
+        options = pathOptions(pane = "Aerial Imagery")
       ) %>%
       
       #### regional specific other data layers
-      addMapPane("trans", zIndex = 431) %>%
       addCircles(
         # Markers(
         data = trans_stops,
@@ -69,7 +76,6 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "trans")
       ) %>%
       
-      addMapPane("redline", zIndex = 431) %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -82,8 +88,6 @@ mod_map_overview_server <- function(input, output, session,
           fillOpacity = 1,
         options = pathOptions(pane = "redline")
       ) %>%
-      
-      addMapPane("redline2", zIndex = 300) %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -124,13 +128,14 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
+          "Aerial Imagery",
           "Carto Positron",
-          "Stamen Toner",
-          "Aerial Imagery"
+          "Stamen Toner"
         ),
         overlayGroups = c(
-          "Priority scores",
+          "Priority score",
           # "Rivers & Lakes",
+          "Trees",
           "Active transit stops",
           "Historically redlined areas"
         ),
@@ -159,8 +164,7 @@ mod_map_overview_server <- function(input, output, session,
   toListen_mainleaflet <- reactive({
     list(
       current_tab,
-      map_util$map_data2,
-      map_selections$goButton
+      map_util$map_data2
     )
   })
   
@@ -169,14 +173,14 @@ mod_map_overview_server <- function(input, output, session,
                {
                  if (is.null(map_util$map_data2)) {
                    print('nodata')
-                 } else {
+                   } else {
                    print("rendering polygons")
                    leafletProxy("map") %>%
-                     clearGroup("score") %>%
-                     addMapPane("score", zIndex = 400) %>%
+                     clearGroup("Priority score") %>%
+                     addMapPane("Priority score", zIndex = 150) %>%
                      addPolygons(
                        data = map_util$map_data2 %>% st_transform(4326),
-                       group = "Priority scores",
+                       group = "Priority score",
                        stroke = TRUE,
                        color =  councilR::colors$suppGray,
                        opacity = 0.9,
@@ -198,7 +202,7 @@ mod_map_overview_server <- function(input, output, session,
                        popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
                                        "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
                                        "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2)),
-                       options = pathOptions(pane = "score"),
+                       options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%
                      # maybe want to add this: https://stackoverflow.com/questions/42245302/shiny-leaflet-highlight-polygon
@@ -207,8 +211,8 @@ mod_map_overview_server <- function(input, output, session,
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
                        title = "Priority scores",
                        position = "topright",
-                       group = "Priority scores",
-                       layerId = "Priority scores",
+                       group = "score",
+                       layerId = "score",
                        pal = colorNumeric(
                          n = 5,
                          palette = "magma",
@@ -216,10 +220,25 @@ mod_map_overview_server <- function(input, output, session,
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
                      ) 
-                     
-                   
                  }
                })
+  
+  observeEvent(ignoreInit = TRUE,
+               input$map_shape_click$id,
+               {
+                 # print(input$map_shape_click)
+                 leafletProxy("map") %>%
+                   addRasterImage(trees %>%
+                                    raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
+                                  
+                                  colors = "black", #pal,
+                                  opacity = .7,
+                                  layerId = "Trees",
+                                  group = "Trees"#,
+                                  # project = FALSE)
+                   )
+               }
+  )
 
   #leaflet print geoid -----------
   

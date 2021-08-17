@@ -175,3 +175,13 @@ leaflet() %>%
 #   year = 2010
 # ) 
 
+###### raster to vector
+library("terra")
+trees <- terra::rast("./data/tree_raster.tif") #%>% 
+tree_polys <- as.polygons(trees)
+writeVector(tree_polys, "./data/tree_poly.shp", overwrite=TRUE)
+sf::st_write(tree_polys, "./data/tree_poly.shp", append = FALSE)
+# writeVector(tree_polys, "./data/tree_poly.shp")
+# raster::rasterToPolygons(trees, "./data/tree_poly.shp", n= 16, dissolve = T, na.rm = T, fun=function(x){x>=1})
+# raster::shapefile(trees, "./data/tree_poly.shp")
+

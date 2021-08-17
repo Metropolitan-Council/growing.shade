@@ -15,16 +15,17 @@ app_server <- function( input, output, session ) {
   callModule(mod_next_server, "nexte_ui_1")
   mod_storymap_server("storymap_ui_1")
   
-  preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
-                                                    # current_tab = input$nav)
+  # preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
+  #                                                   # current_tab = input$nav)
   
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
   map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1",
-                               preset_selections,
+                               # preset_selections,
                                current_tab = input$nav)
   
-  # observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
+  observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
+  observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
   
   map_util <- callModule(mod_map_utils_server, "map_utils_ui_1",
                          map_selections = map_selections)
@@ -36,7 +37,8 @@ app_server <- function( input, output, session ) {
              map_selections = map_selections,
              map_util = map_util,
              current_tab = input$nav)
-  
+  observe({print(paste0("selected tract: ", (tract_selections$selected_tract)))}) #to check that selections are working
+  observe(print(names(map_util$map_data2)))
   # callModule(
   #   mod_main_leaflet_server,
   #   "main_leaflet_ui_1",
@@ -44,8 +46,6 @@ app_server <- function( input, output, session ) {
   #   map_selections,
   #   current_tab = input$nav
   # )
-  
-  observe({print(tract_selections$selected_tract)}) #to check that tract clicking is working
   
   callModule(mod_ndvi_map_server, "ndvi_map_ui_1",
              tract_selections = tract_selections)
