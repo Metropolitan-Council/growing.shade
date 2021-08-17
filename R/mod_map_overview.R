@@ -164,8 +164,8 @@ mod_map_overview_server <- function(input, output, session,
   toListen_mainleaflet <- reactive({
     list(
       current_tab,
-      map_util$map_data2,
-      input$map_shape_click
+      map_util$map_data2#,
+      # input$map_shape_click
     )
   })
   
@@ -233,19 +233,37 @@ mod_map_overview_server <- function(input, output, session,
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
-                     ) %>%
-                       addRasterImage(trees %>%
-                                        raster::crop(filter(eva_tract_geometry, GEOID == "27123031701")),
-                                      colors = "black", #pal,
-                                      opacity = .7,
-                                      layerId = "Trees",
-                                      group = "Trees"#,
-                                      # project = FALSE)
-                       )
+                     ) #%>%
+                       # addRasterImage(trees %>%
+                       #                  raster::crop(filter(eva_tract_geometry, GEOID == "27123031701")), #"27123031701")),
+                       #                  
+                       #                colors = "black", #pal,
+                       #                opacity = .7,
+                       #                layerId = "Trees",
+                       #                group = "Trees"#,
+                       #                # project = FALSE)
+                       # )
                      
                    
                  }
                })
+  
+  observeEvent(ignoreInit = TRUE,
+               input$map_shape_click$id,
+               {
+                 print(input$map_shape_click)
+                 leafletProxy("map") %>%
+                   addRasterImage(trees %>%
+                                    raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
+                                  
+                                  colors = "black", #pal,
+                                  opacity = .7,
+                                  layerId = "Trees",
+                                  group = "Trees"#,
+                                  # project = FALSE)
+                   )
+               }
+  )
 
   #leaflet print geoid -----------
   
