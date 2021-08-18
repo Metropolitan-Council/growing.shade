@@ -19,13 +19,13 @@ mod_plot_tract_ui <- function(id){
       style = "padding: 7px",
       width = "auto", height = "auto",
       HTML('<button data-toggle="collapse" data-target="#report">Create report</button>'),
-      tags$div(id = 'report',  class="collapse",
+      tags$div(id = 'report',  class="collapse",#in
                
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract from above", "City (MetCouncil region only)", "County (within MN or WI)"),
-      selected = c("Selected tract from above"),
+      choices = c("Selected tract", "City (MetCouncil region only)", "County (within MN or WI)"),
+      selected = c("City (MetCouncil region only)"),
       inline = F 
       ),
       
@@ -67,7 +67,12 @@ mod_plot_tract_server <- function(input, output, session,
                                   map_util = map_util){
   ns <- session$ns
   
+  # output$moreControls <- renderUI({
+  #   HTML(paste0("a ", "testing"))
+  # })
 
+  
+  
   # make_plot_vals <-  reactive({
   #   selected_tract <- map_util$plot_data2 %>%
   #     ungroup() %>%
@@ -104,7 +109,9 @@ mod_plot_tract_server <- function(input, output, session,
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
-      params <- list(selected_tract = tract_selections$selected_tract)
+      params <- list(selected_tract = tract_selections$selected_tract,
+                     selected_geo = input$geo,
+                     selected_city = input$cityInput)
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document

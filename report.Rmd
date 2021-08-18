@@ -1,27 +1,51 @@
 ---
-title: "Test report"
+title: "Growing shade report"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
 params:
   selected_tract: NA
+  selected_geo: NA
+  selected_city: NA
 urlcolor: blue
 ---
 
-```{r}
+```{r echo=F, message=F, warning=F, results='hide'}
 #This is the selected tract.
 params$selected_tract
+params$selected_geo
+params$selected_city
+
+reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
+  params$selected_city
+} else if (params$selected_geo == "Selected tract") {
+  paste0("tract ", params$selected_tract)
+} else if (params$selected_geo == "County (within MN or WI)") {
+  'PRANK! nothing to see here yet'
+}
 ```
 
-A test to see a downloaded report for a given tract.
 
-# Status of the tree canopy
+# Report for ```r reportfor```.
+
+This report might be super cool eventually!
+
+## Status of the tree canopy
 
 Understand how the tree canopy of the selected region compares to other geographies across the region.
 
-# Equity analysis
+```{r status, echo=F, message=F, warning=F}
+library(tidyverse)
+ggplot(mtcars, aes(x = mpg, y = cyl)) +
+  geom_point()
+```
+
+## Equity analysis
 
 Understand how people and trees interact, and where the selected geography compares.
 
-# Trees past and present (with lessons for the future)
+## Trees past and present (with lessons for the future)
 
 Something about tree community composition. 

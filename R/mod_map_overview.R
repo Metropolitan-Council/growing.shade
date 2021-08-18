@@ -39,7 +39,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery with roads", zIndex = 100) %>%
-      addMapPane(name = "Road outlines", zIndex = 170) %>%
+      addMapPane(name = "Road outlines", zIndex = 161) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
@@ -146,8 +146,8 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
-          "Aerial Imagery with roads",
           "Aerial Imagery",
+          "Aerial Imagery with roads",
           "Carto Positron",
           "Stamen Toner"
         ),
