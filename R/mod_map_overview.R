@@ -38,6 +38,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
+      addMapPane(name = "Aerial Imagery with roads", zIndex = 100) %>%
       addMapPane(name = "Road outlines", zIndex = 170) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
@@ -47,7 +48,7 @@ mod_map_overview_server <- function(input, output, session,
       ) %>%
       addProviderTiles("Stamen.TonerLines", 
                        options = pathOptions(pane = "Road outlines"),
-                       group = "Road outlines") %>%
+                       group = "Aerial Imagery with roads") %>%
       addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
                        group = "Stamen Toner") %>%
@@ -55,6 +56,9 @@ mod_map_overview_server <- function(input, output, session,
       addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
                        group = "Aerial Imagery") %>%
+      addProviderTiles("Stamen.TonerLabels",
+                       options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
+                       group = "Aerial Imagery with roads") %>%
       # addProviderTiles("CartoDB.PositronOnlyLabels",
       #                  options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
       #                  group = "Aerial Imagery") %>%
@@ -71,7 +75,11 @@ mod_map_overview_server <- function(input, output, session,
         group = "Aerial Imagery",
         options = pathOptions(pane = "Aerial Imagery")
       ) %>%
-      
+      addProviderTiles(
+        provider = providers$Esri.WorldImagery,
+        group = "Aerial Imagery with roads",
+        options = pathOptions(pane = "Aerial Imagery")
+      ) %>%     
       #### regional specific other data layers
       addCircles(
         # Markers(
@@ -138,6 +146,7 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
+          "Aerial Imagery with roads",
           "Aerial Imagery",
           "Carto Positron",
           "Stamen Toner"
