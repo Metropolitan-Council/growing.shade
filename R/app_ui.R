@@ -40,62 +40,25 @@ app_ui <- function(request) {
                (mod_storymap_ui("storymap_ui_1"))),
       
       
-      tabPanel(
+      tabPanel( 
         "Use the tool",
-        br(),
+        div(class="outer",
+            
+            tags$head(
+              # Include our custom CSS
+              includeCSS("inst/app/www/style.css")#,
+              # includeScript("gomap.js")
+            ),
+        br(),br(),
         
-        # tabPanel(
-        #   "Map",
-        #   mod_leaflet_ui(id = "leaflet_ui_1"),
-        #   mod_input_demos_ui(id = "input_demos_ui_1")
-        # )
         h1("Priority map"),
-        p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
-        br(), 
-        p("Scroll down past the map to genearate a report."),
+        # p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
         br(),
         mod_map_overview_ui("map_overview_ui_1"),
         mod_map_selections_ui("map_selections_ui_1"),
-        br(),
-        # # sidebarPanel(width = 3,
-        # #              mod_map_selections_ui("map_selections_ui_1")),
-        # # sidebarPanel(
-        # #   width = 3,
-        # #   h3("Customize") %>%
-        # #     shinyhelper::helper(type = "markdown",
-        # #                         content = "PresetHelp"),
-        # #   mod_preset_selections_ui("preset_selections_ui_1"),
-        # #   mod_map_selections_ui("map_selections_ui_1")
-        # # ),
-        # mainPanel(
-        #   HTML("<container style='width:100%; margin:0; padding:0; border:0px'>"),
-        #   # p("Higher prioirity scores show where trees have disproportionately positive impacts. Clicking a priority area to activate the planting map. Darker red colors (and lower NDVI values) indicate areas most in need of greening."),
-        #   # column(width = 6, h3("Priority map")%>%
-        #   #          shinyhelper::helper(type = "markdown",
-        #   #                              content = "PriorityMapHelp") #,
-        #   #        # mod_map_overview_ui("map_overview_ui_1")
-        #   #        ),
-        #   column(width = 6, h3("Planting map")%>%
-        #            shinyhelper::helper(type = "markdown",
-        #                                content = "PlantingMapHelp"),
-        #          mod_ndvi_map_ui("ndvi_map_ui_1")),
-        #   HTML("</container>")
-        # ),
-        br(),
-        hr(), 
-        h2("Full report"),
-                 p("This tool is primarily intended to identify locations where new tree plantings could have disproportionately positive impacts. However, there's tons of other data we think might be useful."),
-        # fluidRow(column(width = 6, mod_ndvi_map_ui("ndvi_map_ui_1"))),
-        fluidRow(column(
-          width = 12,
-          HTML("<section style='max-width:1200px; margin:auto'>"),
-          mod_plot_tract_ui("plot_tract_ui_1"),
-          HTML("</style>")
-        )),
-        br(),
-        br(),
+        mod_plot_tract_ui("plot_tract_ui_1"),
         br()
-      ), 
+      )), 
                
                
     #   tabPanel("other",

@@ -9,8 +9,9 @@
 #' @importFrom shiny NS tagList 
 mod_map_overview_ui <- function(id){
   ns <- NS(id)
-  tagList(
-    leafletOutput(ns("map"), height = 750)#, width = '80%')#,
+  tagList(        tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
+
+    leafletOutput(ns("map"), width="100%", height="100%")#,
     
     # wellPanel(textOutput(ns("selected_tract")))
     
@@ -140,7 +141,7 @@ mod_map_overview_server <- function(input, output, session,
           "Historically redlined areas"
         ),
         options = layersControlOptions(collapsed = T)
-      ) %>%
+      ) %>% 
       hideGroup(c("Transit",
                   "Historically redlined areas"
                   # "Rivers & Lakes"
@@ -209,7 +210,7 @@ mod_map_overview_server <- function(input, output, session,
                      
                      addLegend(
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
-                       title = "Priority scores",
+                       title = "Priority scores<br>(higher scores indicate<br>where trees could have<br>disproportionately positive<br>impacts)",
                        position = "topright",
                        group = "score",
                        layerId = "score",

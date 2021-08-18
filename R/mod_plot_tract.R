@@ -10,12 +10,17 @@
 mod_plot_tract_ui <- function(id){
   ns <- NS(id)
   tagList(
-    # fluidRow(h3("Step 3: Make a report"),
-    #          p("This tool is primarily intended to identify locations where new tree plantings could have disproportionately positive impacts. However, there is more detail about trees across the region. Please generate a report if you are in need of more detail about a specific area.")),
-    # fluidRow(
-    
-    
-    
+
+    absolutePanel(
+      id = "controls",
+      class = "panel panel-default", 
+      fixed = FALSE,
+      draggable = TRUE, top = "30%", left = "60%", right = "auto", bottom = "auto",
+      style = "padding: 7px",
+      width = "auto", height = "auto",
+      HTML('<button data-toggle="collapse" data-target="#report">Create report</button>'),
+      tags$div(id = 'report',  class="collapse",
+               
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
@@ -49,9 +54,7 @@ mod_plot_tract_ui <- function(id){
       
     
     downloadButton(ns("tract_report"), "Generate a report")
-    
-    # plotOutput(ns("bargraph"), height = 900)
-    
+      ))
   )
 }
     
