@@ -42,22 +42,18 @@ app_ui <- function(request) {
       
       tabPanel( 
         "Use the tool",
+        # br(),br(),
+        # 
+        # h1("Priority map"),
         div(class="outer",
-            
-            tags$head(
-              # Include our custom CSS
-              includeCSS("inst/app/www/style.css")#,
-              # includeScript("gomap.js")
-            ),
-        br(),br(),
-        
-        h1("Priority map"),
+            # h1("Priority map"),
+
         # p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
-        br(),
+        # br(),
         mod_map_overview_ui("map_overview_ui_1"),
         mod_map_selections_ui("map_selections_ui_1"),
         mod_plot_tract_ui("plot_tract_ui_1"),
-        br()
+        mod_gethelp_ui("gethelp_ui_1")
       )), 
                
                

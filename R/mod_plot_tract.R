@@ -14,8 +14,8 @@ mod_plot_tract_ui <- function(id){
     absolutePanel(
       id = "controls",
       class = "panel panel-default", 
-      fixed = FALSE,
-      draggable = TRUE, top = "30%", left = "60%", right = "auto", bottom = "auto",
+      fixed = TRUE,
+      draggable = TRUE, top = "13%", left = "50%", right = "auto", bottom = "auto",
       style = "padding: 7px",
       width = "auto", height = "auto",
       HTML('<button data-toggle="collapse" data-target="#report">Create report</button>'),

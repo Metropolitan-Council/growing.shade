@@ -33,23 +33,32 @@ mod_map_overview_server <- function(input, output, session,
       setView(
         lat = 44.963,
         lng = -93.42,
-        zoom = 9
+        zoom = 10
       ) %>%
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
+      # addMapPane(name = "Road outlines", zIndex = -10) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
       addProviderTiles("Stamen.TonerLines",
                        group = "Stamen Toner"
       ) %>%
-      addProviderTiles("Stamen.TonerLabels", 
+      addProviderTiles("Stamen.TonerLines", 
+                       pathOptions(pane = "Aerial Imagery"),
+                       group = "Road outlines") %>%
+      addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
                        group = "Stamen Toner") %>%
-      addProviderTiles("CartoDB.PositronOnlyLabels", 
-                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+      
+      addProviderTiles("Stamen.TonerLabels",
+                       options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
                        group = "Aerial Imagery") %>%
+      # addProviderTiles("CartoDB.PositronOnlyLabels",
+      #                  options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+      #                  group = "Aerial Imagery") %>%
+      
       addProviderTiles("CartoDB.PositronOnlyLabels", 
                        options = c(zIndex = 400),#pathOptions(pane = "Carto Positron"),
                        group = "Carto Positron") %>%
@@ -134,6 +143,7 @@ mod_map_overview_server <- function(input, output, session,
           "Stamen Toner"
         ),
         overlayGroups = c(
+          "Road outlines",
           "Priority score",
           # "Rivers & Lakes",
           "Trees",
@@ -145,8 +155,8 @@ mod_map_overview_server <- function(input, output, session,
       hideGroup(c("Transit",
                   "Historically redlined areas"
                   # "Rivers & Lakes"
-                  )) %>%
-      leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE)
+                  )) #%>%
+      # leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE)
   })
   
   
@@ -186,7 +196,7 @@ mod_map_overview_server <- function(input, output, session,
                        color =  councilR::colors$suppGray,
                        opacity = 0.9,
                        weight = 0.5, #0.25,
-                       fillOpacity = 0.7,
+                       fillOpacity = 0.6,
                        smoothFactor = 0.2,
                        highlightOptions = highlightOptions(
                          stroke = TRUE,
@@ -211,7 +221,7 @@ mod_map_overview_server <- function(input, output, session,
                      addLegend(
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
                        title = "Priority scores<br>(higher scores indicate<br>where trees could have<br>disproportionately positive<br>impacts)",
-                       position = "topright",
+                       position = "bottomleft",
                        group = "score",
                        layerId = "score",
                        pal = colorNumeric(
@@ -233,7 +243,7 @@ mod_map_overview_server <- function(input, output, session,
                                     raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
                                   
                                   colors = "black", #pal,
-                                  opacity = .7,
+                                  opacity = .6,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
