@@ -38,7 +38,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
-      # addMapPane(name = "Road outlines", zIndex = -10) %>%
+      addMapPane(name = "Road outlines", zIndex = 170) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
@@ -46,7 +46,7 @@ mod_map_overview_server <- function(input, output, session,
                        group = "Stamen Toner"
       ) %>%
       addProviderTiles("Stamen.TonerLines", 
-                       pathOptions(pane = "Aerial Imagery"),
+                       options = pathOptions(pane = "Road outlines"),
                        group = "Road outlines") %>%
       addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),

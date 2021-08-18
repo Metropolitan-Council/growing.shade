@@ -20,7 +20,8 @@ mod_gethelp_ui <- function(id){
       HTML('<button data-toggle="collapse" data-target="#helper">Get help</button>'),
       tags$div(id = 'helper',  class="collapse",
                
-               HTML('Read the <a href ="www/Growing Shade Interactive Tool User Guide (August 2021).pdf" target="_blank">user guide</a>user guide for more information.') 
+               HTML('Read the <a href ="www/Growing Shade Interactive Tool User Guide (August 2021).pdf" target="_blank">user guide</a> for more information.<br><br> 
+                    We should also make a <a href ="https://youtu.be/gUBI4CIJNLQ" target="_blank">video user guide</a>.') 
                ))
   )
 }
