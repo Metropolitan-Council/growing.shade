@@ -50,7 +50,7 @@ mod_map_utils_server <- function(input, output, session,
     step2 <- step1 %>%
       group_by(tract_string) %>%
       summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
-      left_join(eva_tract_geometry, by = c("tract_string" = "GEOID")) %>%
+      left_join(mn_tracts, by = c("tract_string" = "GEOID")) %>%
       st_as_sf() %>%
       st_transform(4326) %>%
       mutate(RANK = min_rank(desc(MEAN)))

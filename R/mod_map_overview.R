@@ -248,10 +248,11 @@ mod_map_overview_server <- function(input, output, session,
                  # print(input$map_shape_click)
                  leafletProxy("map") %>%
                    addRasterImage(trees %>%
-                                    raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
+                                    raster::crop(filter(crop_tract_ctus, #mn_tracts, #crop_tract_ctus, 
+                                                        GEOID == input$map_shape_click$id)), #"27123031701")),
                                   
                                   colors = "#238b45", #pal,
-                                  opacity = .7,
+                                  opacity = .8,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
