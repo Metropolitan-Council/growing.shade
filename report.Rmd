@@ -9,14 +9,17 @@ params:
   selected_tract: NA
   selected_geo: NA
   selected_city: NA
+  vars_used: NA
 urlcolor: blue
 ---
 
-```{r echo=F, message=F, warning=F, results='hide'}
-#This is the selected tract.
+```{r assignments, echo=F, message=F, warning=F, results='hide'}
+library(tidyverse)
+
 params$selected_tract
 params$selected_geo
 params$selected_city
+params$vars_used
 
 reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
   params$selected_city
@@ -25,6 +28,7 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
 } else if (params$selected_geo == "County (within MN or WI)") {
   'PRANK! nothing to see here yet'
 }
+
 ```
 
 
@@ -34,10 +38,13 @@ This report might be super cool eventually!
 
 ## Status of the tree canopy
 
+
+
+Based on the ``r params$vars_used``` preset used, the selected area ranks. 
+
 Understand how the tree canopy of the selected region compares to other geographies across the region.
 
 ```{r status, echo=F, message=F, warning=F}
-library(tidyverse)
 ggplot(mtcars, aes(x = mpg, y = cyl)) +
   geom_point()
 ```

@@ -64,7 +64,8 @@ mod_plot_tract_ui <- function(id){
 #' @import ggplot2
 mod_plot_tract_server <- function(input, output, session,
                                   tract_selections = tract_selections,
-                                  map_util = map_util){
+                                  map_util = map_util,
+                                  map_selections = map_selections){
   ns <- session$ns
   
   # output$moreControls <- renderUI({
@@ -111,7 +112,8 @@ mod_plot_tract_server <- function(input, output, session,
       # Set up parameters to pass to Rmd document
       params <- list(selected_tract = tract_selections$selected_tract,
                      selected_geo = input$geo,
-                     selected_city = input$cityInput)
+                     selected_city = input$cityInput,
+                     vars_used = map_selections$preset)
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document

@@ -54,7 +54,8 @@ app_server <- function( input, output, session ) {
   
   callModule(mod_plot_tract_server, "plot_tract_ui_1",
              tract_selections = tract_selections,
-             map_util = map_util)
+             map_util = map_util,
+             map_selections = map_selections)
   
   callModule(mod_table_server, "table_ui_1",
              tract_selections = tract_selections,
