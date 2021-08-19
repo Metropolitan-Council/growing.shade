@@ -32,17 +32,32 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
 ```
 
 
-# Report for ```r reportfor```.
+# Report for `r reportfor`.
 
-This report might be super cool eventually!
+This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. If more or different information is needed, go to these sources or maybe email us? 
+
+Understanding the tree canopy as well as the interaction between trees adn the built + natral environments is important for planning efforts. Something about heat. Mitigation. Tree canopy cover data can help provide that big-picture view.
+
+This summary report provide an easy way to understand some of the important information for the selected region.
 
 ## Status of the tree canopy
 
+This section summarizes the how the tree canopy priority of the selected region compares to other geographies across the region.
 
+The selected region has an existing tree coverage of approximately X%. 
 
-Based on the ``r params$vars_used``` preset used, the selected area ranks. 
+Here is a map of the tree canopy. In the selected region, what is the underlying land use where trees are? What about where trees are not?
 
-Understand how the tree canopy of the selected region compares to other geographies across the region.
+MAP
+
+## Priortization summary
+
+Based on the `r params$vars_used` preset used, the selected area ranks X out of Y tracts with an average priority score of Z (out of 10, with 10 indicating where trees may offer the greatest benefits).
+
+The specific variables which went into this ranking include : ........
+
+Here is what the distribution of the raw values look like across the region, with the selected tract highlighted. If the variable was used in the ranking, those plots are outlined in red (or faceted?)? 
+
 
 ```{r status, echo=F, message=F, warning=F}
 testdf <- eva_data_main #%>% filter(variable == "prim_flood")
@@ -78,10 +93,36 @@ p<- if(params$selected_geo == "Selected tract") {ggplot()+
 p
 ```
 
+Maybe have some more text or a table here with all the values too. 
+
 ## Equity analysis
 
-Understand how people and trees interact, and where the selected geography compares.
+There is lots of research showing that trees are unevenly distributed across the region, with equity implications. The goal of this section is to show how people and trees interact, and where the selected geography compares. Here are some sources to learn more. 
+
+At the MetCouncil, we have shown that areas where the median income is <100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures here. 
+
+FIG HERE
 
 ## Trees past and present (with lessons for the future)
 
 Something about tree community composition. 
+
+Biodiversity, native/non-native. Before probably a lot of biodiversity, now not so much. 
+
+# What's coming next for Growing Shade?
+
+This tool is under active development (probably). Can we have people sign up for an email list to be notified when more features are added? Underlying land use in map (talk to gis folks), tree canopy uploaded to mn geospatial commons, tree biodiversity data on map (if it exists in decent coverage), expanding to greater MN/WI/MI, updating to 2021 tree canopy (or other years), maybe including some canopy loss/gain metrics over time (5 year time span, or something), news or use cases highlighted?, drilling down to block groups (when equity considerations are updated), tree short course talk coming up, base data updated for most recent years (equity considerations data), if we add something on "tree stress" (variability in ndvi over time?)
+
+# Other resources
+
+The Growing Shade is a unique tool offering users the ability to customize prioritization and see detailed maps of tree canopy gaps. However, there are other tools users may be additionally interested in. Find this list in the resources 
+
+- This tool; link here
+  - use it for x y z
+- another tool that is cool
+  - and why 
+- you might want to do this instead
+  - and you can do this
+  
+  
+  
