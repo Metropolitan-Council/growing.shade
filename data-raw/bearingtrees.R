@@ -116,7 +116,8 @@ msp_spp2 <- tribble(~spp_name, ~percent,
 #####
 msp_spp3 <- read_csv("./data-raw/CITYSUM.csv") %>%
   rename(percent = `trees percent`) %>%
-  select(spp_name, percent) %>%
+  group_by(spp_name) %>%
+  summarise(percent = sum(percent)) %>%
   mutate(timepoint = 2004) 
 
 ###combo
@@ -139,6 +140,14 @@ presettle_comp %>%
   ggplot(aes(x = as.factor(timepoint), y = percent, fill = spp_name)) +
   geom_bar(stat = "identity", col = "black") +
   theme_minimal()
+
+presettle_comp %>%
+  bind_rows(msp_spp) %>%
+  bind_rows(msp_spp2) %>%
+  bind_rows(msp_spp3) %>%
+  ggplot(aes(x = as.factor(timepoint), y = percent)) + 
+  geom_point() + geom_line(aes(group = as.factor(timepoint))) +
+  facet_wrap(~spp_name)
 
 # presettle_comp %>%
 #   ggplot(aes(x = 1, y = n, fill = spp_name)) +

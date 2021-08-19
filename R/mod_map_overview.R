@@ -53,15 +53,15 @@ mod_map_overview_server <- function(input, output, session,
                        options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
                        group = "Stamen Toner") %>%
       
-      addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
-                       group = "Aerial Imagery") %>%
+      # addProviderTiles("Stamen.TonerLabels",
+      #                  options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
+      #                  group = "Aerial Imagery") %>%
       addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
                        group = "Aerial Imagery with roads") %>%
-      # addProviderTiles("CartoDB.PositronOnlyLabels",
-      #                  options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
-      #                  group = "Aerial Imagery") %>%
+      addProviderTiles("CartoDB.PositronOnlyLabels",
+                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+                       group = "Aerial Imagery") %>%
       
       addProviderTiles("CartoDB.PositronOnlyLabels", 
                        options = c(zIndex = 400),#pathOptions(pane = "Carto Positron"),
@@ -152,7 +152,6 @@ mod_map_overview_server <- function(input, output, session,
           "Stamen Toner"
         ),
         overlayGroups = c(
-          "Road outlines",
           "Priority score",
           # "Rivers & Lakes",
           "Trees",
@@ -216,7 +215,7 @@ mod_map_overview_server <- function(input, output, session,
                        ),
                        fillColor = ~ colorNumeric(
                          n = 5,
-                         palette = "magma",
+                         palette = "inferno",
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
                        popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
@@ -229,13 +228,13 @@ mod_map_overview_server <- function(input, output, session,
                      
                      addLegend(
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
-                       title = "Priority scores<br>(higher scores indicate<br>where trees could have<br>disproportionately positive<br>impacts)",
+                       title = "Priority scores<br>(higher scores show<br>where trees may have<br>larger benefits)",
                        position = "bottomleft",
                        group = "score",
                        layerId = "score",
                        pal = colorNumeric(
                          n = 5,
-                         palette = "magma",
+                         palette = "inferno",
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
@@ -251,8 +250,8 @@ mod_map_overview_server <- function(input, output, session,
                    addRasterImage(trees %>%
                                     raster::crop(filter(eva_tract_geometry, GEOID == input$map_shape_click$id)), #"27123031701")),
                                   
-                                  colors = "black", #pal,
-                                  opacity = .6,
+                                  colors = "#238b45", #pal,
+                                  opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
