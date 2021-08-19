@@ -45,8 +45,37 @@ Based on the ``r params$vars_used``` preset used, the selected area ranks.
 Understand how the tree canopy of the selected region compares to other geographies across the region.
 
 ```{r status, echo=F, message=F, warning=F}
-ggplot(mtcars, aes(x = mpg, y = cyl)) +
-  geom_point()
+testdf <- eva_data_main #%>% filter(variable == "prim_flood")
+testtr <- params$selected_tract
+p<- if(params$selected_geo == "Selected tract") {ggplot()+
+          ggdist::stat_halfeye(
+            data = testdf, aes(x = variable, y = raw_value),
+            adjust = .5,  width = .6,  .width = 0,  justification = -.3, 
+            point_colour = NA) + 
+      geom_boxplot(data = testdf, aes(x = variable, y = raw_value),
+                   width = .25, outlier.shape = NA) +
+  geom_point(size = 1.3,alpha = .3,
+                            position = position_jitter(seed = 1, width = .1, height = 0),
+                            col = "grey40",
+                            aes(x = variable, y = raw_value),
+                            data = testdf %>% filter(tract_string != testtr)) +
+    geom_point(size = 4, position = position_jitter(seed = 1, width = .1, height = 0),
+                            fill = councilR::colors$cdGreen, col = "black", pch = 21,
+                            aes(x = variable, y = raw_value),
+                            data = filter(testdf, tract_string == testtr)) +
+  
+      coord_cartesian(xlim = c(1.2, NA), clip = "off") +
+      councilR::council_theme() +
+      theme(panel.grid.minor = element_blank(),
+            panel.grid.major.x = element_blank()) +
+      # coord_flip() +
+        scale_y_continuous(labels = scales::comma) +
+      labs(x = "Variable", y = stringr::str_wrap(testdf$variable, width = 40)) +
+   facet_wrap(~variable, scales = "free")} else {
+     ggplot(mtcars, aes(x = mpg, y = cyl)) + geom_point()
+   }
+
+p
 ```
 
 ## Equity analysis
