@@ -5,7 +5,7 @@ output:
   html_document:
     toc: true
     toc_depth: 3
-    css: "www/style.css"
+    # css: "inst/app/www/style.css"
 params:
   selected_tract: NA
   selected_geo: NA
@@ -58,14 +58,17 @@ The specific variables which went into this ranking include : ........
 Here is what the distribution of the raw values look like across the region, with the selected tract highlighted. If the variable was used in the ranking, those plots are outlined in red (or faceted?)? 
 
 
-```{r status, echo=F, message=F, warning=F}
-testdf <- eva_data_main #%>% filter(variable == "prim_flood")
+```{r status, echo=F, message=F, warning=F, fig.height=8, fig.width=7}
+testdf <- eva_data_main %>%
+  full_join(metadata)#%>% filter(variable == "prim_flood")
 testtr <- "27053006800"#params$selected_tract
-p<- if(params$selected_geo == "Selected tract") {ggplot()+
+# params$selected_geo == "Selected tract"
+p<- if(params$selected_geo == "Selected tract") {
+  ggplot()+
           ggdist::stat_halfeye(
             data = testdf, aes(x = variable, y = raw_value),
-            adjust = .5,  width = .6,  .width = 0,  justification = -.3, 
-            point_colour = NA) + 
+            adjust = .5,  width = .6,  .width = 0,  justification = -.3,
+            point_colour = NA) +
       geom_boxplot(data = testdf, aes(x = variable, y = raw_value),
                    width = .25, outlier.shape = NA) +
   geom_point(size = 1.3,alpha = .3,
@@ -73,19 +76,29 @@ p<- if(params$selected_geo == "Selected tract") {ggplot()+
                             col = "grey40",
                             aes(x = variable, y = raw_value),
                             data = testdf %>% filter(tract_string != testtr)) +
-    geom_point(size = 4, position = position_jitter(seed = 1, width = .1, height = 0),
+    geom_point(size = 3, position = position_jitter(seed = 1, width = .1, height = 0),
                             fill = councilR::colors$cdGreen, col = "black", pch = 21,
                             aes(x = variable, y = raw_value),
                             data = filter(testdf, tract_string == testtr)) +
-  
+
       coord_cartesian(xlim = c(1.2, NA), clip = "off") +
       councilR::council_theme() +
       theme(panel.grid.minor = element_blank(),
             panel.grid.major.x = element_blank()) +
       # coord_flip() +
         scale_y_continuous(labels = scales::comma) +
-      labs(x = "Variable", y = stringr::str_wrap(testdf$variable, width = 40)) +
-   facet_wrap(~variable, scales = "free")} else {
+    ylab(NULL)+
+    labs(x = "")+#, y = stringr::str_wrap(testdf$name, width = 40)) +
+   facet_wrap( ~ name, scales = "free",
+               # strip.position = "left",
+               labeller = labeller(name = label_wrap_gen(30)),
+               ncol = 3) +
+     theme(strip.background = element_blank(),
+           strip.placement = "outside",
+           axis.text.x = element_blank(),
+           panel.spacing = unit(2, "lines"),
+           strip.text.x = element_text(size = 8))  
+  } else {
      ggplot(mtcars, aes(x = mpg, y = cyl)) + geom_point()
    }
 
