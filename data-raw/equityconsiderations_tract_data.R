@@ -66,7 +66,8 @@ equity_data_raw <- equity %>%
          holc_pred) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
-         pbipoc = 1 - pwhitenh) %>% #"mutate" reformats any variables that need it
+         pbipoc = 1 - pwhitenh,
+         holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>% #"mutate" reformats any variables that need it
   select(-luse_notgreen,#and then I want to remove the variable I don't need anymore
          -pwhitenh) 
 
@@ -102,7 +103,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1,  0,
                           "ndvi2", "Average greenness (tract avg. of max NDVI in 2020) INVERSE", "tree", "high_opportunity", 1, 0, 1, 1,
                           "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
-                          "holc_pred", "Share of tract's land acreage redlined (Minneapolis and Saint Paul only)", "people", "high_opportunity", 0, 1, 0, 0
+                          "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0
                           )
 
 ###################
@@ -149,7 +150,7 @@ eva_data_main <- eva_data_raw %>%
   # 
   #clean
   select(-MEAN, -SD, -MIN, -MAX) 
-  
+eva_data_main %>% filter(tract_string == "27003050107")  
 ########
 # save data
 ########
@@ -163,10 +164,12 @@ usethis::use_data(eva_data_main, overwrite = TRUE)
 # ########
 # # create metadata
 # #########
+md1 <- eva_data_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T))
 metadata <- eva_data_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
   dplyr::count() %>%
-  dplyr::ungroup()
+  dplyr::ungroup() %>%
+  full_join(md1)
 
 usethis::use_data(metadata, overwrite = TRUE)
 
@@ -177,3 +180,4 @@ usethis::use_data(metadata, overwrite = TRUE)
 ####
 ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
 usethis::use_data(ctus, overwrite = TRUE)
+

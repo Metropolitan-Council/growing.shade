@@ -63,46 +63,69 @@ testdf <- eva_data_main %>%
   full_join(metadata)#%>% filter(variable == "prim_flood")
 testtr <- "27053006800"#params$selected_tract
 # params$selected_geo == "Selected tract"
-p<- if(params$selected_geo == "Selected tract") {
-  ggplot()+
-          ggdist::stat_halfeye(
-            data = testdf, aes(x = variable, y = raw_value),
-            adjust = .5,  width = .6,  .width = 0,  justification = -.3,
-            point_colour = NA) +
-      geom_boxplot(data = testdf, aes(x = variable, y = raw_value),
-                   width = .25, outlier.shape = NA) +
-  geom_point(size = 1.3,alpha = .3,
-                            position = position_jitter(seed = 1, width = .1, height = 0),
-                            col = "grey40",
-                            aes(x = variable, y = raw_value),
-                            data = testdf %>% filter(tract_string != testtr)) +
-    geom_point(size = 3, position = position_jitter(seed = 1, width = .1, height = 0),
-                            fill = councilR::colors$cdGreen, col = "black", pch = 21,
-                            aes(x = variable, y = raw_value),
-                            data = filter(testdf, tract_string == testtr)) +
 
-      coord_cartesian(xlim = c(1.2, NA), clip = "off") +
-      councilR::council_theme() +
-      theme(panel.grid.minor = element_blank(),
-            panel.grid.major.x = element_blank()) +
-      # coord_flip() +
-        scale_y_continuous(labels = scales::comma) +
-    ylab(NULL)+
-    labs(x = "")+#, y = stringr::str_wrap(testdf$name, width = 40)) +
-   facet_wrap( ~ name, scales = "free",
-               # strip.position = "left",
-               labeller = labeller(name = label_wrap_gen(30)),
-               ncol = 3) +
-     theme(strip.background = element_blank(),
-           strip.placement = "outside",
-           axis.text.x = element_blank(),
-           panel.spacing = unit(2, "lines"),
-           strip.text.x = element_text(size = 8))  
-  } else {
-     ggplot(mtcars, aes(x = mpg, y = cyl)) + geom_point()
-   }
+# #raincloud plot, kinda ugly here though. 
+# p<- if(params$selected_geo == "Selected tract") {
+#   ggplot()+
+#           ggdist::stat_halfeye(
+#             data = testdf, aes(x = as.factor(1), y = raw_value),
+#             adjust = .5,  width = .6,  .width = 0,  justification = -.3,
+#             point_colour = NA) +
+#       geom_boxplot(data = testdf, aes(x = as.factor(1), y = raw_value),
+#                    width = .25, outlier.shape = NA) +
+#   geom_point(size = 1.3, alpha = .3,
+#                             position = position_jitter(seed = 1, width = .1, height = 0),
+#                             col = "grey40",
+#                             aes(x = as.factor(1), y = raw_value),
+#                             data = testdf %>% filter(tract_string != testtr)) +
+#     geom_point(size = 3, position = position_jitter(seed = 1, width = .1, height = 0),
+#                             fill = councilR::colors$cdGreen, col = "black", pch = 21,
+#                             aes(x = as.factor(1), y = raw_value),
+#                             data = filter(testdf, tract_string == testtr)) +
+# 
+#       coord_cartesian(xlim = c(1.2, NA), clip = "off") +
+#       councilR::council_theme() +
+#       theme(panel.grid.minor = element_blank(),
+#             panel.grid.major.x = element_blank()) +
+#       # coord_flip() +
+#         scale_y_continuous(labels = scales::comma) +
+#     ylab(NULL)+
+#     labs(x = "")+#, y = stringr::str_wrap(testdf$name, width = 40)) +
+#    facet_wrap( ~ name, scales = "free",
+#                # strip.position = "left",
+#                labeller = labeller(name = label_wrap_gen(30)),
+#                ncol = 3) +
+#      theme(strip.background = element_blank(),
+#            strip.placement = "outside",
+#            axis.text.x = element_blank(),
+#            panel.spacing = unit(2, "lines"),
+#            strip.text.x = element_text(size = 8)) 
+#   } else {
+#      ggplot(mtcars, aes(x = mpg, y = cyl)) + geom_point()
+#    }
+# 
+# p
 
-p
+filter(testdf, tract_string == testtr) %>%
+              select(variable, raw_value, overall_rank) %>%
+  rename(`Selected area` = raw_value) %>%
+  full_join(metadata %>%
+              select(MEANRAW, variable, name)) %>% 
+  ungroup() %>%
+  select(-variable) %>%
+  rename(`Regional average` = MEANRAW,
+         Variable = name,
+         `Ranking` = overall_rank) %>% 
+  mutate(`Ranking` = as.factor(Ranking)) %>%
+   mutate(across(where(is.numeric), ~ifelse(str_detect(Variable, "%"), . * 100, .))) %>%
+  mutate(across(where(is.numeric), round, 2)) %>%
+  select(Variable, `Selected area`, `Regional average`, Ranking)
+  # mutate(across(starts_with("%", Variable), ~`Selected area` * 100))
+
+testdf %>%
+    filter(tract_string == testtr) %>%
+  ggplot(aes(x = weights_nominal))
+    
 ```
 
 Maybe have some more text or a table here with all the values too. 
