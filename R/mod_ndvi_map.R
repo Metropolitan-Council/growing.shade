@@ -230,10 +230,10 @@ mod_ndvi_map_server <- function(input, output, session,
 # residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.tif")
 # trees <- raster::raster("./data/tree_raster.tif")
 # 
-# test <- filter(eva_tract_geometry, GEOID == "27123031701")
-# bg <- eva_tract_geometry %>% left_join(eva_data_main %>% filter(variable == "p_65up") %>% rename(GEOID = tract_string)) %>% st_transform(4326)
+# test <- filter(mn_tracts, GEOID == "27053008500")
+# bg <- mn_tracts %>% left_join(eva_data_main %>% filter(variable == "p_65up") %>% rename(GEOID = tract_string)) %>% st_transform(4326)
 # leaflet()%>%
-#   setView(lat = 44.97, lng = -93.05, zoom = 13
+#   setView(lat = 44.94, lng = -93.258, zoom = 15
 #   ) %>%
 #   addMapPane(name = "Aerial Imagery", zIndex = 0) %>%
 #   addMapPane("Priority scores", zIndex = 150) %>%
@@ -248,7 +248,7 @@ mod_ndvi_map_server <- function(input, output, session,
 #                    options = c(zIndex = 210),
 #                    layerId = "labs") %>%
 #   addPolygons(
-#     data = bg, #%>% filter(GEOID != "27123031701"),
+#     data = bg, #%>% filter(GEOID != "27053008500"),
 #     group = "Priority scores",
 #     stroke = TRUE,
 #     color =  councilR::colors$suppGray,
@@ -261,6 +261,12 @@ mod_ndvi_map_server <- function(input, output, session,
 #               color = "#0054A4",
 #               fill = FALSE,
 #               layerId = "tractoutline") %>%
+#   addPolygons(data = river_lake %>% st_crop(test),
+#               color = "black",
+#               fillColor = "black",
+#               fillOpacity = .9,
+#               fill = T,
+#               group = "water") %>%
 #   addRasterImage(trees %>%
 #                  raster::crop(test),
 #                colors = "black", #pal,
@@ -273,7 +279,7 @@ mod_ndvi_map_server <- function(input, output, session,
 #           "Aerial Imagery"
 #         ),
 #         overlayGroups = c(
-#           "Trees", "Priority scores"
+#           "Trees", "Priority scores", "water"
 #         ))
 # 
 # 

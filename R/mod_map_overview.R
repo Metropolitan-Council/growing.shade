@@ -155,6 +155,7 @@ mod_map_overview_server <- function(input, output, session,
           "Priority score",
           # "Rivers & Lakes",
           "Trees",
+          "Water",
           "Active transit stops",
           "Historically redlined areas"
         ),
@@ -196,6 +197,7 @@ mod_map_overview_server <- function(input, output, session,
                    print("rendering polygons")
                    leafletProxy("map") %>%
                      clearGroup("Priority score") %>%
+                     clearGroup("Water") %>%
                      addMapPane("Priority score", zIndex = 150) %>%
                      addPolygons(
                        data = map_util$map_data2 %>% st_transform(4326),
@@ -230,7 +232,7 @@ mod_map_overview_server <- function(input, output, session,
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
                        title = "Priority scores<br>(higher scores show<br>where trees may have<br>larger benefits)",
                        position = "bottomleft",
-                       group = "score",
+                       group = "Priority score",
                        layerId = "score",
                        pal = colorNumeric(
                          n = 5,
@@ -256,7 +258,14 @@ mod_map_overview_server <- function(input, output, session,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
-                   )
+                   ) %>%
+                   addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus,
+                                                                    GEOID == input$map_shape_click$id)),
+                               color = "black",
+                               fillColor = "black",
+                               fillOpacity = .9,
+                               fill = T,
+                               group = "Water")
                }
   )
 
