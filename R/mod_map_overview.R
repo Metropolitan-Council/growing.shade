@@ -39,7 +39,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery with roads", zIndex = 100) %>%
-      addMapPane(name = "Road outlines", zIndex = 161) %>%
+      addMapPane(name = "Road outlines", zIndex = 151) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
@@ -212,7 +212,7 @@ mod_map_overview_server <- function(input, output, session,
                          stroke = TRUE,
                          color = "white",
                          weight = 6,
-                         bringToFront = TRUE,
+                         bringToFront = T,
                          opacity = 1
                        ),
                        fillColor = ~ colorNumeric(

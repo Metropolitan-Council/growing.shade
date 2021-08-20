@@ -8,6 +8,9 @@ div.outer {
   padding: 0;
 }
 
+.leaflet-top, .leaflet-bottom {
+    z-index: unset !important;
+}
 
 
 .modal-content {

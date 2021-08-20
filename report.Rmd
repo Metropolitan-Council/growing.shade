@@ -5,6 +5,7 @@ output:
   html_document:
     toc: true
     toc_depth: 3
+    css: "www/style.css"
 params:
   selected_tract: NA
   selected_geo: NA
@@ -34,17 +35,15 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
 
 # Report for `r reportfor`.
 
-This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. If more or different information is needed, go to these sources or maybe email us? 
+This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. Trees provide critical ecosystem services and are important components of the human, natural and built environments. Enhancing and maintaining tree canopy cover is an actionable step to create healthy places for people to live and a resilient future.
 
-Understanding the tree canopy as well as the interaction between trees adn the built + natral environments is important for planning efforts. Something about heat. Mitigation. Tree canopy cover data can help provide that big-picture view.
-
-This summary report provide an easy way to understand some of the important information for the selected region.
+This report synthesizes and summarizes data at the intersection of the built and natural environments, as well as the people that live there. Understanding the tree canopy within this larger context is important for prioritization and planning efforts. Please review "what's next for Growing Shade" or contact us at SOME EMAIL HERE if this report does not address your data needs.
 
 ## Status of the tree canopy
 
 This section summarizes the how the tree canopy priority of the selected region compares to other geographies across the region.
 
-The selected region has an existing tree coverage of approximately X%. 
+`r reportfor` has an existing tree coverage of approximately X%. 
 
 Here is a map of the tree canopy. In the selected region, what is the underlying land use where trees are? What about where trees are not?
 
@@ -61,7 +60,7 @@ Here is what the distribution of the raw values look like across the region, wit
 
 ```{r status, echo=F, message=F, warning=F}
 testdf <- eva_data_main #%>% filter(variable == "prim_flood")
-testtr <- params$selected_tract
+testtr <- "27053006800"#params$selected_tract
 p<- if(params$selected_geo == "Selected tract") {ggplot()+
           ggdist::stat_halfeye(
             data = testdf, aes(x = variable, y = raw_value),
@@ -109,7 +108,7 @@ Something about tree community composition.
 
 Biodiversity, native/non-native. Before probably a lot of biodiversity, now not so much. 
 
-# What's coming next for Growing Shade?
+# What's next for Growing Shade?
 
 This tool is under active development (probably). Can we have people sign up for an email list to be notified when more features are added? Underlying land use in map (talk to gis folks), tree canopy uploaded to mn geospatial commons, tree biodiversity data on map (if it exists in decent coverage), expanding to greater MN/WI/MI, updating to 2021 tree canopy (or other years), maybe including some canopy loss/gain metrics over time (5 year time span, or something), news or use cases highlighted?, drilling down to block groups (when equity considerations are updated), tree short course talk coming up, base data updated for most recent years (equity considerations data), if we add something on "tree stress" (variability in ndvi over time?)
 
