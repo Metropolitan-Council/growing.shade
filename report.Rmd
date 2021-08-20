@@ -11,16 +11,24 @@ params:
   selected_geo: NA
   selected_city: NA
   vars_used: NA
+  priority_score: NA
+  rank_total: NA
+  vars_selected: NA
 urlcolor: blue
 ---
 
 ```{r assignments, echo=F, message=F, warning=F, results='hide'}
 library(tidyverse)
+library(leaflet)
+library(mapview)
 
 params$selected_tract
 params$selected_geo
 params$selected_city
 params$vars_used
+params$priority_score #scaled and centered average based on inputs
+params$priority_rank #rank of scaled and centered average based on inputs
+# rank_total #number of tracts total
 
 reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
   params$selected_city
@@ -30,105 +38,145 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
   'PRANK! nothing to see here yet'
 }
 
+scaled_summed <- params$priority_score %>%
+  filter(tract_string == params$selected_tract)
+
 ```
 
 
-# Report for `r reportfor`.
+# Report for `r reportfor`
 
 This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. Trees provide critical ecosystem services and are important components of the human, natural and built environments. Enhancing and maintaining tree canopy cover is an actionable step to create healthy places for people to live and a resilient future.
 
-This report synthesizes and summarizes data at the intersection of the built and natural environments, as well as the people that live there. Understanding the tree canopy within this larger context is important for prioritization and planning efforts. Please review "what's next for Growing Shade" or contact us at SOME EMAIL HERE if this report does not address your data needs.
+This report synthesizes and summarizes data about trees, people, and the built environments. Understanding the tree canopy within this larger context is important for prioritization and planning efforts. Please review "what's next for Growing Shade" or contact us at SOME EMAIL HERE if this report does not address your data needs - we welcome the feedback and may be able to accommodate requests.
 
 ## Status of the tree canopy
 
 This section summarizes the how the tree canopy priority of the selected region compares to other geographies across the region.
 
-`r reportfor` has an existing tree coverage of approximately X%. 
+ ```r reportfor``` has an existing tree coverage of approximately ```r ```%. 
 
-Here is a map of the tree canopy. In the selected region, what is the underlying land use where trees are? What about where trees are not?
+We have chosen not to print an overview map in this space, because the time needed to generate the map adds considerably to the processing time of this report. Please note higher resolution images (and images with different underlying basemaps) can be obtained from the interactive tool - just zoom in to the desired level and take a screenshot. We recommend turning off the priority scores and using the "aerial imagery with roads" basemap. 
 
-MAP
+
+```{r map, echo = F, message = F, warning = F, fig.height=5, fig.width=8}
+# map_path <- paste0(tempdir(), "/map.png")
+# 
+# mapshot(
+#   leaflet() %>%
+#       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
+#       addMapPane(name = "Aerial Imagery with roads", zIndex = 100) %>%
+#       addMapPane(name = "Road outlines", zIndex = 151) %>%
+#       addProviderTiles("Stamen.TonerLines", 
+#                        options = pathOptions(pane = "Road outlines"),
+#                        group = "Aerial Imagery with roads") %>%
+#       addProviderTiles("Stamen.TonerLabels",
+#                        options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
+#                        group = "Aerial Imagery with roads") %>%
+#       addProviderTiles(
+#         provider = providers$Esri.WorldImagery,
+#         group = "Aerial Imagery with roads",
+#         options = pathOptions(pane = "Aerial Imagery")
+#       ) %>%
+#   addRasterImage(trees %>%
+#   raster::crop(filter(mn_tracts,#crop_tract_ctus, 
+#                       # GEOID == "27053109100")),
+#                       GEOID == params$selected_tract)),
+#                  colors = "#238b45", #pal,
+#                                   opacity = .8,
+#                                   layerId = "Trees",
+#                                   group = "Trees"#,
+#                                   # project = FALSE)
+#                    ) %>%
+#     addPolygons(data = filter(mn_tracts,
+#                               GEOID == params$selected_tract),
+#                               # GEOID == "27053109100"),
+#                 fill = NA,
+#                 opacity = 1,
+#                 color = councilR::colors$councilBlue) %>%
+#   addLayersControl(
+#         position = "bottomright",
+#         baseGroups = c(
+#           "Aerial Imagery with roads"
+#         ),
+#         overlayGroups = c(
+#           "Trees"),
+#         options = layersControlOptions(collapsed = T)
+#       ),
+#   file = map_path, cliprect = "viewport")
+# 
+# knitr::include_graphics(map_path)
+```
 
 ## Priortization summary
 
-Based on the `r params$vars_used` preset used, the selected area ranks X out of Y tracts with an average priority score of Z (out of 10, with 10 indicating where trees may offer the greatest benefits).
+Based on the ```r params$vars_used``` preset used, the selected area ranks ```r scaled_summed$RANK``` out of ```r params$rank_total``` with an average priority score of ```r round(scaled_summed$MEAN, 3)``` (out of 10, with 10 indicating where trees may offer the greatest benefits).
 
-The specific variables which went into this ranking include : ........
+The specific variables which went into this ranking include : `r params$vars_selected$value`.
 
-Here is what the distribution of the raw values look like across the region, with the selected tract highlighted. If the variable was used in the ranking, those plots are outlined in red (or faceted?)? 
+Here is how the selected area compares to the regional average **for the selected variables**. The plot shows the scaled and standardized values, please refer to the Methods tab for more detail. The table shows the raw values.
 
+Please go the the Appendix at the bottom of the report for more information on all the variables. 
 
-```{r status, echo=F, message=F, warning=F, fig.height=8, fig.width=7}
+```{r status, echo=F, message=F, warning=F, fig.height=6, fig.width=7}
 testdf <- eva_data_main %>%
   full_join(metadata)#%>% filter(variable == "prim_flood")
-testtr <- "27053006800"#params$selected_tract
-# params$selected_geo == "Selected tract"
+testtr <- params$selected_tract
 
-# #raincloud plot, kinda ugly here though. 
-# p<- if(params$selected_geo == "Selected tract") {
-#   ggplot()+
-#           ggdist::stat_halfeye(
-#             data = testdf, aes(x = as.factor(1), y = raw_value),
-#             adjust = .5,  width = .6,  .width = 0,  justification = -.3,
-#             point_colour = NA) +
-#       geom_boxplot(data = testdf, aes(x = as.factor(1), y = raw_value),
-#                    width = .25, outlier.shape = NA) +
-#   geom_point(size = 1.3, alpha = .3,
-#                             position = position_jitter(seed = 1, width = .1, height = 0),
-#                             col = "grey40",
-#                             aes(x = as.factor(1), y = raw_value),
-#                             data = testdf %>% filter(tract_string != testtr)) +
-#     geom_point(size = 3, position = position_jitter(seed = 1, width = .1, height = 0),
-#                             fill = councilR::colors$cdGreen, col = "black", pch = 21,
-#                             aes(x = as.factor(1), y = raw_value),
-#                             data = filter(testdf, tract_string == testtr)) +
+
+summary_table <- filter(testdf, tract_string == testtr) %>%
+  mutate(overall_rank = as.factor(overall_rank)) %>%
+   mutate(across(c(raw_value, MEANRAW), ~ifelse(str_detect(name, "%"), . * 100, .))) %>%
+  mutate(across(where(is.numeric), round, 2))
 # 
-#       coord_cartesian(xlim = c(1.2, NA), clip = "off") +
-#       councilR::council_theme() +
-#       theme(panel.grid.minor = element_blank(),
-#             panel.grid.major.x = element_blank()) +
-#       # coord_flip() +
-#         scale_y_continuous(labels = scales::comma) +
-#     ylab(NULL)+
-#     labs(x = "")+#, y = stringr::str_wrap(testdf$name, width = 40)) +
-#    facet_wrap( ~ name, scales = "free",
-#                # strip.position = "left",
-#                labeller = labeller(name = label_wrap_gen(30)),
-#                ncol = 3) +
-#      theme(strip.background = element_blank(),
-#            strip.placement = "outside",
-#            axis.text.x = element_blank(),
-#            panel.spacing = unit(2, "lines"),
-#            strip.text.x = element_text(size = 8)) 
-#   } else {
-#      ggplot(mtcars, aes(x = mpg, y = cyl)) + geom_point()
-#    }
 # 
-# p
+# # if (params$vars_used == "Custom"){
+summary_table %>%
+ungroup() %>%
+select(name, MEANSCALED, weights_scaled) %>%
+filter(name %in% params$vars_selected$value) %>%
+  pivot_longer(names_to = "TYPE", values_to = "VALUES", -name) %>%
+  mutate(TYPE = case_when(TYPE == "MEANSCALED" ~ "Regional average",
+                          TYPE == "weights_scaled" ~ "Selected area")) %>%
+  ggplot(aes(y = name, x=  VALUES, fill= TYPE)) +
+  geom_bar(stat = "identity", position = position_dodge(width = .5), width = .5, size = .75) +
+  # facet_grid(PRESETVAR ~., space = "free_y", scales = "free_y") +
+  councilR::council_theme() +
+  scale_y_discrete(labels = function(x) str_wrap(x, width = 50))+
+  scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen),
+                    name = "Geography") +
+  # scale_color_manual(values = c(councilR::colors$mtsRed, "white")) +
+  labs(y = "", x = "Weighted value (out of 10)") +
+  theme(panel.border = element_rect(colour = "black", fill = NA),
+        # axis.text.y = element_text(size = 12),
+        # axis.title.x = element_text(size = 12)
+        strip.text = element_text(size = 12),
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom")
+#   
+#   
+# # }
+# 
 
-filter(testdf, tract_string == testtr) %>%
-              select(variable, raw_value, overall_rank) %>%
-  rename(`Selected area` = raw_value) %>%
-  full_join(metadata %>%
-              select(MEANRAW, variable, name)) %>% 
-  ungroup() %>%
-  select(-variable) %>%
-  rename(`Regional average` = MEANRAW,
-         Variable = name,
-         `Ranking` = overall_rank) %>% 
-  mutate(`Ranking` = as.factor(Ranking)) %>%
-   mutate(across(where(is.numeric), ~ifelse(str_detect(Variable, "%"), . * 100, .))) %>%
-  mutate(across(where(is.numeric), round, 2)) %>%
-  select(Variable, `Selected area`, `Regional average`, Ranking)
-  # mutate(across(starts_with("%", Variable), ~`Selected area` * 100))
 
-testdf %>%
-    filter(tract_string == testtr) %>%
-  ggplot(aes(x = weights_nominal))
-    
 ```
 
-Maybe have some more text or a table here with all the values too. 
+
+
+```{r table, echo = F, mesasge = F, warning = F}
+
+knitr::kable(summary_table %>%
+               ungroup() %>%
+               select(name, raw_value, MEANRAW, overall_rank, n) %>%
+               filter(name %in% params$vars_selected$value) %>%
+               rename(Variable = name,
+                      `Selected area` = raw_value,
+                      `Regional average` = MEANRAW,
+                      `Ranking (higher rank = higher priority)` = overall_rank,
+                      `Total ranked areas` = n), "simple")
+
+```
+
 
 ## Equity analysis
 
@@ -160,4 +208,63 @@ The Growing Shade is a unique tool offering users the ability to customize prior
   - and you can do this
   
   
+# Appendix
+
+
+Because we believe that context is important, this is how the selected area compares to the regional average for all the presets available in the Growing Shade application. Do note that some variables are shared across presets. 
+
+```{r echo = F, message=F, warning = F, fig.height=8, fig.width=7}
+# If the variable was used in the user-selected ranking, those bars are outlined in red. 
+
+forplot <- summary_table %>%
+  ungroup() %>%
+  select(name, MEANSCALED, weights_scaled, ej, cc, ph, cons) %>%
+  pivot_longer(names_to = "TYPE", values_to = "VALUES", -c(name, ej, cc, ph, cons)) %>%
+  pivot_longer(names_to = "PRESETVAR", values_to = "PRESETVAL", -c(name, TYPE, VALUES)) %>%
+  filter(PRESETVAL == 1) %>%
+  mutate(PRESETVAR = case_when(PRESETVAR == "ej" ~ "Environmental justice",
+                               PRESETVAR == "cc" ~ "Climate change",
+                               PRESETVAR == "ph" ~ "Public health",
+                               PRESETVAR == "cons" ~ "Con-\nserv-\nation"),
+         TYPE = case_when(TYPE == "MEANSCALED" ~ "Regional average",
+                          TYPE == "weights_scaled" ~ "Selected area"))
+         
+
+forplot %>%
+  # mutate(FLAG = case_when(name %in% params$vars_selected$value ~ "flag",
+  #                         TRUE ~ NA_character_)) %>%
+  ggplot(aes(y = name, x=  VALUES, fill= TYPE))+#, col = FLAG)) + 
+  geom_bar(stat = "identity", position = position_dodge(width = .5), width = .5, size = .75) +
+  # coord_flip() +
+  facet_grid(PRESETVAR ~., space = "free_y", scales = "free_y") +
+  councilR::council_theme() +
+  scale_y_discrete(labels = function(x) str_wrap(x, width = 50))+
+  scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen),
+                    name = "Geography") +
+  # scale_color_manual(values = c(councilR::colors$mtsRed, "white")) +
+  labs(y = "", x = "Weighted value (out of 10)") +
+  theme(panel.border = element_rect(colour = "black", fill = NA),
+        # axis.text.y = element_text(size = 12),
+        # axis.title.x = element_text(size = 12)
+        strip.text = element_text(size = 12),
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom")#  +
+  # guides(color = F)
   
+```
+
+
+```{r tableall, echo = F, mesasge = F, warning = F}
+
+knitr::kable(summary_table %>%
+               ungroup() %>%
+               select(name, raw_value, MEANRAW, overall_rank, n) %>%
+               # filter(name %in% params$vars_selected$value) %>%
+               rename(Variable = name,
+                      `Selected area` = raw_value,
+                      `Regional average` = MEANRAW,
+                      `Ranking (higher rank = higher priority)` = overall_rank,
+                      `Total ranked areas` = n), "simple")
+
+```
+

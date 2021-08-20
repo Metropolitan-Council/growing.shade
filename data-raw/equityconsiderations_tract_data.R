@@ -101,7 +101,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
                           "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Average greenness (tract avg. of max NDVI in 2020) INVERSE", "tree", "high_opportunity", 1, 0, 1, 1,
+                          "ndvi2", "Average greenness (tract avg. of max NDVI in 2020) INVERSE", "tree", "high_opportunity", 0, 0, 0, 1,
                           "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
                           "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0
                           )
@@ -140,17 +140,17 @@ eva_data_main <- eva_data_raw %>%
                                     TRUE ~ NA_real_)) %>%
   
   #weights rank
-  mutate(weights_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank((weights_nominal)) / COUNT * 10,
+  mutate(weights_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
                                   interpret_high_value == "low_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
                                   TRUE ~ NA_real_)) %>%
   
   # #rank
-  mutate(overall_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank(as.numeric(weights_nominal)),
+  mutate(overall_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))),
                                   interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))))) %>%
   # 
   #clean
   select(-MEAN, -SD, -MIN, -MAX) 
-eva_data_main %>% filter(tract_string == "27003050107")  
+
 ########
 # save data
 ########
@@ -164,7 +164,8 @@ usethis::use_data(eva_data_main, overwrite = TRUE)
 # ########
 # # create metadata
 # #########
-md1 <- eva_data_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T))
+md1 <- eva_data_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
+                                                          MEANSCALED = mean(weights_scaled, na.rm = T))
 metadata <- eva_data_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
   dplyr::count() %>%

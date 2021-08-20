@@ -25,7 +25,7 @@ mod_plot_tract_ui <- function(id){
       ns("geo"),
       label = h3("Report region"),
       choices = c("Selected tract", "City (MetCouncil region only)", "County (within MN or WI)"),
-      selected = c("City (MetCouncil region only)"),
+      selected = c("Selected tract"),#c("City (MetCouncil region only)"),
       inline = F 
       ),
       
@@ -113,7 +113,10 @@ mod_plot_tract_server <- function(input, output, session,
       params <- list(selected_tract = tract_selections$selected_tract,
                      selected_geo = input$geo,
                      selected_city = input$cityInput,
-                     vars_used = map_selections$preset)
+                     vars_used = map_selections$preset,
+                     priority_score = map_util$map_data2,#round(map_util$map_data2$MEAN, 3),
+                     rank_total = nrow(map_util$map_data2),
+                     vars_selected = map_selections$allInputs)
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document

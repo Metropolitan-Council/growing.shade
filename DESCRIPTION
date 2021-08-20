@@ -39,7 +39,8 @@ Imports:
     pkgload,
     DT (>= 0.18),
     readr(>= 1.4.0),
-    leaflet.multiopacity (>= 0.1.1)
+    leaflet.multiopacity (>= 0.1.1),
+    mapview
 Suggests: 
     data.table (>= 1.12.8),
     fs (>= 1.4.1),
