@@ -23,17 +23,22 @@ usethis::use_data(eab, overwrite = TRUE)
 # fs::file_delete("biota_marschner_presettle_veg.gpkg")
 # save(historic_veg, file = "historic_veg.rda")
 
-library(leaflet)
+# library(leaflet)
+# 
+# leaflet() %>%
+# addCircles(
+#   # Markers(
+#   data = eab,
+#   group = "EAB",
+#   radius = 20,
+#   fill = T,
+#   stroke = TRUE,
+#   weight = 2,
+#   color = "red", #councilR::colors$transitRed,
+#   fillColor = "red"# councilR::colors$transitRed,
+# ) 
 
-leaflet() %>%
-addCircles(
-  # Markers(
-  data = eab,
-  group = "EAB",
-  radius = 20,
-  fill = T,
-  stroke = TRUE,
-  weight = 2,
-  color = "red", #councilR::colors$transitRed,
-  fillColor = "red"# councilR::colors$transitRed,
-) 
+
+eab %>%
+  sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
+                      GEOID == "27123037601")) %>% nrow()

@@ -51,6 +51,10 @@ fheight = if (nrow(params$vars_selected) < 3) {
   3
 } else {nrow(params$vars_selected)}
 
+eabcount<- eab %>%
+  sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
+                      GEOID == params$selected_tract)) %>% nrow()
+
 
 ```
 
@@ -226,6 +230,10 @@ ggplot(mtcars, aes(x = cyl, y = mpg)) +
 ## Trees past and present (with lessons for the future)
 
 The goal of this section is present information about other considerations. 
+
+Threats include low biodiversity:
+
+Emerald Ash Borer DNR Map shows that there are ```r eabcount``` trees infected with EAB. This is likely incomplete and out of date. 
 
 Something about tree community composition. 
 
