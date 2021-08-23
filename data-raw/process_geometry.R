@@ -15,10 +15,14 @@ blocks_ctus <- readxl::read_xlsx("/Volumes/shared/CommDev/Research/Research/Cros
   
 mn_tracts <- tigris::tracts(state = "MN",
                county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
+  # st_buffer(0) %>% # 27053025100, 27037060725 is having a self intersection error
+  # st_make_valid() %>%
   sf::st_transform(4326)
-
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
+
+
+# filter(st_is_valid(mn_tracts)), 
 
 # ### if tract is small, turn geometry into a ctu
 # temp <- tempfile()
@@ -62,24 +66,30 @@ buffer_tract <- mn_tracts %>%
   filter(ALAND <= 3000000) %>% #smaller than 1 mile
   st_transform(3857) %>%
   st_buffer(dist = 1609.34 * 1) %>% # the 3857 projection uses meters as a distance, so 1.0 mi = buffer here for ~5mi
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  st_buffer(0)
   
 buffer_tract_mid <- mn_tracts %>%
   filter(ALAND > 3000000, ALAND <= 5000000) %>% #greater than 1 mile, smaller than 2 miles
   st_transform(3857) %>%
   st_buffer(dist = 1609.34 * .5) %>% 
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  st_buffer(0)
 
 buffer_tract_max <- mn_tracts %>%
   filter(ALAND > 5000000) %>% #all other tracts
   st_transform(3857) %>%
   st_buffer(dist = 1609.34 * .1) %>% 
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  st_buffer(0)
 
 crop_tract_ctus <- buffer_tract_max %>%
   bind_rows(buffer_tract) %>%
   bind_rows(buffer_tract_mid) %>%
   st_as_sf() %>%
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  st_buffer(0)
+
+# filter(crop_tract_ctus, st_is_valid(crop_tract_ctus)=="TRUE")
 
 usethis::use_data(crop_tract_ctus, overwrite = TRUE)
