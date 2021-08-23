@@ -18,6 +18,8 @@ library(tidyverse)
 library(leaflet)
 library(mapview)
 
+# knitr::opts_chunk$set(echo = FALSE, message = F, warning = F, tidy.opts=list(width.cutoff=50))
+         
 # output: 
 #   html_document:
 #     toc: true
@@ -48,9 +50,6 @@ scaled_summed <- params$priority_score %>%
 fheight = if (nrow(params$vars_selected) < 3) {
   3
 } else {nrow(params$vars_selected)}
-  # if (nrow(params$vars_selected) < 3) {3
-#   } else if (nrow(params$vars_selected) < 5) {4} else {7}
-# fheight = nrow(params$vars_selected)
 
 
 ```
@@ -69,10 +68,11 @@ This section summarizes the how the tree canopy priority of the selected region 
 
  ```r reportfor``` has an existing tree coverage of approximately ```r ```%. 
 
-We have chosen not to print an overview map in this space, because the time needed to generate the map adds considerably to the processing time of this report. Please note higher resolution images (and images with different underlying basemaps) can be obtained from the interactive tool - just zoom in to the desired level and take a screenshot. We recommend turning off the priority scores and using the "aerial imagery with roads" basemap. 
-
+If you wish to obtain a map of the area, please use the interactive tool - just zoom in as desired and take a screenshot (<a href = 'https://support.microsoft.com/en-us/windows/how-to-take-and-annotate-screenshots-on-windows-10-ca08e124-cc30-2579-3e55-6db63e36fbb9' target = '_blank'>instructions for Windows</a> or <a href = 'https://support.apple.com/en-us/HT201361' target = '_blank'>instructions for Mac</a>). We recommend turning off the "priority scores" layer when doing so. 
 
 ```{r map, echo = F, message = F, warning = F, fig.height=5, fig.width=8}
+# We have chosen not to print an overview map in this space, because the time needed to generate the map adds considerably to the processing time of this report. Please note higher resolution images (and images with different underlying basemaps) can be obtained from the interactive tool - just zoom in to the desired level and take a screenshot. We recommend turning off the priority scores and using the "aerial imagery with roads" basemap. 
+
 # map_path <- paste0(tempdir(), "/map.png")
 # 
 # mapshot(
@@ -123,11 +123,26 @@ We have chosen not to print an overview map in this space, because the time need
 
 ## Priortization summary
 
-Based on the ```r params$vars_used``` preset used, the selected area ranks ```r scaled_summed$RANK``` out of ```r params$rank_total``` with an average priority score of ```r round(scaled_summed$MEAN, 3)``` (out of 10, with 10 indicating where trees may offer the greatest benefits).
+Based on the ```r params$vars_used``` preset used, the selected area ranks ```r scaled_summed$RANK``` out of ```r params$rank_total``` with an average priority score of ```r round(scaled_summed$MEAN, 3)``` (out of 10, with 10 indicating the highest priority).
 
-The specific variables which went into this ranking include : `r params$vars_selected$value`.
+The specific variables which went into this ranking include : 
+```{r, echo=F, message=F, warning=F}
+row_count <-  nrow(params$vars_selected)
+        if(!is.null(row_count)){
+            # write a function to create a list from the vector
+            vectorBulletList <- function(vector) {
+                if(length(vector > 1)) {
+                    paste0("<ul><li>", 
+                           paste0(
+                               paste0(vector, collpase = ""), collapse = "</li><li>"),
+                           "</li></ul>")   
+                }
+            }
+        }
+HTML(paste0("<code>",vectorBulletList(params$vars_selected$value), "</code>"))
+```
 
-Here is how the selected area compares to the regional average **for the selected variables**. The plot shows the scaled and standardized values, please refer to the Methods tab for more detail. The table shows the raw values.
+Here is how the selected area compares to the regional average **for the selected variables**. The plot shows the scaled and standardized scores on the x-axis. The table shows the raw values. Please refer to the Methods tab for more detail.
 
 Please go the the Appendix at the bottom of the report for more information on all the variables. 
 
@@ -159,7 +174,7 @@ filter(name %in% params$vars_selected$value) %>%
   scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen),
                     name = "Geography") +
   # scale_color_manual(values = c(councilR::colors$mtsRed, "white")) +
-  labs(y = "", x = "Weighted value (out of 10)") +
+  labs(y = "", x = "Score (out of 10)") +
   theme(panel.border = element_rect(colour = "black", fill = NA),
         # axis.text.y = element_text(size = 12),
         # axis.title.x = element_text(size = 12)
@@ -173,6 +188,8 @@ filter(name %in% params$vars_selected$value) %>%
 
 
 ```
+
+
 
 
 
@@ -193,13 +210,22 @@ knitr::kable(summary_table %>%
 
 ## Equity analysis
 
-There is lots of research showing that trees are unevenly distributed across the region, with equity implications. The goal of this section is to show how people and trees interact, and where the selected geography compares. Here are some sources to learn more. 
+The goal of this section is to show how people and trees interact, and where the selected geography compares. 
+
+Research shows that trees are unevenly distributed across communities. In particular, neighborhoods with high BIPOC populations or low-income have less tree canopy (<a href = 'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715' target = '_blank'>MacDonald 2021</a>) as do areas which were historically redlined (<a href = 'https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today' target = '_blank'>NPR news story</a>, scientific articles: <a href = 'https://www.nature.com/articles/s42949-021-00022-0' target = '_blank'>Locke et al. 2021</a>, media coverage by <a href = 'https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub' target = '_blank'>Namin et al. 2020</a>) ).  Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% a href = 'https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha 2021</a>).
 
 At the MetCouncil, we have shown that areas where the median income is <100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures here. 
 
-FIG HERE
+
+```{r equityfig, echo=F, message = F, warning = F}
+ggplot(mtcars, aes(x = cyl, y = mpg)) +
+  geom_point()
+
+```
 
 ## Trees past and present (with lessons for the future)
+
+The goal of this section is present information about other considerations. 
 
 Something about tree community composition. 
 

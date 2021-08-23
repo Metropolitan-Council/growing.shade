@@ -43,6 +43,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
+      addMapPane("EAB", zIndex = 400) %>%
       # set max zoom on labels since the aerial imagery is coarser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
 
       
@@ -115,6 +116,28 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "trans")
       ) %>%
       
+      addCircles(
+        # Markers(
+        data = eab,
+        group = "EAB",
+        radius = 15,
+        fill = T,
+        stroke = TRUE,
+        weight = 4,
+        opacity = 1,
+        fillOpacity = .3,
+        color = "red", #councilR::colors$transitRed,
+        fillColor = "white",# councilR::colors$transitRed,
+        options = pathOptions(pane = "EAB"),
+        label = "EAB"
+        # labelOptions = labelOptions(noHide = TRUE, offset=c(0,-12), textOnly = TRUE)
+      ) %>%
+    # addAwesomeMarkers(
+    #   group = "EAB",
+    #   data = eab,
+    #   icon = iconeab,
+    #   options = pathOptions(pane = "EAB")
+    # )  %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -178,11 +201,13 @@ mod_map_overview_server <- function(input, output, session,
           "Trees",
           "Water",
           "Active transit stops",
-          "Historically redlined areas"
+          "Historically redlined areas",
+          "EAB"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
       hideGroup(c("Transit",
+                  "EAB",
                   "Historically redlined areas"
                   # "Rivers & Lakes"
                   )) %>%

@@ -155,6 +155,13 @@ icon_bus <- leaflet::awesomeIcons(
   markerColor = "green"
 )
 
+iconeab <- leaflet::awesomeIcons(
+  icon = "ios-close",
+  iconColor = "black",
+  library = "ion",
+  markerColor = "red"
+)
+
 story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx",
                                       col_types = "text") %>%
   dplyr::group_by(topic) %>%
