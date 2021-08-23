@@ -269,7 +269,7 @@ mod_map_overview_server <- function(input, output, session,
                      
                      addLegend(
                        # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
-                       title = "Priority scores<br>(higher scores show<br>where trees may have<br>larger benefits)",
+                       title = "Priority scores<br>(10 = highest priority)", #(higher scores show<br>where trees may have<br>larger benefits)",
                        position = "bottomleft",
                        group = "Priority score",
                        layerId = "score",

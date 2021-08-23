@@ -45,7 +45,16 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
 scaled_summed <- params$priority_score %>%
   filter(tract_string == params$selected_tract)
 
+fheight = if (nrow(params$vars_selected) < 3) {
+  3
+} else {nrow(params$vars_selected)}
+  # if (nrow(params$vars_selected) < 3) {3
+#   } else if (nrow(params$vars_selected) < 5) {4} else {7}
+# fheight = nrow(params$vars_selected)
+
+
 ```
+
 
 
 # Report for `r reportfor`
@@ -122,7 +131,7 @@ Here is how the selected area compares to the regional average **for the selecte
 
 Please go the the Appendix at the bottom of the report for more information on all the variables. 
 
-```{r status, echo=F, message=F, warning=F, fig.height=6, fig.width=7}
+```{r status, echo=F, message=F, warning=F, fig.height=fheight, fig.width=7}
 testdf <- eva_data_main %>%
   full_join(metadata)#%>% filter(variable == "prim_flood")
 testtr <- params$selected_tract
@@ -176,7 +185,7 @@ knitr::kable(summary_table %>%
                rename(Variable = name,
                       `Selected area` = raw_value,
                       `Regional average` = MEANRAW,
-                      `Ranking (higher rank = higher priority)` = overall_rank,
+                      `Ranking (1 = highest priority)` = overall_rank,
                       `Total ranked areas` = n), "simple")
 
 ```
