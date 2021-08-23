@@ -36,54 +36,71 @@ mod_map_overview_server <- function(input, output, session,
         zoom = 10
       ) %>%
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
-      addMapPane(name = "Carto Positron", zIndex = 100) %>%
+      addMapPane(name = "Map", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
-      addMapPane(name = "Aerial Imagery with roads", zIndex = 100) %>%
+      addMapPane(name = "Satellite", zIndex = 100) %>%
       addMapPane(name = "Road outlines", zIndex = 151) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
-      addProviderTiles("Stamen.TonerLines",
-                       group = "Stamen Toner"
-      ) %>%
       # set max zoom on labels since the aerial imagery is coarser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
+
+      
+      # addProviderTiles("Stamen.TonerLines",
+      #                  group = "Stamen Toner"
+      # ) %>%
+      # addProviderTiles("Stamen.TonerHybrid", #"Stamen.TonerLabels",
+      #                  pathOptions(pane = "Stamen Toner"),
+      #                  group = "Stamen Toner") %>%
+      # addProviderTiles("Stamen.TonerHybrid", #"Stamen.TonerLabels",
+      #                  options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+      #                  group = "Stamen Toner") %>%
+      
+      #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", 
                        options = c(pathOptions(pane = "Road outlines"),
-                                   maxNativeZoom=18,maxZoom=18),
-                       group = "Aerial Imagery with roads") %>%
+                                   maxZoom=18),
+                       group = "Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
-                       group = "Stamen Toner") %>%
+                       options = c(zIndex = 600,
+                                   maxZoom=18),# pathOptions(pane = "Stamen Toner"),
+                       group = "Satellite") %>%
+      addProviderTiles("Stamen.TonerLabels",
+                       options = c(zIndex = 600,
+                                   maxZoom=18),# pathOptions(pane = "Stamen Toner"),
+                       group = "Map") %>%
+      addProviderTiles(
+        provider = providers$Esri.WorldImagery,
+        group = "Satellite",
+        options = pathOptions(pane = "Aerial Imagery")
+      ) %>%
       
+      #  # aerial
+      # addProviderTiles("CartoDB.PositronOnlyLabels",
+      #                  options = c(zIndex = 400,
+      #                              maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
+      #                  group = "Aerial Imagery") %>%
       # addProviderTiles("Stamen.TonerLabels",
       #                  options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
       #                  group = "Aerial Imagery") %>%
-      addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 600,
-                                   maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
-                       group = "Aerial Imagery with roads") %>%
-      addProviderTiles("CartoDB.PositronOnlyLabels",
-                       options = c(zIndex = 400,
-                                   maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
-                       group = "Aerial Imagery") %>%
       
-      addProviderTiles("CartoDB.PositronOnlyLabels", 
-                       options = c(zIndex = 400),#pathOptions(pane = "Carto Positron"),
-                       group = "Carto Positron") %>%
+       #carto positron
+      # addProviderTiles("CartoDB.PositronOnlyLabels",
+      #                  options = c(zIndex = 400),#pathOptions(pane = "Map"),
+      #                  group = "Map") %>%
       addProviderTiles("CartoDB.PositronNoLabels",
-                       group = "Carto Positron",
-                       options = pathOptions(pane = "Carto Positron")
+                       group = "Map",
+                       options = pathOptions(pane = "Map")
       ) %>%
-      addProviderTiles(
-        provider = providers$Esri.WorldImagery,
-        group = "Aerial Imagery",
-        options = pathOptions(pane = "Aerial Imagery")
-      ) %>%
-      addProviderTiles(
-        provider = providers$Esri.WorldImagery,
-        group = "Aerial Imagery with roads",
-        options = pathOptions(pane = "Aerial Imagery")
-      ) %>%     
+      
+      
+      # addProviderTiles(
+      #   provider = providers$Esri.WorldImagery,
+      #   group = "Aerial Imagery",
+      #   options = pathOptions(pane = "Aerial Imagery")
+      # ) %>%
+
+         
       #### regional specific other data layers
       addCircles(
         # Markers(
@@ -150,10 +167,10 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
-          "Carto Positron",
-          "Aerial Imagery",
-          "Aerial Imagery with roads",
-          "Stamen Toner"
+          "Map",
+          # "Aerial Imagery",
+          "Satellite"#,
+          # "Stamen Toner"
         ),
         overlayGroups = c(
           "Priority score",
@@ -170,7 +187,11 @@ mod_map_overview_server <- function(input, output, session,
                   # "Rivers & Lakes"
                   )) %>%
       groupOptions(
-        group = "Aerial Imagery",
+        group = "Map",
+        zoomLevels = 1:12
+      ) %>%
+    groupOptions(
+        group = "Satellite",
         zoomLevels = 13:18
       ) #%>%
 #       addControl(html="<h1 id='zoom'>Zoom</h1>") %>%
@@ -215,6 +236,7 @@ mod_map_overview_server <- function(input, output, session,
                    leafletProxy("map") %>%
                      clearGroup("Priority score") %>%
                      clearGroup("Water") %>%
+                     addMapPane("Water", zIndex = 151) %>%
                      addMapPane("Priority score", zIndex = 150) %>%
                      addPolygons(
                        data = map_util$map_data2 %>% st_transform(4326),
@@ -282,7 +304,8 @@ mod_map_overview_server <- function(input, output, session,
                                fillColor = "black",
                                fillOpacity = .9,
                                fill = T,
-                               group = "Water")
+                               group = "Water",
+                               options = pathOptions(pane = "Water"))
                }
   )
 
