@@ -235,7 +235,6 @@ mod_map_overview_server <- function(input, output, session,
                    print("rendering polygons")
                    leafletProxy("map") %>%
                      clearGroup("Priority score") %>%
-                     clearGroup("Water") %>%
                      addMapPane("Water", zIndex = 151) %>%
                      addMapPane("Priority score", zIndex = 150) %>%
                      addPolygons(
@@ -301,6 +300,7 @@ mod_map_overview_server <- function(input, output, session,
                                   group = "Trees"#,
                                   # project = FALSE)
                    ) %>%
+                   clearGroup("Water") %>%
                    addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus,
                                                                     GEOID == input$map_shape_click$id)),
                                color = "black",
