@@ -1,11 +1,7 @@
 ---
 title: "Growing shade report"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: 
-  html_document:
-    toc: true
-    toc_depth: 3
-    # css: "inst/app/www/style.css"
+
 params:
   selected_tract: NA
   selected_geo: NA
@@ -21,6 +17,14 @@ urlcolor: blue
 library(tidyverse)
 library(leaflet)
 library(mapview)
+
+# output: 
+#   html_document:
+#     toc: true
+#     toc_depth: 3
+#     # css: "inst/app/www/style.css"
+
+# code_folding: show
 
 params$selected_tract
 params$selected_geo

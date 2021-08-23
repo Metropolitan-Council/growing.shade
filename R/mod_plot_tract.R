@@ -24,7 +24,7 @@ mod_plot_tract_ui <- function(id){
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract", "City (MetCouncil region only)", "County (within MN or WI)"),
+      choices = c("Selected tract", "City (MetCouncil region only)"), #"County (within MN or WI)"),
       selected = c("Selected tract"),#c("City (MetCouncil region only)"),
       inline = F 
       ),
@@ -40,17 +40,17 @@ mod_plot_tract_ui <- function(id){
                                   multiple = F,
                                   selected = "Afton" #filter(metadata, type == "people")[1, 2]
         )),
-      conditionalPanel(
-        ns = ns,
-        condition = "input.geo == 'County (within MN or WI)'",
-        
-        shinyWidgets::pickerInput(ns("stateInput"), 
-                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Placeholder</span></h4>")),
-                                  choices = c("Minnesota", "Wisconsin"),
-                                  options = list(size = 5),
-                                  multiple = F,
-                                  selected = "Minnesota" #filter(metadata, type == "people")[1, 2]
-        )),
+      # conditionalPanel(
+      #   ns = ns,
+      #   condition = "input.geo == 'County (within MN or WI)'",
+      #   
+      #   shinyWidgets::pickerInput(ns("stateInput"), 
+      #                             label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Placeholder</span></h4>")),
+      #                             choices = c("Minnesota", "Wisconsin"),
+      #                             options = list(size = 5),
+      #                             multiple = F,
+      #                             selected = "Minnesota" #filter(metadata, type == "people")[1, 2]
+      #   )),
       
     
     downloadButton(ns("tract_report"), "Generate a report")
@@ -123,7 +123,16 @@ mod_plot_tract_server <- function(input, output, session,
       # from the code in this app).
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
-                        envir = new.env(parent = globalenv())
+                        envir = new.env(parent = globalenv()),
+                        output_format = "html_document",
+                        output_options = list(html_preview = FALSE,
+                                              toc = TRUE, 
+                                              # theme = "cosmo",
+                                              toc_depth = 3#,
+                                              # theme = NULL,
+                                              # css = system.file("app/www/style.css", package = 'planting.shade')
+                                              
+                                              ),
       )
     }
   )
