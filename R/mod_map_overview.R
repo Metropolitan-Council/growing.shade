@@ -279,7 +279,10 @@ mod_map_overview_server <- function(input, output, session,
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
-                     ) 
+                     ) %>%
+                     addScaleBar(position = "bottomleft",
+                                 options = c(#maxWidth = 200, 
+                                             imperial = T, metric = F))
                  }
                })
   
