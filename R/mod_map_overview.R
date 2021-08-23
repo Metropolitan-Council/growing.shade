@@ -46,8 +46,10 @@ mod_map_overview_server <- function(input, output, session,
       addProviderTiles("Stamen.TonerLines",
                        group = "Stamen Toner"
       ) %>%
+      # set max zoom on labels since the aerial imagery is coaser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
       addProviderTiles("Stamen.TonerLines", 
-                       options = pathOptions(pane = "Road outlines"),
+                       options = c(pathOptions(pane = "Road outlines"),
+                                   maxNativeZoom=18,maxZoom=18),
                        group = "Aerial Imagery with roads") %>%
       addProviderTiles("Stamen.TonerLabels",
                        options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
@@ -57,10 +59,12 @@ mod_map_overview_server <- function(input, output, session,
       #                  options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
       #                  group = "Aerial Imagery") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
+                       options = c(zIndex = 600,
+                                   maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
                        group = "Aerial Imagery with roads") %>%
       addProviderTiles("CartoDB.PositronOnlyLabels",
-                       options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
+                       options = c(zIndex = 400,
+                                   maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
                        group = "Aerial Imagery") %>%
       
       addProviderTiles("CartoDB.PositronOnlyLabels", 
