@@ -46,7 +46,7 @@ mod_map_overview_server <- function(input, output, session,
       addProviderTiles("Stamen.TonerLines",
                        group = "Stamen Toner"
       ) %>%
-      # set max zoom on labels since the aerial imagery is coaser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
+      # set max zoom on labels since the aerial imagery is coarser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
       addProviderTiles("Stamen.TonerLines", 
                        options = c(pathOptions(pane = "Road outlines"),
                                    maxNativeZoom=18,maxZoom=18),
@@ -150,9 +150,9 @@ mod_map_overview_server <- function(input, output, session,
         position = "bottomright",
         # overlayGroups = c(),
         baseGroups = c(
+          "Carto Positron",
           "Aerial Imagery",
           "Aerial Imagery with roads",
-          "Carto Positron",
           "Stamen Toner"
         ),
         overlayGroups = c(
@@ -168,7 +168,20 @@ mod_map_overview_server <- function(input, output, session,
       hideGroup(c("Transit",
                   "Historically redlined areas"
                   # "Rivers & Lakes"
-                  )) #%>%
+                  )) %>%
+      groupOptions(
+        group = "Aerial Imagery",
+        zoomLevels = 13:18
+      ) #%>%
+#       addControl(html="<h1 id='zoom'>Zoom</h1>") %>%
+#       htmlwidgets::onRender("function(el,x,data){
+#        var map=this;
+#        var evt = function(e){
+#          $('#zoom').html(map.getZoom())
+#        };
+#        map.on('zoom', evt);
+#        }
+# ") #%>%
       # leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE)
   })
   
