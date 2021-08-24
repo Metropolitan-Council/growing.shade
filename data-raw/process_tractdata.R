@@ -18,20 +18,36 @@ library(tidyverse)
 # library("tidyverse")
 
 
-
-###################
-# Get ndvi at tract level
+################
+# process google earth engine data
 ##################
-# https://code.earthengine.google.com/?scriptPath=users%2Fehe%2FAkanaNDVI%3AMetCouncil%2Flandsat%20%2B%20sentinel%20NDVI%20annual%20maxs%20over%20geo
+# GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+# https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
 
-#pull in sentinel data
-tract_ndvi <- read_csv("./data-raw/NDVI_metc_tracts_s2_2020.csv") %>%
-  mutate(GEOID10 = as.character(GEOID10)) %>%
+# ndvi
+tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
+                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
   select(-`system:index`, -.geo, -Year)
+# filter(tract_ndvi, ndvi == "No data")
+tract_ndvi
+
+
+
+
+
+# canopy coverage
+canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
+                   col_types = cols(.default = "d", GEOID10 = "c")) %>%
+  left_join(sf::st_drop_geometry(mn_tracts), by = c("GEOID10" = "GEOID")) %>%
+  transmute(GEOID10 = GEOID10, 
+            treeacres = `1`,
+            landacres = ALAND / 4046.86,
+            canopy_percent = treeacres / landacres * 100) 
+canopy %>% arrange(canopy_percent)
 
 
 ###################
-# download data sources of interest and select relevant variables
+# download equity considerations dataset
 ###################
 
 ## ----------- equity considerations data
@@ -77,8 +93,10 @@ equity_data_raw <- equity %>%
 ###################
 
 eva_data_raw <- equity_data_raw %>% 
+  full_join(canopy %>% rename(tr10 = GEOID10)) %>%
   full_join(tract_ndvi %>% rename(tr10 = GEOID10)) %>%
-  mutate(ndvi2 = ndvi) %>%
+  mutate(ndvi2 = ndvi,
+         canopy_percent2 = canopy_percent) %>%
   rename(tract_string = tr10) #and for this project, I need to rename the tract variable
 
 ###################
@@ -100,10 +118,12 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (tract avg. of max NDVI in 2020)", "tree", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Average greenness (tract avg. of max NDVI in 2020) INVERSE", "tree", "high_opportunity", 0, 0, 0, 1,
+                          "ndvi", "Average greenness (2020 NDVI)", "tree", "low_opportunity", 1, 0, 1,  0,
+                          "ndvi2", "Average greenness (2020 NDVI) - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
                           "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
-                          "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0
+                          "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0,
+                          "canopy_percent", "% tree canopy coverage in 2020", "tree", "low_opportunity", 1, 0, 1, 0,
+                          "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1
                           )
 
 ###################
