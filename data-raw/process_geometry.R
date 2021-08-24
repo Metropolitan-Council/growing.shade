@@ -21,6 +21,19 @@ mn_tracts <- tigris::tracts(state = "MN",
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
 
+######
+# but really, we want to expand across bigger region
+# focus on midwest
+# focus on historically forested states OR states with tallgrass prarire (and savannah) - NOT mixed or shortgrass prairie (algorithm doesn't work that well for those areas, and it's problimatic when thinking about biodiversity)
+######
+# mnwi_tracts <- tigris::tracts(state = "MN") %>%
+#   bind_rows(tigris::tracts(state = "WI")) %>%
+#   sf::st_transform(4326)
+# usethis::use_data(mnwi_tracts, overwrite = TRUE)
+# 
+# sf::write_sf(tigris::tracts(state = "MN") %>%
+#   bind_rows(tigris::tracts(state = "WI")), "./mnwitracts.shp") 
+
 
 # filter(st_is_valid(mn_tracts)), 
 
