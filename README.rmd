@@ -29,13 +29,16 @@ Planting shade concept is a merger of:
 
 An interactive version of this analysis currently lives at:  https://metrotransitmn.shinyapps.io/growing-shade/
 
-## Things to add
+## How to process
 
-- land use layer (can i add this to the raster?)
-- temporal aspect?
-- citizen sci + biodiversity
-- filtering stories; eric north, rennie
-- climate adaptation, species; leslie brandt
-- scenario planning, hillary waters, kristin mroz
-
+1) Process geometry
+2) Do GEE things
+  - if needed update the gee assets to be the ones just created
+  - export and download 3 data files
+    - new image into data folder
+    - tree canopy cover into data-raw
+    - mean ndvi into data-raw
+3) Process tractdata
+  - this depends on updated process_geo
+4) run ??
 
