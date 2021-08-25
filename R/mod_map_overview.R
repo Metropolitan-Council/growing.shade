@@ -70,10 +70,10 @@ mod_map_overview_server <- function(input, output, session,
       #                  group = "Stamen Toner") %>%
       
       #  #aerial with roads
-      addProviderTiles("Stamen.TonerLines", 
+      addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
                        options = providerTileOptions(pathOptions(pane = "Road outlines"),
                                    maxZoom=18),
-                       group = "Satellite") %>%
+                       group = "Road outlines") %>% #Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
                        options = providerTileOptions(#zIndex = 600,
                                    maxZoom=18),# pathOptions(pane = "Stamen Toner"),
@@ -214,6 +214,7 @@ mod_map_overview_server <- function(input, output, session,
           "Trees",
           "Water",
           "Active transit stops",
+          "Road outlines",
           "Historically redlined areas",
           "Emerald ash borer"
         ),
@@ -221,17 +222,20 @@ mod_map_overview_server <- function(input, output, session,
       ) %>% 
       hideGroup(c("Transit",
                   "Emerald ash borer",
-                  "Historically redlined areas"
+                  "Historically redlined areas",
+                  "Road outlines"
                   # "Rivers & Lakes"
-                  )) %>%
-      groupOptions(
-        group = "Map",
-        zoomLevels = 1:12
-      ) %>%
-    groupOptions(
-        group = "Satellite",
-        zoomLevels = 13:18
-      ) #%>%
+                  ))# %>%
+    
+    #this is GOOD, but I'm less into it now...
+    #   groupOptions(
+    #     group = "Map",
+    #     zoomLevels = 1:12
+    #   ) %>%
+    # groupOptions(
+    #     group = "Satellite",
+    #     zoomLevels = 13:18
+    #   ) #%>%
 
       # addOpacityControls(#collapsed = TRUE, 
       #   position = "bottomright", size = "s",
@@ -314,7 +318,8 @@ mod_map_overview_server <- function(input, output, session,
                        )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
                        popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
                                        "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
-                                       "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2)),
+                                       "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
+                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"),
                        options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%
@@ -351,7 +356,7 @@ mod_map_overview_server <- function(input, output, session,
                                                         GEOID == input$map_shape_click$id)), #"27123031701")),
 
                                   colors = "#238b45", #pal,
-                                  opacity = .8,
+                                  opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
@@ -362,10 +367,10 @@ mod_map_overview_server <- function(input, output, session,
                    addPolygons(
                      data = mn_tracts %>% filter(GEOID == input$map_shape_click$id),
                      stroke = TRUE,
-                     color =  councilR::colors$councilBlue,
+                     color =  "blue",
                      fill = NA,
                      opacity = 1, #0.25,
-                     # group = "outline",
+                     group = "outline",
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
 

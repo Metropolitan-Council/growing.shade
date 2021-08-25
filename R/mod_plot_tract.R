@@ -24,7 +24,7 @@ mod_plot_tract_ui <- function(id){
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract", "City (MetCouncil region only)"), #"County (within MN or WI)"),
+      choices = c("Selected tract"),# "City (MetCouncil region only)"), #"County (within MN or WI)"),
       selected = c("Selected tract"),#c("City (MetCouncil region only)"),
       inline = F 
       ),
@@ -102,6 +102,7 @@ mod_plot_tract_server <- function(input, output, session,
     # For PDF output, change this to "report.pdf"
     # filename = "report.html",
     filename = paste0("GrowingShade_", Sys.Date(), ".html"),
+    # filename = paste0("GrowingShade_", Sys.Date(), ".pdf"), # ".html"),
     content = function(file) {
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which
@@ -116,7 +117,8 @@ mod_plot_tract_server <- function(input, output, session,
                      vars_used = map_selections$preset,
                      priority_score = map_util$map_data2,#round(map_util$map_data2$MEAN, 3),
                      rank_total = nrow(map_util$map_data2),
-                     vars_selected = map_selections$allInputs)
+                     vars_selected = map_selections$allInputs,
+                     canopy = map_util$canopycov)
       
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
@@ -124,6 +126,7 @@ mod_plot_tract_server <- function(input, output, session,
       rmarkdown::render(tempReport, output_file = file,
                         params = params,
                         envir = new.env(parent = globalenv()),
+                        # output_format = "pdf_document", #"html_document",
                         output_format = "html_document",
                         output_options = list(html_preview = FALSE,
                                               toc = TRUE, 

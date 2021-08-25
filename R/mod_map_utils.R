@@ -28,6 +28,14 @@ mod_map_utils_server <- function(input, output, session,
     return(p)
   })
   
+  
+  #we need to make this data for the popup
+  make_ccp <- reactive({
+    p <- eva_data_main %>% 
+      filter(variable == "canopy_percent")
+    return(p)
+  })
+  
   #but we want to get a single averaged value for every tract to put on the map
   make_map_data2 <- reactive({
     
@@ -68,6 +76,10 @@ mod_map_utils_server <- function(input, output, session,
   
   observe({
     vals$map_data2 <- make_map_data2()
+  })
+  
+  observe({
+    vals$canopycov <- make_ccp()
   })
   
   return(vals)

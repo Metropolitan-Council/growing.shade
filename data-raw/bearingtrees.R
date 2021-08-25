@@ -80,6 +80,7 @@ presettle_comp <- bearing_trees %>%
 ########
 # msp trees
 # MCPHERSON et al 2005 - https://www.itreetools.org/documents/329/Minneapolis%20Municipal%20Tree%20Resource%20Analysis.pdf
+# THIS IS STREET trees
 #######
 msp_spp <- tribble(~spp_name, ~percent,
                    "ash", (14.4 + 1.7),
@@ -87,7 +88,8 @@ msp_spp <- tribble(~spp_name, ~percent,
                    "elm", (9.9 + 2.3),
                    "basswood", (7 + 1.6),
                    "hackberry", 4.5,
-                   "other", (2.6 + 3.5 + 3.4 + .2 + .1 +.1),
+                   "other hardwood", (2.6 + 3.5 + 3.4 + .2 + .1 +.1),
+                   # "other", (2.6 + 3.5 + 3.4 + .2 + .1 +.1),
                    "linden", 10.4,
                    "honeylocust", 7.2,
                    "ginko", 2.5) %>%
@@ -98,6 +100,7 @@ msp_spp <- tribble(~spp_name, ~percent,
 ####
 # msp 2
 # NOWAK et al 2006 - https://www.nrs.fs.fed.us/pubs/rb/ne_rb166.pdf
+# doesn't sum to 100, so don't look at this study
 #######
 msp_spp2 <- tribble(~spp_name, ~percent,
                    "ash", (21.6),
@@ -113,6 +116,7 @@ msp_spp2 <- tribble(~spp_name, ~percent,
 ###
 ## msp usfs
 # davey 2004 - https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data (table 1)
+#  this is grey literature, so hiding this
 #####
 msp_spp3 <- read_csv("./data-raw/CITYSUM.csv") %>%
   rename(percent = `trees percent`) %>%
@@ -121,33 +125,57 @@ msp_spp3 <- read_csv("./data-raw/CITYSUM.csv") %>%
   mutate(timepoint = 2004) 
 
 ###combo
-
-presettle_comp %>%
-  bind_rows(msp_spp) %>%
-  bind_rows(msp_spp2) %>%
+treebiodiv <- presettle_comp %>%
+  # bind_rows(msp_spp) %>%
+  # bind_rows(msp_spp2) %>%
   bind_rows(msp_spp3) %>%
-  mutate(spp_name = fct_reorder(spp_name, (percent))) %>%
-  ggplot(aes(x = spp_name, y = percent, col = as.factor(timepoint))) +
+  mutate(spp_name = case_when(spp_name == "cherry" ~ "other",
+                              spp_name == "ginko" ~ "other", #old survey
+                              spp_name == "willow" ~ "other",
+                              spp_name == "walnut" ~ "other",
+                              spp_name == "birch" ~ "other",
+                              spp_name == "pine" ~ "other",
+                              spp_name == "spruce" ~ "other",
+                              spp_name == "other hardwood" ~ "other",
+                              spp_name == "hickory" ~ "other",
+                              spp_name == "linden" ~ "other",
+                              spp_name == "honeylocust" ~ "other",
+                              spp_name == "crabapple" ~ "other",
+                              TRUE ~ spp_name)) %>%
+  group_by(spp_name, timepoint) %>%
+  summarise(percent = sum(percent))
+
+
+usethis::use_data(treebiodiv, overwrite = TRUE)
+
+
+
+
+treebiodiv %>%
+  # mutate(spp_name2 = fct_reorder(spp_name, percent)) %>%
+  ggplot(aes(x = fct_reorder(spp_name, percent, .desc = F), y = percent, col = as.factor(timepoint))) +
   geom_point() +
   theme_minimal() +
   coord_flip()
 
-presettle_comp %>%
-  bind_rows(msp_spp) %>%
-  bind_rows(msp_spp2) %>%
-  bind_rows(msp_spp3) %>%
-  mutate(spp_name = fct_reorder(spp_name, (percent))) %>%
-  ggplot(aes(x = as.factor(timepoint), y = percent, fill = spp_name)) +
+treebiodiv %>%
+  # mutate(spp_name = fct_reorder(spp_name, (percent))) %>%
+  ggplot(aes(x = as.factor(timepoint), y = percent, fill= spp_name)) + #fill = fct_reorder(spp_name, percent, .desc = F))) +
   geom_bar(stat = "identity", col = "black") +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_brewer(palette = "Paired")
 
-presettle_comp %>%
-  bind_rows(msp_spp) %>%
-  bind_rows(msp_spp2) %>%
-  bind_rows(msp_spp3) %>%
-  ggplot(aes(x = as.factor(timepoint), y = percent)) + 
-  geom_point() + geom_line(aes(group = as.factor(timepoint))) +
-  facet_wrap(~spp_name)
+treebiodiv %>%
+  ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
+  geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
+  geom_point(#aes(color = if_else(spp_name %in% c("oak", "ash", "elm"), "red", "")), #col = "black",
+             size = 3, position = position_dodge(width = 10)) + 
+  scale_fill_brewer(palette = "Paired", name = "Species") +
+  scale_color_brewer(palette = "Paired", name = "Species") +
+  scale_shape_manual(values = rep(c(21:25), 3), name = "Species")+
+  councilR::council_theme() +
+  labs(x = "Date", y = "Species composition (%)")
+  # facet_wrap(~spp_name)
 
 # presettle_comp %>%
 #   ggplot(aes(x = 1, y = n, fill = spp_name)) +

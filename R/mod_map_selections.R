@@ -29,9 +29,9 @@ mod_map_selections_ui <- function(id){
                     "Public health",
                     "Custom"
                   ), 
-                  selected = "Custom"
+                  selected = "Environmental justice"
       ) %>%
-        shinyhelper::helper(type = "markdown", content = "PresetHelp"),
+        shinyhelper::helper(type = "markdown", content = "PresetHelp", size = "l"),
       
       conditionalPanel(
         ns = ns,

@@ -1,5 +1,7 @@
 
-<span align="left">
+<span align="left"> Presets are developed to provide starting points for
+various stakeholder groups. Priority scores are calculated using
+equally-weighted variables. <br><br>
 
 **Climate change:** Trees can mitigate some consequences of climate
 change by cooling land surface temperatures and reducing flooding. Use
@@ -11,57 +13,16 @@ people facing disproportionately negative consequences of environmental
 decisions.<br><br>
 
 **Public health:** Trees improve air quality and cool land surface
-temperatures which can lead to better health outcomes, particularly for
-sensitive populations. Use this preset to identify areas where trees
-could most improve health outcomes.<br><br>
+temperatures leading to better health outcomes, particularly for
+sensitive populations. Identify areas where trees could most improve
+health outcomes.<br><br>
+
+**Conservation:** Above and beyond enhancing the tree canopy, reducing
+tree canopy loss will be critical to meet carbon emission reduction
+goals and conserve biodiversity across taxa. This preset identifies
+areas with the region’s highest stock of existing trees. <br><br>
 
 **Custom:** Select this option to customize the prioritization
 variables.<br><br></span>
 
-<img src='www/presetmatrix.png' width='90%' alt='a diagram variables included in the presets.'/img>
-
-------------------------------------------------------------------------
-
-<!-- #### Climate change -->
-<!-- <span font-size="10px"> -->
-<!-- % developed acres in primary flood zone<br> -->
-<!-- Land surface temp on hot summer day<br> -->
-<!-- Average greenness (tract avg. of max NDVI in 2020)<br> -->
-<!-- </span> -->
-<!-- #### Environmental justice -->
-<!-- <span font-size="10px"> -->
-<!-- % developed acres in primary flood zone<br> -->
-<!-- Land surface temp on hot summer day<br> -->
-<!-- % households with annual income less than $35,000 (bottom quintile of households)<br> -->
-<!-- % people of color<br> -->
-<!-- Lifetime cancer risk from air toxics<br> -->
-<!-- Average greenness (tract avg. of max NDVI in 2020)<br> -->
-<!-- Area of Environmental Justice Concern<br> -->
-<!-- Share of tract's land acreage falling in the red zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)<br> -->
-<!-- </span> -->
-<!-- #### Public health -->
-<!-- <span font-size="10px"> -->
-<!-- Land surface temp on hot summer day<br> -->
-<!-- % people age 17 or younger<br> -->
-<!-- % people age 65 or older<br> -->
-<!-- Lifetime cancer risk from air toxics<br> -->
-<!-- Average greenness (tract avg. of max NDVI in 2020)<br> -->
-<!-- </span> -->
-<!-- #### Climate change -->
-<!-- % developed acres in primary flood zone<br> -->
-<!-- Land surface temp on hot summer day<br>      -->
-<!-- Average greenness (tract avg. of max NDVI in 2020) -->
-<!-- #### Environmental justice -->
-<!-- % developed acres in primary flood zone<br> -->
-<!-- Land surface temp on hot summer day<br> -->
-<!-- % households with annual income less than $35,000 (bottom quintile of households)<br> -->
-<!-- % people of color<br> -->
-<!-- Lifetime cancer risk from air toxics<br> -->
-<!-- Average greenness (tract avg. of max NDVI in 2020) -->
-<!-- #### Public health -->
-<!-- % developed acres in primary flood zone<br> -->
-<!-- Land surface temp on hot summer day<br> -->
-<!-- % people age 17 or younger<br> -->
-<!-- % people age 65 or older<br> -->
-<!-- Lifetime cancer risk from air toxics<br> -->
-<!-- Average greenness (tract avg. of max NDVI in 2020) -->
+<img src='www/presets.png' width='100%' alt='a diagram variables included in the presets.'/img>

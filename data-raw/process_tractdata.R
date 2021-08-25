@@ -41,42 +41,113 @@ canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
   transmute(GEOID10 = GEOID10, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
-            canopy_percent = treeacres / landacres * 100) 
+            canopy_percent = treeacres / landacres / 2) #it has a % so use fraction instead; and halve itbecuase 10x10 is big
 
 
 # tree raster
 treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
-treecrs[treecrs == 0] = NA
-raster::writeRaster(treecrs, './data/tree_raster.tif', overwrite=TRUE)
+test <- reclassify(treecrs, cbind(-Inf, 0.5, NA), right=FALSE)
+raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
 
-tract<- mn_tracts %>%
-  filter(GEOID == "27163070406")# c("27163070406", "27053126000"))# "27053109100")
+#this takes FOREEVER. not goood
+# test <- rasterToPolygons(treecrs, dissolve = T)
 
-pal <- colorNumeric(c("#67000d", "#fcbba1"), 0:1,
-                    na.color = "transparent")
-leaflet() %>%
-  addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
-  addProviderTiles(
-    provider = providers$Esri.WorldImagery,
-    group = "Aerial Imagery",
-    layerId = "base"
-  ) %>%
-  addProviderTiles("CartoDB.PositronOnlyLabels",
-                   # options = leafletOptions(pane = "Aerial Imagery"),
-                   group = "Aerial Imagery",
-                   options = providerTileOptions(maxZoom = 18))
-                   options = (#zIndex = 210,
-                               maxZoom=18))#,
-                   layerId = "labs") %>%
-  addPolygons(data = tract, fill = NA)#%>%
+#this ballons the raster file size. not good
+# treecrs[treecrs == 0] <- NA
+# raster::writeRaster(treecrs, './data/tree_raster.tif', overwrite=TRUE)
 
-  addRasterImage(treecrs %>% raster::crop(tract),
-                 color = "#ffffff",
-                 opacity = 0.5,
-                 layerId = "Trees",
-                 group = "Trees")
 
-treecrs %>% raster::crop(tract)
+# library(tidyverse); library(leaflet); library(raster); library(leafem)
+# tract<- mn_tracts %>%
+#   filter(GEOID == "27163070406")# c("27163070406", "27053126000"))# "27053109100")
+
+# leaflet() %>%
+#   addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
+#   addProviderTiles(
+#     provider = providers$Esri.WorldImagery,
+#     group = "Aerial Imagery",
+#     layerId = "base"
+#   ) %>%
+#   addProviderTiles("CartoDB.PositronOnlyLabels",
+#                    # options = leafletOptions(pane = "Aerial Imagery"),
+#                    group = "Aerial Imagery",
+#                    options = providerTileOptions(maxZoom = 18),
+#                    layerId = "labs") %>%
+#   addPolygons(data = tract, fill = NA)%>%
+# 
+#   addRasterImage(treecrs %>% raster::crop(tract) ,
+#                  # colors = pal,
+#                  color = "green",
+#                  opacity = 0.5,
+#                  layerId = "Trees",
+#                  group = "Trees")
+# 
+# plot(treecrs)# %>% raster::crop(tract), main="trees")
+# # treecrs %>% raster::crop(tract) 
+
+# 
+# 
+# library(leaflet)
+# library(leafem)
+# library(stars)
+# 
+# ## add 2 layers to 2 custom panes - doesn't work, both rendered on pane from last call
+# leaflet() %>%
+#   addTiles() %>%
+#   addMapPane("left", 200) %>%
+#   # addMapPane("right", 201) %>%
+#   addProviderTiles(
+#     providers$Esri.WorldImagery
+#     , group = "carto_left"
+#     , options = tileOptions(pane = "left")
+#     , layerId = "leftid"
+#   ) %>%
+#   # addProviderTiles(
+#   #   providers$Esri.WorldImagery
+#   #   , group = "carto_right"
+#   #   , options = tileOptions(pane = "right")
+#   #   , layerId = "rightid"
+#   # ) %>%
+#   leafem:::addGeotiff(
+#     file = "./data/TreeMap_crs4326_2020.tif"
+#     , group = "april"
+#     , layerId = "april_id"
+#     , resolution = 96
+#     , opacity = .7
+#     , options = tileOptions(
+#       pane = "left"
+#     )
+#     , colorOptions = leafem:::colorOptions("black")
+#   ) #%>%
+#   leafem:::addGeotiff(
+#     file = tiffl_05
+#     , group = "may"
+#     , layerId = "may_id"
+#     , resolution = 96
+#     , opacity = 1
+#     , options = tileOptions(
+#       pane = "right"
+#     )
+#     , colorOptions = leafem:::colorOptions(
+#       palette = pal
+#       , breaks = brks
+#       , na.color = "transparent"
+#     )
+#     , pixelValuesToColorFn = myCustomJSFunc
+#   ) %>%
+#   leaflet.extras2::addSidebyside(
+#     layerId = "sidebyside"
+#     , leftId = "leftid"
+#     , rightId = "rightid"
+#   ) %>%
+#   addLayersControl(overlayGroups = c("april", "may")) %>%
+#   addControl(htmltools::HTML("April 2020"), position = "bottomleft") %>%
+#   addControl(htmltools::HTML("May 2020"), position = "bottomright")
+# 
+# 
+
+
+
 
 ###################
 # download equity considerations dataset
@@ -111,11 +182,13 @@ equity_data_raw <- equity %>%
          env_cancer,
          luse_green,
          tr_ej,
-         holc_pred) %>%
+         holc_pred,
+         mdhhincnow) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh,
-         holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>% #"mutate" reformats any variables that need it
+         holc_pred = if_else(is.na(holc_pred), 0, holc_pred),
+         sens_age = p_0017 + p_65up) %>% #"mutate" reformats any variables that need it
   select(-luse_notgreen,#and then I want to remove the variable I don't need anymore
          -pwhitenh) 
 
@@ -140,13 +213,13 @@ eva_data_raw <- equity_data_raw %>%
 #ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
 #ph (public health preset)
 eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
-                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 0, 0, 0,
+                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 1, 0, 0,
                           "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
                           "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0, 0,
-                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 1, 0, 
-                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 1,  0,
+                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
+                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
                           "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
-                          "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
+                          # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
                           "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
@@ -155,8 +228,11 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
                           "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0,
                           "canopy_percent", "% tree canopy coverage in 2020", "tree", "low_opportunity", 1, 0, 1, 0,
-                          "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1
+                          "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
+                          "mdhhincnow", "Median household income, 2015-2019 period (in 2019 dollars)", "people", "low_opportunity", 0, 0, 0, 0,
+                          "sens_age", "% people 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0
                           )
+eva_data_codes %>% filter(cons == 1)
 
 ###################
 # #create final dataset - no spatial data here

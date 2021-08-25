@@ -10,6 +10,7 @@ params:
   priority_score: NA
   rank_total: NA
   vars_selected: NA
+  canopy: NA
 urlcolor: blue
 ---
 
@@ -28,10 +29,6 @@ library(mapview)
 
 # code_folding: show
 
-params$selected_tract
-params$selected_geo
-params$selected_city
-params$vars_used
 params$priority_score #scaled and centered average based on inputs
 params$priority_rank #rank of scaled and centered average based on inputs
 # rank_total #number of tracts total
@@ -49,12 +46,14 @@ scaled_summed <- params$priority_score %>%
 
 fheight = if (nrow(params$vars_selected) < 3) {
   3
-} else {nrow(params$vars_selected)}
+} else {nrow(params$vars_selected)*.8}
 
 eabcount<- eab %>%
   sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
                       GEOID == params$selected_tract)) %>% nrow()
 
+canopycover <- params$canopy %>%
+  filter(tract_string == params$selected_tract)#round(params$canopy/2, 1)
 
 ```
 
@@ -70,9 +69,15 @@ This report synthesizes and summarizes data about trees, people, and the built e
 
 This section summarizes the how the tree canopy priority of the selected region compares to other geographies across the region.
 
- ```r reportfor``` has an existing tree coverage of approximately ```r ```%. 
+ ```r reportfor``` has an existing tree coverage of approximately ```r round(canopycover$raw_value, 1)*100```%. In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Some areas in our region are dominated by native tallgrass prairie which has lower tree coverage - this should not be penalized. 
 
 If you wish to obtain a map of the area, please use the interactive tool - just zoom in as desired and take a screenshot (<a href = 'https://support.microsoft.com/en-us/windows/how-to-take-and-annotate-screenshots-on-windows-10-ca08e124-cc30-2579-3e55-6db63e36fbb9' target = '_blank'>instructions for Windows</a> or <a href = 'https://support.apple.com/en-us/HT201361' target = '_blank'>instructions for Mac</a>). We recommend turning off the "priority scores" layer when doing so. 
+
+```{r canopystatus}
+
+
+```
+
 
 ```{r map, echo = F, message = F, warning = F, fig.height=5, fig.width=8}
 # We have chosen not to print an overview map in this space, because the time needed to generate the map adds considerably to the processing time of this report. Please note higher resolution images (and images with different underlying basemaps) can be obtained from the interactive tool - just zoom in to the desired level and take a screenshot. We recommend turning off the priority scores and using the "aerial imagery with roads" basemap. 
@@ -125,12 +130,15 @@ If you wish to obtain a map of the area, please use the interactive tool - just 
 # knitr::include_graphics(map_path)
 ```
 
+\newpage
+
 ## Priortization summary
 
-Based on the ```r params$vars_used``` preset used, the selected area ranks ```r scaled_summed$RANK``` out of ```r params$rank_total``` with an average priority score of ```r round(scaled_summed$MEAN, 3)``` (out of 10, with 10 indicating the highest priority).
+Based on the ```r params$vars_used``` preset used, the selected area ranks ```r scaled_summed$RANK``` out of ```r params$rank_total``` (where a higher rank indicates a higher priority area) with an average priority score of ```r round(scaled_summed$MEAN, 2)``` (out of 10, with 10 indicating the highest priority).
 
 The specific variables which went into this ranking include : 
 ```{r, echo=F, message=F, warning=F}
+# round(params$canopy/2, 1)
 row_count <-  nrow(params$vars_selected)
         if(!is.null(row_count)){
             # write a function to create a list from the vector
@@ -150,7 +158,7 @@ Here is how the selected area compares to the regional average **for the selecte
 
 Please go the the Appendix at the bottom of the report for more information on all the variables. 
 
-```{r status, echo=F, message=F, warning=F, fig.height=fheight, fig.width=7}
+```{r status, echo=F, message=F, warning=F, fig.height=fheight, fig.width=10}
 testdf <- eva_data_main %>%
   full_join(metadata)#%>% filter(variable == "prim_flood")
 testtr <- params$selected_tract
@@ -174,7 +182,7 @@ filter(name %in% params$vars_selected$value) %>%
   geom_bar(stat = "identity", position = position_dodge(width = .5), width = .5, size = .75) +
   # facet_grid(PRESETVAR ~., space = "free_y", scales = "free_y") +
   councilR::council_theme() +
-  scale_y_discrete(labels = function(x) str_wrap(x, width = 50))+
+  scale_y_discrete(labels = function(x) str_wrap(x, width = 40))+
   scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen),
                     name = "Geography") +
   # scale_color_manual(values = c(councilR::colors$mtsRed, "white")) +
@@ -183,8 +191,9 @@ filter(name %in% params$vars_selected$value) %>%
         # axis.text.y = element_text(size = 12),
         # axis.title.x = element_text(size = 12)
         strip.text = element_text(size = 12),
-        panel.grid.major.x = element_blank(),
-        legend.position = "bottom")
+        panel.grid.major.x = element_blank()#,
+        # legend.position = "bottom"
+        )
 #   
 #   
 # # }
@@ -199,49 +208,118 @@ filter(name %in% params$vars_selected$value) %>%
 
 ```{r table, echo = F, mesasge = F, warning = F}
 
-knitr::kable(summary_table %>%
+kableExtra::kbl(summary_table %>%
                ungroup() %>%
                select(name, raw_value, MEANRAW, overall_rank, n) %>%
                filter(name %in% params$vars_selected$value) %>%
                rename(Variable = name,
                       `Selected area` = raw_value,
                       `Regional average` = MEANRAW,
-                      `Ranking (1 = highest priority)` = overall_rank,
-                      `Total ranked areas` = n), "simple")
+                      `Ranking` = overall_rank,
+                      `Total ranked areas` = n), 
+               booktabs = T) %>%
+  kableExtra::kable_styling(#latex_options = "striped",
+                            full_width = F) %>%
+  kableExtra::column_spec(1, width = "20em") %>%
+  kableExtra::column_spec(2, width = "5em") %>%
+  kableExtra::column_spec(3, width = "5em") %>%
+  kableExtra::column_spec(4, width = "5em") %>%
+  kableExtra::column_spec(5, width = "5em")
 
 ```
 
+\newpage
 
 ## Equity analysis
 
 The goal of this section is to show how people and trees interact, and where the selected geography compares. 
 
-Research shows that trees are unevenly distributed across communities. In particular, neighborhoods with high BIPOC populations or low-income have less tree canopy (<a href = 'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715' target = '_blank'>MacDonald 2021</a>) as do areas which were historically redlined (<a href = 'https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today' target = '_blank'>NPR news story</a>, scientific articles: <a href = 'https://www.nature.com/articles/s42949-021-00022-0' target = '_blank'>Locke et al. 2021</a>, media coverage by <a href = 'https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub' target = '_blank'>Namin et al. 2020</a>) ).  Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% a href = 'https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha 2021</a>).
+Research shows that trees are unevenly distributed across communities. In particular, neighborhoods with high BIPOC or low-income populations have less tree canopy (<a href = 'https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715' target = '_blank'>MacDonald 2021</a>) than areas which were historically redlined (<a href = 'https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today' target = '_blank'>NPR news story</a>, <a href = 'https://www.nature.com/articles/s42949-021-00022-0' target = '_blank'>Locke et al. 2021</a>, <a href = 'https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub' target = '_blank'>Namin et al. 2020</a>).  Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (<a href = 'https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha 2021</a>).
 
-At the MetCouncil, we have shown that areas where the median income is <100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures here. 
+At the MetCouncil, we have shown that areas where the median income is <100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures here. The selected tract is in **green**, and the regional trend is in **blue**. **This relationship is falling apart a bit at the TRACT level. Ideally, it would be good to get down to the block group level, for everything in this report and in the tool**
 
 
-```{r equityfig, echo=F, message = F, warning = F}
-ggplot(mtcars, aes(x = cyl, y = mpg)) +
-  geom_point()
+```{r equityfig, echo=F, message = F, warning = F, fig.width=8, fig.height = 4}
+equityplot<-eva_data_main %>% filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) 
+
+# equityplot%>%
+#   ggplot(aes(x = pbipoc, y = ndvi)) + 
+#   geom_point(col = "grey40", pch = 21, data = filter(equityplot, tract_string != params$selected_tract)) + 
+#   geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(equityplot, tract_string == params$selected_tract)) + 
+#   councilR::council_theme()
+
+race_equity <- equityplot%>%
+  ggplot(aes(x = pbipoc, y = canopy_percent/2)) + 
+  geom_point(col = "grey40", pch = 21, data = filter(equityplot, tract_string != params$selected_tract)) + 
+  geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = equityplot) +
+  geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, tract_string == params$selected_tract)) + 
+  councilR::council_theme() + 
+  labs(x = "Tract people of color population\n(%)", y = "Canopy coverage in tract\n(%)")
+
+
+inc_equity <- equityplot%>%
+  ggplot(aes(x = mdhhincnow, y = (canopy_percent/2))) + 
+  geom_point(col = "grey40", pch = 21) + #, data = filter(equityplot, tract_string != params$selected_tract)) + 
+    # geom_smooth(method="glm",
+    #         method.args=list(family=gaussian(link="log")), fill = NA, col = councilR::colors$councilBlue, data = equityplot)# +
+    # geom_smooth(method = "lm", formula = (y~ poly(x, 2)), fill = NA, col = councilR::colors$councilBlue, data = equityplot)# +
+    # geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = (equityplot %>% filter(mdhhincnow < 100000)))# +
+      geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue) +
+geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, tract_string == params$selected_tract)) + 
+  councilR::council_theme() + 
+  labs(x = "Block group median household income\n($)", y = "")#Tree canopy coverage in tract (%)")
+
+
+fig_equity <- cowplot::plot_grid(race_equity, inc_equity, labels = "AUTO")
+
+fig_equity
+```
+
+\newpage
+
+## Considerations to enhance and maintain tree canopy
+
+The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy. 
+
+Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infected ```r eabcount``` trees in the selected geography (<a href = 'https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9' target = '_blank'>Minnesota DNR</a>). Please note that these data are not necessarily intended to identify every infected tree, however we still believe this information to be useful. 
+
+Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). "Other" species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). 
+
+
+```{r biodiv, message = F, warning = F, echo = F, fig.width=8, fig.height = 4}
+treebiodiv %>%
+  ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
+  geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
+  geom_point(#aes(color = if_else(spp_name %in% c("oak", "ash", "elm"), "red", "")), #col = "black",
+             size = 5, position = position_dodge(width = 10)) + 
+  scale_fill_brewer(palette = "Paired", name = "Species") +
+  scale_color_brewer(palette = "Paired", name = "Species") +
+  scale_shape_manual(values = rep(c(21:25), 3), name = "Species")+
+  councilR::council_theme() +
+  labs(x = "Date", y = "Species composition (%)")
 
 ```
 
-## Trees past and present (with lessons for the future)
-
-The goal of this section is present information about other considerations. 
-
-Threats include low biodiversity:
-
-Emerald Ash Borer DNR Map shows that there are ```r eabcount``` trees infected with EAB. This is likely incomplete and out of date. 
-
-Something about tree community composition. 
-
-Biodiversity, native/non-native. Before probably a lot of biodiversity, now not so much. 
+\newpage
 
 # What's next for Growing Shade?
 
-This tool is under active development (probably). Can we have people sign up for an email list to be notified when more features are added? Underlying land use in map (talk to gis folks), tree canopy uploaded to mn geospatial commons, tree biodiversity data on map (if it exists in decent coverage), expanding to greater MN/WI/MI, updating to 2021 tree canopy (or other years), maybe including some canopy loss/gain metrics over time (5 year time span, or something), news or use cases highlighted?, drilling down to block groups (when equity considerations are updated), tree short course talk coming up, base data updated for most recent years (equity considerations data), if we add something on "tree stress" (variability in ndvi over time?)
+This tool is under active development (probably). Can we have people sign up for an email list to be notified when more features are added? 
+
+- Underlying land use in map (talk to gis folks)
+- tree canopy uploaded to mn geospatial commons
+- tree biodiversity data on map (if it exists in decent coverage)
+- expanding to entire state/midwest
+- updating to 2021 tree canopy (or other years)
+- including some canopy loss/gain metrics over time (5 year time span, or something)
+- news or use cases highlighted?
+- stories added on map? or call for new story submissions?
+- drilling down to block groups (when equity considerations are updated)
+- tree short course talk coming up
+- base data updated for most recent years (equity considerations data)
+- if we add something on "tree stress/status" for maintence (variability in ndvi over time?)
 
 # Other resources
 
@@ -260,7 +338,7 @@ The Growing Shade is a unique tool offering users the ability to customize prior
 
 Because we believe that context is important, this is how the selected area compares to the regional average for all the presets available in the Growing Shade application. Do note that some variables are shared across presets. 
 
-```{r echo = F, message=F, warning = F, fig.height=8, fig.width=7}
+```{r echo = F, message=F, warning = F, fig.height=9, fig.width=10}
 # If the variable was used in the user-selected ranking, those bars are outlined in red. 
 
 forplot <- summary_table %>%
@@ -294,24 +372,60 @@ forplot %>%
         # axis.text.y = element_text(size = 12),
         # axis.title.x = element_text(size = 12)
         strip.text = element_text(size = 12),
-        panel.grid.major.x = element_blank(),
-        legend.position = "bottom")#  +
+        panel.grid.major.x = element_blank())#,
+        # legend.position = "bottom")#  +
   # guides(color = F)
   
 ```
 
+\newpage
+
 
 ```{r tableall, echo = F, mesasge = F, warning = F}
-
-knitr::kable(summary_table %>%
+kableExtra::kbl(summary_table %>%
                ungroup() %>%
                select(name, raw_value, MEANRAW, overall_rank, n) %>%
                # filter(name %in% params$vars_selected$value) %>%
                rename(Variable = name,
                       `Selected area` = raw_value,
                       `Regional average` = MEANRAW,
-                      `Ranking (higher rank = higher priority)` = overall_rank,
-                      `Total ranked areas` = n), "simple")
+                      `Ranking` = overall_rank,
+                      `Total ranked areas` = n), 
+               booktabs = T) %>%
+  kableExtra::kable_styling(#latex_options = "striped",
+                            full_width = F) %>%
+  kableExtra::column_spec(1, width = "20em") %>%
+  kableExtra::column_spec(2, width = "5em") %>%
+  kableExtra::column_spec(3, width = "5em") %>%
+  kableExtra::column_spec(4, width = "5em") %>%
+  kableExtra::column_spec(5, width = "5em")
+
+
+# knitr::kable(summary_table %>%
+#                ungroup() %>%
+#                select(name, raw_value, MEANRAW, overall_rank, n) %>%
+#                # filter(name %in% params$vars_selected$value) %>%
+#                rename(Variable = name,
+#                       `Selected area` = raw_value,
+#                       `Regional average` = MEANRAW,
+#                       `Ranking (higher rank = higher priority)` = overall_rank,
+#                       `Total ranked areas` = n), "latex") %>%
+#   kableExtra::column_spec(1, width = "20em")
+
+
+# kableExtra::kable_styling(full_width = F)
+
+# (summary_table %>%
+#                ungroup() %>%
+#                select(name, raw_value, MEANRAW, overall_rank, n) %>%
+#                # filter(name %in% params$vars_selected$value) %>%
+#                rename(Variable = name,
+#                       `Selected area` = raw_value,
+#                       `Regional average` = MEANRAW,
+#                       `Ranking (higher rank = higher priority)` = overall_rank,
+#                       `Total ranked areas` = n)) %>%
+#   kbl() %>%
+#   kable_styling(full_width = F)
 
 ```
 

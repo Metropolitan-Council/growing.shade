@@ -83,7 +83,7 @@ rmarkdown::render("./R/methods.Rmd",
                   )
 )
 
-rmarkdown::render("inst/app/www/PresetHelp.Rmd",
+rmarkdown::render("PresetHelp.Rmd", #"inst/app/www/PresetHelp.Rmd",
                   output_format = "github_document", # -----
                   output_file = "PresetHelp.md", output_dir = "inst/app/www",
                   params = list(
