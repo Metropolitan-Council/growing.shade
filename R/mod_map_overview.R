@@ -44,6 +44,18 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
       addMapPane("EAB", zIndex = 400) %>%
+      addMapPane("outline", zIndex = 650) %>%
+      # leaflet.multiopacity::addOpacityControls(layerId = c(
+      #   "Trees",
+      #   "score"
+      # ),
+      # collapsed = T, position = "bottomright"#,
+      # # title = "<strong>Opacity control</strong>",
+      # # renderOnLayerAdd = TRUE
+      # ) %>%
+    
+    
+    
       # set max zoom on labels since the aerial imagery is coarser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
 
       
@@ -119,7 +131,7 @@ mod_map_overview_server <- function(input, output, session,
       addCircles(
         # Markers(
         data = eab,
-        group = "EAB",
+        group = "Emerald ash borer",
         radius = 15,
         fill = T,
         stroke = TRUE,
@@ -129,7 +141,7 @@ mod_map_overview_server <- function(input, output, session,
         color = "red", #councilR::colors$transitRed,
         fillColor = "white",# councilR::colors$transitRed,
         options = pathOptions(pane = "EAB"),
-        label = "EAB"
+        label = "Emerald ash borer tree"
         # labelOptions = labelOptions(noHide = TRUE, offset=c(0,-12), textOnly = TRUE)
       ) %>%
     # addAwesomeMarkers(
@@ -202,12 +214,12 @@ mod_map_overview_server <- function(input, output, session,
           "Water",
           "Active transit stops",
           "Historically redlined areas",
-          "EAB"
+          "Emerald ash borer"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
       hideGroup(c("Transit",
-                  "EAB",
+                  "Emerald ash borer",
                   "Historically redlined areas"
                   # "Rivers & Lakes"
                   )) %>%
@@ -304,6 +316,7 @@ mod_map_overview_server <- function(input, output, session,
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
                      ) %>%
+                     
                      addScaleBar(position = "bottomleft",
                                  options = c(#maxWidth = 200, 
                                              imperial = T, metric = F))
@@ -314,23 +327,36 @@ mod_map_overview_server <- function(input, output, session,
                input$map_shape_click$id,
                {
                  # print(input$map_shape_click)
-                 leafletProxy("map") %>%
+                 leafletProxy("map") %>%                     
+
                    addRasterImage(trees %>%
-                                    raster::crop(filter(crop_tract_ctus, #mn_tracts, #crop_tract_ctus, 
+                                    raster::crop(filter(crop_tract_ctus, #mn_tracts, #crop_tract_ctus,
                                                         GEOID == input$map_shape_click$id)), #"27123031701")),
-                                  
+
                                   colors = "#238b45", #pal,
                                   opacity = .8,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
                    ) %>%
+                   
+                   clearGroup("outline") %>%
+                   addPolygons(
+                     data = mn_tracts %>% filter(GEOID == input$map_shape_click$id),
+                     stroke = TRUE,
+                     color =  councilR::colors$councilBlue,
+                     fill = NA,
+                     opacity = 1, #0.25,
+                     smoothFactor = 0.2,
+                     options = pathOptions(pane = "outline")) %>%
+
                    clearGroup("Water") %>%
                    addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus,
                                                                     GEOID == input$map_shape_click$id)),
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
+                               layerId = "Water",
                                fill = T,
                                group = "Water",
                                options = pathOptions(pane = "Water"))

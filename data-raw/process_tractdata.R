@@ -29,7 +29,6 @@ tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
                        col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
   select(-`system:index`, -.geo, -Year)
 # filter(tract_ndvi, ndvi == "No data")
-tract_ndvi
 
 
 
@@ -43,7 +42,6 @@ canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * 100) 
-canopy %>% arrange(canopy_percent)
 
 
 # tree raster

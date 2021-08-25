@@ -169,14 +169,14 @@ story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx",
   dplyr::ungroup()
 
 # ag <- raster::raster("./data/greenest2020_glu2016_treemask_ag.tif")
-ind <- raster::raster("./data/greenest2020_glu2016_treemask_ind.tif")
-inst <- raster::raster("./data/greenest2020_glu2016_treemask_inst.tif")
-mixed <- raster::raster("./data/greenest2020_glu2016_treemask_mixeduse.tif")
-residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.tif")
-parkgc <- raster::raster("./data/greenest2020_glu2016_treemask_golfpark.tif")
-retoff <- raster::raster("./data/greenest2020_glu2016_treemask_retail_office.tif")
-undev <- raster::raster("./data/greenest2020_glu2016_treemask_undev.tif")
-trees <- raster::raster("./data/tree2.tif")
+# ind <- raster::raster("./data/greenest2020_glu2016_treemask_ind.tif")
+# inst <- raster::raster("./data/greenest2020_glu2016_treemask_inst.tif")
+# mixed <- raster::raster("./data/greenest2020_glu2016_treemask_mixeduse.tif")
+# residential <- raster::raster("./data/greenest2020_glu2016_treemask_residential.tif")
+# parkgc <- raster::raster("./data/greenest2020_glu2016_treemask_golfpark.tif")
+# retoff <- raster::raster("./data/greenest2020_glu2016_treemask_retail_office.tif")
+# undev <- raster::raster("./data/greenest2020_glu2016_treemask_undev.tif")
+trees <- raster::raster("./data/tree_raster.tif")
 # trees <- raster::raster("./data/tree_raster.tif")
 # trees <- leaflet::projectRasterForLeaflet(raster::raster("./data/tree_raster.tif"), method= "bilinear") #this actually takes a long time, could do for the tiff
   
