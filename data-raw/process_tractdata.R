@@ -46,6 +46,36 @@ canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
 canopy %>% arrange(canopy_percent)
 
 
+# tree raster
+treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
+treecrs[treecrs == 0] = NA
+raster::writeRaster(treecrs, './data/tree_raster.tif', overwrite=TRUE)
+
+# tract<- mn_tracts %>%
+#   filter(GEOID == "27163070406")# c("27163070406", "27053126000"))# "27053109100")
+# 
+# pal <- colorNumeric(c("#67000d", "#fcbba1"), 0:255,
+#                     na.color = "transparent")
+# leaflet() %>%
+#   addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
+#   addProviderTiles(
+#     provider = providers$Esri.WorldImagery,
+#     group = "Aerial Imagery",
+#     layerId = "base"
+#   ) %>%
+#   addProviderTiles("CartoDB.PositronOnlyLabels",
+#                    # options = leafletOptions(pane = "Aerial Imagery"),
+#                    group = "Aerial Imagery",
+#                    options = c(zIndex = 210),
+#                    layerId = "labs") %>%
+#   addPolygons(data = tract, fill = NA)%>%
+#   
+#   addRasterImage(treecrs %>% raster::crop(tract),
+#                  color = "#ffffff",
+#                  opacity = 0.5,
+#                  layerId = "Trees",
+#                  group = "Trees") 
+
 ###################
 # download equity considerations dataset
 ###################
