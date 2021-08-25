@@ -71,15 +71,15 @@ mod_map_overview_server <- function(input, output, session,
       
       #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", 
-                       options = c(pathOptions(pane = "Road outlines"),
+                       options = providerTileOptions(pathOptions(pane = "Road outlines"),
                                    maxZoom=18),
                        group = "Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 600,
+                       options = providerTileOptions(#zIndex = 600,
                                    maxZoom=18),# pathOptions(pane = "Stamen Toner"),
                        group = "Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = c(zIndex = 600,
+                       options = providerTileOptions(#zIndex = 600,
                                    maxZoom=18),# pathOptions(pane = "Stamen Toner"),
                        group = "Map") %>%
       addProviderTiles(
@@ -132,6 +132,7 @@ mod_map_overview_server <- function(input, output, session,
         # Markers(
         data = eab,
         group = "Emerald ash borer",
+        # layerId = NULL,
         radius = 15,
         fill = T,
         stroke = TRUE,
@@ -231,6 +232,22 @@ mod_map_overview_server <- function(input, output, session,
         group = "Satellite",
         zoomLevels = 13:18
       ) #%>%
+
+      # addOpacityControls(#collapsed = TRUE, 
+      #   position = "bottomright", size = "s",
+      #                    # layerId = c("Emerald ash borer")
+      #                    group = c("Trees"),
+      #   renderOnLayerAdd = TRUE
+      #                    ) #%>%
+      # leaflet.multiopacity::addOpacityControls(layerId = c(
+      #   "Trees"
+      # ),
+      # collapsed = F, position = "bottomright",
+      # title = "<strong>Opacity control</strong>",
+      # renderOnLayerAdd = TRUE
+      # ) 
+      
+      #%>%
 #       addControl(html="<h1 id='zoom'>Zoom</h1>") %>%
 #       htmlwidgets::onRender("function(el,x,data){
 #        var map=this;
@@ -338,8 +355,9 @@ mod_map_overview_server <- function(input, output, session,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
-                   ) %>%
-                   
+                   ) %>%      
+
+
                    clearGroup("outline") %>%
                    addPolygons(
                      data = mn_tracts %>% filter(GEOID == input$map_shape_click$id),
@@ -347,6 +365,7 @@ mod_map_overview_server <- function(input, output, session,
                      color =  councilR::colors$councilBlue,
                      fill = NA,
                      opacity = 1, #0.25,
+                     # group = "outline",
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
 
@@ -356,7 +375,7 @@ mod_map_overview_server <- function(input, output, session,
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
-                               layerId = "Water",
+                               # layerId = "Water",
                                fill = T,
                                group = "Water",
                                options = pathOptions(pane = "Water"))
