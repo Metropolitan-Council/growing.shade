@@ -40,8 +40,8 @@ app_server <- function( input, output, session ) {
              map_util = map_util,
              current_tab = input$nav)
   observe({print(paste0("selected tract: ", (tract_selections$selected_tract)))}) #to check that selections are working
-  observe(print(names(map_util$map_data2)))
-  # callModule(
+
+    # callModule(
   #   mod_main_leaflet_server,
   #   "main_leaflet_ui_1",
   #   map_util,

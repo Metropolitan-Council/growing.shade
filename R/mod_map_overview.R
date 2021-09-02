@@ -27,7 +27,7 @@ mod_map_overview_server <- function(input, output, session,
                                     current_tab
                                     ){
   ns <- session$ns
-  
+
   output$map <- renderLeaflet({ #  map --------
     leaflet() %>%
       setView(
@@ -45,6 +45,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("trans", zIndex = 400) %>%
       addMapPane("EAB", zIndex = 400) %>%
       addMapPane("outline", zIndex = 650) %>%
+      addMapPane("labels", zIndex = 651) %>%
       # leaflet.multiopacity::addOpacityControls(layerId = c(
       #   "Trees",
       #   "score"
@@ -71,16 +72,15 @@ mod_map_overview_server <- function(input, output, session,
       
       #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
-                       options = providerTileOptions(pathOptions(pane = "Road outlines"),
-                                   maxZoom=18),
+                       options = c(providerTileOptions(maxZoom=18),
+                                   pathOptions(pane = "Road outlines")),
                        group = "Road outlines") %>% #Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = providerTileOptions(#zIndex = 600,
-                                   maxZoom=18),# pathOptions(pane = "Stamen Toner"),
+                       options = c(providerTileOptions(maxZoom=18),
+                                   pathOptions(pane = "labels")),# pathOptions(pane = "Stamen Toner"),
                        group = "Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
-                       options = providerTileOptions(#zIndex = 600,
-                                   maxZoom=18),# pathOptions(pane = "Stamen Toner"),
+                       options = providerTileOptions(maxZoom=18),# pathOptions(pane = "Stamen Toner"),
                        group = "Map") %>%
       addProviderTiles(
         provider = providers$Esri.WorldImagery,
@@ -143,14 +143,8 @@ mod_map_overview_server <- function(input, output, session,
         fillColor = "white",# councilR::colors$transitRed,
         options = pathOptions(pane = "EAB"),
         label = "Emerald ash borer tree"
-        # labelOptions = labelOptions(noHide = TRUE, offset=c(0,-12), textOnly = TRUE)
       ) %>%
-    # addAwesomeMarkers(
-    #   group = "EAB",
-    #   data = eab,
-    #   icon = iconeab,
-    #   options = pathOptions(pane = "EAB")
-    # )  %>%
+
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -304,6 +298,11 @@ mod_map_overview_server <- function(input, output, session,
                        weight = 0.5, #0.25,
                        fillOpacity = 0.6,
                        smoothFactor = 0.2,
+                       label = ~(paste0(#"Tract ID: ", map_util$map_data2$tract_string, 
+                                       "Priority score: ", round(map_util$map_data2$MEAN, 3)#,
+                                      # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),"/n",
+                                      # "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"
+                                      )), 
                        highlightOptions = highlightOptions(
                          stroke = TRUE,
                          color = "white",

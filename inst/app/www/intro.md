@@ -1,13 +1,14 @@
 
+<center>
+<img src='www/3026.png' width='100%' max-width='1200px' alt='a picture of trees surrounding a river' /img>
+</center>
+
 # Welcome to the Growing Shade Project
 
-<br> The Growing Shade project recognizes that trees provide critical
-ecosystem services and are important components of both natural and
-built environments. With a desire to create healthy places for people to
-live (mitigate heat islands and/or reduce home cooling costs, reduce
-localized flooding risk, improve mental health, etc.) and a resilient
-future (carbon sequestration, biodiversity, etc.), building or enhancing
-tree canopy cover is an actionable step.
+<br> Trees provide critical ecosystem services and are important
+components of both natural and built environments. With a desire to
+create healthy places for people to live and a resilient future,
+building or enhancing tree canopy cover is an actionable step.
 
 <br> **We suggest using a desktop browser for the best experience. Click
 the tabs at the top of the page to start using the tool.**
@@ -23,7 +24,7 @@ the importance of this work within our region. Users can customize data
 variables to reflect specific priorities towards identifying tree
 planting opportunities. Data is also provided towards helping
 stakeholders evaluate other considerations involved with tree plantings,
-such as cost-benefit analysis and species considerations.
+such as species considerations.
 
 <br>
 

@@ -18,10 +18,11 @@ made where each pixel contained the maximum NDVI observed within the
 calendar year. Sentinel-2 collects measurements approximately 2-3 times
 a week, with a pixel resolution of 10 meters x 10 meters. Then, the
 tract-average NDVI value from this ‘maximum NDVI’ composite image was
-taken. NDVI over water bodies (rivers or lakes) was not included.
-<br><br> Based on user-defined selection of priority variables, the data
-are scaled and standardized in order to create a single, integrated
-priority value. Download the pdf below for more information on that.
+taken. NDVI over water bodies (rivers or lakes) was not included nor was
+NDVI over cultivated fields. <br><br> Based on user-defined selection of
+priority variables, the data are scaled and standardized in order to
+create a single, integrated priority value. Download the pdf below for
+more information on that.
 
 <br>
 
@@ -44,7 +45,13 @@ canopy gaps rather than identify gaps in overall ‘greenness.’ Five
 distinct phenological time periods were used. For each time period, a
 composite image was made showing the maximum NDVI observed. Then
 different thresholds of NDVI were used to separate trees from grasses
-and crops.
+and crops. All areas that were classified as water or cultivated
+cropland were removed. Finally, we then divided our calculated tree
+canopy by 2. This scaling factor is appropriate for our methods of using
+10 m x 10 m resolution data, which is often much larger than tree
+canopies. This scaling factor makes our data align very closely with
+other reports while still leveraging the scalability and temporal
+accuracy of our method.
 
 -   Winter (1 January 2020 - 15 March 2020): pixel classified as a
     conifer tree if winter NDVI is above 0.3 (identify trees which are
@@ -58,18 +65,6 @@ and crops.
     than 0.55 (identify trees which are are green in the summer) AND
 -   Fall (15 September 2020 - 30 October 2020): fall NDVI is greater
     than 0.4 (remove early senescing crops)
-
-### Identifying land use in 2016
-
-If useful, this data should be updated to have 2020 data. Info from
-Paul…. Certain areas not elligible for tree planting. Did not remove
-building footprints, because in many cases trees could shade buildings,
-or they could have green roofs, or other ideas. Removed highways but not
-roads because tree canopy can also extend over roads. Same with parking
-lots. **BUT…this probably could be removed if we wanted (I think
-removing roads would be much easier than removing building
-footprints).**
-<https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_generl_lnduse2016/metadata/metadata.html>
 
 <!-- https://browser.creodias.eu/#lat=45.15999&lng=-92.79540&zoom=15&time=2020-07-05&preset=3_NDVI&datasource=Sentinel-2%20L1C -->
 <br>

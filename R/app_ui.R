@@ -29,9 +29,9 @@ app_ui <- function(request) {
         "HOME",
         br(),
         br(),
-        mod_home_ui("home_ui_1"),
-        br(),
-        br(),
+        # mod_home_ui("home_ui_1"),
+        # br(),
+        # br(),
         mod_intro_ui("intro_ui_1"),
         br()
       ),

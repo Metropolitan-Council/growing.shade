@@ -183,7 +183,13 @@ equity_data_raw <- equity %>%
          luse_green,
          tr_ej,
          holc_pred,
-         mdhhincnow) %>%
+         mdhhincnow,
+         pd_any,
+         pblacknh,
+         pasiannh,
+         phisppop,
+         pamindnh,
+         pwk_nowork) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh,
@@ -213,7 +219,7 @@ eva_data_raw <- equity_data_raw %>%
 #ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
 #ph (public health preset)
 eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
-                          "ppov185",	"% people whose family income is <185% of the federal poverty threshold", "people", "high_opportunity", 0, 1, 0, 0,
+                          "ppov185",	"% people with income <185% of the poverty threshold", "people", "high_opportunity", 0, 1, 0, 0,
                           "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
                           "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0, 0,
                           "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
@@ -230,7 +236,13 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "canopy_percent", "% tree canopy coverage in 2020", "tree", "low_opportunity", 1, 0, 1, 0,
                           "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
                           "mdhhincnow", "Median household income, 2015-2019 period (in 2019 dollars)", "people", "low_opportunity", 0, 0, 0, 0,
-                          "sens_age", "% people 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0
+                          "sens_age", "% people 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0,
+                          "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pblacknh", "% residents who identify as Black or African American, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pasiannh", "% residents who identify as Asian, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "phisppop", "% residents who identify as Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pamindnh", "% residents who identify as Indigenous, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0
                           )
 eva_data_codes %>% filter(cons == 1)
 

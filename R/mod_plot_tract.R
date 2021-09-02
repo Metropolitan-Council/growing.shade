@@ -131,7 +131,8 @@ mod_plot_tract_server <- function(input, output, session,
                         output_options = list(html_preview = FALSE,
                                               toc = TRUE, 
                                               # theme = "cosmo",
-                                              toc_depth = 3#,
+                                              toc_depth = 3,
+                                              fig_caption = TRUE
                                               # theme = NULL,
                                               # css = system.file("app/www/style.css", package = 'planting.shade')
                                               

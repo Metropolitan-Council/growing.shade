@@ -23,7 +23,7 @@ Presets are developed to provide starting points for various stakeholder groups.
 
 ```{r message = F, warning=F, echo = F}
 library(tidyverse)
-library(dplyr)
+# library(dplyr)
 
 helperFunction <- function(x){
     ifelse(x=="1", "included", "")
@@ -32,13 +32,14 @@ helperFunction <- function(x){
 load("./data/metadata.rda")
 plotthis <- metadata %>%
   select(name, cc, ej, ph, cons) %>%
+  filter(cc == 1 | ej == 1 | ph == 1 | cons == 1) %>%
   rename(Variable = name,
          `Climate change` = cc,
          `Environmental justice` = ej,
          `Public health` = ph,
          Conservation = cons) %>%
    # mutate(across(where(is.numeric), ~na_if(., 0))) %>%
-   mutate(across(where(is.numeric), helperFunction))
+   mutate(across(where(is.numeric), helperFunction)) 
 
 
 kableExtra::kbl(plotthis,
