@@ -28,6 +28,7 @@ fs::file_delete("plan_historic_holc_appraisal.gpkg")
 # levels(as.factor(redline$HSG_SCALE))
 # redline %>% ggplot()+geom_sf()
 usethis::use_data(redline, overwrite = TRUE)
+sf::st_write(redline, "/Volumes/shared/CommDev/Research/Research/EllenEsch/redline/redline.shp", append = FALSE)
 
 
 ## transit routes ---------------
