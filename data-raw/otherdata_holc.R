@@ -42,3 +42,25 @@ trans_routes <- sf::read_sf(unzip(temp, "trans_transit_routes.gpkg")) %>%
 fs::file_delete("trans_transit_routes.gpkg")
 
 usethis::use_data(trans_routes, overwrite = TRUE)
+
+
+# ctus -------
+temp <- tempfile()
+temp2 <- tempfile()
+download.file(
+  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+ctuoutline <-
+  sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  select(CTU_NAME) %>%
+  st_transform(4326)
+
+files <- list.files(temp2, full.names = T)
+files
+file.remove(files)
+
+usethis::use_data(ctuoutline, overwrite = TRUE)
+#make sure to restart R after processing ctus...it's causing it to fail for some reason.

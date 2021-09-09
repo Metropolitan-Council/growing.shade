@@ -159,7 +159,7 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "geooutline")
       ) %>%
       addPolygons(
-        data = metc_region,
+        data = ctuoutline,
         group = "City outlines",
         stroke = T,
         smoothFactor = 1,
