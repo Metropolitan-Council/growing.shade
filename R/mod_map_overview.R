@@ -219,7 +219,12 @@ mod_map_overview_server <- function(input, output, session,
                   "Historically redlined areas",
                   "Road outlines"
                   # "Rivers & Lakes"
-                  ))# %>%
+                  )) %>%
+      
+      groupOptions(
+            group = "Road outlines",
+            zoomLevels = 13:18
+          )
     
     #this is GOOD, but I'm less into it now...
     #   groupOptions(
