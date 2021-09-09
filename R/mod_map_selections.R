@@ -41,7 +41,7 @@ mod_map_selections_ui <- function(id){
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
                                   choices = filter(metadata, type == "people") %>% .$name,
                                   options = list(`actions-box` = TRUE,
-                                                 size = 20,
+                                                 size = 10,
                                                  `selected-text-format` = "count > 1"),
                                   multiple = T,
                                   selected = NULL #filter(metadata, type == "people")[1, 2]
