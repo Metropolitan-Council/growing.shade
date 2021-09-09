@@ -200,6 +200,36 @@ equity_data_raw <- equity %>%
          -pwhitenh) 
 
 
+##########
+# CDC health data
+#########
+# variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
+# api token: https://chronicdata.cdc.gov/profile/edit/developer_settings
+
+library("RSocrata")
+#metadata https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh
+
+health <- read.socrata(
+  "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=countyfips in('27003', '27019', '27037', '27053', '27123', '27139', '27163')",
+  app_token = "D1kEEJEDVBpDppDIdDmwNXeVT",
+  email     = "ellen.esch@metc.state.mn.us",
+  password  ="TQfY5%Q3xY") %>%
+  rename(GEOID10 = locationname)
+
+health
+names(health)
+levels(as.factor(health$measure))
+
+health2 <- health %>%
+  filter(measure %in% c("Current asthma among adults aged >=18 years",
+                        "Chronic obstructive pulmonary disease among adults aged >=18 years",
+                        "Mental health not good for >=14 days among adults aged >=18 years",
+                        "Physical health not good for >=14 days among adults aged >=18 years")) %>%
+  select(GEOID10, measureid, data_value) %>%
+  mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
+  pivot_wider(names_from = measureid, values_from = data_value) %>%
+  rename(tr10 = GEOID10)
+
 ###################
 # combine data sources
 ###################
@@ -207,6 +237,7 @@ equity_data_raw <- equity %>%
 eva_data_raw <- equity_data_raw %>% 
   full_join(canopy %>% rename(tr10 = GEOID10)) %>%
   full_join(tract_ndvi %>% rename(tr10 = GEOID10)) %>%
+  full_join(health2) %>%
   mutate(ndvi2 = ndvi,
          canopy_percent2 = canopy_percent) %>%
   rename(tract_string = tr10) #and for this project, I need to rename the tract variable
@@ -244,9 +275,13 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "phisppop", "% residents who identify as Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
                           "pamindnh", "% residents who identify as Indigenous, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
                           "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pownhome", "% of residents who own their home", "people", "high_opportunity", 0,0,0,0
+                          "pownhome", "% of residents who own their home", "people", "high_opportunity", 0,0,0,0,
+                          "MHLTH", "Mental health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "PHLTH", "Physical health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "COPD", "Chronic obstructive pulmonary disease among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "CASTHMA", "Current asthma among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0
                           )
-eva_data_codes %>% filter(cons == 1)
+eva_data_codes %>% filter(ph == 1)
 
 ###################
 # #create final dataset - no spatial data here
