@@ -158,6 +158,18 @@ mod_map_overview_server <- function(input, output, session,
         fillOpacity = 1,
         options = pathOptions(pane = "geooutline")
       ) %>%
+      addPolygons(
+        data = metc_region,
+        group = "City outlines",
+        stroke = T,
+        smoothFactor = 1,
+        weight = 1,
+        color = "black",##ED1B2E",
+        fill = FALSE,
+        fillColor = "#ED1B2E",
+        fillOpacity = 1,
+        options = pathOptions(pane = "geooutline")
+      ) %>%
 
       
       
@@ -227,7 +239,8 @@ mod_map_overview_server <- function(input, output, session,
           "Road outlines",
           "Historically redlined areas",
           "Emerald ash borer",
-          "County outlines"
+          "County outlines",
+          "City outlines"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
@@ -235,7 +248,8 @@ mod_map_overview_server <- function(input, output, session,
                   "Emerald ash borer",
                   "Historically redlined areas",
                   "Road outlines",
-                  "County outlines"
+                  "County outlines",
+                  "City outlines"
                   # "Rivers & Lakes"
                   )) %>%
       

@@ -22,6 +22,9 @@ usethis::use_data(mn_tracts, overwrite = TRUE)
 
 metc_region <- mn_tracts %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
 usethis::use_data(metc_region, overwrite = TRUE)
+
+
+
 ######
 # but really, we want to expand across bigger region
 # focus on midwest
