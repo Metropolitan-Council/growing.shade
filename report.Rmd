@@ -53,22 +53,38 @@ reportfor <- if (params$selected_geo == "City (MetCouncil region only)") {
 } else if (params$selected_geo == "Selected tract") {
   paste0("tract ", params$selected_tract)
 } else if (params$selected_geo == "County (within MN or WI)") {
-  'PRANK! nothing to see here yet'
+"Prank! nothing here yet"
 }
 
-scaled_summed <- params$priority_score %>%
+scaled_summed <- if(params$selected_geo == "Selected tract") {
+  params$priority_score %>%
   filter(tract_string == params$selected_tract)
+} else if (params$selected_geo == "City (MetCouncil region only)"){
+  params$priority_score %>% filter(tract_string == "27037060716")
+}
 
 fheight = if (nrow(params$vars_selected) < 3) {
   3
 } else {nrow(params$vars_selected)*.9}
 
-eabcount<- eab %>%
-  sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
-                      GEOID == params$selected_tract)) %>% nrow()
+eabcount<- if(params$selected_geo == "Selected tract") {
+  eab %>%
+    sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
+                               GEOID == params$selected_tract)) %>% 
+    nrow()} else if (params$selected_geo == "City (MetCouncil region only)") {
+      eab %>%
+    sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
+                               GEOID == "27037060716")) %>% 
+    nrow()
+    }
 
-canopycover <- params$canopy %>%
-  filter(tract_string == params$selected_tract)#round(params$canopy/2, 1)
+canopycover <- if(params$selected_geo == "Selected tract") {
+  params$canopy %>%
+    filter(tract_string == params$selected_tract)
+  } else if (params$selected_geo == "City (MetCouncil region only)") {
+      params$canopy %>%
+      filter(tract_string == "27037060716")}
+    
 
 ```
 
@@ -78,9 +94,15 @@ canopycover <- params$canopy %>%
 
 ```{r map, echo = F, message = F, warning = F, fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
-metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
-  geom_sf(data = filter(mn_tracts, GEOID == params$selected_tract), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
-  theme_void()
+if(params$selected_geo == "Selected tract") {
+  metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
+    geom_sf(data = filter(mn_tracts, GEOID == params$selected_tract), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
+    theme_void()
+  } else if (params$selected_geo == "City (MetCouncil region only)") {
+     metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
+    geom_sf(data = filter(mn_tracts, GEOID == "27037060716"), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
+    theme_void()}
+
 ```
 
 This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. Trees provide critical ecosystem services and are important components of the human, natural and built environments. Enhancing and maintaining tree canopy cover is an actionable step to create healthy places for people to live and a resilient future.
@@ -103,7 +125,8 @@ canopyplot<-eva_data_main %>% filter(variable %in% c("canopy_percent")) %>%
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) 
 
-canopyhist <-  ggplot()+
+canopyhist <- if(params$selected_geo == "Selected tract") {
+  ggplot()+
           #distribution
           ggdist::stat_halfeye(
             data = canopyplot, aes(x = canopy_percent, y = 1),
@@ -111,7 +134,6 @@ canopyhist <-  ggplot()+
             point_colour = NA) + 
       geom_boxplot(data = canopyplot, aes(x = canopy_percent, y = 1),
                    width = .25, outlier.shape = NA) +
-      # coord_cartesian(ylim = c(1.2, NA), clip = "off") +
       councilR::council_theme() +
       theme(panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
@@ -124,7 +146,28 @@ canopyhist <-  ggplot()+
     labs(y = "", x = "Tree canopy cover (%)") +
       scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
     geom_point(aes(x = canopy_percent, y = 1), fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(canopyplot, tract_string == params$selected_tract))
-
+  } else if (params$selected_geo == "City (MetCouncil region only)") {
+    ggplot()+
+          #distribution
+          ggdist::stat_halfeye(
+            data = canopyplot, aes(x = canopy_percent, y = 1),
+            adjust = .5,  width = .6,  .width = 0,  justification = -.3, 
+            point_colour = NA) + 
+      geom_boxplot(data = canopyplot, aes(x = canopy_percent, y = 1),
+                   width = .25, outlier.shape = NA) +
+      councilR::council_theme() +
+      theme(panel.grid.minor = element_blank(),
+            panel.grid.major.y = element_blank(),
+            axis.text.y = element_blank())+
+    geom_point(size = 1.3,alpha = .3,
+                            position = position_jitter(seed = 1, width = 0, height = .1),
+                            col = "grey40",
+                            aes(x = canopy_percent, y = 1),
+                            data = filter(canopyplot, tract_string != "27037060716")) +
+    labs(y = "", x = "Tree canopy cover (%)") +
+      scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    geom_point(aes(x = canopy_percent, y = 1), fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(canopyplot, tract_string == "27037060716"))
+}
 canopyhist
 ```
 
@@ -223,7 +266,10 @@ Here is how the selected area compares to the regional average **for the selecte
 ```{r status, echo=F, message=F, warning=F, fig.height=fheight, fig.width=10, fig.cap = "\\label{fig:status}A comparison of the selected area to regional averages with respect to the variables selected for this report. The value(s) of the selected geography are shown in green, while the regional averages are shown in blue."}
 testdf <- eva_data_main %>%
   full_join(metadata)#%>% filter(variable == "prim_flood")
-testtr <- params$selected_tract
+testtr <- if(params$selected_geo == "Selected tract") {
+  params$selected_tract
+  } else if (params$selected_geo == "City (MetCouncil region only)") {
+    "27037060716"}
 
 
 summary_table <- filter(testdf, tract_string == testtr) %>%
@@ -307,13 +353,8 @@ equityplot<-eva_data_main %>% filter(variable %in% c("pbipoc", "canopy_percent",
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) 
 
-# equityplot%>%
-#   ggplot(aes(x = pbipoc, y = ndvi)) + 
-#   geom_point(col = "grey40", pch = 21, data = filter(equityplot, tract_string != params$selected_tract)) + 
-#   geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(equityplot, tract_string == params$selected_tract)) + 
-#   councilR::council_theme()
-
-race_equity <- equityplot%>%
+race_equity <-  if(params$selected_geo == "Selected tract") {
+  equityplot%>%
   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
   geom_point(col = "grey40", alpha = .3, data = filter(equityplot, tract_string != params$selected_tract)) + 
   geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = equityplot) +
@@ -321,20 +362,36 @@ race_equity <- equityplot%>%
   councilR::council_theme() + 
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
   labs(x = "Tract people of color population\n(%)", y = "Canopy coverage in tract\n(%)")
+} else if (params$selected_geo == "City (MetCouncil region only)") {
+    equityplot%>%
+  ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+  geom_point(col = "grey40", alpha = .3, data = filter(equityplot, tract_string != "27037060716")) + 
+  geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = equityplot) +
+  geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, tract_string == "27037060716")) + 
+  councilR::council_theme() + 
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  labs(x = "Tract people of color population\n(%)", y = "Canopy coverage in tract\n(%)")}
 
 
-inc_equity <- equityplot%>%
+inc_equity <- if(params$selected_geo == "Selected tract") {
+  equityplot%>%
   ggplot(aes(x = mdhhincnow, y = (canopy_percent))) + 
   geom_point(col = "grey40", alpha = .3, data = filter(equityplot, tract_string != params$selected_tract)) + 
-    # geom_smooth(method="glm",
-    #         method.args=list(family=gaussian(link="log")), fill = NA, col = councilR::colors$councilBlue, data = equityplot)# +
-    # geom_smooth(method = "lm", formula = (y~ poly(x, 2)), fill = NA, col = councilR::colors$councilBlue, data = equityplot)# +
-    # geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = (equityplot %>% filter(mdhhincnow < 100000)))# +
       geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
 geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, tract_string == params$selected_tract)) + 
   councilR::council_theme() + 
-  labs(x = "Block group median household income\n($)", y = "")#Tree canopy coverage in tract (%)")
+  labs(x = "Block group median household income\n($)", y = "")
+} else if (params$selected_geo == "City (MetCouncil region only)") {
+  equityplot%>%
+  ggplot(aes(x = mdhhincnow, y = (canopy_percent))) + 
+  geom_point(col = "grey40", alpha = .3, data = filter(equityplot, tract_string != "27037060716")) + 
+      geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, tract_string == "27037060716")) + 
+  councilR::council_theme() + 
+  labs(x = "Block group median household income\n($)", y = "")
+}
 
 
 fig_equity <- cowplot::plot_grid(race_equity, inc_equity, labels = "AUTO")
