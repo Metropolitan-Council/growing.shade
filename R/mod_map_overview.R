@@ -142,7 +142,7 @@ mod_map_overview_server <- function(input, output, session,
         color = "red", #councilR::colors$transitRed,
         fillColor = "white",# councilR::colors$transitRed,
         options = pathOptions(pane = "EAB"),
-        label = "Emerald ash borer tree"
+        label = "EAB infested tree"
       ) %>%
 
       addPolygons(
