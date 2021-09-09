@@ -40,6 +40,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
       addMapPane(name = "Satellite", zIndex = 100) %>%
       addMapPane(name = "Road outlines", zIndex = 151) %>%
+      addMapPane(name = "geooutline", zIndex = 152) %>%
       addMapPane("redline", zIndex = 160) %>%
       addMapPane("redline2", zIndex = 110) %>%
       addMapPane("trans", zIndex = 400) %>%
@@ -144,7 +145,22 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "EAB"),
         label = "EAB infested tree"
       ) %>%
+      
+      addPolygons(
+        data = metc_region,
+        group = "County outlines",
+        stroke = T,
+        smoothFactor = 1,
+        weight = 1,
+        color = "black",##ED1B2E",
+        fill = FALSE,
+        fillColor = "#ED1B2E",
+        fillOpacity = 1,
+        options = pathOptions(pane = "geooutline")
+      ) %>%
 
+      
+      
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -210,14 +226,16 @@ mod_map_overview_server <- function(input, output, session,
           "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
-          "Emerald ash borer"
+          "Emerald ash borer",
+          "County outlines"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
       hideGroup(c("Transit",
                   "Emerald ash borer",
                   "Historically redlined areas",
-                  "Road outlines"
+                  "Road outlines",
+                  "County outlines"
                   # "Rivers & Lakes"
                   )) %>%
       
