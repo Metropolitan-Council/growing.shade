@@ -189,7 +189,8 @@ equity_data_raw <- equity %>%
          pasiannh,
          phisppop,
          pamindnh,
-         pwk_nowork) %>%
+         pwk_nowork,
+         pownhome) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh,
@@ -242,7 +243,8 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "pasiannh", "% residents who identify as Asian, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
                           "phisppop", "% residents who identify as Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
                           "pamindnh", "% residents who identify as Indigenous, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0
+                          "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pownhome", "% of residents who own their home", "people", "high_opportunity", 0,0,0,0
                           )
 eva_data_codes %>% filter(cons == 1)
 
