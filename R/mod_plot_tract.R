@@ -24,7 +24,7 @@ mod_plot_tract_ui <- function(id){
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract"),# "City (MetCouncil region only)"), #"County (within MN or WI)"),
+      choices = c("Selected tract", "City (MetCouncil region only)"), #"County (within MN or WI)"),
       selected = c("Selected tract"),#c("City (MetCouncil region only)"),
       inline = F 
       ),
