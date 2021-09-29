@@ -240,7 +240,7 @@ mod_map_overview_server <- function(input, output, session,
                        ),
                        fillColor = ~ colorNumeric(
                          n = 5,
-                         palette = "inferno",
+                         palette = "Oranges",
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
                        popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
@@ -260,7 +260,7 @@ mod_map_overview_server <- function(input, output, session,
                        layerId = "score",
                        pal = colorNumeric(
                          n = 5,
-                         palette = "inferno",
+                         palette = "Oranges",
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        ),
                        values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
@@ -286,7 +286,7 @@ mod_map_overview_server <- function(input, output, session,
                                     #                      GEO_NAME == input$maps_shape_click$id)),
                                                         # GEOID == input$map_shape_click$id)), #"27123031701")),
 
-                                  colors = "#238b45", #pal,
+                                  colors = "#35978f", #"#238b45",
                                   opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees"#,
