@@ -57,7 +57,9 @@ app_ui <- function(request) {
                          hr(),
                          mod_map_selections_ui("map_selections_ui_1"),
                          hr(),
-                         mod_plot_tract_ui("plot_tract_ui_1")
+                         mod_geo_selection_ui("geo_selection_ui_1"),
+                         hr()#,
+                         # mod_plot_tract_ui("plot_tract_ui_1")
             ),
             
             mainPanel(

@@ -26,6 +26,8 @@ app_server <- function( input, output, session ) {
                                # preset_selections,
                                current_tab = input$nav)
   
+  mod_geo_selection_server("geo_selection_ui_1")
+  
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
   observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
