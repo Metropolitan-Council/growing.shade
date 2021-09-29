@@ -13,7 +13,7 @@ mod_geo_selection_ui <- function(id){
  
     HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make selections below to create a custom report. Scoll to see more. Download it all at the bottom. </section></p><br>"),
     
-    fluidRow(radioButtons(
+    (radioButtons(
       ns("geo"),
       h4("Report area"),
       choices = c(
@@ -30,7 +30,7 @@ mod_geo_selection_ui <- function(id){
       
       shinyWidgets::pickerInput(ns("cityInput"), 
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
-                                choices = ctus,
+                                choices = ctu_list$GEO_NAME,
                                 options = list(title = "Pick a city or township", size = 20),
                                 multiple = F
       )),
@@ -39,11 +39,11 @@ mod_geo_selection_ui <- function(id){
       ns = ns,
       condition = "input.geo == 'nhood'",
       
-      shinyWidgets::pickerInput(ns("cityInput"), 
+      shinyWidgets::pickerInput(ns("nhoodInput"), 
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a neighborhood</span></h4>")),
                                 choices = list(
-                                  Minneapolis = nhood$nhood[nhood$city=="Minneapolis"],
-                                  `St. Paul` = nhood$nhood[nhood$city=="St. Paul"]),
+                                  Minneapolis = nhood_list$GEO_NAME[nhood_list$city=="Minneapolis"],
+                                  `St. Paul` = nhood_list$GEO_NAME[nhood_list$city=="St. Paul"]),
                                 options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 20),
                                 multiple = F
       ))
@@ -57,6 +57,9 @@ mod_geo_selection_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
+    input_values$selected_geo <- input$geo
+    input_values$selected_area <- if(input$geo == "ctus") {input$cityInput} else {input$nhoodInput}
+    
   })
 }
     
