@@ -11,7 +11,9 @@ mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(        tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
 
-    leafletOutput(ns("map"), width="100%", height="100%")#,
+    leafletOutput(ns("map"), 
+                  # width="100%", height="100%"
+                  height = "90vh")#,
     
     # wellPanel(textOutput(ns("selected_tract")))
     
@@ -32,7 +34,7 @@ mod_map_overview_server <- function(input, output, session,
     leaflet() %>%
       setView(
         lat = 44.963,
-        lng = -93.42,
+        lng = -93.32,
         zoom = 10
       ) %>%
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%

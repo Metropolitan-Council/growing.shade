@@ -7,6 +7,7 @@
 app_ui <- function(request) {
   tagList(
     tags$html(lang = "en"),
+    # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # List the first level UI elements here 
@@ -29,9 +30,6 @@ app_ui <- function(request) {
         "HOME",
         br(),
         br(),
-        # mod_home_ui("home_ui_1"),
-        # br(),
-        # br(),
         mod_intro_ui("intro_ui_1"),
         br()
       ),
@@ -40,22 +38,58 @@ app_ui <- function(request) {
                (mod_storymap_ui("storymap_ui_1"))),
       
       
-      tabPanel( 
+      tabPanel(
         "Use the tool",
-        # br(),br(),
-        # 
-        # h1("Priority map"),
-        div(class="outer",
-            # h1("Priority map"),
-
-        # p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
-        # br(),
-        mod_map_overview_ui("map_overview_ui_1"),
-        mod_map_selections_ui("map_selections_ui_1"),
-        mod_plot_tract_ui("plot_tract_ui_1"),
-        mod_gethelp_ui("gethelp_ui_1")
-      )), 
-               
+        div(
+          style = 'width:100% !important;
+                    margin-left:0  !important; margin-top:30px  !important;
+                    max-width: 4000px !important; min-width:100% !important',
+          sidebarLayout(
+            sidebarPanel(width = 5,
+                         style = "height: 90vh; overflow-y: auto;",
+                         
+                         # width = 2,
+                         h2("Welcome to the Growing Shade tool"),
+                         p("Please refer to ", a("the user guide",
+                                                 href = "www/Growing Shade User Guide (August 2021).pdf",
+                                                 .noWS = "outside",
+                                                 target = "_blank"), " for more information about using this tool."),
+                         hr(),
+                         mod_map_selections_ui("map_selections_ui_1"),
+                         hr(),
+                         mod_plot_tract_ui("plot_tract_ui_1")
+            ),
+            
+            mainPanel(
+              width = 7,
+              # div(class="outer3",
+              div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
+                  mod_map_overview_ui("map_overview_ui_1"))
+            )
+            
+          )
+        )), 
+      # #old use the tool----
+      # tabPanel( 
+      #   "Use the tool",
+      #   # br(),br(),
+      #   # 
+      #   # h1("Priority map"),
+      #   div(class="outer",
+      #       # h1("Priority map"),
+      # 
+      #   # p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
+      #   # br(),
+      #   mod_map_overview_ui("map_overview_ui_1"),
+      #   mod_map_selections_ui("map_selections_ui_1"),
+      #   mod_plot_tract_ui("plot_tract_ui_1"),
+      #   mod_gethelp_ui("gethelp_ui_1")
+      # )), 
+      #          
+      # #-----
+      
+      
+      
                
     #   tabPanel("other",
     #                     

@@ -11,17 +11,31 @@ mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
     
-    absolutePanel(
-      id = "controls",
-      class = "panel panel-default", 
-      fixed = TRUE,
-      draggable = TRUE, top = "13%", left = "5%", right = "auto", bottom = "auto",
-      style = "padding: 7px; z-index: 900",
-      width = "auto", height = "auto",
-      HTML('<button data-toggle="collapse" data-target="#demo">Customizations</button>'),
-      tags$div(id = 'demo',  class="collapse in",
+    # absolutePanel(
+    #   id = "controls",
+    #   class = "panel panel-default", 
+    #   fixed = TRUE,
+    #   draggable = TRUE, top = "13%", left = "5%", right = "auto", bottom = "auto",
+    #   style = "padding: 7px; z-index: 900",
+    #   width = "auto", height = "auto",
+    #   HTML('<button data-toggle="collapse" data-target="#demo">Customizations</button>'),
+    #   tags$div(id = 'demo',  class="collapse in",
                
-      radioButtons(ns("preset"), h3("Select preset"),
+    
+    radioButtons(ns("onoff"),
+                 HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities such as climate resilience, equity, and health. Turn on/off this layer to focus on potential impact and identify areas where enhancing or managing the tree canopy could have a disproportionately positive benefit by looking at the intersection of the environment and other factors. </section></p><br>"),
+                 choices = c("On", "Off"),
+                 selected = "On",
+                 inline = T),  
+    
+    
+    
+    conditionalPanel(
+      ns = ns,
+      condition = "input.onoff == 'On'",
+      radioButtons(ns("preset"), 
+                   # HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities. Select a specific prioritization layer to identify areas where enhancing or managing the tree canopy could have a disproportionately positive benefit.</section></p><br>"),
+                   h4("Preset"),
                   choices = c(
                     "Climate change",
                     "Conservation",
@@ -31,11 +45,11 @@ mod_map_selections_ui <- function(id){
                   ), 
                   selected = "Environmental justice"
       ) %>%
-        shinyhelper::helper(type = "markdown", content = "PresetHelp", size = "l"),
+        shinyhelper::helper(type = "markdown", content = "PresetHelp", size = "l")),
       
       conditionalPanel(
         ns = ns,
-        condition = "input.preset == 'Custom'",
+        condition = "input.preset == 'Custom' && input.onoff == 'On'",
         
         shinyWidgets::pickerInput(ns("peopleInput"), 
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
@@ -48,7 +62,7 @@ mod_map_selections_ui <- function(id){
         )),
         conditionalPanel(
           ns = ns,
-          condition = "input.preset == 'Custom'",
+          condition = "input.preset == 'Custom' && input.onoff == 'On'",
           
           shinyWidgets::pickerInput(ns("placeInput"), 
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
@@ -61,7 +75,7 @@ mod_map_selections_ui <- function(id){
           )),
           conditionalPanel(
             ns = ns,
-            condition = "input.preset == 'Custom'",
+            condition = "input.preset == 'Custom' && input.onoff == 'On'",
             
             shinyWidgets::pickerInput(ns("treeInput"), 
                                       label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
@@ -72,23 +86,8 @@ mod_map_selections_ui <- function(id){
                                       multiple = T,
                                       selected = filter(metadata, type == "tree")[1, 2]
             )
-      )))
-    
-    
-    ##############
-    # # #old way to show dropdowns for eveyrthing
-    #   uiOutput(ns("peopleInput")),
-    #   uiOutput(ns("placeInput")),
-    #   uiOutput(ns("treeInput"))
-    
-    # # maybe want to do a weighting option???,
-    # radioButtons(ns("weight"),
-    #              label = shiny::HTML("<h4>Variable weights</h4>", "<p style='font-size:16px'>Choose how tract scores are calculated.</p>"),
-    #              choices = c("Weight all variables equally", "Weight all categories equally"),
-    #              selected = "Weight all variables equally",
-    #              inline = T), br(),
+      ))
 
-  )
 }
     
 #' map_selections Server Function
@@ -100,91 +99,17 @@ mod_map_selections_server <- function(input, output, session,
   ns <- session$ns
   
   input_values <- reactiveValues() # start with an empty reactiveValues object.
+  
   observe({ input_values$allInputs <-  as_tibble(input$peopleInput) %>%
         rbind(as_tibble(input$placeInput)) %>%
         rbind(as_tibble(input$treeInput))
+  
+  input_values$priority_layer <- input$onoff
   
   input_values$preset <- input$preset
   })
   return(input_values)
 
-  
-  ############
-  # # #old way to show dropdowns for everything
-  # output$peopleInput <- renderUI({
-  #   ns <- session$ns
-  #   tagList(  
-  #     a <- shinyWidgets::pickerInput(ns("peopleInput"), 
-  #                               label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
-  #                               choices = filter(metadata, type == "people") %>% .$name,
-  #                               options = list(`actions-box` = TRUE,
-  #                                              size = 20,
-  #                                              `selected-text-format` = "count > 1"),
-  #                               multiple = T,
-  #                               width = '90%',
-  #                               selected = if (preset_selections$preset == "Environmental justice") {
-  #                                 filter(metadata, type == "people", ej == 1) %>% .$name
-  #                                 } else if (preset_selections$preset == "Public health") {
-  #                                   filter(metadata, type == "people", ph == 1) %>% .$name
-  #                                 } else if (preset_selections$preset == "Climate change") {
-  #                                   filter(metadata, type == "people", cc == 1) %>% .$name
-  #                                 } else if (preset_selections$preset == "Custom") {
-  #                                   filter(metadata, type == "people") %>% .$name}))
-  #   return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
-  # })
-  # 
-  # 
-  # output$placeInput <- renderUI({
-  #   ns <- session$ns
-  #   tagList(  
-  #     a <- shinyWidgets::pickerInput(ns("placeInput"), 
-  #                                    label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
-  #                                    choices = filter(metadata, type == "environment") %>% .$name,
-  #                                    options = list(`actions-box` = TRUE,
-  #                                                   size = 20,
-  #                                                   `selected-text-format` = "count > 1"),
-  #                                    multiple = T,
-  #                                    width = '90%',
-  #                                    selected = if (preset_selections$preset == "Environmental justice") {
-  #                                      filter(metadata, type == "environment", ej == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Public health") {
-  #                                      filter(metadata, type == "environment", ph == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Climate change") {
-  #                                      filter(metadata, type == "environment", cc == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Custom") {
-  #                                      filter(metadata, type == "environment") %>% .$name}))
-  #   return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
-  # })
-  # 
-  # output$treeInput <- renderUI({
-  #   ns <- session$ns
-  #   tagList(  
-  #     
-  #     a <- shinyWidgets::pickerInput(ns("treeInput"), 
-  #                                    label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
-  #                                    choices = filter(metadata, type == "tree") %>% .$name,
-  #                                    options = list(`actions-box` = TRUE,
-  #                                                   size = 20,
-  #                                                   `selected-text-format` = "count > 1"),
-  #                                    multiple = T,
-  #                                    width = '90%',
-  #                                    selected = if (preset_selections$preset == "Environmental justice") {
-  #                                      filter(metadata, type == "tree", ej == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Public health") {
-  #                                      filter(metadata, type == "tree", ph == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Climate change") {
-  #                                      filter(metadata, type == "tree", cc == 1) %>% .$name
-  #                                    } else if (preset_selections$preset == "Custom") {
-  #                                      filter(metadata, type == "tree") %>% .$name}))
-  #   return(if (preset_selections$preset == "Custom") {a} else {a %>% shinyjs::disabled()})
-  # })
-  # 
-  # input_values <- reactiveValues() # start with an empty reactiveValues object.
-  # observe({ input_values$allInputs <-  as_tibble(input$peopleInput) %>%
-  #       rbind(as_tibble(input$placeInput)) %>%
-  #       rbind(as_tibble(input$treeInput))
-  # })
-  # return(input_values)
   
 }
   
