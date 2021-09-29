@@ -26,7 +26,7 @@ app_server <- function( input, output, session ) {
                                # preset_selections,
                                current_tab = input$nav)
   
-  mod_geo_selection_server("geo_selection_ui_1")
+  geo_selections <- mod_geo_selection_server("geo_selection_ui_1")
   
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
@@ -39,6 +39,7 @@ app_server <- function( input, output, session ) {
   # observe({print((map_util$plot_data2))}) #to check that plot summary is working
   
   tract_selections <- callModule(mod_map_overview_server, "map_overview_ui_1",
+                                 geo_selections = geo_selections,
              map_selections = map_selections,
              map_util = map_util,
              current_tab = input$nav)

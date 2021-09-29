@@ -25,6 +25,7 @@ mod_map_overview_ui <- function(id){
 #' @noRd 
 mod_map_overview_server <- function(input, output, session,
                                     map_selections,
+                                    geo_selections,
                                     map_util,
                                     current_tab
                                     ){
@@ -160,18 +161,18 @@ mod_map_overview_server <- function(input, output, session,
         fillOpacity = 1,
         options = pathOptions(pane = "geooutline")
       ) %>%
-      addPolygons(
-        data = ctuoutline,
-        group = "City outlines",
-        stroke = T,
-        smoothFactor = 1,
-        weight = 1,
-        color = "black",##ED1B2E",
-        fill = FALSE,
-        fillColor = "#ED1B2E",
-        fillOpacity = 1,
-        options = pathOptions(pane = "geooutline")
-      ) %>%
+      # addPolygons(
+      #   data = ctuoutline,
+      #   group = "City outlines",
+      #   stroke = T,
+      #   smoothFactor = 1,
+      #   weight = 1,
+      #   color = "black",##ED1B2E",
+      #   fill = FALSE,
+      #   fillColor = "#ED1B2E",
+      #   fillOpacity = 1,
+      #   options = pathOptions(pane = "geooutline")
+      # ) %>%
 
       
       
@@ -240,18 +241,18 @@ mod_map_overview_server <- function(input, output, session,
           "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
-          "Emerald ash borer",
-          "County outlines",
-          "City outlines"
+          "Emerald ash borer"#,
+          # "County outlines"#,
+          # "City outlines"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
       hideGroup(c("Transit",
                   "Emerald ash borer",
                   "Historically redlined areas",
-                  "Road outlines",
-                  "County outlines",
-                  "City outlines"
+                  "Road outlines"#,
+                  # "County outlines"#,
+                  # "City outlines"
                   # "Rivers & Lakes"
                   )) %>%
       
@@ -427,6 +428,29 @@ mod_map_overview_server <- function(input, output, session,
                                fill = T,
                                group = "Water",
                                options = pathOptions(pane = "Water"))
+               }
+  )
+  
+  
+  observeEvent(ignoreInit = FALSE,
+               geo_selections$selected_geo,
+               {
+                 leafletProxy("map") %>%
+                   clearGroup("Jurisdiction outlines") %>%
+                   
+                   addPolygons(
+                     data = if(geo_selections$selected_geo == 'ctus') {ctuoutline} else {nhood},
+                     group = "Jurisdiction outlines",
+                     stroke = T,
+                     smoothFactor = 1,
+                     weight = 1,
+                     color = "black", ##ED1B2E",
+                     # fill = FALSE,
+                     fillColor = "transparent", # "#ED1B2E",
+                     fillOpacity = 1,
+                     options = pathOptions(pane = "geooutline"),
+                     layerId = ~GEO_NAME
+                   )
                }
   )
 
