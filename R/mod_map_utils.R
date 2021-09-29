@@ -18,7 +18,8 @@ mod_map_utils_ui <- function(id){
 #'
 #' @noRd 
 mod_map_utils_server <- function(input, output, session,
-                                 map_selections){
+                                 map_selections,
+                                 geo_selections){
   ns <- session$ns
  
   #we need to make this data for a bar plot, or something like that
@@ -67,6 +68,17 @@ mod_map_utils_server <- function(input, output, session,
   })
   
   ##-------------
+  
+  # cropped_trees <- reactive({
+  #   if(geo_selections$selected_geo == "ctus") {
+  #     filter(swp, CTU_NAME == geo_selections$selected_area)
+  #   } else if (geo_selections$selected_geo == "watershed") {
+  #     filter(swp, WMO_NAME == geo_selections$selected_area)
+  #   }
+  # })
+  # 
+  
+  #------- reactive things
   
   vals <- reactiveValues()
   

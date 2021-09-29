@@ -59,21 +59,6 @@ mod_map_overview_server <- function(input, output, session,
       # # renderOnLayerAdd = TRUE
       # ) %>%
     
-    
-    
-      # set max zoom on labels since the aerial imagery is coarser: https://gis.stackexchange.com/questions/301710/r-leaflet-set-zoom-level-of-tiled-basemap-esri-world-imagery
-
-      
-      # addProviderTiles("Stamen.TonerLines",
-      #                  group = "Stamen Toner"
-      # ) %>%
-      # addProviderTiles("Stamen.TonerHybrid", #"Stamen.TonerLabels",
-      #                  pathOptions(pane = "Stamen Toner"),
-      #                  group = "Stamen Toner") %>%
-      # addProviderTiles("Stamen.TonerHybrid", #"Stamen.TonerLabels",
-      #                  options = c(zIndex = 400),# pathOptions(pane = "Stamen Toner"),
-      #                  group = "Stamen Toner") %>%
-      
       #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
                        options = c(providerTileOptions(maxZoom=18),
@@ -91,33 +76,10 @@ mod_map_overview_server <- function(input, output, session,
         group = "Satellite",
         options = pathOptions(pane = "Aerial Imagery")
       ) %>%
-      
-      #  # aerial
-      # addProviderTiles("CartoDB.PositronOnlyLabels",
-      #                  options = c(zIndex = 400,
-      #                              maxNativeZoom=18,maxZoom=18),# pathOptions(pane = "Stamen Toner"),
-      #                  group = "Aerial Imagery") %>%
-      # addProviderTiles("Stamen.TonerLabels",
-      #                  options = c(zIndex = 600),# pathOptions(pane = "Stamen Toner"),
-      #                  group = "Aerial Imagery") %>%
-      
-       #carto positron
-      # addProviderTiles("CartoDB.PositronOnlyLabels",
-      #                  options = c(zIndex = 400),#pathOptions(pane = "Map"),
-      #                  group = "Map") %>%
       addProviderTiles("CartoDB.PositronNoLabels",
                        group = "Map",
                        options = pathOptions(pane = "Map")
       ) %>%
-      
-      
-      # addProviderTiles(
-      #   provider = providers$Esri.WorldImagery,
-      #   group = "Aerial Imagery",
-      #   options = pathOptions(pane = "Aerial Imagery")
-      # ) %>%
-
-         
       #### regional specific other data layers
       addCircles(
         # Markers(
@@ -131,7 +93,6 @@ mod_map_overview_server <- function(input, output, session,
         fillColor = "black",# councilR::colors$transitRed,
         options = pathOptions(pane = "trans")
       ) %>%
-      
       addCircles(
         # Markers(
         data = eab,
@@ -148,34 +109,6 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "EAB"),
         label = "EAB infested tree"
       ) %>%
-      
-      # addPolygons(
-      #   data = metc_region,
-      #   group = "County outlines",
-      #   stroke = T,
-      #   smoothFactor = 1,
-      #   weight = 1,
-      #   color = "black",##ED1B2E",
-      #   fill = FALSE,
-      #   fillColor = "#ED1B2E",
-      #   fillOpacity = 1,
-      #   options = pathOptions(pane = "geooutline")
-      # ) %>%
-      # addPolygons(
-      #   data = ctuoutline,
-      #   group = "City outlines",
-      #   stroke = T,
-      #   smoothFactor = 1,
-      #   weight = 1,
-      #   color = "black",##ED1B2E",
-      #   fill = FALSE,
-      #   fillColor = "#ED1B2E",
-      #   fillOpacity = 1,
-      #   options = pathOptions(pane = "geooutline")
-      # ) %>%
-
-      
-      
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -207,46 +140,22 @@ mod_map_overview_server <- function(input, output, session,
         group = "Jurisdiction outlines",
         stroke = T,
         smoothFactor = 1,
-        weight = 1,
+        # weight = 1,
         color = "black", ##ED1B2E",
-        # fill = FALSE,
         fillColor = "transparent", #"#ED1B2E",
         fillOpacity = 1,
         options = pathOptions(pane = "geooutline"),
         layerId = ~GEO_NAME
       ) %>%
       
-      
-      # groupOptions(
-      #   group = "Active transit stops",
-      #   zoomLevels = 13:20
-      # ) %>%
-      
-      # addMapPane("riverlake", zIndex = 429) %>%
-      # addPolygons(
-      #   data = planting.shade::river_lake,
-      #   group = "Rivers & Lakes",
-      #   stroke = FALSE,
-      #   smoothFactor = 1,
-      #   # weight = 0.5,
-      #   color = "black",
-      #   fill = TRUE,
-      #   fillColor = "black",
-      #   fillOpacity = 0.9,
-      #   options = pathOptions(pane = "riverlake")
-      # ) %>%
-      
       hideGroup("Active transit stops") %>%
       
       ### add layer control
       addLayersControl(
         position = "bottomright",
-        # overlayGroups = c(),
         baseGroups = c(
           "Map",
-          # "Aerial Imagery",
-          "Satellite"#,
-          # "Stamen Toner"
+          "Satellite"
         ),
         overlayGroups = c(
           "Priority score",
@@ -258,8 +167,6 @@ mod_map_overview_server <- function(input, output, session,
           "Historically redlined areas",
           "Emerald ash borer",
           "Jurisdiction outlines"#,
-          # "County outlines"#,
-          # "City outlines"
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
@@ -276,6 +183,7 @@ mod_map_overview_server <- function(input, output, session,
             group = "Road outlines",
             zoomLevels = 13:18
           )
+  })
     
     #this is GOOD, but I'm less into it now...
     #   groupOptions(
@@ -287,45 +195,8 @@ mod_map_overview_server <- function(input, output, session,
     #     zoomLevels = 13:18
     #   ) #%>%
 
-      # addOpacityControls(#collapsed = TRUE, 
-      #   position = "bottomright", size = "s",
-      #                    # layerId = c("Emerald ash borer")
-      #                    group = c("Trees"),
-      #   renderOnLayerAdd = TRUE
-      #                    ) #%>%
-      # leaflet.multiopacity::addOpacityControls(layerId = c(
-      #   "Trees"
-      # ),
-      # collapsed = F, position = "bottomright",
-      # title = "<strong>Opacity control</strong>",
-      # renderOnLayerAdd = TRUE
-      # ) 
-      
-      #%>%
-#       addControl(html="<h1 id='zoom'>Zoom</h1>") %>%
-#       htmlwidgets::onRender("function(el,x,data){
-#        var map=this;
-#        var evt = function(e){
-#          $('#zoom').html(map.getZoom())
-#        };
-#        map.on('zoom', evt);
-#        }
-# ") #%>%
-      # leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE)
-  })
-  
-  
-  # #printing this works, but unclear how to save it....  
-  # map_layer_selection <- reactiveValues()
-  # observe({
-  #   selected_groups <- req(input$map_groups)
-  #   # print(selected_groups)
-  #   return(selected_groups)
-  #   })
   
   #leaflet observe events -----------
-  
-  # this stackoverflow was helpful: https://stackoverflow.com/questions/47465896/having-trouble-with-leafletproxy-observeevent-and-shiny-leaflet-application
   
   toListen_mainleaflet <- reactive({
     list(
@@ -359,11 +230,7 @@ mod_map_overview_server <- function(input, output, session,
                        weight = 0.5, #0.25,
                        fillOpacity = 0.6,
                        smoothFactor = 0.2,
-                       label = ~(paste0(#"Tract ID: ", map_util$map_data2$tract_string, 
-                                       "Priority score: ", round(map_util$map_data2$MEAN, 3)#,
-                                      # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),"/n",
-                                      # "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"
-                                      )), 
+                       label = ~(paste0("Priority score: ", round(map_util$map_data2$MEAN, 3))), 
                        highlightOptions = highlightOptions(
                          stroke = TRUE,
                          color = "white",
@@ -407,26 +274,27 @@ mod_map_overview_server <- function(input, output, session,
   
   observeEvent(ignoreInit = TRUE,
                # vals$selected_tract,
-               input$map_shape_click$id,
+               input$map_shape_click,
                {
+                 # if (is.na(vals$clicked_geo)) {leafletProxy("map") %>% clearGroup("outline")} else {
                  # print(input$map_shape_click)
-                 leafletProxy("map") %>%                     
+                 leafletProxy("map") %>%
 
                    addRasterImage(trees %>%
-                                    raster::crop(filter(crop_tract_ctus, #mn_tracts, #crop_tract_ctus,
-                                                        GEOID == input$map_shape_click$id)), #"27123031701")),
+                                    raster::crop(ctu_list %>% filter(GEO_NAME == input$map_shape_click$id)),
+                                    # raster::crop(filter( if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}, #crop_tract_ctus,
+                                    #                      GEO_NAME == input$maps_shape_click$id)),
+                                                        # GEOID == input$map_shape_click$id)), #"27123031701")),
 
                                   colors = "#238b45", #pal,
                                   opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees"#,
                                   # project = FALSE)
-                   ) %>%      
-
-
+                   ) %>%
                    clearGroup("outline") %>%
                    addPolygons(
-                     data = mn_tracts %>% filter(GEOID == input$map_shape_click$id),
+                     data =  filter(ctu_list, GEO_NAME == input$map_shape_click$id), #mn_tracts %>% filter(GEOID == input$map_shape_click$id),
                      stroke = TRUE,
                      color =  "blue",
                      fill = NA,
@@ -434,10 +302,9 @@ mod_map_overview_server <- function(input, output, session,
                      group = "outline",
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
-
                    clearGroup("Water") %>%
-                   addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus,
-                                                                    GEOID == input$map_shape_click$id)),
+                   addPolygons(data = river_lake %>% st_crop(filter(ctu_list, GEO_NAME == input$map_shape_click$id)),
+                                 # river_lake %>% st_crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
@@ -445,6 +312,8 @@ mod_map_overview_server <- function(input, output, session,
                                fill = T,
                                group = "Water",
                                options = pathOptions(pane = "Water"))
+                 # }
+                 # }
                }
   )
   
@@ -460,7 +329,7 @@ mod_map_overview_server <- function(input, output, session,
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
-                     weight = 1,
+                     # weight = 1,
                      color = "black", ##ED1B2E",
                      # fill = FALSE,
                      fillColor = "transparent", # "#ED1B2E",
