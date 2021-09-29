@@ -12,7 +12,7 @@ minneap <- read_sf("./data-raw/minneapolis communities/Minneapolis_Communities.s
   mutate(city = "Minneapolis")
 
 stpaul <- read_sf("./data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
-  rename(nhood = name1) %>%
+  rename(nhood = name2) %>%
   select(nhood) %>%
   mutate(city = "St. Paul") %>%
   st_transform()

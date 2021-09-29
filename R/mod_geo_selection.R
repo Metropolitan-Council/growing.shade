@@ -43,7 +43,7 @@ mod_geo_selection_ui <- function(id){
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a neighborhood</span></h4>")),
                                 choices = list(
                                   Minneapolis = nhood$nhood[nhood$city=="Minneapolis"],
-                                  `St. Paul` = nhood$nhood[nhood$city=="Minneapolis"]),
+                                  `St. Paul` = nhood$nhood[nhood$city=="St. Paul"]),
                                 options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 20),
                                 multiple = F
       ))
