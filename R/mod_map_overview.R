@@ -313,6 +313,7 @@ mod_map_overview_server <- function(input, output, session,
   toListen_mainleaflet <- reactive({
     list(
       current_tab,
+      map_selections$priority_layer, 
       map_util$map_data2
     )
   })
@@ -322,7 +323,11 @@ mod_map_overview_server <- function(input, output, session,
                {
                  if (is.null(map_util$map_data2)) {
                    print('nodata')
-                   } else {
+                 } else if (map_selections$priority_layer == "Off") {
+                   leafletProxy("map") %>%
+                     clearGroup("Priority score") %>% 
+                     clearControls()
+                 } else {
                    print("rendering polygons")
                    leafletProxy("map") %>%
                      clearGroup("Priority score") %>%
