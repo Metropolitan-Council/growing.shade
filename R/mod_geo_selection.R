@@ -57,9 +57,13 @@ mod_geo_selection_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
+    input_values <- reactiveValues()
+    observe({
     input_values$selected_geo <- input$geo
     input_values$selected_area <- if(input$geo == "ctus") {input$cityInput} else {input$nhoodInput}
     
+  })
+    return(input_values)
   })
 }
     

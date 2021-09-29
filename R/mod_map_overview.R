@@ -149,18 +149,18 @@ mod_map_overview_server <- function(input, output, session,
         label = "EAB infested tree"
       ) %>%
       
-      addPolygons(
-        data = metc_region,
-        group = "County outlines",
-        stroke = T,
-        smoothFactor = 1,
-        weight = 1,
-        color = "black",##ED1B2E",
-        fill = FALSE,
-        fillColor = "#ED1B2E",
-        fillOpacity = 1,
-        options = pathOptions(pane = "geooutline")
-      ) %>%
+      # addPolygons(
+      #   data = metc_region,
+      #   group = "County outlines",
+      #   stroke = T,
+      #   smoothFactor = 1,
+      #   weight = 1,
+      #   color = "black",##ED1B2E",
+      #   fill = FALSE,
+      #   fillColor = "#ED1B2E",
+      #   fillOpacity = 1,
+      #   options = pathOptions(pane = "geooutline")
+      # ) %>%
       # addPolygons(
       #   data = ctuoutline,
       #   group = "City outlines",
@@ -199,6 +199,21 @@ mod_map_overview_server <- function(input, output, session,
         fillColor = "black", # "#ED1B2E",
         fillOpacity = 1,
         options = pathOptions(pane = "redline2")
+      ) %>%
+      
+      #maybe not the best, but need city outlines to show up first
+      addPolygons(
+        data = ctu_list,
+        group = "Jurisdiction outlines",
+        stroke = T,
+        smoothFactor = 1,
+        weight = 1,
+        color = "black", ##ED1B2E",
+        # fill = FALSE,
+        fillColor = "transparent", #"#ED1B2E",
+        fillOpacity = 1,
+        options = pathOptions(pane = "geooutline"),
+        layerId = ~GEO_NAME
       ) %>%
       
       
@@ -241,7 +256,8 @@ mod_map_overview_server <- function(input, output, session,
           "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
-          "Emerald ash borer"#,
+          "Emerald ash borer",
+          "Jurisdiction outlines"#,
           # "County outlines"#,
           # "City outlines"
         ),
@@ -390,6 +406,7 @@ mod_map_overview_server <- function(input, output, session,
                })
   
   observeEvent(ignoreInit = TRUE,
+               # vals$selected_tract,
                input$map_shape_click$id,
                {
                  # print(input$map_shape_click)
@@ -431,15 +448,15 @@ mod_map_overview_server <- function(input, output, session,
                }
   )
   
-  
+
   observeEvent(ignoreInit = FALSE,
                geo_selections$selected_geo,
                {
                  leafletProxy("map") %>%
                    clearGroup("Jurisdiction outlines") %>%
-                   
+
                    addPolygons(
-                     data = if(geo_selections$selected_geo == 'ctus') {ctuoutline} else {nhood},
+                     data = if(geo_selections$selected_geo == 'ctus') {ctu_list} else {nhood_list},
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
@@ -454,29 +471,14 @@ mod_map_overview_server <- function(input, output, session,
                }
   )
 
-  #leaflet print geoid -----------
-  
-  #ideally want to do nested reactive values?!?
-  #https://rtask.thinkr.fr/communication-between-modules-and-its-whims/
-  #but this is not working out well for me right now....
-  # r <- reactiveValues(test = reactiveValues())
-  # observe({
-  #   event <- input$map_shape_click
-  #   r$test$selected_tract <- (tractoutline$GEOID[tractoutline$GEOID == event$id])
-  # })
-  # # return(selected_tract)
-  
-  # #this works, but want to save it
-  # observe({
-  #   event <- input$map_shape_click
-  #   output$selected_tract <- renderText(map_util$map_data2$tract_string[map_util$map_data2$tract_string] == event$id)#renderText(tractoutline$GEOID[tractoutline$GEOID == event$id])
-  # })
 
-  #save the selected tract
+  ### save map clicks
+  
   vals <- reactiveValues()
   observe({
     event <- input$map_shape_click
     vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
+    vals$clicked_geo <-  input$map_shape_click$id
   })
   
   return(vals)
