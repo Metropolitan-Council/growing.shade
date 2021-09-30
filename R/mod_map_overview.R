@@ -31,6 +31,12 @@ mod_map_overview_server <- function(input, output, session,
                                     ){
   ns <- session$ns
 
+  #### question ----
+  # # if the radio buttons change, can I reset the input????
+  # observeEvent(geo_selections$selected_geo, {
+  #   updateTextInput(session, geo_selections$selected_area, value = "")
+  # })
+  
   #### main map ---------
   output$map <- renderLeaflet({ #  map --------
     leaflet() %>%
@@ -284,8 +290,6 @@ mod_map_overview_server <- function(input, output, session,
                })
   
   # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
-  
-  
   ## jurisdiction outlines -----------
   observeEvent(ignoreInit = FALSE,
                geo_selections$selected_geo,
@@ -330,26 +334,10 @@ mod_map_overview_server <- function(input, output, session,
                }
   )
 
-  # another tree thing -------
-  # # # if user selects a city/nhood
-  
-  toListen_treectuhood <- reactive({
-    list(
-      # req(geo_selections$selected_geo %in% c('ctus', "nhood")),
-      geo_selections$selected_area
-    )
-  })
+  # trees for city/nhood ------
   
   observeEvent(ignoreInit = TRUE, 
-               # toListen_treectuhood,
                geo_selections$selected_area,
-               # reactive({
-                   # list(
-                     # req(geo_selections$selected_geo %in% c('ctus', "nhood"))
-                     # geo_selections$selected_area,
-                   # )
-                 # }),
-               # geo_selections$selected_area,
                {
                  if (geo_selections$selected_area == "") {
                  leafletProxy("map") %>%
@@ -361,60 +349,56 @@ mod_map_overview_server <- function(input, output, session,
                      lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
                      zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
                    )
-               # # } else if (geo_selections$selected_geo == "tracts") {
-               # #   leafletProxy("map") %>%
-               # #     clearGroup("outline") %>%
-               # #     clearGroup("Trees") %>%
-               # #     clearGroup("Water") %>%
-               # #     setView(
-               # #       lat = 44.963,
-               # #       lng = -93.32,
-               # #       zoom = 10
-               # #     )
-               } else {
-                 leafletProxy("map") %>%
-                   clearGroup("outline") %>%
-                   clearGroup("Trees") %>%
-                   clearGroup("Water") %>%
-                   setView(lng = if (geo_selections$selected_geo == "ctus") {
-                     ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$lat
-                     } else if (geo_selections$selected_geo == "nhood") {
-                       nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$lat
-                     },
-                           lat = if (geo_selections$selected_geo == "ctus") {
-                             ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$long
-                           } else if (geo_selections$selected_geo == "nhood") {
-                             nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$long
-                           },
-                           zoom =if (geo_selections$selected_geo == "ctus") {
-                             ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$zoom
-                           } else if (geo_selections$selected_geo == "nhood") {
-                             nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$zoom
-                           }) %>%
-                   addRasterImage(trees %>%
-                                    raster::crop(filter(if (geo_selections$selected_geo == "ctus") {
-                                      ctu_list} else if (geo_selections$selected_geo == "nhood") {
-                                        nhood_list}, GEO_NAME == geo_selections$selected_area)),
-                                  colors = "#35978f",
-                                  opacity = .7,
-                                  layerId = "Trees",
-                                  group = "Trees") %>%
-                   addPolygons(
-                     data =  filter(if (geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list},
-                                    GEO_NAME == geo_selections$selected_area),
-                     stroke = TRUE,
-                     color =  "blue",
-                     fill = NA,
-                     opacity = 1,
-                     group = "outline",
-                     smoothFactor = 0.2,
-                     options = pathOptions(pane = "outline"))
-               }
+                 } else if (geo_selections$selected_geo == "ctus") {
+                   leafletProxy("map") %>%
+                     clearGroup("outline") %>%
+                     clearGroup("Trees") %>%
+                     clearGroup("Water") %>%
+                     setView(lng = ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$lat,
+                     lat = ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$long,
+                     zoom = ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$zoom) %>%
+                     addRasterImage(trees %>% raster::crop(filter(ctu_list, GEO_NAME == geo_selections$selected_area)),
+                                    colors = "#35978f",
+                                    opacity = .7,
+                                    layerId = "Trees",
+                                    group = "Trees") %>%
+                     addPolygons(
+                       data =  filter(ctu_list, GEO_NAME == geo_selections$selected_area),
+                       stroke = TRUE,
+                       color =  "blue",
+                       fill = NA,
+                       opacity = 1,
+                       group = "outline",
+                       smoothFactor = 0.2,
+                       options = pathOptions(pane = "outline"))
+                 } else if (geo_selections$selected_geo == "nhood") {
+                   leafletProxy("map") %>%
+                     clearGroup("outline") %>%
+                     clearGroup("Trees") %>%
+                     clearGroup("Water") %>%
+                     setView(lng = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$lat,
+                             lat = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$long,
+                             zoom = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$zoom) %>%
+                     addRasterImage(trees %>% raster::crop(filter(nhood_list, GEO_NAME == geo_selections$selected_area)),
+                                    colors = "#35978f",
+                                    opacity = .7,
+                                    layerId = "Trees",
+                                    group = "Trees") %>%
+                     addPolygons(
+                       data =  filter(nhood_list, GEO_NAME == geo_selections$selected_area),
+                       stroke = TRUE,
+                       color =  "blue",
+                       fill = NA,
+                       opacity = 1,
+                       group = "outline",
+                       smoothFactor = 0.2,
+                       options = pathOptions(pane = "outline"))
+                 }
                }
   )
 
   
-  # tree raster maybe  --------------
+  # # trees for tracts  --------------
   toListen_clickytracts <- reactive({
     list(
       req(geo_selections$selected_geo == 'tracts'),
@@ -422,8 +406,6 @@ mod_map_overview_server <- function(input, output, session,
     )
   })
   observeEvent(ignoreInit = TRUE,
-               # req(geo_selections$selected_geo == 'tracts'),
-               # input$map_shape_click$id,
                toListen_clickytracts(),
                { if (input$map_shape_click$id == "") {
                  leafletProxy("map") %>%
@@ -436,13 +418,11 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("outline") %>%
                    clearGroup("Water") %>%
                    addRasterImage(trees %>%
-                                    raster::crop(filter(mn_tracts#crop_tract_ctus
-                                                        , GEO_NAME == input$map_shape_click$id)),
+                                    raster::crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
                                   colors = "#35978f", #pal,
                                   opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees") %>%
-
                    addPolygons(
                      data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
                      stroke = TRUE,
@@ -452,9 +432,7 @@ mod_map_overview_server <- function(input, output, session,
                      group = "outline",
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
-
-                   addPolygons(data = river_lake %>% st_crop(filter(mn_tracts #crop_tract_ctus
-                                                                    , GEO_NAME == input$map_shape_click$id)),
+                   addPolygons(data = river_lake %>% st_crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
@@ -474,11 +452,7 @@ mod_map_overview_server <- function(input, output, session,
     vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
     # vals$clicked_geo <-  input$map_shape_click$id
   })
-  
   return(vals)
- 
-  
- 
 }
     
 ## To be copied in the UI
