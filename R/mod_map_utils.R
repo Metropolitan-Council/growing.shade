@@ -68,15 +68,15 @@ mod_map_utils_server <- function(input, output, session,
   })
   
   ##-------------
-  
+  # 
   # cropped_trees <- reactive({
   #   if(geo_selections$selected_geo == "ctus") {
-  #     filter(swp, CTU_NAME == geo_selections$selected_area)
-  #   } else if (geo_selections$selected_geo == "watershed") {
+  #     filter(ctu_list, GEO_NAME == geo_selections$selected_area)
+  #   } else if (geo_selections$selected_geo == "nhood") {
   #     filter(swp, WMO_NAME == geo_selections$selected_area)
   #   }
   # })
-  # 
+
   
   #------- reactive things
   
