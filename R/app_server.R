@@ -27,6 +27,8 @@ app_server <- function( input, output, session ) {
                                current_tab = input$nav)
   
   geo_selections <- mod_geo_selection_server("geo_selection_ui_1")
+  observe({print(paste0("selected ctu/neighborhood from dropdown: ", (geo_selections$selected_area)))})
+  
   
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
@@ -45,6 +47,8 @@ app_server <- function( input, output, session ) {
              map_util = map_util,
              current_tab = input$nav)
   observe({print(paste0("selected tract: ", (tract_selections$selected_tract)))}) #to check that selections are working
+  
+  
   # observe({print(paste0("selected tract: ", (tract_selections$clicked_geo)))}) #to check that selections are working
   
     # callModule(
