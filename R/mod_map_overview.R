@@ -292,17 +292,28 @@ mod_map_overview_server <- function(input, output, session,
                })
   
   # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
+  
+  toListen_clickytracts <- reactive({
+    list(
+      req(geo_selections$selected_geo == 'tracts'),
+      input$map_shape_click$id
+    )
+  })
   observeEvent(ignoreInit = TRUE,
-               input$map_shape_click$id,
+               # req(geo_selections$selected_geo == 'tracts'),
+               # input$map_shape_click$id,
+               toListen_clickytracts(), 
                {
-                 leafletProxy("map") %>%                     
+                 leafletProxy("map") %>%
+                   clearGroup("Trees") %>%
                    addRasterImage(trees %>%
-                                    raster::crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
+                                    raster::crop(filter(mn_tracts#crop_tract_ctus
+                                                        , GEOID == input$map_shape_click$id)),
                                   colors = "#35978f", #pal,
                                   opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees") %>%
-                   
+
                    clearGroup("outline") %>%
                    addPolygons(
                      data =  mn_tracts %>% filter(GEOID == input$map_shape_click$id),
@@ -313,9 +324,10 @@ mod_map_overview_server <- function(input, output, session,
                      group = "outline",
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
-                   
+
                    clearGroup("Water") %>%
-                   addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
+                   addPolygons(data = river_lake %>% st_crop(filter(mn_tracts #crop_tract_ctus
+                                                                    , GEOID == input$map_shape_click$id)),
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
@@ -334,8 +346,9 @@ mod_map_overview_server <- function(input, output, session,
                      clearGroup("Jurisdiction outlines")
                  } else {
                  leafletProxy("map") %>%
-                   clearGroup("Jurisdiction outlines") %>%
-                   addPolygons(
+                     clearGroup("Jurisdiction outlines") %>%
+                     clearGroup("Trees") %>%
+                     addPolygons(
                      data = if(geo_selections$selected_geo == 'ctus') {ctu_list} else  {nhood_list},
                      group = "Jurisdiction outlines",
                      stroke = T,
