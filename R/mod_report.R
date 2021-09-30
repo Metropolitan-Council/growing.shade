@@ -21,6 +21,8 @@ mod_report_ui <- function(id){
       
       h4("Tree canopy summary"),
       uiOutput(ns("tree_para")),
+      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
+        shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
       
       h4("Priortization summary"),
       h4("Equity analysis"),
@@ -95,7 +97,7 @@ mod_report_server <- function(id,
                  ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
                    nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
                  },
-               " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below, with tracts falling within ", 
+               " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below; tracts falling within ", 
                geo_selections$selected_area,
                " highlighted in green.<br><br>",
                " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
@@ -111,65 +113,44 @@ mod_report_server <- function(id,
     # $max #canopy
     
     
-    # output$plot2 <- renderPlot({
-    #   
-    #   donutdata <- if (geo_selections$selected_area == "") {
-    #     region %>% #swp %>% sf::st_drop_geometry() %>%
-    #       group_by(LUSE_USE, FEATURE_TY) %>%
-    #       summarise(AREA = sum(total_area, na.rm = T)) %>%
-    #       arrange(LUSE_USE) %>%
-    #       group_by(FEATURE_TY) %>%
-    #       mutate(fraction = AREA / sum(AREA),
-    #              ymax = cumsum(fraction),
-    #              ymin = c(0, head(ymax, n = -1)),
-    #              label_position = (ymax + ymin) / 2,
-    #              test = 1-(ymax + ymin)/2) %>%
-    #       mutate(fraction = if_else(fraction >= .05, fraction, NA_real_),
-    #              test = if_else(fraction >= .05, test, NA_real_))
-    #   } else {
-    #     map_util$swp_nogeo %>% #swp %>% sf::st_drop_geometry() %>%
-    #       group_by(LUSE_USE, FEATURE_TY) %>%
-    #       summarise(AREA = sum(AREA, na.rm = T)) %>%
-    #       arrange(LUSE_USE) %>%
-    #       group_by(FEATURE_TY) %>%
-    #       mutate(fraction = AREA / sum(AREA),
-    #              ymax = cumsum(fraction),
-    #              ymin = c(0, head(ymax, n = -1)),
-    #              label_position = (ymax + ymin) / 2,
-    #              test = 1-(ymax + ymin)/2)%>%
-    #       mutate(fraction = if_else(fraction >= .05, fraction, NA_real_),
-    #              test = if_else(fraction >= .05, test, NA_real_))}
-    #   
-    #   donutdata %>%
-    #     mutate(FEATURE_TY = if_else(FEATURE_TY == "NONBUILDING", "Surface parking lot", "Building rooftop")) %>%
-    #     ggplot(aes(y = AREA, x = FEATURE_TY, fill = LUSE_USE)) +
-    #     geom_bar(position = "fill", stat = "identity")  +
-    #     scale_y_continuous(labels = scales::percent(c(0, .25, .5, .75, 1))) +
-    #     councilR::council_theme() +
-    #     theme(legend.position = "bottom",
-    #           axis.title.y = element_blank(),
-    #           axis.title.x = element_blank(),
-    #           axis.text.x = element_text(size = 14),
-    #           axis.text.y = element_text(size = 14)) +
-    #     ggrepel::geom_label_repel(aes(y=test, label=paste0(round(fraction * 100, 1), "%")), size=6, show.legend = F) +
-    #     scale_fill_manual(values = c(
-    #       "Industrial and Utility" = "#b2df8a", 
-    #       "Institutional" = "#33a02c", 
-    #       "Mixed Use Commercial" = "#fb9a99", 
-    #       "Mixed Use Industrial" = "#e31a1c", 
-    #       "Mixed Use Residential" = "#fdbf6f", 
-    #       "Multifamily" = "#ff7f00", 
-    #       "Office" = "#cab2d6", 
-    #       "Retail and Other Commercial" = "#6a3d9a")) +
-    #     guides(fill = guide_legend(nrow = 4, byrow = T)) +
-    #     # guides(fill = "none") +
-    #     labs(fill = "Land\nuse",
-    #          y = "Percent of potential")+
-    #     coord_flip()
-    #   
-    #   
-    # })
-    # 
+    output$tree_plot <- renderPlot({
+      req(geo_selections$selected_area)
+
+      canopyplot<- eva_data_main %>%
+        filter(variable %in% c("canopy_percent")) %>%
+        select(tract_string, variable, raw_value) %>%
+        mutate(flag = if_else(tract_string %in% 
+                                if (geo_selections$selected_geo == "ctus") {
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  } else {
+                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  }, "selected", NA_character_))
+      plot <- ggplot()+
+        ggdist::stat_halfeye(
+          data = canopyplot, aes(x = raw_value, y = 1),
+          adjust = .5,  width = .6,  .width = 0,  justification = -.6, 
+          point_colour = NA) + 
+        geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
+                     width = .75, outlier.shape = NA) +
+        councilR::council_theme() +
+        theme(panel.grid.minor = element_blank(),
+              panel.grid.major.y = element_blank(),
+              axis.text.y = element_blank()) +
+        geom_point(size = 1.3,alpha = .3,
+                   position = position_jitter(seed = 1, width = 0, height = .3),
+                   col = "grey40",
+                   aes(x = raw_value, y = 1),
+                   data = filter(canopyplot, is.na(flag))) +
+        labs(y = "", x = "Tree canopy cover (%)") +
+        scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+        geom_jitter(aes(x = raw_value, y = 1), 
+                    position = position_jitter(seed = 1, width = 0, height = .3), 
+                   fill = councilR::colors$cdGreen, 
+                   size = 5, col = "black", pch = 21, 
+                   data = filter(canopyplot, flag == "selected"))
+      return(plot)
+    })
+
 
     output$dl_report <- downloadHandler(
       filename = paste0("GrowingShade_", Sys.Date(), ".html"),
