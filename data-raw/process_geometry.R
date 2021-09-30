@@ -18,7 +18,7 @@ mn_tracts <- tigris::tracts(state = "MN",
   # st_buffer(0) %>% # 27053025100, 27037060725 is having a self intersection error
   # st_make_valid() %>%
   sf::st_transform(4326) %>%
-  rename(GEO_NAME = GEOID)
+  mutate(GEO_NAME = GEOID)
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
 metc_region <- mn_tracts %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
