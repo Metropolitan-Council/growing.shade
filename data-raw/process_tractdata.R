@@ -12,10 +12,18 @@ requireNamespace("fs", quietly = TRUE)
 requireNamespace("janitor", quietly = TRUE)
 requireNamespace("tidyverse", quietly = TRUE)
 library(tidyverse)
-# # # and this works when not inside a package
-# library("readxl") #if you get an error message, run `install.packages('readxl')` or the equivalent
-# library("janitor")
-# library("tidyverse")
+library(tigris)
+
+########
+#download geographies
+#######
+mn_tracts <- tigris::tracts(state = "MN",
+                            county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
+  # st_buffer(0) %>% # 27053025100, 27037060725 is having a self intersection error
+  # st_make_valid() %>%
+  sf::st_transform(4326) %>%
+  mutate(GEO_NAME = GEOID)
+usethis::use_data(mn_tracts, overwrite = TRUE)
 
 
 ################
@@ -29,10 +37,6 @@ tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
                        col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
   select(-`system:index`, -.geo, -Year)
 # filter(tract_ndvi, ndvi == "No data")
-
-
-
-
 
 # canopy coverage
 canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
@@ -49,114 +53,9 @@ treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
 test <- reclassify(treecrs, cbind(-Inf, 0.5, NA), right=FALSE)
 raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
 
-#this takes FOREEVER. not goood
-# test <- rasterToPolygons(treecrs, dissolve = T)
-
-#this ballons the raster file size. not good
-# treecrs[treecrs == 0] <- NA
-# raster::writeRaster(treecrs, './data/tree_raster.tif', overwrite=TRUE)
-
-
-# library(tidyverse); library(leaflet); library(raster); library(leafem)
-# tract<- mn_tracts %>%
-#   filter(GEOID == "27163070406")# c("27163070406", "27053126000"))# "27053109100")
-
-# leaflet() %>%
-#   addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
-#   addProviderTiles(
-#     provider = providers$Esri.WorldImagery,
-#     group = "Aerial Imagery",
-#     layerId = "base"
-#   ) %>%
-#   addProviderTiles("CartoDB.PositronOnlyLabels",
-#                    # options = leafletOptions(pane = "Aerial Imagery"),
-#                    group = "Aerial Imagery",
-#                    options = providerTileOptions(maxZoom = 18),
-#                    layerId = "labs") %>%
-#   addPolygons(data = tract, fill = NA)%>%
-# 
-#   addRasterImage(treecrs %>% raster::crop(tract) ,
-#                  # colors = pal,
-#                  color = "green",
-#                  opacity = 0.5,
-#                  layerId = "Trees",
-#                  group = "Trees")
-# 
-# plot(treecrs)# %>% raster::crop(tract), main="trees")
-# # treecrs %>% raster::crop(tract) 
-
-# 
-# 
-# library(leaflet)
-# library(leafem)
-# library(stars)
-# 
-# ## add 2 layers to 2 custom panes - doesn't work, both rendered on pane from last call
-# leaflet() %>%
-#   addTiles() %>%
-#   addMapPane("left", 200) %>%
-#   # addMapPane("right", 201) %>%
-#   addProviderTiles(
-#     providers$Esri.WorldImagery
-#     , group = "carto_left"
-#     , options = tileOptions(pane = "left")
-#     , layerId = "leftid"
-#   ) %>%
-#   # addProviderTiles(
-#   #   providers$Esri.WorldImagery
-#   #   , group = "carto_right"
-#   #   , options = tileOptions(pane = "right")
-#   #   , layerId = "rightid"
-#   # ) %>%
-#   leafem:::addGeotiff(
-#     file = "./data/TreeMap_crs4326_2020.tif"
-#     , group = "april"
-#     , layerId = "april_id"
-#     , resolution = 96
-#     , opacity = .7
-#     , options = tileOptions(
-#       pane = "left"
-#     )
-#     , colorOptions = leafem:::colorOptions("black")
-#   ) #%>%
-#   leafem:::addGeotiff(
-#     file = tiffl_05
-#     , group = "may"
-#     , layerId = "may_id"
-#     , resolution = 96
-#     , opacity = 1
-#     , options = tileOptions(
-#       pane = "right"
-#     )
-#     , colorOptions = leafem:::colorOptions(
-#       palette = pal
-#       , breaks = brks
-#       , na.color = "transparent"
-#     )
-#     , pixelValuesToColorFn = myCustomJSFunc
-#   ) %>%
-#   leaflet.extras2::addSidebyside(
-#     layerId = "sidebyside"
-#     , leftId = "leftid"
-#     , rightId = "rightid"
-#   ) %>%
-#   addLayersControl(overlayGroups = c("april", "may")) %>%
-#   addControl(htmltools::HTML("April 2020"), position = "bottomleft") %>%
-#   addControl(htmltools::HTML("May 2020"), position = "bottomright")
-# 
-# 
-
-
-
-
 ###################
 # download equity considerations dataset
 ###################
-
-## ----------- equity considerations data
-# HOLC_PYLW	Share of tract's land acreage falling in the yellow ("Definitely Declining") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
-# HOLC_PRED	Share of tract's land acreage falling in the red ("Hazardous") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
-
 temp <- tempfile()
 download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_equity_considerations/xlsx_society_equity_considerations.zip",
   destfile = temp
@@ -351,11 +250,11 @@ metadata <- eva_data_main %>%
 
 usethis::use_data(metadata, overwrite = TRUE)
 
-
-
-#####
-# create list of cities
-####
-ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
-usethis::use_data(ctus, overwrite = TRUE)
-
+# 
+# 
+# #####
+# # create list of cities
+# ####
+# ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
+# usethis::use_data(ctus, overwrite = TRUE)
+# 
