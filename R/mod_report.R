@@ -20,12 +20,13 @@ mod_report_ui <- function(id){
         # ),
       
       h4("Tree canopy summary"),
+      uiOutput(ns("tree_para")),
+      
       h4("Priortization summary"),
       h4("Equity analysis"),
       h4("Other considerations"),
       h4("Other resources")
       
-      # uiOutput(ns("para")),
       # HTML("<p><section style='font-size:14px !important'>It would be nice to turn this into an info graphic. Like lightbulbs are 'on' for each ctus total energy usage. Turn them off for how much solar can offset? And fill pools? Not sure... Or think about impaired waterbodies for water retention? </section></p>"),
       # 
       # 
@@ -76,31 +77,33 @@ mod_report_server <- function(id,
     
     # "GEO has an existing tree canopy coverage of approximately X %. In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Some areas in our region are dominated by native tallgrass prairie and have lower tree coverage - this should not be penalized."
     
-    # output$para <- renderUI({
-    #   ns <- session$ns
-    #   req(geo_selections$selected_area)
-    #   tagList(
-    #     paste0(geo_selections$selected_area, " has an existing tree canopy of approximately", 
-    #            if (geo_selections$selected_geo == "ctus") {
-    #              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$canopy} else {
-    #                nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$canopy
-    #                }, "%.",
-    #            "The ", if (geo_selections$selected_geo == "ctus") {
-    #              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$tracts} else {
-    #                nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$tracts
-    #              }, " tracts within the area range from ", 
-    #            if (geo_selections$selected_geo == "ctus") {
-    #              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$min} else {
-    #                nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$min
-    #              }, "% to ",
-    #            if (geo_selections$selected_geo == "ctus") {
-    #              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$max} else {
-    #                nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$max
-    #              }, "%. ",
-    #            "The distribution of tree canopy across tracts is shown below, with the selected tract highlighted in green. In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Some areas in our region are dominated by native tallgrass prairie which has lower tree coverage - this should not be penalized."
-    #            )
-    #     )
-    # })
+    output$tree_para <- renderUI({
+      ns <- session$ns
+      req(geo_selections$selected_area)
+      tagList(
+        HTML(paste0(geo_selections$selected_area, " has an existing tree canopy which ranges from ",
+               if (geo_selections$selected_geo == "ctus") {
+                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$min} else {
+                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$min
+                 }, "% to ",
+               if (geo_selections$selected_geo == "ctus") {
+                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$max} else {
+                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$max
+                 }, "% ",
+               "across the ",
+               if (geo_selections$selected_geo == "ctus") {
+                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
+                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
+                 },
+               " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below, with tracts falling within ", 
+               geo_selections$selected_area,
+               " highlighted in green.<br><br>",
+               " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
+
+               )
+        )
+        )
+    })
     
     # ctu_list$canopy #avg tree canopy
     # $tracts #num of tracts
