@@ -329,11 +329,14 @@ mod_map_overview_server <- function(input, output, session,
   observeEvent(ignoreInit = FALSE,
                geo_selections$selected_geo,
                {
+                 if (geo_selections$selected_geo == 'tracts') {
+                   leafletProxy("map") %>%
+                     clearGroup("Jurisdiction outlines")
+                 } else {
                  leafletProxy("map") %>%
                    clearGroup("Jurisdiction outlines") %>%
-
                    addPolygons(
-                     data = if(geo_selections$selected_geo == 'ctus') {ctu_list} else {nhood_list},
+                     data = if(geo_selections$selected_geo == 'ctus') {ctu_list} else  {nhood_list},
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
@@ -358,6 +361,7 @@ mod_map_overview_server <- function(input, output, session,
                      options = pathOptions(pane = "geooutline2"),
                      layerId = ~GEO_NAME
                    )
+                 }
                }
   )
 
@@ -375,6 +379,16 @@ mod_map_overview_server <- function(input, output, session,
                      lng = -93.32,
                      zoom = 10
                    )
+               } else if (geo_selections$selected_geo == "tracts") {
+                 leafletProxy("map") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("Water") %>%
+                   setView(
+                     lat = 44.963,
+                     lng = -93.32,
+                     zoom = 10
+                   )
                } else {
                  leafletProxy("map") %>%
                    clearGroup("outline") %>%
@@ -382,22 +396,23 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("Water") %>%
                    setView(lng = if (geo_selections$selected_geo == "ctus") {
                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$lat
-                     } else {
+                     } else if (geo_selections$selected_geo == "nhood") {
                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$lat
                      },
                            lat = if (geo_selections$selected_geo == "ctus") {
                              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$long
-                           } else {
+                           } else if (geo_selections$selected_geo == "nhood") {
                              nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$long
                            },
                            zoom =if (geo_selections$selected_geo == "ctus") {
                              ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$zoom
-                           } else {
+                           } else if (geo_selections$selected_geo == "nhood") {
                              nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$zoom
                            }) %>%
                    addRasterImage(trees %>%
                                     raster::crop(filter(if (geo_selections$selected_geo == "ctus") {
-                                      ctu_list} else {nhood_list}, GEO_NAME == geo_selections$selected_area)),
+                                      ctu_list} else if (geo_selections$selected_geo == "nhood") {
+                                        nhood_list}, GEO_NAME == geo_selections$selected_area)),
                                   colors = "#35978f",
                                   opacity = .7,
                                   layerId = "Trees",

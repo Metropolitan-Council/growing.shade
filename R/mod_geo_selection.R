@@ -19,7 +19,8 @@ mod_geo_selection_ui <- function(id){
       choices = c(
         # "Selected tract" = "ctus",
         "Cities and townships" = "ctus",
-        "Neighborhoods" = "nhood"
+        "Neighborhoods" = "nhood",
+        "An area (Census tract) selected from the map" = "tracts"
       ),
       selected = "ctus"
     )),
