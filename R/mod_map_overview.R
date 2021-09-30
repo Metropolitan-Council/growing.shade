@@ -363,14 +363,56 @@ mod_map_overview_server <- function(input, output, session,
 
   
   # # if user selects a city/nhood
-  observeEvent(ignoreInit = FALSE, # TRUE,
+  observeEvent(ignoreInit = TRUE, # TRUE,
                geo_selections$selected_area,
-               {
+               { if (geo_selections$selected_area == "") {
                  leafletProxy("map") %>%
-                   setView(lng = ctu_list[ctu_list$GEO_NAME ==geo_selections$selected_area, ]$lat,
-                           lat = ctu_list[ctu_list$GEO_NAME ==geo_selections$selected_area, ]$long,
-                           zoom = ctu_list[ctu_list$GEO_NAME ==geo_selections$selected_area, ]$zoom) %>%
-                   clearGroup("outline")
+                   clearGroup("outline") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("Water") %>%
+                   setView(
+                     lat = 44.963,
+                     lng = -93.32,
+                     zoom = 10
+                   )
+               } else {
+                 leafletProxy("map") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("Water") %>%
+                   setView(lng = if (geo_selections$selected_geo == "ctus") {
+                     ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$lat
+                     } else {
+                       nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$lat
+                     },
+                           lat = if (geo_selections$selected_geo == "ctus") {
+                             ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$long
+                           } else {
+                             nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$long
+                           },
+                           zoom =if (geo_selections$selected_geo == "ctus") {
+                             ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$zoom
+                           } else {
+                             nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$zoom
+                           }) %>%
+                   addRasterImage(trees %>%
+                                    raster::crop(filter(if (geo_selections$selected_geo == "ctus") {
+                                      ctu_list} else {nhood_list}, GEO_NAME == geo_selections$selected_area)),
+                                  colors = "#35978f",
+                                  opacity = .7,
+                                  layerId = "Trees",
+                                  group = "Trees") #%>%
+                   # addPolygons(
+                   #   data =  filter(ctu_list, GEO_NAME == geo_selections$selected_area),
+                   #   stroke = TRUE,
+                   #   color =  "blue",
+                   #   fill = NA,
+                   #   opacity = 1,
+                   #   group = "outline",
+                   #   smoothFactor = 0.2,
+                   #   options = pathOptions(pane = "outline"))
+                   
+               }
                }
   )
 
