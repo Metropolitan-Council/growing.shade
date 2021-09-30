@@ -17,7 +17,8 @@ mn_tracts <- tigris::tracts(state = "MN",
                county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
   # st_buffer(0) %>% # 27053025100, 27037060725 is having a self intersection error
   # st_make_valid() %>%
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  rename(GEO_NAME = GEOID)
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
 metc_region <- mn_tracts %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
@@ -59,7 +60,7 @@ usethis::use_data(metc_region, overwrite = TRUE)
 #   filter(ALAND <= 809371) %>%
 #   st_drop_geometry() %>%
 #   left_join(blocks_ctus) %>%
-#   select(GEOID, `1`) %>%
+#   select(GEO_NAME, `1`) %>%
 #   rename(CTU_NAME = `1`) %>%
 #   left_join(mn_ctus) %>%
 #   st_as_sf()
@@ -72,9 +73,9 @@ usethis::use_data(metc_region, overwrite = TRUE)
 # 
 # usethis::use_data(crop_tract_ctus, overwrite = TRUE)
 # 
-# crop_tract_ctus %>% filter(GEOID == "27053105400") %>%
+# crop_tract_ctus %>% filter(GEO_NAME == "27053105400") %>%
 #   ggplot() + geom_sf()
-# crop_tract_ctus %>% filter(GEOID == "27037061003") %>%
+# crop_tract_ctus %>% filter(GEO_NAME == "27037061003") %>%
 #   ggplot() + geom_sf()
 
 
