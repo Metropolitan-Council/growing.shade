@@ -13,17 +13,19 @@ requireNamespace("janitor", quietly = TRUE)
 requireNamespace("tidyverse", quietly = TRUE)
 library(tidyverse)
 library(tigris)
+library(sf)
 
-########
-#download geographies
-#######
+
+####################
+# tract geographies
+#####################
+#### tracts ---------
 mn_tracts <- tigris::tracts(state = "MN",
                             county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
-  # st_buffer(0) %>% # 27053025100, 27037060725 is having a self intersection error
-  # st_make_valid() %>%
   sf::st_transform(4326) %>%
   mutate(GEO_NAME = GEOID)
 usethis::use_data(mn_tracts, overwrite = TRUE)
+
 
 
 ################
@@ -52,6 +54,129 @@ canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
 treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
 test <- reclassify(treecrs, cbind(-Inf, 0.5, NA), right=FALSE)
 raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
+
+
+
+##############
+# ctu and nhood summaries + geographies
+#############
+# fxns to make easy -----
+# find centroid of geographies
+find_centroid <- function(x, ...) {
+  points <- x %>%
+    mutate(zoom = case_when(Shape_Area < 1e6 ~ 15,
+                            Shape_Area < 1e8 ~ 13,
+                            Shape_Area < 1e9 ~ 12,
+                            TRUE ~ 11)) %>%
+    st_transform(26915) %>%
+    st_centroid() %>%
+    st_transform(4326) %>%
+    select(!!!quos(...), geometry, zoom) %>%
+    mutate(lat = unlist(map(.$geometry,1)),
+           long = unlist(map(.$geometry,2))) %>%
+    sf::st_drop_geometry()
+  geos <- x %>%
+    select(!!!quos(...), city, geometry) %>%
+    st_transform(4326)
+  combo <- full_join(geos, points) %>%
+    arrange(!!!(quos(...))) 
+  return(combo)
+}
+
+tree_summary <- function(x) {
+  x %>%
+    st_transform(26915) %>%
+    st_buffer(0) %>%
+    st_intersection(mn_tracts %>% 
+                      select(GEOID) %>%
+                      st_transform(26915)) %>%
+    left_join(canopy %>%
+                rename(GEOID = GEOID10),
+              by = "GEOID") %>%
+    st_drop_geometry() %>%
+    group_by(GEO_NAME) %>%
+    summarise(min = round(min(canopy_percent)*100, 1),
+              max = round(max(canopy_percent)*100, 1),
+              ntracts = n())
+}
+
+### neighborhoods -----------
+#st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
+#minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
+#brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
+
+minneap <- read_sf("./data-raw/minneapolis communities/Minneapolis_Communities.shp") %>%
+  rename(GEO_NAME = CommName) %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  mutate(city = "Minneapolis")
+
+stpaul <- read_sf("./data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  rename(GEO_NAME = name2) %>%
+  mutate(city = "St. Paul")
+
+nhood_list <- bind_rows(minneap, stpaul) %>%
+  find_centroid(., GEO_NAME) %>%
+  full_join(tree_summary(.)) %>%
+  arrange(city, GEO_NAME) %>%
+  st_transform(4326)
+
+usethis::use_data(nhood_list, overwrite = TRUE)
+
+#### ctus -----------
+temp <- tempfile()
+temp2 <- tempfile()
+download.file(
+  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+
+ctu_geo <-
+  sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  select(CTU_NAME, Shape_Area)# 
+
+files <- list.files(temp2, full.names = T)
+file.remove(files)
+
+## ctus ----------
+ctu_list <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  select(CTU_NAME, Shape_Area) %>%
+  swp_centroid(., CTU_NAME) %>%
+  rename(GEO_NAME = CTU_NAME) %>%
+  full_join(tree_summary(.)) %>%
+  arrange(GEO_NAME)
+
+usethis::use_data(ctu_list, overwrite = TRUE)
+
+
+###########
+# link tracts to ctus and nhoods
+#########
+ctu_crosswalk <- ctu_list %>%
+  select(GEO_NAME) %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_intersection(mn_tracts %>% 
+                    select(GEOID) %>%
+                    rename(tract_id = GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry()
+
+nhood_crosswalk <- nhood_list %>%
+  select(GEO_NAME) %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_intersection(mn_tracts %>% 
+                    select(GEOID) %>%
+                    rename(tract_id = GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry()
+
+usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+
 
 ###################
 # download equity considerations dataset
@@ -258,3 +383,10 @@ usethis::use_data(metadata, overwrite = TRUE)
 # ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
 # usethis::use_data(ctus, overwrite = TRUE)
 # 
+
+
+
+
+
+
+
