@@ -27,7 +27,11 @@ app_server <- function( input, output, session ) {
                                current_tab = input$nav)
   
   geo_selections <- mod_geo_selection_server("geo_selection_ui_1")
+  
+  observe({print(paste0("which geography mapping: ", (geo_selections$selected_geo)))})
   observe({print(paste0("selected ctu/neighborhood from dropdown: ", (geo_selections$selected_area)))})
+  observe({print(paste0("dropdown empty ''", (geo_selections$selected_area == "")))})
+  observe({print(paste0("dropdown is.null", is.null(geo_selections$selected_area)))})
   
   
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
