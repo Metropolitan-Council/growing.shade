@@ -1,6 +1,6 @@
 
 <center>
-<img src='www/3026.png' width='100%' max-width='1200px' alt='a picture of trees surrounding a river' /img>
+<img src='www/3026.png' width='100%' max-width='1200px !important' alt='a picture of trees surrounding a river' /img>
 </center>
 
 # Welcome to the Growing Shade Project
