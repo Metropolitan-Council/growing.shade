@@ -11,7 +11,7 @@ mod_geo_selection_ui <- function(id){
   ns <- NS(id)
   tagList(
  
-    HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make selections below to create a custom report. Scoll to see more. Download it all at the bottom. </section></p><br>"),
+    HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to keep reading.</strong></section></p>"),
     
     (radioButtons(
       ns("geo"),
@@ -19,8 +19,8 @@ mod_geo_selection_ui <- function(id){
       choices = c(
         # "Selected tract" = "ctus",
         "Cities and townships" = "ctus",
-        "Neighborhoods" = "nhood",
-        "An area (Census tract) selected from the map" = "tracts"
+        "Neighborhoods" = "nhood"#,
+        # "An area (Census tract) selected from the map" = "tracts"
       ),
       selected = "ctus"
     )),
