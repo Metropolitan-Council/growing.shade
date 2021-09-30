@@ -338,18 +338,30 @@ mod_map_overview_server <- function(input, output, session,
   ## jurisdiction outlines -----------
   observeEvent(ignoreInit = FALSE,
                geo_selections$selected_geo,
-               { if (geo_selections$selected_geo == 'tracts') {
-                 leafletProxy("map") %>%
-                   clearGroup("Jurisdiction outlines") %>%
-                   clearGroup("Trees") %>%
-                   clearGroup("outline") %>%
-                   clearGroup("Water") %>%
-                   setView(
-                     lat = 44.963,
-                     lng = -93.32,
-                     zoom = 10
-                   ) 
-               } else {
+               { 
+               #   if (geo_selections$selected_geo == 'tracts') {
+               #   leafletProxy("map") %>%
+               #     clearGroup("Jurisdiction outlines") %>%
+               #     clearGroup("Trees") %>%
+               #     clearGroup("outline") %>%
+               #     clearGroup("Water") %>%
+               #     setView(
+               #       lat = 44.963,
+               #       lng = -93.32,
+               #       zoom = 10
+               #     ) %>% 
+               #     addPolygons(
+               #       data = mn_tracts,
+               #       group = "Jurisdiction outlines",
+               #       stroke = T,
+               #       smoothFactor = 1,
+               #       # weight = 1,
+               #       color = "black", 
+               #       fillColor = "transparent",
+               #       opacity = 1,
+               #       options = pathOptions(pane = "geooutline")
+               #     )
+               # } else {
                  leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
                      clearGroup("Trees") %>%
@@ -367,12 +379,12 @@ mod_map_overview_server <- function(input, output, session,
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
-                     # weight = 1,
+                     weight = if (geo_selections$selected_geo == 'tracts') {2} else {4},
                      color = "black", 
                      fillColor = "transparent",
                      opacity = 1,
                      options = pathOptions(pane = "geooutline"),
-                     layerId = ~GEO_NAME
+                     layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
                    ) %>%
                    addPolygons(
                      data = if(geo_selections$selected_geo == 'ctus') {ctu_list
@@ -382,12 +394,13 @@ mod_map_overview_server <- function(input, output, session,
                      stroke = T,
                      smoothFactor = 1,
                      color = "black", 
+                     weight = if (geo_selections$selected_geo == 'tracts') {2} else {4},
                      fill = F,
                      opacity = 1,
                      options = pathOptions(pane = "geooutline2"),
-                     layerId = ~GEO_NAME
+                     layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
                    )
-               }
+               
                }
   )
 
