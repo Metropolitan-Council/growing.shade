@@ -161,7 +161,7 @@ mod_map_overview_server <- function(input, output, session,
         group = "Jurisdiction outlines",
         stroke = T,
         smoothFactor = 1,
-        color = 
+        color = "black",
         fill = F,
         opacity = 1,
         options = pathOptions(pane = "geooutline2"),
