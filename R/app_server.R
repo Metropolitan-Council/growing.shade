@@ -30,9 +30,6 @@ app_server <- function( input, output, session ) {
   
   observe({print(paste0("which geography mapping: ", (geo_selections$selected_geo)))})
   observe({print(paste0("selected ctu/neighborhood from dropdown: ", (geo_selections$selected_area)))})
-  observe({print(paste0("dropdown empty ''", (geo_selections$selected_area == "")))})
-  observe({print(paste0("dropdown is.null", is.null(geo_selections$selected_area)))})
-  
   
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
