@@ -292,48 +292,77 @@ mod_map_overview_server <- function(input, output, session,
                })
   
   # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
+  observeEvent(ignoreInit = TRUE,
+               input$map_shape_click$id,
+               {
+                 leafletProxy("map") %>%                     
+                   addRasterImage(trees %>%
+                                    raster::crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
+                                  colors = "#35978f", #pal,
+                                  opacity = .7,
+                                  layerId = "Trees",
+                                  group = "Trees") %>%
+                   
+                   clearGroup("outline") %>%
+                   addPolygons(
+                     data =  mn_tracts %>% filter(GEOID == input$map_shape_click$id),
+                     stroke = TRUE,
+                     color =  "blue",
+                     fill = NA,
+                     opacity = 1,
+                     group = "outline",
+                     smoothFactor = 0.2,
+                     options = pathOptions(pane = "outline")) %>%
+                   
+                   clearGroup("Water") %>%
+                   addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
+                               color = "black",
+                               fillColor = "black",
+                               fillOpacity = .9,
+                               fill = T,
+                               group = "Water",
+                               options = pathOptions(pane = "Water"))
+               }
+  )
+    
+    
+    
   # observeEvent(ignoreInit = TRUE,
-  #              # vals$selected_tract,
-  #              input$map_shape_click,
+  #              input$map_shape_click$id,
   #              {
   #                # if (is.na(vals$clicked_geo)) {leafletProxy("map") %>% clearGroup("outline")} else {
   #                # print(input$map_shape_click)
   #                leafletProxy("map") %>%
-  # 
   #                  addRasterImage(trees %>%
-  #                                   raster::crop(ctu_list %>% filter(GEO_NAME == input$map_shape_click$id)),
-  #                                   # raster::crop(filter( if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}, #crop_tract_ctus,
-  #                                   #                      GEO_NAME == input$maps_shape_click$id)),
-  #                                                       # GEOID == input$map_shape_click$id)), #"27123031701")),
-  # 
+  #                                   raster::crop(crop_tract_ctus, #mn_tracts, #crop_tract_ctus,
+  #                                                GEOID == input$map_shape_click$id),
+  #                                   # raster::crop(ctu_list %>% filter(GEO_NAME == input$map_shape_click$id)),
+  #                                   # raster::crop(filter( if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}, 
   #                                 colors = "#35978f", #"#238b45",
   #                                 opacity = .7,
   #                                 layerId = "Trees",
   #                                 group = "Trees"#,
   #                                 # project = FALSE)
-  #                  ) %>%
-  #                  clearGroup("outline") %>%
-  #                  addPolygons(
-  #                    data =  filter(ctu_list, GEO_NAME == input$map_shape_click$id), #mn_tracts %>% filter(GEOID == input$map_shape_click$id),
-  #                    stroke = TRUE,
-  #                    color =  "white",
-  #                    fill = NA,
-  #                    opacity = 1, #0.25,
-  #                    group = "outline",
-  #                    smoothFactor = 0.2,
-  #                    options = pathOptions(pane = "outline")) %>%
-  #                  clearGroup("Water") %>%
-  #                  addPolygons(data = river_lake %>% st_crop(filter(ctu_list, GEO_NAME == input$map_shape_click$id)),
-  #                                # river_lake %>% st_crop(filter(crop_tract_ctus, GEOID == input$map_shape_click$id)),
-  #                              color = "black",
-  #                              fillColor = "black",
-  #                              fillOpacity = .9,
-  #                              # layerId = "Water",
-  #                              fill = T,
-  #                              group = "Water",
-  #                              options = pathOptions(pane = "Water"))
-  #                # }
-  #                # }
+  #                  ) #%>%
+  #                  # clearGroup("outline") %>%
+  #                  # addPolygons(
+  #                  #   data =  mn_tracts %>% filter(GEOID == input$map_shape_click$id),
+  #                  #   stroke = TRUE,
+  #                  #   color =  "blue",
+  #                  #   fill = NA,
+  #                  #   opacity = 1, #0.25,
+  #                  #   group = "outline",
+  #                  #   smoothFactor = 0.2,
+  #                  #   options = pathOptions(pane = "outline")) %>%
+  #                  # clearGroup("Water") %>%
+  #                  # addPolygons(data = river_lake %>% st_crop(filter(crop_tract_ctus,
+  #                  #                                                  GEOID == input$map_shape_click$id)),
+  #                  #             color = "black",
+  #                  #             fillColor = "black",
+  #                  #             fillOpacity = .9,
+  #                  #             fill = T,
+  #                  #             group = "Water",
+  #                  #             options = pathOptions(pane = "Water"))
   #              }
   # )
   
@@ -380,7 +409,7 @@ mod_map_overview_server <- function(input, output, session,
   observe({
     event <- input$map_shape_click
     vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
-    vals$clicked_geo <-  input$map_shape_click$id
+    # vals$clicked_geo <-  input$map_shape_click$id
   })
   
   return(vals)
