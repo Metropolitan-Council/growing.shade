@@ -167,9 +167,6 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "geooutline2"),
         layerId = ~GEO_NAME
       ) %>%
-      
-      
-      
       hideGroup("Active transit stops") %>%
       
       ### add layer control
@@ -181,7 +178,6 @@ mod_map_overview_server <- function(input, output, session,
         ),
         overlayGroups = c(
           "Priority score",
-          # "Rivers & Lakes",
           "Trees",
           "Water",
           "Active transit stops",
@@ -195,11 +191,7 @@ mod_map_overview_server <- function(input, output, session,
       hideGroup(c("Transit",
                   "Emerald ash borer",
                   "Historically redlined areas",
-                  "Road outlines"#,
-                  # "County outlines"#,
-                  # "City outlines"
-                  # "Rivers & Lakes"
-                  )) #%>%
+                  "Road outlines")) #%>%
       # groupOptions(
       #       group = "Road outlines",
       #       zoomLevels = 13:13# 13:18
@@ -303,20 +295,26 @@ mod_map_overview_server <- function(input, output, session,
                # req(geo_selections$selected_geo == 'tracts'),
                # input$map_shape_click$id,
                toListen_clickytracts(), 
-               {
+               { if (input$map_shape_click$id == "") {
                  leafletProxy("map") %>%
                    clearGroup("Trees") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Water")
+               } else {
+                 leafletProxy("map") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Water") %>%
                    addRasterImage(trees %>%
                                     raster::crop(filter(mn_tracts#crop_tract_ctus
-                                                        , GEOID == input$map_shape_click$id)),
+                                                        , GEO_NAME == input$map_shape_click$id)),
                                   colors = "#35978f", #pal,
                                   opacity = .7,
                                   layerId = "Trees",
                                   group = "Trees") %>%
 
-                   clearGroup("outline") %>%
                    addPolygons(
-                     data =  mn_tracts %>% filter(GEOID == input$map_shape_click$id),
+                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
                      stroke = TRUE,
                      color =  "blue",
                      fill = NA,
@@ -325,9 +323,8 @@ mod_map_overview_server <- function(input, output, session,
                      smoothFactor = 0.2,
                      options = pathOptions(pane = "outline")) %>%
 
-                   clearGroup("Water") %>%
                    addPolygons(data = river_lake %>% st_crop(filter(mn_tracts #crop_tract_ctus
-                                                                    , GEOID == input$map_shape_click$id)),
+                                                                    , GEO_NAME == input$map_shape_click$id)),
                                color = "black",
                                fillColor = "black",
                                fillOpacity = .9,
@@ -335,28 +332,32 @@ mod_map_overview_server <- function(input, output, session,
                                group = "Water",
                                options = pathOptions(pane = "Water"))
                }
+               }
   )
   
 # switch cities/ neighborhoods
   observeEvent(ignoreInit = FALSE,
                geo_selections$selected_geo,
                {
-                 if (geo_selections$selected_geo == 'tracts') {
-                   leafletProxy("map") %>%
-                     clearGroup("Jurisdiction outlines")
-                 } else {
                  leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
                      clearGroup("Trees") %>%
+                     clearGroup("outline") %>%
+                     clearGroup("Water") %>%
+                     setView(
+                       lat = 44.963,
+                       lng = -93.32,
+                       zoom = 10
+                     ) %>%
+                     
                      addPolygons(
                      data = if(geo_selections$selected_geo == 'ctus') {ctu_list} else  {nhood_list},
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
                      # weight = 1,
-                     color = "black", ##ED1B2E",
-                     # fill = FALSE,
-                     fillColor = "transparent", # "#ED1B2E",
+                     color = "black", 
+                     fillColor = "transparent",
                      opacity = 1,
                      options = pathOptions(pane = "geooutline"),
                      layerId = ~GEO_NAME
@@ -366,16 +367,13 @@ mod_map_overview_server <- function(input, output, session,
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
-                     # weight = 1,
-                     color = "black", ##ED1B2E",
+                     color = "black", 
                      fill = F,
-                     # fillColor = "transparent", #"#ED1B2E",
                      opacity = 1,
                      options = pathOptions(pane = "geooutline2"),
                      layerId = ~GEO_NAME
                    )
                  }
-               }
   )
 
   
@@ -429,17 +427,17 @@ mod_map_overview_server <- function(input, output, session,
                                   colors = "#35978f",
                                   opacity = .7,
                                   layerId = "Trees",
-                                  group = "Trees") #%>%
-                   # addPolygons(
-                   #   data =  filter(ctu_list, GEO_NAME == geo_selections$selected_area),
-                   #   stroke = TRUE,
-                   #   color =  "blue",
-                   #   fill = NA,
-                   #   opacity = 1,
-                   #   group = "outline",
-                   #   smoothFactor = 0.2,
-                   #   options = pathOptions(pane = "outline"))
-                   
+                                  group = "Trees") %>%
+                   addPolygons(
+                     data =  filter(if (geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}, 
+                                    GEO_NAME == geo_selections$selected_area),
+                     stroke = TRUE,
+                     color =  "blue",
+                     fill = NA,
+                     opacity = 1,
+                     group = "outline",
+                     smoothFactor = 0.2,
+                     options = pathOptions(pane = "outline"))
                }
                }
   )
