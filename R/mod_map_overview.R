@@ -253,10 +253,10 @@ mod_map_overview_server <- function(input, output, session,
                          palette = "Oranges",
                          domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
                        )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
-                       # popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string, 
-                       #                 "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
-                       #                 "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
-                       #                 "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"),
+                       popup = ~paste0("Tract ID: ", map_util$map_data2$tract_string,
+                                       "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
+                                       "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
+                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"),
                        options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%
