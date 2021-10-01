@@ -28,6 +28,7 @@ app_server <- function( input, output, session ) {
   observe({print(paste0("is the priority layer on/off: ", map_selections$priority_layer))})
   observe({print(paste0("preset used: ", map_selections$preset))}) #to check that selections are working
   observe({print(paste0("variables used: ", map_selections$allInputs))}) #to check that selections are working
+  print(paste0("this is what conservation vars look like: ", metadata[metadata$cons == 1, ]$name))
   
   map_util <- callModule(mod_map_utils_server, "map_utils_ui_1",
                          map_selections = map_selections,
