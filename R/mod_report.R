@@ -27,6 +27,10 @@ mod_report_ui <- function(id){
     br(),
       uiOutput(ns("priority_para")),
       uiOutput(ns("get_priority_plot")),
+    br(),
+      uiOutput(ns("table_para")),
+     # dataTableOutput(ns("priority_table")),
+    tableOutput(ns("priority_table")),
       
     uiOutput(ns("equity_title")),
     uiOutput(ns("equity_para")),
@@ -86,7 +90,64 @@ mod_report_server <- function(id,
       return(output)
     })
     
+    param_selectedtractvalues <- reactive({
+      req(geo_selections$selected_area)
+      output <- filter(map_util$map_data2,
+                       tract_string %in% 
+                         if (geo_selections$selected_geo == "ctus") {
+                           c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                         } else {
+                           c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                         })
+      return(output)
+    })
     
+    
+    param_dl_data <- reactive({
+      req(geo_selections$selected_area)
+      ps <- param_selectedtractvalues() %>%
+        st_drop_geometry() %>%
+        rename(raw_value = MEAN) %>%
+        add_column(name = "Aggregated priority score") %>%
+        add_column(order = 1)
+      
+      output <- eva_data_main %>%
+        filter(name %in%
+                 if(map_selections$preset == "Environmental justice") {
+                   metadata[metadata$ej == 1, ]$name
+                 } else if(map_selections$preset == "Climate change") {
+                   metadata[metadata$cc == 1, ]$name
+                 } else if(map_selections$preset == "Public health") {
+                   metadata[metadata$ph == 1, ]$name
+                 } else if(map_selections$preset == "Conservation") {
+                   metadata[metadata$cons == 1, ]$name
+                 } else if(map_selections$preset == "Custom") {
+                   c(map_selections$allInputs$value)}) %>%
+        mutate(flag = if_else(tract_string %in%
+                                if (geo_selections$selected_geo == "ctus") {
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else {
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                }, "selected", NA_character_)) %>%
+        filter(flag == "selected") %>%
+        add_column(order = 2) %>%
+        # filter(!is.na(weights_scaled)) %>%
+        bind_rows(ps) %>%
+        ungroup() %>%
+        select(tract_string, name, raw_value) %>%
+        mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Lake Elmo", ]$tract_id), "selected", NA_character_)) %>%
+        mutate(across(c(raw_value), ~ifelse(str_detect(name, c("%")), . * 100, .))) %>%
+        mutate(across(where(is.numeric), round, 2)) %>%
+        # arrange(tract_string, name) %>%
+        rename(`Tract id` = tract_string,
+               Variable = name,
+               `Raw value` = raw_value) %>%
+        pivot_wider(names_from = Variable, values_from = `Raw value`) %>%
+        ungroup() %>%
+        select(-flag)
+      
+      return(output)
+    })
     
     
     
@@ -108,6 +169,7 @@ mod_report_server <- function(id,
       )
     })    
 
+    # tree canopy section ------------
     output$tree_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
@@ -168,6 +230,7 @@ mod_report_server <- function(id,
       return(plot)
     })
     
+    # ranking section ------------
     
     output$rank_para <- renderUI({
       ns <- session$ns
@@ -175,25 +238,16 @@ mod_report_server <- function(id,
       tagList(
         if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used. To change this, please scroll back up to the top and turn 'on' the priority layer."))
           } else {
-            
-          ps <- filter(map_util$map_data2,
-                       tract_string %in% 
-                         if (geo_selections$selected_geo == "ctus") {
-                           c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                         } else {
-                           c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                         })
-                
-                
+
         para <- HTML(paste0( 
           "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. Based on the ",
           tolower(map_selections$preset), 
           " preset used, tracts within ",
           param_area(),
           " have priority scores ranging from ",
-          round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
+          round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
           " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority across all 704 Census tracts across the region range from ",
-          min(ps$RANK), " to ", max(ps$RANK), " where a higher rank (closer to 1) indicates tracts with higher priorities. A plot of the tract rankings are shown below.<br><br>"
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " where a higher rank (closer to 1) indicates tracts with higher priorities. A plot of the tract rankings are shown below.<br><br>"
         )
         )
         return(para)
@@ -231,6 +285,8 @@ mod_report_server <- function(id,
     return(plot)
     })
     
+    # priority section -----------
+    
     output$priority_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
@@ -255,7 +311,7 @@ mod_report_server <- function(id,
             
             "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
             param_area(),
-            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. But I am working on plotting it as well. A full data table with the raw values can be downloaded at the end of this report. Please see the Methods for more detail.<br>"
+            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. But I am working on plotting it as well. A full data table with the raw values can be downloaded at the TOP of this report. Please see the Methods for more detail.<br>"
           )
           )
           return(para)
@@ -264,83 +320,28 @@ mod_report_server <- function(id,
     })
     
     
-    # toListen_prioritydata <- reactive({
-    #   list(
-    #     map_selections$preset, 
-    #     map_selections$allInputs,
-    #     map_util$map_data2
-    #   )
-    # })
-    # 
-    # priority_data <- reactive({
-    #   toListen_prioritydata()
-    #   step1 <- filter(map_util$map_data2,
-    #                tract_string %in% 
-    #                  if (geo_selections$selected_geo == "ctus") {
-    #                    c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                  } else {
-    #                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                  }) %>%
-    #     st_drop_geometry() %>%
-    #     rename(weights_scaled = MEAN) %>%
-    #     add_column(name = "Aggregated priority score") %>%
-    #     add_column(order = 1)
-    #   
-    #  step2 <-  eva_data_main %>%
-    #     filter(name %in% 
-    #              if(map_selections$preset == "Environmental justice") {
-    #                metadata[metadata$ej == 1, ]$name
-    #              } else if(map_selections$preset == "Climate change") {
-    #                metadata[metadata$cc == 1, ]$name
-    #              } else if(map_selections$preset == "Public health") {
-    #                metadata[metadata$ph == 1, ]$name
-    #              } else if(map_selections$preset == "Conservation") {
-    #                metadata[metadata$cons == 1, ]$name
-    #              } else if(map_selections$preset == "Custom") {
-    #                c(map_selections$allInputs)}) %>%
-    #     mutate(flag = if_else(tract_string %in% 
-    #                             if (geo_selections$selected_geo == "ctus") {
-    #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                             } else {
-    #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                             }, "selected", NA_character_)) %>%
-    #     filter(flag == "selected") %>%
-    #     add_column(order = 2) %>%
-    #     # filter(!is.na(weights_scaled)) %>%
-    #     bind_rows(step1) 
-    #     
-    #  return(step2)
-    #     
-    #   })
-    
+
     output$priority_plot <- renderPlot({
       req(geo_selections$selected_area)
       
-      # this isn't responding to changing custom values
-      ps <- filter(map_util$map_data2,
-                   tract_string %in%
-                     if (geo_selections$selected_geo == "ctus") {
-                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                       } else {
-                         c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                       }) %>%
+      ps <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
         rename(weights_scaled = MEAN) %>%
         add_column(name = "Aggregated priority score") %>%
         add_column(order = 1)
       
       plot <- eva_data_main %>%
-          filter(name %in%
-                   if(map_selections$preset == "Environmental justice") {
-                     metadata[metadata$ej == 1, ]$name
-                     } else if(map_selections$preset == "Climate change") {
-                       metadata[metadata$cc == 1, ]$name
-                     } else if(map_selections$preset == "Public health") {
-                       metadata[metadata$ph == 1, ]$name
-                     } else if(map_selections$preset == "Conservation") {
-                       metadata[metadata$cons == 1, ]$name
-                     } else if(map_selections$preset == "Custom") {
-                       c(map_selections$allInputs$value)}) %>%
+        filter(name %in%
+                 if(map_selections$preset == "Environmental justice") {
+                   metadata[metadata$ej == 1, ]$name
+                 } else if(map_selections$preset == "Climate change") {
+                   metadata[metadata$cc == 1, ]$name
+                 } else if(map_selections$preset == "Public health") {
+                   metadata[metadata$ph == 1, ]$name
+                 } else if(map_selections$preset == "Conservation") {
+                   metadata[metadata$cons == 1, ]$name
+                 } else if(map_selections$preset == "Custom") {
+                   c(map_selections$allInputs$value)}) %>%
         mutate(flag = if_else(tract_string %in%
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
@@ -350,7 +351,8 @@ mod_report_server <- function(id,
         filter(flag == "selected") %>%
         add_column(order = 2) %>%
         # filter(!is.na(weights_scaled)) %>%
-        bind_rows(ps) %>%
+        bind_rows(ps)  %>%
+        
         ggplot(aes(y = weights_scaled, x = forcats::fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
         geom_point(col = "black",
                    position = position_dodge(width = .2)) + 
@@ -383,6 +385,60 @@ mod_report_server <- function(id,
       
       return(plot)
     })
+    
+    
+    output$table_para <- renderUI({
+      ns <- session$ns
+      req(geo_selections$selected_area)
+      tagList(
+          para <- HTML(paste0( 
+            "<br> Here is a table of the tracts with the highest priority score in ", param_area(), ". To get the raw values, and/or see the numbers for all of the tracts, please download the data file at the top of this report.  <br>")
+          ) )
+          return(para)
+    })
+    output$priority_table <- renderTable({
+      head(param_selectedtractvalues()%>%
+                 as_tibble() %>%
+                 select(tract_string, MEAN, RANK) %>%
+                 mutate(MEAN = round(MEAN, 3))  %>%
+             arrange(RANK) %>%
+                 rename(`Tract ID` = tract_string,
+                        `Priority score` = MEAN,
+                        `Rank of priority score` = RANK), 
+           n = 5)
+    })
+    
+    # output$priority_table <- renderDataTable({
+    #   req(geo_selections$selected_area)
+    #   
+    #   # param_dl_data() %>%
+    #   #   arrange(`Aggregated priority score`)
+    #   DT::datatable(param_selectedtractvalues()%>%
+    #     as_tibble() %>%
+    #     select(tract_string, MEAN, RANK) %>%
+    #     mutate(MEAN = round(MEAN, 3)) %>%
+    #     rename(`Tract ID` = tract_string,
+    #            `Priority score` = MEAN,
+    #            `Rank of priority score` = RANK),
+    #     options = list(
+    #       pageLength = 5))
+    #   
+    #   # output <- DT::datatable(data2,
+    #   #               options = list(lengthMenu = c(5, 10), pageLength = 5))
+    #   # return(data2,
+    #   #        options = list(pageLength = 5))
+    #   # DT::datatable(
+    #   #   (param_selectedtractvalues %>%
+    #   #   as_tibble() %>%
+    #   #   select(tract_string, MEAN, RANK) %>%
+    #   #   rename(`Tract ID` = tract_string,
+    #   #          `Priority score` = MEAN,
+    #   #          `Rank of priority score` = RANK
+    #   #          )),
+    #   # options = list(
+    #   #   pageLength = 5))
+    # })
+    
     
     output$equity_para <- renderUI({
       ns <- session$ns
@@ -609,15 +665,15 @@ mod_report_server <- function(id,
     )
   
     
-    
     output$dl_data <- downloadHandler(
-      filename = function() {paste0("GrowingShade_MetCouncil_", param_area(), "_", Sys.Date(), ".xlsx")},
+      filename = function() {paste0("GrowingShadeReport_", param_area(), "_", Sys.Date(), ".xlsx")},
       content = function(file) {writexl::write_xlsx(
-        list("Metadata" = metadata %>%
-               rbind(c(""), c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""), 
-                     c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""), 
-                     c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
-             "Test" = (c("yeah, nothing yet!")) # "Counties" = (eva_data_main)
+        list(
+          # "Metadata" = metadata %>%
+          #      rbind(c(""), c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""), 
+          #            c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""), 
+          #            c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
+             "Raw Data" = (param_dl_data()) # "Counties" = (eva_data_main)
              # #i'll probably want something like this
              # eva_data_main %>%
              #   filter(name %in% test) %>%
