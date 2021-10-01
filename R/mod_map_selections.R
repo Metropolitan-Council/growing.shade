@@ -100,7 +100,7 @@ mod_map_selections_server <- function(input, output, session,
   
   input_values <- reactiveValues() # start with an empty reactiveValues object.
   
-  observe({ input_values$allInputs <-  as_tibble(input$peopleInput) %>%
+  observe({ input_values$allInputs <- as_tibble(input$peopleInput) %>%
         rbind(as_tibble(input$placeInput)) %>%
         rbind(as_tibble(input$treeInput))
   
