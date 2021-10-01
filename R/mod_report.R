@@ -25,9 +25,11 @@ mod_report_ui <- function(id){
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
       
       h4("Priortization summary"),
+      uiOutput(ns("rank_para")),
+      plotOutput(ns("rank_plot"), "100px", width = "100%"), 
+      br(),
       uiOutput(ns("priority_para")),
-      plotOutput(ns("priority_plot"), "400px", width = "100%"), # %>%
-        # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
+      plotOutput(ns("priority_plot"), "400px", width = "100%"), 
 
       h4("Equity analysis"),
       uiOutput(ns("equity_para")),
@@ -39,34 +41,6 @@ mod_report_ui <- function(id){
 
             h4("Other resources"),
       uiOutput(ns("resource_para")),
-      
-      
-      # HTML("<p><section style='font-size:14px !important'>It would be nice to turn this into an info graphic. Like lightbulbs are 'on' for each ctus total energy usage. Turn them off for how much solar can offset? And fill pools? Not sure... Or think about impaired waterbodies for water retention? </section></p>"),
-      # 
-      # 
-      # # h3("Priority score versus potential"),
-      # # HTML("<p><section style='font-size:14px !important'>Identifying buildings/lots which have high potential for solar or stormwater retention is important. But so is identifying areas where solar/green roofs would be disproportionately beneficial based on the prioritization layer. This chart starts to show some of that. Not horribly useful, right now for smaller cities/watersheds.</section></p>"),
-      # # plotOutput(ns("plot1"), "400px", width = "100%"),
-      # 
-      # h4("Composition of potential by land use"),
-      # HTML("<p><section style='font-size:14px !important'>Knowing the underlying land use of these surfaces can be helpful in guiding policy. Since both solar potential and stormwater retention are a function of property area (either rooftop or parking lot), this is what the break down of property area looks like. </section></p>"),
-      # plotOutput(ns("plot2"), "400px", width = "100%"),
-      # 
-      # h4("Interconnected issues"),
-      # HTML("<p><section style='font-size:14px !important'>Something about heat, flooding, carbon emissions, equity. Q for ML - do we have kwH for each city? maybe can't do for watershed district, but maybe can? Or is there a way to get the average residential emissions and look at that? </section></p>"),
-      # 
-      # 
-      # h4("Cost benefit analysis"),
-      # HTML("<p><section style='font-size:14px !important'>Can this be done? Something about protecting investments...these green infrastructure projects are win-win type of projects. Something for new developments, something for existing developments. </section></p>"),
-      # 
-      # 
-      # 
-      # h4("Download data for selected area"),
-      # HTML("<p><section style='font-size:14px !important'>Acess to the raw data is provided below. Please contact us at <someones email> for further assistance. </section></p>"),
-      # br(),
-      # downloadButton(ns("dl_data"), "Download"),
-      # br()
-      
     )
     
 }
@@ -81,14 +55,25 @@ mod_report_server <- function(id,
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
+    report_for <- reactive({
+      req(geo_selections$selected_area)
+      output <- geo_selections$selected_area
+      return(output)
+    })
     
     output$geoarea <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
       tagList(
-        paste0("Custom report for ", geo_selections$selected_area)
+        paste0("Custom report for ", report_for())
       )
-    })
+    })    
+    # output$geoarea <- renderUI({
+    #   ns <- session$ns
+    #   req(geo_selections$selected_area)
+    #   tagList(
+    #     paste0("Custom report for ", geo_selections$selected_area)
+    #   )
+    # })
     
     
     output$tree_para <- renderUI({
@@ -159,7 +144,7 @@ mod_report_server <- function(id,
     })
     
     
-    output$priority_para <- renderUI({
+    output$rank_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
       tagList(
@@ -182,22 +167,7 @@ mod_report_server <- function(id,
           geo_selections$selected_area,
           " have priority scores ranging from ",
           round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
-          " (out of 10, with 10 indicating the highest priority). ",
-          " The variables included in this ranking are: <br><br> - ",
-          
-          if(map_selections$preset == "Environmental justice") {
-            paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
-          } else if(map_selections$preset == "Climate change") {
-            paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
-          } else if(map_selections$preset == "Public health") {
-            paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
-          } else if(map_selections$preset == "Conservation") {
-            paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
-          } else {map_selections$allInputs}, 
-
-          "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
-          geo_selections$selected_area,
-          ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. A full data table with the raw values can be downloaded at the end of this report. Please see the Methods for more detail.<br>"
+          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority scores are shown below out of the 704 tracts across the region. <br><br>"
         )
         )
         return(para)
@@ -205,6 +175,62 @@ mod_report_server <- function(id,
       )
     })
     
+    output$rank_plot <- renderPlot({
+      req(geo_selections$selected_area)
+    test <- filter(map_util$map_data2,
+                   tract_string %in% 
+                     if (geo_selections$selected_geo == "ctus") {
+                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                     } else {
+                       c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                     }) %>%
+      st_drop_geometry() 
+    
+    ggplot() +
+      scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
+      ylim(0, 1) +
+      geom_vline(data = test,
+                 aes(xintercept = RANK)) +
+      councilR::council_theme() +
+      theme(axis.text.y = element_blank(),
+            axis.title.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank()) +
+      geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
+      labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
+    })
+    
+    output$priority_para <- renderUI({
+      ns <- session$ns
+      req(geo_selections$selected_area)
+      tagList(
+        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
+        } else {
+
+          para <- HTML(paste0( 
+            "The variables included in this prioritization layer are: <br> - ",
+            
+            if(map_selections$preset == "Environmental justice") {
+              paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
+            } else if(map_selections$preset == "Climate change") {
+              paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
+            } else if(map_selections$preset == "Public health") {
+              paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
+            } else if(map_selections$preset == "Conservation") {
+              paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
+            } else {map_selections$allInputs}, 
+            
+            "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
+            geo_selections$selected_area,
+            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. A full data table with the raw values can be downloaded at the end of this report. Please see the Methods for more detail.<br>"
+          )
+          )
+          return(para)
+        }
+      )
+    })
     
     output$priority_plot <- renderPlot({
       req(geo_selections$selected_area)
@@ -462,7 +488,8 @@ mod_report_server <- function(id,
         tempReport <- file.path(tempdir(), "report.Rmd")
         file.copy("report.Rmd", tempReport, overwrite = TRUE)
         # Set up parameters to pass to Rmd document
-        params <- list(selected_tract = tract_selections$selected_tract,
+        params <- list(geo_selections$selected_area,
+                       
                        selected_geo = input$geo,
                        selected_city = input$cityInput,
                        vars_used = map_selections$preset,
