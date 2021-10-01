@@ -306,7 +306,7 @@ mod_report_server <- function(id,
         add_column(order = "second") %>%
         filter(!is.na(weights_scaled)) %>%
         bind_rows(ps) %>%
-        ggplot(aes(y = weights_scaled, x = fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
+        ggplot(aes(y = weights_scaled, x = forcats::fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
         geom_point(col = "black",
                    position = position_dodge(width = .2)) + 
           geom_line(col = "black", alpha = .2,
