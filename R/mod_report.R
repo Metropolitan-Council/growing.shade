@@ -63,7 +63,8 @@ mod_report_ui <- function(id){
 #'
 #' @noRd 
 mod_report_server <- function(id,
-                              geo_selections){
+                              geo_selections,
+                              map_selections){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
@@ -76,8 +77,6 @@ mod_report_server <- function(id,
       )
     })
     
-    
-    # "GEO has an existing tree canopy coverage of approximately X %. In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Some areas in our region are dominated by native tallgrass prairie and have lower tree coverage - this should not be penalized."
     
     output$tree_para <- renderUI({
       ns <- session$ns
@@ -107,12 +106,7 @@ mod_report_server <- function(id,
         )
     })
     
-    # ctu_list$canopy #avg tree canopy
-    # $tracts #num of tracts
-    # $min #canopy
-    # $max #canopy
-    
-    
+
     output$tree_plot <- renderPlot({
       req(geo_selections$selected_area)
 
@@ -149,6 +143,45 @@ mod_report_server <- function(id,
                    size = 5, col = "black", pch = 21, 
                    data = filter(canopyplot, flag == "selected"))
       return(plot)
+    })
+    
+    
+    output$priority_para <- renderUI({
+      ns <- session$ns
+      req(geo_selections$selected_area)
+      tagList(
+        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
+          } else {
+        HTML(paste0( 
+          "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. Based on the ",
+          map_selections$preset, 
+          "preset used, tracts falling with ",
+          ,
+          "have priority scores ranging from ",
+          "(out of 10, with 10 indicating the highest priority). "
+          geo_selections$selected_area, " has an existing tree canopy which ranges from ",
+                    if (geo_selections$selected_geo == "ctus") {
+                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$min} else {
+                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$min
+                      }, "% to ",
+                    if (geo_selections$selected_geo == "ctus") {
+                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$max} else {
+                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$max
+                      }, "% ",
+                    "across the ",
+                    if (geo_selections$selected_geo == "ctus") {
+                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
+                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
+                      },
+                    " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below; tracts falling within ", 
+                    geo_selections$selected_area,
+                    " highlighted in green.<br><br>",
+                    " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
+                    
+        )
+        )
+        }
+      )
     })
 
 

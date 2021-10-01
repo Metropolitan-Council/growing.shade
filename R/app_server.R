@@ -50,7 +50,8 @@ app_server <- function( input, output, session ) {
   observe({print(paste0("selected tract: ", (tract_selections$selected_tract)))}) #to check that selections are working
   
   mod_report_server("report_ui_1",
-                    geo_selections)
+                    geo_selections,
+                    map_selections)
   
   # observe({print(paste0("selected tract: ", (tract_selections$clicked_geo)))}) #to check that selections are working
   
