@@ -55,47 +55,64 @@ mod_report_server <- function(id,
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
-    report_for <- reactive({
+    ####### things to export
+    param_area <- reactive({
       req(geo_selections$selected_area)
       output <- geo_selections$selected_area
       return(output)
     })
     
+    param_min <- reactive({
+      req(geo_selections$selected_area)
+      output <- if (geo_selections$selected_geo == "ctus") {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$min} else {
+          nhood_list[nhood_list$GEO_NAME == param_area(), ]$min
+        }
+      return(output)
+    })
+    
+    param_max <- reactive({
+      req(geo_selections$selected_area)
+      output <- if (geo_selections$selected_geo == "ctus") {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$max} else {
+          nhood_list[nhood_list$GEO_NAME == param_area(), ]$max
+        }
+      return(output)
+    })
+    
+    param_ntracts <- reactive({
+      req(geo_selections$selected_area)
+      output <- if (geo_selections$selected_geo == "ctus") {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$ntracts} else {
+          nhood_list[nhood_list$GEO_NAME == param_area(), ]$ntracts
+        }
+      return(output)
+    })
+    
+    
+    
+    
+    
+    
+    #### things to populate report
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
-        paste0("Custom report for ", report_for())
+        paste0("Custom report for ", param_area())
       )
     })    
-    # output$geoarea <- renderUI({
-    #   ns <- session$ns
-    #   req(geo_selections$selected_area)
-    #   tagList(
-    #     paste0("Custom report for ", geo_selections$selected_area)
-    #   )
-    # })
-    
-    
+
     output$tree_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
       tagList(
-        HTML(paste0(geo_selections$selected_area, " has an existing tree canopy which ranges from ",
-               if (geo_selections$selected_geo == "ctus") {
-                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$min} else {
-                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$min
-                 }, "% to ",
-               if (geo_selections$selected_geo == "ctus") {
-                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$max} else {
-                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$max
-                 }, "% ",
+        HTML(paste0(param_area(), " has an existing tree canopy which ranges from ",
+               param_min(), "% to ",
+               param_max(), "% ",
                "across ",
-               if (geo_selections$selected_geo == "ctus") {
-                 ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
-                   nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
-                 },
+               param_ntracts(),
                " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ", 
-               geo_selections$selected_area,
+               param_area(),
                " are highlighted in green.<br><br>",
                " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
 
@@ -113,9 +130,9 @@ mod_report_server <- function(id,
         select(tract_string, variable, raw_value) %>%
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
-                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                   } else {
-                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                   }, "selected", NA_character_))
       plot <- ggplot()+
         ggdist::stat_halfeye(
@@ -154,9 +171,9 @@ mod_report_server <- function(id,
           ps <- filter(map_util$map_data2,
                        tract_string %in% 
                          if (geo_selections$selected_geo == "ctus") {
-                           c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                           c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                          } else {
-                           c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                           c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                          })
                 
                 
@@ -164,7 +181,7 @@ mod_report_server <- function(id,
           "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. Based on the ",
           tolower(map_selections$preset), 
           " preset used, tracts within ",
-          geo_selections$selected_area,
+          param_area(),
           " have priority scores ranging from ",
           round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
           " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority scores are shown below out of the 704 tracts across the region. <br><br>"
@@ -180,9 +197,9 @@ mod_report_server <- function(id,
     test <- filter(map_util$map_data2,
                    tract_string %in% 
                      if (geo_selections$selected_geo == "ctus") {
-                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                      } else {
-                       c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                       c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                      }) %>%
       st_drop_geometry() 
     
@@ -223,7 +240,7 @@ mod_report_server <- function(id,
             } else {map_selections$allInputs}, 
             
             "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
-            geo_selections$selected_area,
+            param_area(),
             ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. A full data table with the raw values can be downloaded at the end of this report. Please see the Methods for more detail.<br>"
           )
           )
@@ -254,9 +271,9 @@ mod_report_server <- function(id,
       ps <- filter(map_util$map_data2,
                    tract_string %in% 
                      if (geo_selections$selected_geo == "ctus") {
-                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                        } else {
-                         c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                         c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                        }) %>%
         st_drop_geometry() %>%
         rename(weights_scaled = MEAN) %>%
@@ -277,9 +294,9 @@ mod_report_server <- function(id,
                      } else {map_selections$allInputs}) %>%
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
-                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 } else {
-                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 }, "selected", NA_character_)) %>%
         filter(flag == "selected") %>%
         add_column(order = "second") %>%
@@ -329,7 +346,7 @@ mod_report_server <- function(id,
               target = "_blank"), 
               ").<br><br>",
             "At the MetCouncil, we have shown that areas where the annual median income is <$100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures below. Tracts within ", 
-            geo_selections$selected_area,
+            param_area(),
             " are in green, and the regional trend is in blue."
           )
           )
@@ -346,9 +363,9 @@ mod_report_server <- function(id,
         # mutate(flag = if_else(tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Minneapolis", ]$tract_id), "selected", NA_character_))
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
-                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 } else {
-                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 }, "selected", NA_character_))
       
         race_equity <- equityplot %>%
@@ -388,8 +405,8 @@ mod_report_server <- function(id,
             "Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
             eab %>% sf::st_intersection(filter(if (geo_selections$selected_geo == "ctus") {
               ctu_list
-            } else {nhood_list}, GEO_NAME == geo_selections$selected_area)) %>% nrow(), " trees in ",
-            geo_selections$selected_area, " (",
+            } else {nhood_list}, GEO_NAME == param_area())) %>% nrow(), " trees in ",
+            param_area(), " (",
             a("Minnesota DNR",
               href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
               .noWS = "outside",
@@ -485,18 +502,23 @@ mod_report_server <- function(id,
     output$dl_report <- downloadHandler(
       filename = paste0("GrowingShade_", Sys.Date(), ".html"),
       content = function(file) {
-        tempReport <- file.path(tempdir(), "report.Rmd")
-        file.copy("report.Rmd", tempReport, overwrite = TRUE)
+        tempReport <- file.path(tempdir(), "report_new.Rmd")
+        file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
         # Set up parameters to pass to Rmd document
-        params <- list(geo_selections$selected_area,
+        params <- list(param_area = param_area(),
+                       param_min = param_min(),
+                       param_max = param_max(),
+                       param_ntracts = param_ntracts()
                        
-                       selected_geo = input$geo,
-                       selected_city = input$cityInput,
-                       vars_used = map_selections$preset,
-                       priority_score = map_util$map_data2,#round(map_util$map_data2$MEAN, 3),
-                       rank_total = nrow(map_util$map_data2),
-                       vars_selected = map_selections$allInputs,
-                       canopy = map_util$canopycov)
+                       
+                       # selected_geo = input$geo,
+                       # selected_city = input$cityInput,
+                       # vars_used = map_selections$preset,
+                       # priority_score = map_util$map_data2,#round(map_util$map_data2$MEAN, 3),
+                       # rank_total = nrow(map_util$map_data2),
+                       # vars_selected = map_selections$allInputs,
+                       # canopy = map_util$canopycov
+                       )
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document
         # from the code in this app).
