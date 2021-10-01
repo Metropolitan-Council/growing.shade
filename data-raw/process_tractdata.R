@@ -20,11 +20,11 @@ library(sf)
 # tract geographies
 #####################
 #### tracts ---------
-mn_tracts <- tigris::tracts(state = "MN",
+mn_tracts_1 <- tigris::tracts(state = "MN",
                             county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
   sf::st_transform(4326) %>%
   mutate(GEO_NAME = GEOID)
-usethis::use_data(mn_tracts, overwrite = TRUE)
+
 
 
 
@@ -43,7 +43,7 @@ tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
 # canopy coverage
 canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
-  left_join(sf::st_drop_geometry(mn_tracts), by = c("GEOID10" = "GEOID")) %>%
+  left_join(sf::st_drop_geometry(mn_tracts_1), by = c("GEOID10" = "GEOID")) %>%
   transmute(GEOID10 = GEOID10, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
@@ -87,7 +87,7 @@ tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
     st_buffer(-80) %>% #give it a bit of a buffer
-    st_intersection(mn_tracts %>% 
+    st_intersection(mn_tracts_1 %>% 
                       select(GEOID) %>%
                       st_transform(26915)) %>%
     left_join(canopy %>%
@@ -137,16 +137,18 @@ ctu_geo <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
   select(CTU_NAME, Shape_Area)# 
 
-files <- list.files(temp2, full.names = T)
-file.remove(files)
-
 ## ctus ----------
 ctu_list <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
   select(CTU_NAME, Shape_Area) %>%
-  swp_centroid(., CTU_NAME) %>%
+  add_column(city = "doesn't matter") %>%
+  find_centroid(., CTU_NAME) %>%
+  select(-city) %>%
   rename(GEO_NAME = CTU_NAME) %>%
   full_join(tree_summary(.)) %>%
   arrange(GEO_NAME)
+
+files <- list.files(temp2, full.names = T)
+file.remove(files)
 
 usethis::use_data(ctu_list, overwrite = TRUE)
 
@@ -158,7 +160,7 @@ ctu_crosswalk <- ctu_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-80) %>% #go up to -80 because carver
-  st_intersection(mn_tracts %>% 
+  st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
                     st_transform(26915)) %>%
@@ -166,7 +168,7 @@ ctu_crosswalk <- ctu_list %>%
 
 
 # test <- "Carver"
-# mn_tracts %>%
+# mn_tracts_1 %>%
 #   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
 #              by = c("GEOID" = "tract_id")) %>%
 #   ggplot()+
@@ -177,14 +179,14 @@ nhood_crosswalk <- nhood_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-80) %>%
-  st_intersection(mn_tracts %>% 
+  st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
                     st_transform(26915)) %>%
   st_drop_geometry()
 
 # test <- "The Greater East Side"
-# mn_tracts %>%
+# mn_tracts_1 %>%
 #   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
 #              by = c("GEOID" = "tract_id")) %>%
 #   ggplot()+
@@ -211,9 +213,14 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
          jurisdiction = str_replace(jurisdiction, ", NA", ""),
          jurisdiction = str_replace(jurisdiction, ", NA", ""),
          jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""))
+         jurisdiction = str_replace(jurisdiction, ", NA", "")) %>%
+  rename(GEOID = tract_id)
 usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
+
+mn_tracts <- mn_tracts_1 %>%
+  full_join(wide_ctu_crosswalk)
+usethis::use_data(mn_tracts, overwrite = TRUE)
 ###################
 # download equity considerations dataset
 ###################
