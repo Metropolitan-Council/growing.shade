@@ -43,6 +43,7 @@ Imports:
     mapview,
     ggdist,
     kableExtra,
+    forcats,
     rmarkdown (>= 2.7)
 Suggests: 
     data.table (>= 1.12.8),
