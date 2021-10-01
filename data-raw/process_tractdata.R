@@ -393,7 +393,8 @@ eva_data_main <- eva_data_raw %>%
                                   interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))))) %>%
   # 
   #clean
-  select(-MEAN, -SD, -MIN, -MAX) 
+  select(-MEAN, -SD, -MIN, -MAX)  %>%
+  full_join(wide_ctu_crosswalk %>% rename(tract_string = GEOID))
 
 ########
 # save data
