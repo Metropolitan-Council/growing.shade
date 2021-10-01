@@ -25,6 +25,10 @@ mod_report_ui <- function(id){
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
       
       h4("Priortization summary"),
+      uiOutput(ns("priority_para")),
+      plotOutput(ns("priority_plot"), "400px", width = "100%"), # %>%
+        # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
+
       h4("Equity analysis"),
       h4("Other considerations"),
       h4("Other resources")
@@ -64,7 +68,8 @@ mod_report_ui <- function(id){
 #' @noRd 
 mod_report_server <- function(id,
                               geo_selections,
-                              map_selections){
+                              map_selections,
+                              map_util){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
@@ -96,9 +101,9 @@ mod_report_server <- function(id,
                  ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
                    nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
                  },
-               " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below; tracts falling within ", 
+               " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below; tracts in ", 
                geo_selections$selected_area,
-               " highlighted in green.<br><br>",
+               " are highlighted in green.<br><br>",
                " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
 
                )
@@ -152,36 +157,98 @@ mod_report_server <- function(id,
       tagList(
         if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
           } else {
-        HTML(paste0( 
+            
+          ps <- filter(map_util$map_data2,
+                       tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id))
+                
+                
+        para <- HTML(paste0( 
           "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. Based on the ",
-          map_selections$preset, 
-          "preset used, tracts falling with ",
-          ,
-          "have priority scores ranging from ",
-          "(out of 10, with 10 indicating the highest priority). "
-          geo_selections$selected_area, " has an existing tree canopy which ranges from ",
-                    if (geo_selections$selected_geo == "ctus") {
-                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$min} else {
-                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$min
-                      }, "% to ",
-                    if (geo_selections$selected_geo == "ctus") {
-                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$max} else {
-                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$max
-                      }, "% ",
-                    "across the ",
-                    if (geo_selections$selected_geo == "ctus") {
-                      ctu_list[ctu_list$GEO_NAME == geo_selections$selected_area, ]$ntracts} else {
-                        nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$ntracts
-                      },
-                    " tracts which intersect its boundary. The distribution of tree canopy across the region is shown below; tracts falling within ", 
-                    geo_selections$selected_area,
-                    " highlighted in green.<br><br>",
-                    " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
-                    
+          tolower(map_selections$preset), 
+          " preset used, tracts within ",
+          geo_selections$selected_area,
+          " have priority scores ranging from ",
+          round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
+          " (out of 10, with 10 indicating the highest priority). ",
+          " The variables included in this ranking are: <br><br> - ",
+          
+          if(map_selections$preset == "Environmental justice") {
+            paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
+          } else if(map_selections$preset == "Climate change") {
+            paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
+          } else if(map_selections$preset == "Public health") {
+            paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
+          } else if(map_selections$preset == "Conservation") {
+            paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
+          } else {map_selections$allInputs}, 
+
+          "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
+          geo_selections$selected_area,
+          ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. A full data table with the raw values can be downloaded at the end of this report. Please see the Methods for more detail.<br>"
         )
         )
+        return(para)
         }
       )
+    })
+    
+    
+    output$priority_plot <- renderPlot({
+      req(geo_selections$selected_area)
+      
+      # eva_data_main %>%
+      #   filter(name %in% test) %>%
+      #   # filter(name %in% map_selections$allInputs) %>%
+      #   ungroup() %>%
+      #   select(tract_string, name, weights_scaled, raw_value) %>%
+      #   mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Lake Elmo", ]$tract_id), "selected", NA_character_)) %>%
+      #   mutate(across(c(raw_value), ~ifelse(str_detect(name, c("%")), . * 100, .))) %>%
+      #   mutate(across(where(is.numeric), round, 2)) %>%
+      #   # arrange(tract_string, name) %>%
+      #   rename(`Tract id` = tract_string,
+      #          Variable = name,
+      #          `Standardized value` = weights_scaled,
+      #          `Raw value` = raw_value) %>%
+      #   pivot_wider(names_from = Variable, values_from = c( `Raw value`, `Standardized value`),
+      #               names_sep = ("; "))
+
+      ps <- filter(map_util$map_data2,
+                   tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)) %>%
+        st_drop_geometry() %>%
+        rename(weights_scaled = MEAN) %>%
+        add_column(name = "Aggregated priority score") %>%
+        add_column(order = "second")
+      
+      plot <- eva_data_main %>%
+        # filter(name %in% test) %>%
+          filter(name %in% 
+                   if(map_selections$preset == "Environmental justice") {
+                     metadata[metadata$ej == 1, ]$name
+                     } else if(map_selections$preset == "Climate change") {
+                       metadata[metadata$cc == 1, ]$name
+                     } else if(map_selections$preset == "Public health") {
+                       metadata[metadata$ph == 1, ]$name
+                     } else if(map_selections$preset == "Conservation") {
+                       metadata[metadata$cons == 1, ]$name
+                     } else {map_selections$allInputs}) %>%
+        mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id), "selected", NA_character_)) %>%
+        filter(flag == "selected") %>%
+        add_column(order = "first") %>%
+        filter(!is.na(weights_scaled)) %>%
+        bind_rows(ps) %>%
+        ggplot(aes(y = weights_scaled, x = fct_reorder(name, order), col = tract_string, group = tract_string))+
+        geom_point(col = "black",
+                   position = position_dodge(width = .2)) + geom_line(col = "black", alpha = .2,
+                                                                      position = position_dodge(width = .2)) +
+        councilR::council_theme() +
+        ylim(c(0,10)) +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
+        theme(panel.grid.major.x = element_blank(),
+              axis.title.y = element_blank()) +
+        labs(y = "Score (out of 10)") +
+        coord_flip() 
+      
+      return(plot)
     })
 
 

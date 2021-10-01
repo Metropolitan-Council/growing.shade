@@ -86,7 +86,7 @@ find_centroid <- function(x, ...) {
 tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
-    st_buffer(-40) %>% #give it a bit of a buffer
+    st_buffer(-80) %>% #give it a bit of a buffer
     st_intersection(mn_tracts %>% 
                       select(GEOID) %>%
                       st_transform(26915)) %>%
@@ -157,7 +157,7 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 ctu_crosswalk <- ctu_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
-  st_buffer(-40) %>% #go up to -40 because powderhorn
+  st_buffer(-80) %>% #go up to -80 because carver
   st_intersection(mn_tracts %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
@@ -165,7 +165,7 @@ ctu_crosswalk <- ctu_list %>%
   st_drop_geometry()
 
 
-# test <- "Lake Elmo"
+# test <- "Carver"
 # mn_tracts %>%
 #   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
 #              by = c("GEOID" = "tract_id")) %>%
@@ -176,7 +176,7 @@ ctu_crosswalk <- ctu_list %>%
 nhood_crosswalk <- nhood_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
-  st_buffer(-40) %>%
+  st_buffer(-80) %>%
   st_intersection(mn_tracts %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
