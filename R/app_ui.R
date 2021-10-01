@@ -51,7 +51,7 @@ app_ui <- function(request) {
                          # width = 2,
                          h2("Welcome to the Growing Shade tool"),
                          p("Please refer to ", a("the user guide",
-                                                 href = "www/Growing Shade User Guide (August 2021).pdf",
+                                                 href = "www/Growing Shade User Guide (October 2021).pdf",
                                                  .noWS = "outside",
                                                  target = "_blank"), " for more information about using this tool."),
                          hr(),
