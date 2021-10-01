@@ -30,6 +30,9 @@ mod_report_ui <- function(id){
         # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
 
       h4("Equity analysis"),
+      uiOutput(ns("equity_para")),
+      plotOutput(ns("equity_plot"), "400px", width = "100%"), # %>%
+      
       h4("Other considerations"),
       h4("Other resources")
       
@@ -250,7 +253,70 @@ mod_report_server <- function(id,
       
       return(plot)
     })
-
+    
+    output$equity_para <- renderUI({
+      ns <- session$ns
+      req(geo_selections$selected_area)
+      tagList(
+        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
+        } else {
+          
+          ps <- filter(map_util$map_data2,
+                       tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id))
+          
+          
+          para <- HTML(paste0( 
+            "Research shows that trees are unevenly distributed across communities. In particular, neighborhoods with high BIPOC or low-income populations have less tree canopy (MacDonald 2021) than areas which were historically redlined (NPR news story, Locke et al. 2021, Namin et al. 2020). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (Sinha 2021).<br><br>",
+            "At the MetCouncil, we have shown that areas where the annual median income is <$100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures below. Tracts within ", 
+            geo_selections$selected_area,
+            " are in green, and the regional trend is in blue."
+          )
+          )
+          return(para)
+        }
+      )
+    })
+    
+    output$equity_plot <- renderPlot({
+      req(geo_selections$selected_area)
+      
+      equityplot <- eva_data_main %>% 
+        filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
+        select(tract_string, variable, raw_value) %>%
+        pivot_wider(names_from = variable, values_from = raw_value) %>%
+        # mutate(flag = if_else(tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Minneapolis", ]$tract_id), "selected", NA_character_))
+        mutate(flag = if_else(tract_string %in% 
+                                if (geo_selections$selected_geo == "ctus") {
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                } else {
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == geo_selections$selected_area, ]$tract_id)
+                                }, "selected", NA_character_))
+      
+        race_equity <- equityplot %>%
+          ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag))) + 
+          geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = equityplot) +
+          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected")) + 
+          councilR::council_theme() + 
+          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+          scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+          labs(x = "BIPOC population\n(%)", y = "Tree canopy coverage in tract\n(%)")
+        
+        
+        inc_equity <- equityplot%>%
+          ggplot(aes(x = mdhhincnow, y = (canopy_percent))) + 
+          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag))) + 
+          geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue) +
+          scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+          scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
+          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected")) + 
+          councilR::council_theme() + 
+          labs(x = "Median household income", y = "")
+        
+        fig_equity <- cowplot::plot_grid(race_equity, inc_equity, labels = "AUTO")
+      
+      return(fig_equity)
+    })
 
     output$dl_report <- downloadHandler(
       filename = paste0("GrowingShade_", Sys.Date(), ".html"),
