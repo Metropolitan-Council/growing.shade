@@ -565,7 +565,7 @@ mod_report_server <- function(id,
     
     output$get_the_report <- renderUI({
       req(geo_selections$selected_area)
-      downloadButton('dl_report', label = 'Download this report') })
+      downloadButton(ns('dl_report'), label = 'Download this report') })
     
     
     output$dl_data <- downloadHandler(
@@ -582,7 +582,7 @@ mod_report_server <- function(id,
     
     output$get_the_data <- renderUI({
       req(geo_selections$selected_area)
-      downloadButton('dl_data', label = 'Download data only') })
+      downloadButton(ns('dl_data'), label = 'Download data only') })
         
         
   })
