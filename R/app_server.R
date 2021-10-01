@@ -9,13 +9,7 @@ app_server <- function( input, output, session ) {
   shinyhelper::observe_helpers(help_dir = "inst/app/www")
   
   callModule(mod_intro_server, "intro_ui_1")
-  callModule(mod_stories_server, "stories_ui_1")
-  callModule(mod_story_generator_server, "story_generator_ui_1")
-  callModule(mod_where_server, "where_ui_1")
-  callModule(mod_next_server, "nexte_ui_1")
   mod_storymap_server("storymap_ui_1")
-  
-  mod_gethelp_server("gethelp_ui_1")
   
   # preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
   #                                                   # current_tab = input$nav)
