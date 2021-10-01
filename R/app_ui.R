@@ -26,16 +26,14 @@ app_ui <- function(request) {
         "body {padding-top: 75px;}"
       ),
       
-      tabPanel(
-        "HOME",
-        br(),
-        br(),
-        mod_intro_ui("intro_ui_1"),
-        br()
-      ),
-      tabPanel("narrative",
-               br(), br(),
-               (mod_storymap_ui("storymap_ui_1"))),
+      # tabPanel(
+      #   "HOME",
+      #   br(),
+      #   br(),
+      #   mod_intro_ui("intro_ui_1"),
+      #   br()
+      # ),
+
       
       
       tabPanel(
@@ -54,6 +52,8 @@ app_ui <- function(request) {
                                                  href = "www/Growing Shade User Guide (October 2021).pdf",
                                                  .noWS = "outside",
                                                  target = "_blank"), " for more information about using this tool."),
+                         br(),
+                         p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
                          hr(),
                          mod_map_selections_ui("map_selections_ui_1"),
                          hr(),
@@ -72,6 +72,11 @@ app_ui <- function(request) {
             
           )
         )), 
+      
+      tabPanel("narrative",
+               br(), br(),
+               (mod_storymap_ui("storymap_ui_1"))),
+      
   tabPanel("Methods",
            mod_notes_ui("notes_ui_1")
     )
