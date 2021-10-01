@@ -10,36 +10,34 @@
 mod_report_ui <- function(id){
   ns <- NS(id)
   tagList(
+    
+    uiOutput(ns("instructions")),
+    
+    fluidRow(column(width = 6, uiOutput(ns("get_the_report"))),
+             column(width = 6,uiOutput(ns("get_the_data")))),
+    h3(uiOutput(ns("geoarea"))),
+            
+    uiOutput(ns("tree_title")),
+    uiOutput(ns("tree_para")),
+      uiOutput(ns("get_tree_plot")),
 
-            fluidRow(column(width = 6, 
-                        uiOutput(ns("get_the_report"))),
-                 column(width = 6,
-                        uiOutput(ns("get_the_data")))),
-            
-            h3(uiOutput(ns("geoarea"))),
-            
-      h4("Tree canopy summary"),
-      uiOutput(ns("tree_para")),
-      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
-        shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"),
-      
-      h4("Priortization summary"),
-      uiOutput(ns("rank_para")),
-      plotOutput(ns("rank_plot"), "100px", width = "100%"), 
-      br(),
+    uiOutput(ns("priority_title")),
+    uiOutput(ns("rank_para")),
+      uiOutput(ns("get_rank_plot")),
+    br(),
       uiOutput(ns("priority_para")),
-      plotOutput(ns("priority_plot"), "400px", width = "100%"), 
-
-      h4("Equity analysis"),
-      uiOutput(ns("equity_para")),
-      plotOutput(ns("equity_plot"), "400px", width = "80%"), # %>%
+      uiOutput(ns("get_priority_plot")),
       
-      h4("Other considerations"),
-      uiOutput(ns("other_para")),
-      plotOutput(ns("other_plot"), "300px", width = "80%"), 
-
-            h4("Other resources"),
-      uiOutput(ns("resource_para")),
+    uiOutput(ns("equity_title")),
+    uiOutput(ns("equity_para")),
+      uiOutput(ns("get_equity_plot")),
+      
+    uiOutput(ns("other_title")),
+    uiOutput(ns("other_para")),
+      uiOutput(ns("get_other_plot")),
+      
+    uiOutput(ns("resource_title")),
+    uiOutput(ns("resource_para")),
     )
     
 }
@@ -94,6 +92,15 @@ mod_report_server <- function(id,
     
     
     #### things to populate report
+    output$instructions <- renderUI({
+      ns <- session$ns
+      tagList(
+        if (geo_selections$selected_area == "") {
+          "A custom analysis will be generated for you here. Please select either a specific city or neighborhood from the dropdown menu above in order to see the analysis. The resulting report and raw data will also be available here for download."} else {""}
+      )
+    })    
+    
+    
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
@@ -185,7 +192,8 @@ mod_report_server <- function(id,
           param_area(),
           " have priority scores ranging from ",
           round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
-          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority scores are shown below. A rank of 1 indicates the tract with the highest priority (out of the 704 tracts across the region).<br><br>"
+          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority across all 704 Census tracts across the region range from ",
+          min(ps$RANK), " to ", max(ps$MEAN), " where a higher rank (closer to 1) indicates tracts with higher priorities. A plot of the tract rankings are shown below.<br><br>"
         )
         )
         return(para)
@@ -463,6 +471,7 @@ mod_report_server <- function(id,
     
     output$resource_para <- renderUI({
       ns <- session$ns
+      req(geo_selections$selected_area)
       tagList(
         HTML(paste0( 
           "Managing the tree canopy is a complex and important subject. Growing Shade is a unique tool offering users the ability to customize prioritization and see detailed maps of tree canopy gaps. It is under active development, so please check back or contact us for more details. However there are other tools which may be useful, and it should be noted that there are still many unanswered questions. The list below has been compiled as a starting point.<br><br>", 
@@ -562,10 +571,7 @@ mod_report_server <- function(id,
         )
       }
     )
-    
-    output$get_the_report <- renderUI({
-      req(geo_selections$selected_area)
-      downloadButton(ns('dl_report'), label = 'Download this report') })
+  
     
     
     output$dl_data <- downloadHandler(
@@ -579,6 +585,57 @@ mod_report_server <- function(id,
              ),
         path = file)}
     )
+    
+    
+    ####### put things into reactive uis ----------
+    
+    output$tree_title <- renderUI({
+      req(geo_selections$selected_area)
+      h4("Tree canopy summary")})
+    
+    output$priority_title <- renderUI({
+      req(geo_selections$selected_area)
+      h4("Priortization summary")})
+    
+    output$equity_title <- renderUI({
+      req(geo_selections$selected_area)
+      h4("Equity analysis")})
+    
+    output$other_title <- renderUI({
+      req(geo_selections$selected_area)
+      h4("Other considerations")})
+    
+    output$resource_title <- renderUI({
+      req(geo_selections$selected_area)
+      h4("Other resources")})
+    
+    
+    output$get_tree_plot <- renderUI({
+      req(geo_selections$selected_area)
+      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
+        shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m") })
+    
+    output$get_rank_plot <- renderUI({
+      req(geo_selections$selected_area)
+      plotOutput(ns("rank_plot"), "100px", width = "100%")})
+    
+    output$get_priority_plot <- renderUI({
+      req(geo_selections$selected_area)
+      plotOutput(ns("priority_plot"), "400px", width = "100%")})
+    
+    output$get_equity_plot <- renderUI({
+      req(geo_selections$selected_area)
+      plotOutput(ns("equity_plot"), "400px", width = "80%")})
+    
+    output$get_other_plot <- renderUI({
+      req(geo_selections$selected_area)
+      plotOutput(ns("other_plot"), "300px", width = "80%")})
+    
+
+    output$get_the_report <- renderUI({
+      req(geo_selections$selected_area)
+      downloadButton(ns('dl_report'), label = 'Download this report') })
+    
     
     output$get_the_data <- renderUI({
       req(geo_selections$selected_area)
