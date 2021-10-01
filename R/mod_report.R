@@ -11,14 +11,13 @@ mod_report_ui <- function(id){
   ns <- NS(id)
   tagList(
 
-      h3(uiOutput(ns("geoarea"))),
-      
-      # conditionalPanel(
-      #   ns = ns,
-      #   condition = "input.geo == 'nhood'",
-        downloadButton(ns("dl_report"), "Download this report"),
-        # ),
-      
+            fluidRow(column(width = 6, 
+                        uiOutput(ns("get_the_report"))),
+                 column(width = 6,
+                        uiOutput(ns("get_the_data")))),
+            
+            h3(uiOutput(ns("geoarea"))),
+            
       h4("Tree canopy summary"),
       uiOutput(ns("tree_para")),
       plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
@@ -105,20 +104,22 @@ mod_report_server <- function(id,
     output$tree_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
-      tagList(
-        HTML(paste0(param_area(), " has an existing tree canopy which ranges from ",
-               param_min(), "% to ",
-               param_max(), "% ",
-               "across ",
-               param_ntracts(),
-               " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ", 
-               param_area(),
-               " are highlighted in green.<br><br>",
-               " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
-
-               )
+      tagList(HTML(
+        paste0(
+          param_area(),
+          " has an existing tree canopy which ranges from ",
+          param_min(),
+          "% to ",
+          param_max(),
+          "% ",
+          "across ",
+          param_ntracts(),
+          " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ",
+          param_area(),
+          " are highlighted in green.<br><br>",
+          " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
         )
-        )
+      ))
     })
     
 
@@ -165,7 +166,7 @@ mod_report_server <- function(id,
       ns <- session$ns
       req(geo_selections$selected_area)
       tagList(
-        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
+        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used. To change this, please scroll back up to the top and turn 'on' the priority layer."))
           } else {
             
           ps <- filter(map_util$map_data2,
@@ -184,7 +185,7 @@ mod_report_server <- function(id,
           param_area(),
           " have priority scores ranging from ",
           round(min(ps$MEAN), 2), " to ", round(max(ps$MEAN), 2),
-          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority scores are shown below out of the 704 tracts across the region. <br><br>"
+          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority scores are shown below. A rank of 1 indicates the tract with the highest priority (out of the 704 tracts across the region).<br><br>"
         )
         )
         return(para)
@@ -203,7 +204,8 @@ mod_report_server <- function(id,
                      }) %>%
       st_drop_geometry() 
     
-    ggplot() +
+    plot <- if (map_selections$priority_layer == "Off") {print("nothing to see here")
+      } else {ggplot() +
       scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
       ylim(0, 1) +
       geom_vline(data = test,
@@ -217,13 +219,15 @@ mod_report_server <- function(id,
             panel.grid.minor.x = element_blank()) +
       geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
       labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
+      }
+    return(plot)
     })
     
     output$priority_para <- renderUI({
       ns <- session$ns
       req(geo_selections$selected_area)
       tagList(
-        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used."))
+        if (map_selections$priority_layer == "Off") {HTML(paste0(""))
         } else {
 
           para <- HTML(paste0( 
@@ -280,8 +284,8 @@ mod_report_server <- function(id,
         add_column(name = "Aggregated priority score") %>%
         add_column(order = "first")
       
-      plot <- eva_data_main %>%
-        # filter(name %in% test) %>%
+      plot <- if (map_selections$priority_layer == "Off") {print("nothing to see here")
+      } else {eva_data_main %>%
           filter(name %in% 
                    if(map_selections$preset == "Environmental justice") {
                      metadata[metadata$ej == 1, ]$name
@@ -304,8 +308,26 @@ mod_report_server <- function(id,
         bind_rows(ps) %>%
         ggplot(aes(y = weights_scaled, x = fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
         geom_point(col = "black",
-                   position = position_dodge(width = .2)) + geom_line(col = "black", alpha = .2,
-                                                                      position = position_dodge(width = .2)) +
+                   position = position_dodge(width = .2)) + 
+          geom_line(col = "black", alpha = .2,
+                    position = position_dodge(width = .2)) +
+          # geom_line(col = "blue",
+          #           data = metadata %>% 
+          #             filter(name %in%
+          #                      if(map_selections$preset == "Environmental justice") {
+          #                        metadata[metadata$ej == 1, ]$name
+          #                      } else if(map_selections$preset == "Climate change") {
+          #                        metadata[metadata$cc == 1, ]$name
+          #                      } else if(map_selections$preset == "Public health") {
+          #                        metadata[metadata$ph == 1, ]$name
+          #                      } else if(map_selections$preset == "Conservation") {
+          #                        metadata[metadata$cons == 1, ]$name
+          #                      } else {map_selections$allInputs}) %>%
+          #             # filter(name %in% metadata[metadata$ej == 1, ]$name) %>%
+          #             full_join(tibble(name = "Aggregated priority score"),
+          #                       MEANSCALED = NA, by = 'name') %>%
+          #             add_column(tract_string = "rgn"),
+          #           aes(y = MEANSCALED)) +
         councilR::council_theme() +
         ylim(c(0,10)) +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
@@ -313,6 +335,7 @@ mod_report_server <- function(id,
               axis.title.y = element_blank()) +
         labs(y = "Score (out of 10,\nwhere 10 indicates higest priority)") +
         coord_flip() 
+      }
       
       return(plot)
     })
@@ -539,6 +562,27 @@ mod_report_server <- function(id,
         )
       }
     )
+    
+    output$get_the_report <- renderUI({
+      req(geo_selections$selected_area)
+      downloadButton('dl_report', label = 'Download this report') })
+    
+    
+    output$dl_data <- downloadHandler(
+      filename = function() {paste0("GrowingShade_MetCouncil_", param_area(), "_", Sys.Date(), ".xlsx")},
+      content = function(file) {writexl::write_xlsx(
+        list("Metadata" = metadata %>%
+               rbind(c(""), c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""), 
+                     c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""), 
+                     c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
+             "Test" = (c("yeah, nothing yet!")) # "Counties" = (eva_data_main)
+             ),
+        path = file)}
+    )
+    
+    output$get_the_data <- renderUI({
+      req(geo_selections$selected_area)
+      downloadButton('dl_data', label = 'Download data only') })
         
         
   })

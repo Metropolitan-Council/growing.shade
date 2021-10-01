@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 
 ## Tree canopy summary
 
-```r params$param_area``` has an existing tree canopy which ranges from ```r params$param_min```% to ```r params$param_max```% across ```r params$param_ntracts``` Census tracts. The distribution of tree canopy across the region is shown below; tracts in ```r params$param_area``` are highlighted in green.
+ ```r params$param_area``` has an existing tree canopy which ranges from ```r params$param_min```% to ```r params$param_max```% across ```r params$param_ntracts``` Census tracts. The distribution of tree canopy across the region is shown below; tracts in ```r params$param_area``` are highlighted in green.
 
 In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
