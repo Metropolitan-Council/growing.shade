@@ -212,13 +212,13 @@ mod_map_overview_server <- function(input, output, session,
   #### changing priority score --------------
   toListen_mainleaflet <- reactive({
     list(
-      current_tab,
+      # current_tab,
       map_selections$priority_layer, 
       map_util$map_data2
     )
   })
   
-  observeEvent(ignoreInit = TRUE,
+  observeEvent(ignoreInit = FALSE, #TRUE,
                toListen_mainleaflet(),
                {
                  if (is.null(map_util$map_data2)) {
