@@ -194,6 +194,25 @@ nhood_crosswalk <- nhood_list %>%
 usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
 
+wide_ctu_crosswalk_1 <- ctu_crosswalk %>% 
+  group_by(tract_id) %>%
+  count() %>%
+  full_join(ctu_crosswalk) %>%
+  add_column(cities = "cities") %>%
+  pivot_wider(names_from = cities, values_from = GEO_NAME) %>%
+  unnest_wider(cities) 
+
+wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
+  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`, `...5`, `...6`, `...7`, sep = ", ")) %>%
+  select(tract_id, jurisdiction) %>%
+  mutate(jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""))
+usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 ###################
 # download equity considerations dataset
