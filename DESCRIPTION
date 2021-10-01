@@ -44,7 +44,8 @@ Imports:
     ggdist,
     kableExtra,
     forcats,
-    rmarkdown (>= 2.7)
+    rmarkdown (>= 2.7),
+    waiter
 Suggests: 
     data.table (>= 1.12.8),
     fs (>= 1.4.1),
