@@ -10,6 +10,7 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
+
     # List the first level UI elements here 
  
     navbarPage(
@@ -38,6 +39,7 @@ app_ui <- function(request) {
       
       tabPanel(
         "Use the tool",
+        id = "demo",
         div(
           style = 'width:100% !important;
                     margin-left:0  !important; margin-top:30px  !important;
@@ -53,7 +55,13 @@ app_ui <- function(request) {
                                                  .noWS = "outside",
                                                  target = "_blank"), " for more information about using this tool."),
                          br(),
-                         p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
+                         p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
+                         # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
+                         # p(" (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
+                                                  
+                           # a("Sinha 2021",
+                           #   href = ns("#B"), #"#tab-6122-2",
+                           #   .noWS = "outside"),
                          hr(),
                          mod_map_selections_ui("map_selections_ui_1"),
                          hr(),
@@ -67,13 +75,14 @@ app_ui <- function(request) {
               width = 7,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
-                  mod_map_overview_ui("map_overview_ui_1"))
+                  mod_map_overview_ui("map_overview_ui_1")),
             )
             
           )
         )), 
       
       tabPanel("narrative",
+               id = "B",
                br(), br(),
                (mod_storymap_ui("storymap_ui_1"))),
       

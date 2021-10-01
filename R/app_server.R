@@ -11,6 +11,12 @@ app_server <- function( input, output, session ) {
   callModule(mod_intro_server, "intro_ui_1")
   mod_storymap_server("storymap_ui_1")
   
+  # observeEvent(input$link_to_tabpanel_b, {
+  #   updateTabsetPanel(session, "demo", "B")
+  # })
+  
+
+  
   # preset_selections <- mod_preset_selections_server("preset_selections_ui_1")#,
   #                                                   # current_tab = input$nav)
   
