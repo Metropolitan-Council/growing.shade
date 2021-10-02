@@ -439,13 +439,14 @@ mod_map_overview_server <- function(input, output, session,
   # 
   
   # ### save map clicks -----------
-  # vals <- reactiveValues()
-  # observe({
-  #   event <- input$map_shape_click
-  #   vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
-  #   # vals$clicked_geo <-  input$map_shape_click$id
-  # })
-  # return(vals)
+  vals <- reactiveValues()
+  observe({
+    req(geo_selections$selected_geo == "tracts")
+    event <- input$map_shape_click
+    vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
+    # vals$clicked_geo <-  input$map_shape_click$id
+  })
+  return(vals)
 }
     
 ## To be copied in the UI

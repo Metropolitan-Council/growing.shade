@@ -52,41 +52,62 @@ mod_report_ui <- function(id){
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
+                              tract_selections,
                               map_util){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
     ####### things to export
+    # param_area <- reactive({
+    #   req(geo_selections$selected_area)
+    #   output <- geo_selections$selected_area
+    #   return(output)
+    # })
+    
+    TEST <- reactive({
+      TEST <- if (geo_selections$selected_geo == "ctus") {
+        geo_selections$selected_area
+      } else if (geo_selections$selected_geo == "nhood") {
+        geo_selections$selected_area
+        } else if (geo_selections$selected_geo == "tracts") {
+          tract_selections$selected_tract}
+      return(TEST)
+    })
+    
+    
     param_area <- reactive({
-      req(geo_selections$selected_area)
-      output <- geo_selections$selected_area
+      req(TEST() != "")
+      output <- TEST()
       return(output)
     })
     
     param_min <- reactive({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       output <- if (geo_selections$selected_geo == "ctus") {
-        ctu_list[ctu_list$GEO_NAME == param_area(), ]$min} else {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$min
+        } else if (geo_selections$selected_geo == "nhood") {
           nhood_list[nhood_list$GEO_NAME == param_area(), ]$min
-        }
+        } else {round(eva_data_main[eva_data_main$tract_string == "27003050107" & eva_data_main$variable == "canopy_percent", ]$raw_value * 100, 1)}
       return(output)
     })
     
     param_max <- reactive({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       output <- if (geo_selections$selected_geo == "ctus") {
-        ctu_list[ctu_list$GEO_NAME == param_area(), ]$max} else {
-          nhood_list[nhood_list$GEO_NAME == param_area(), ]$max
-        }
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$max
+      } else if (geo_selections$selected_geo == "nhood") {
+        nhood_list[nhood_list$GEO_NAME == param_area(), ]$max
+        } else {round(eva_data_main[eva_data_main$tract_string == "27003050107" & eva_data_main$variable == "canopy_percent", ]$raw_value * 100, 1)}
       return(output)
     })
     
     param_ntracts <- reactive({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       output <- if (geo_selections$selected_geo == "ctus") {
-        ctu_list[ctu_list$GEO_NAME == param_area(), ]$ntracts} else {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]$ntracts
+      } else if (geo_selections$selected_geo == "nhood") {
           nhood_list[nhood_list$GEO_NAME == param_area(), ]$ntracts
-        }
+        } else {1}
       return(output)
     })
 
@@ -176,10 +197,14 @@ mod_report_server <- function(id,
     # tree canopy section ------------
     output$tree_para <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       tagList(HTML(
         paste0(
-          param_area(),
+          if(geo_selections$selected_geo == "tracts") {
+            paste0("Tract ", param_area(), "has an existing tree canopy of ", param_min(), 
+            ".  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
+            } else { 
+          paste0(param_area(),
           " has an existing tree canopy which ranges from ",
           param_min(),
           "% to ",
@@ -189,7 +214,7 @@ mod_report_server <- function(id,
           param_ntracts(),
           " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ",
           param_area(),
-          " are highlighted in green.<br><br>",
+          " are highlighted in green.<br><br>")},
           " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
         )
       ))
