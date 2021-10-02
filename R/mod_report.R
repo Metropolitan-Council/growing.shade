@@ -89,19 +89,7 @@ mod_report_server <- function(id,
         }
       return(output)
     })
-    
-    # param_test <- reactive({
-    #   req(geo_selections$selected_area)
-    #   output <- filter(map_util$map_data2,
-    #          tract_string %in% 
-    #            if (geo_selections$selected_geo == "ctus") {
-    #              c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #            } else {
-    #              c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #            })
-    #   return(output)
-    # })
-    
+
     param_selectedtractvalues <- reactive({
       req(geo_selections$selected_area)
       output <- filter(map_util$map_data2,
@@ -113,9 +101,6 @@ mod_report_server <- function(id,
                          })
       return(output)
     })
-    
-    
-    
     
     
     param_dl_data <- reactive({
@@ -165,6 +150,10 @@ mod_report_server <- function(id,
     })
     
     
+    param_test <- reactive({
+      req(geo_selections$selected_area)
+      
+    })
     
     
     #### things to populate report
@@ -369,23 +358,42 @@ mod_report_server <- function(id,
                    position = position_dodge(width = .2)) + 
           geom_line(col = "black", alpha = .2,
                     position = position_dodge(width = .2)) +
-          # geom_line(col = "blue",
-          #           data = metadata %>% 
-          #             filter(name %in%
-          #                      if(map_selections$preset == "Environmental justice") {
-          #                        metadata[metadata$ej == 1, ]$name
-          #                      } else if(map_selections$preset == "Climate change") {
-          #                        metadata[metadata$cc == 1, ]$name
-          #                      } else if(map_selections$preset == "Public health") {
-          #                        metadata[metadata$ph == 1, ]$name
-          #                      } else if(map_selections$preset == "Conservation") {
-          #                        metadata[metadata$cons == 1, ]$name
-          #                      } else {map_selections$allInputs}) %>%
-          #             # filter(name %in% metadata[metadata$ej == 1, ]$name) %>%
-          #             full_join(tibble(name = "Aggregated priority score"),
-          #                       MEANSCALED = NA, by = 'name') %>%
-          #             add_column(tract_string = "rgn"),
-          #           aes(y = MEANSCALED)) +
+          geom_bar(color = councilR::colors$councilBlue,
+                     pch = 8, size = 3,
+                   # stat = "identity",
+                     position = position_dodge(width = .2),
+                    data = metadata %>%
+                      filter(name %in%
+                               if(map_selections$preset == "Environmental justice") {
+                                 metadata[metadata$ej == 1, ]$name
+                               } else if(map_selections$preset == "Climate change") {
+                                 metadata[metadata$cc == 1, ]$name
+                               } else if(map_selections$preset == "Public health") {
+                                 metadata[metadata$ph == 1, ]$name
+                               } else if(map_selections$preset == "Conservation") {
+                                 metadata[metadata$cons == 1, ]$name
+                               } else {c(map_selections$allInputs$value)}) %>%  
+                      # full_join(tibble(name = "Aggregated priority score"),
+                      #           MEANSCALED = NA, by = 'name') %>%
+                      add_column(tract_string = "rgn"),
+                    aes(y = MEANSCALED, x = name)) +
+        geom_line(col = councilR::colors$councilBlue,
+                   position = position_dodge(width = .2),
+                   data = metadata %>%
+                     filter(name %in%
+                              if(map_selections$preset == "Environmental justice") {
+                                metadata[metadata$ej == 1, ]$name
+                              } else if(map_selections$preset == "Climate change") {
+                                metadata[metadata$cc == 1, ]$name
+                              } else if(map_selections$preset == "Public health") {
+                                metadata[metadata$ph == 1, ]$name
+                              } else if(map_selections$preset == "Conservation") {
+                                metadata[metadata$cons == 1, ]$name
+                              } else {c(map_selections$allInputs$value)}) %>%  
+                     # full_join(tibble(name = "Aggregated priority score"),
+                     #           MEANSCALED = NA, by = 'name') %>%
+                     add_column(tract_string = "rgn"),
+                   aes(y = MEANSCALED, x = name)) +
         councilR::council_theme() +
         ylim(c(0,10)) +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
