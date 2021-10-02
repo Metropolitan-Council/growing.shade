@@ -90,6 +90,18 @@ mod_report_server <- function(id,
       return(output)
     })
     
+    # param_test <- reactive({
+    #   req(geo_selections$selected_area)
+    #   output <- filter(map_util$map_data2,
+    #          tract_string %in% 
+    #            if (geo_selections$selected_geo == "ctus") {
+    #              c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #            } else {
+    #              c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #            })
+    #   return(output)
+    # })
+    
     param_selectedtractvalues <- reactive({
       req(geo_selections$selected_area)
       output <- filter(map_util$map_data2,
@@ -101,6 +113,9 @@ mod_report_server <- function(id,
                          })
       return(output)
     })
+    
+    
+    
     
     
     param_dl_data <- reactive({
@@ -257,14 +272,10 @@ mod_report_server <- function(id,
     
     output$rank_plot <- renderPlot({
       req(geo_selections$selected_area)
-    test <- filter(map_util$map_data2,
-                   tract_string %in% 
-                     if (geo_selections$selected_geo == "ctus") {
-                       c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                     } else {
-                       c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                     }) %>%
+    test <- param_selectedtractvalues() %>%
       st_drop_geometry() 
+    
+    
     
     plot <- if (map_selections$priority_layer == "Off") {print("nothing to see here")
       } else {ggplot() +

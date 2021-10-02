@@ -39,7 +39,7 @@ app_ui <- function(request) {
       
       tabPanel(
         "Use the tool",
-        id = "demo",
+        # id = "demo",
         div(
           style = 'width:100% !important;
                     margin-left:0  !important; margin-top:30px  !important;
@@ -50,14 +50,15 @@ app_ui <- function(request) {
                          
                          # width = 2,
                          h2("Welcome to the Growing Shade tool"),
+                         br(),
                          p("Please refer to ", a("the user guide",
                                                  href = "www/Growing Shade User Guide (October 2021).pdf",
                                                  .noWS = "outside",
                                                  target = "_blank"), " for more information about using this tool."),
-                         br(),
-                         p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
-                         # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
-                         # p(" (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
+                         # br(),
+                         # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
+                         # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
+                         # # p(" (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
                                                   
                            # a("Sinha 2021",
                            #   href = ns("#B"), #"#tab-6122-2",
@@ -82,7 +83,7 @@ app_ui <- function(request) {
         )), 
       
       tabPanel("narrative",
-               id = "B",
+               # id = "B",
                br(), br(),
                (mod_storymap_ui("storymap_ui_1"))),
       

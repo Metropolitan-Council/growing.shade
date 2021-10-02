@@ -1,3 +1,29 @@
 
 *.tif
 .Rproj.user
+storymap-info/shapefiles/.DS_Store
+storymap-info/shapefiles/frogtown.zip
+storymap-info/shapefiles/neighborhoods.dbf
+storymap-info/shapefiles/neighborhoods.prj
+storymap-info/shapefiles/neighborhoods.shp
+storymap-info/shapefiles/neighborhoods.shx
+storymap-info/shapefiles/realign blocks/Census2010RealignBlock.dbf
+storymap-info/shapefiles/realign blocks/Census2010RealignBlock.prj
+storymap-info/shapefiles/realign blocks/Census2010RealignBlock.shp
+storymap-info/shapefiles/realign blocks/Census2010RealignBlock.shx
+storymap-info/shapefiles/stpaul_nhoods.dbf
+storymap-info/shapefiles/stpaul_nhoods.prj
+storymap-info/shapefiles/stpaul_nhoods.shp
+storymap-info/shapefiles/stpaul_nhoods.shx
+storymap-info/shapefiles/stpaul_nhoods.zip
+storymap-info/shapefiles/tree_tracts.dbf
+storymap-info/shapefiles/tree_tracts.prj
+storymap-info/shapefiles/tree_tracts.shp
+storymap-info/shapefiles/tree_tracts.shx
+storymap-info/shapefiles/tree_tracts.zip
+society_census2010realign.gpkg
+storymap-info/.DS_Store
+inst/app/www/ohmans.jpeg
+inst/app/www/notes.pdf
+inst/app/www/notes.pdf
+inst/app/www/3026 copy.png
