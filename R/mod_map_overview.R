@@ -292,11 +292,11 @@ mod_map_overview_server <- function(input, output, session,
                      clearGroup("Trees") %>%
                      clearGroup("outline") %>%
                      clearGroup("Water") %>%
-                     setView(
-                       lat = 44.963,
-                       lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
-                       zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
-                     ) %>%
+                     # setView(
+                     #   lat = 44.963,
+                     #   lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
+                     #   zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
+                     # ) %>%
                      addPolygons(
                      data = if(geo_selections$selected_geo == 'ctus') {ctu_list
                        } else if (geo_selections$selected_geo == 'nhood') {nhood_list
@@ -337,12 +337,12 @@ mod_map_overview_server <- function(input, output, session,
                  leafletProxy("map") %>%
                    clearGroup("outline") %>%
                    clearGroup("Trees") %>%
-                   clearGroup("Water") %>%
-                   setView(
-                     lat = 44.963,
-                     lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
-                     zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
-                   )
+                   clearGroup("Water") #%>%
+                   # setView(
+                   #   lat = 44.963,
+                   #   lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
+                   #   zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
+                   # )
                  } else if (geo_selections$selected_geo == "ctus") {
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
@@ -392,51 +392,51 @@ mod_map_overview_server <- function(input, output, session,
   )
 
   
-  # # # trees for tracts  --------------
-  # toListen_clickytracts <- reactive({
-  #   list(
-  #     req(geo_selections$selected_geo == 'tracts'),
-  #     input$map_shape_click$id
-  #   )
-  # })
-  # observeEvent(ignoreInit = TRUE,
-  #              toListen_clickytracts(),
-  #              { if (input$map_shape_click$id == "") {
-  #                leafletProxy("map") %>%
-  #                  clearGroup("Trees") %>%
-  #                  clearGroup("outline") %>%
-  #                  clearGroup("Water")
-  #              } else {
-  #                leafletProxy("map") %>%
-  #                  clearGroup("Trees") %>%
-  #                  clearGroup("outline") %>%
-  #                  clearGroup("Water") %>%
-  #                  addRasterImage(trees %>%
-  #                                   raster::crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
-  #                                 colors = "#35978f", #pal,
-  #                                 opacity = .7,
-  #                                 layerId = "Trees",
-  #                                 group = "Trees") %>%
-  #                  addPolygons(
-  #                    data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
-  #                    stroke = TRUE,
-  #                    color =  "blue",
-  #                    fill = NA,
-  #                    opacity = 1,
-  #                    group = "outline",
-  #                    smoothFactor = 0.2,
-  #                    options = pathOptions(pane = "outline")) %>%
-  #                  addPolygons(data = river_lake %>% st_crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
-  #                              color = "black",
-  #                              fillColor = "black",
-  #                              fillOpacity = .9,
-  #                              fill = T,
-  #                              group = "Water",
-  #                              options = pathOptions(pane = "Water"))
-  #              }
-  #              }
-  # )
-  # 
+  # # trees for tracts  --------------
+  toListen_clickytracts <- reactive({
+    list(
+      req(geo_selections$selected_geo == 'tracts'),
+      input$map_shape_click$id
+    )
+  })
+  observeEvent(ignoreInit = TRUE,
+               toListen_clickytracts(),
+               { if (input$map_shape_click$id == "") {
+                 leafletProxy("map") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Water")
+               } else {
+                 leafletProxy("map") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Water") %>%
+                   addRasterImage(trees %>%
+                                    raster::crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
+                                  colors = "#35978f", #pal,
+                                  opacity = .7,
+                                  layerId = "Trees",
+                                  group = "Trees") %>%
+                   addPolygons(
+                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
+                     stroke = TRUE,
+                     color =  "blue",
+                     fill = NA,
+                     opacity = 1,
+                     group = "outline",
+                     smoothFactor = 0.2,
+                     options = pathOptions(pane = "outline"))# %>%
+                   # addPolygons(data = river_lake %>% st_crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
+                   #             color = "black",
+                   #             fillColor = "black",
+                   #             fillOpacity = .9,
+                   #             fill = T,
+                   #             group = "Water",
+                   #             options = pathOptions(pane = "Water"))
+               }
+               }
+  )
+
   
   # ### save map clicks -----------
   vals <- reactiveValues()
