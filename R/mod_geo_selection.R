@@ -19,10 +19,9 @@ mod_geo_selection_ui <- function(id){
       ns("geo"),
       h4("Report area"),
       choices = c(
-        # "Selected tract" = "ctus",
         "Cities and townships" = "ctus",
-        "Neighborhoods" = "nhood"#,
-        # "An area (Census tract) selected from the map" = "tracts"
+        "Neighborhoods" = "nhood",
+        "An area (Census tract) selected from the map" = "tracts"
       ),
       selected = "ctus"
     )),
@@ -112,7 +111,10 @@ mod_geo_selection_server <- function(id){
     input_values <- reactiveValues()
     observe({
     input_values$selected_geo <- input$geo
-    input_values$selected_area <- if(input$geo == "ctus") {input$cityInput} else {input$nhoodInput}
+    input_values$selected_area <- if(input$geo == "ctus") {
+      input$cityInput
+    } else if (input$geo == "nhood") {
+        input$nhoodInput} else {""}
     
   })
     return(input_values)
