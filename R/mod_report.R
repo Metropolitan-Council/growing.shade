@@ -232,9 +232,11 @@ mod_report_server <- function(id,
         ggdist::stat_halfeye(
           data = canopyplot, aes(x = raw_value, y = 1),
           adjust = .5,  width = .6,  .width = 0,  justification = -.6, 
-          point_colour = NA) + 
+          point_colour = NA,
+          na.rm = T) + 
         geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
-                     width = .75, outlier.shape = NA) +
+                     width = .75, outlier.shape = NA,
+                     na.rm = T) +
         councilR::council_theme() +
         theme(panel.grid.minor = element_blank(),
               panel.grid.major.y = element_blank(),
@@ -243,14 +245,16 @@ mod_report_server <- function(id,
                    position = position_jitter(seed = 1, width = 0, height = .3),
                    col = "grey40",
                    aes(x = raw_value, y = 1),
-                   data = filter(canopyplot, is.na(flag))) +
+                   data = filter(canopyplot, is.na(flag)),
+                   na.rm = T) +
         labs(y = "", x = "Tree canopy cover (%)") +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         geom_jitter(aes(x = raw_value, y = 1), 
                     position = position_jitter(seed = 1, width = 0, height = .3), 
                    fill = councilR::colors$cdGreen, 
                    size = 5, col = "black", pch = 21, 
-                   data = filter(canopyplot, flag == "selected"))
+                   data = filter(canopyplot, flag == "selected"),
+                   na.rm = T)
       return(plot)
     })
     
@@ -385,11 +389,14 @@ mod_report_server <- function(id,
         
         ggplot(aes(y = weights_scaled, x = forcats::fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
         geom_point(col = "black",
-                   position = position_dodge(width = .2)) + 
+                   position = position_dodge(width = .2),
+                   na.rm = T) + 
           geom_line(col = "black", alpha = .2,
-                    position = position_dodge(width = .2)) +
+                    position = position_dodge(width = .2),
+                    na.rm = T) +
           geom_point(color = councilR::colors$councilBlue,
                      pch = 8, size = 3,
+                     na.rm = T,
                    # stat = "identity",
                      position = position_dodge(width = .2),
                     data = metadata %>%
@@ -423,7 +430,8 @@ mod_report_server <- function(id,
                      # full_join(tibble(name = "Aggregated priority score"),
                      #           MEANSCALED = NA, by = 'name') %>%
                      add_column(tract_string = "rgn"),
-                   aes(y = MEANSCALED, x = name)) +
+                   aes(y = MEANSCALED, x = name),
+                  na.rm = T) +
         councilR::council_theme() +
         ylim(c(0,10)) +
         scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
@@ -548,9 +556,9 @@ mod_report_server <- function(id,
       
         race_equity <- equityplot %>%
           ggplot(aes(x = pbipoc, y = canopy_percent)) + 
-          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag))) + 
-          geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue, data = equityplot) +
-          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected")) + 
+          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag)), na.rm = T) + 
+          geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = equityplot, na.rm = T) +
+          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected"), na.rm = T) + 
           councilR::council_theme() + 
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
           scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
@@ -559,11 +567,11 @@ mod_report_server <- function(id,
         
         inc_equity <- equityplot%>%
           ggplot(aes(x = mdhhincnow, y = (canopy_percent))) + 
-          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag))) + 
-          geom_smooth(method = "lm", fill = NA, col = councilR::colors$councilBlue) +
+          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag)), na.rm = T) + 
+          geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
           scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
           scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
-          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected")) + 
+          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected"), na.rm = T) + 
           councilR::council_theme() + 
           labs(x = "Median household income", y = "Tree canopy\ncoverage (%)")
         
