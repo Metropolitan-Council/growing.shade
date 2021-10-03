@@ -27,18 +27,18 @@ mod_report_ui <- function(id){
     br(),
       uiOutput(ns("priority_para")),
       uiOutput(ns("get_priority_plot")),
-    br(),
-      uiOutput(ns("table_para")),
+    # br(),
+      # uiOutput(ns("table_para")),
      # dataTableOutput(ns("priority_table")),
-    tableOutput(ns("priority_table")),
+    # tableOutput(ns("priority_table")),
 
     uiOutput(ns("equity_title")),
     uiOutput(ns("equity_para")),
       uiOutput(ns("get_equity_plot")),
 
     uiOutput(ns("other_title")),
-    uiOutput(ns("other_para")),
-      uiOutput(ns("get_other_plot"))#,
+    uiOutput(ns("other_para"))#,
+      # uiOutput(ns("get_other_plot"))#,
 
     # uiOutput(ns("resource_title")),
     # uiOutput(ns("resource_para")),
@@ -281,8 +281,8 @@ mod_report_server <- function(id,
           param_area(),
           " have overall priority scores ranging from ",
           round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
-          " (out of 10, with 10 indicating the highest priority) with a region-wide ranking from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (out of 704 tracts where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings are shown below.<br><br>")}
+          " and a region-wide ranking from ",
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings are shown below.<br><br>")}
         )
         )
         return(para)
@@ -341,11 +341,7 @@ mod_report_server <- function(id,
             #   }, 
             # 
             # "<br><br> ",
-            "The plot below shows overall priority score as well as the individual score for each of the  variables used in the prioritization layer for ", if(geo_selections$selected_geo == "tracts") {
-            paste0("tract ", param_area())
-            } else {paste0("each tract within ",
-            param_area())},
-            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5 for each of the values and is shown in blue. A full data table with the raw values can be downloaded at the TOP of this report.<br>"
+            "This is how the selected area compares to the region for the proritization variables used. Scaled and standardized scores are on the x-axis. The selected area is shown in green and the regional average in blue.<br>"
           )
           )
           return(para)
@@ -354,94 +350,94 @@ mod_report_server <- function(id,
     })
     
     
-
-    output$priority_plot <- renderPlot({
-      req(TEST() != "")
-      
-      ps <- param_selectedtractvalues() %>%
-        st_drop_geometry() %>%
-        rename(weights_scaled = MEAN) %>%
-        add_column(name = "Aggregated priority score") %>%
-        add_column(order = 1)
-      
-      plot <- eva_data_main %>%
-        filter(name %in%
-                 if(map_selections$preset == "Environmental justice") {
-                   metadata[metadata$ej == 1, ]$name
-                 } else if(map_selections$preset == "Climate change") {
-                   metadata[metadata$cc == 1, ]$name
-                 } else if(map_selections$preset == "Public health") {
-                   metadata[metadata$ph == 1, ]$name
-                 } else if(map_selections$preset == "Conservation") {
-                   metadata[metadata$cons == 1, ]$name
-                 } else if(map_selections$preset == "Custom") {
-                   c(map_selections$allInputs$value)}) %>%
-        mutate(flag = if_else(tract_string %in%
-                                if (geo_selections$selected_geo == "ctus") {
-                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else if (geo_selections$selected_geo == "nhood") {
-                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else {c(param_area())}, "selected", NA_character_)) %>%
-        filter(flag == "selected") %>%
-        add_column(order = 2) %>%
-        # filter(!is.na(weights_scaled)) %>%
-        bind_rows(ps)  %>%
-        
-        ggplot(aes(y = weights_scaled, x = forcats::fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
-        geom_point(col = "black",
-                   position = position_dodge(width = .2),
-                   na.rm = T) + 
-          geom_line(col = "black", alpha = .2,
-                    position = position_dodge(width = .2),
-                    na.rm = T) +
-          geom_point(color = councilR::colors$councilBlue,
-                     pch = 8, size = 3,
-                     na.rm = T,
-                   # stat = "identity",
-                     position = position_dodge(width = .2),
-                    data = metadata %>%
-                      filter(name %in%
-                               if(map_selections$preset == "Environmental justice") {
-                                 metadata[metadata$ej == 1, ]$name
-                               } else if(map_selections$preset == "Climate change") {
-                                 metadata[metadata$cc == 1, ]$name
-                               } else if(map_selections$preset == "Public health") {
-                                 metadata[metadata$ph == 1, ]$name
-                               } else if(map_selections$preset == "Conservation") {
-                                 metadata[metadata$cons == 1, ]$name
-                               } else {c(map_selections$allInputs$value)}) %>%  
-                      # full_join(tibble(name = "Aggregated priority score"),
-                      #           MEANSCALED = NA, by = 'name') %>%
-                      add_column(tract_string = "rgn"),
-                    aes(y = MEANSCALED, x = name)) +
-        geom_line(col = councilR::colors$councilBlue,
-                   position = position_dodge(width = .2),
-                   data = metadata %>%
-                     filter(name %in%
-                              if(map_selections$preset == "Environmental justice") {
-                                metadata[metadata$ej == 1, ]$name
-                              } else if(map_selections$preset == "Climate change") {
-                                metadata[metadata$cc == 1, ]$name
-                              } else if(map_selections$preset == "Public health") {
-                                metadata[metadata$ph == 1, ]$name
-                              } else if(map_selections$preset == "Conservation") {
-                                metadata[metadata$cons == 1, ]$name
-                              } else {c(map_selections$allInputs$value)}) %>%  
-                     # full_join(tibble(name = "Aggregated priority score"),
-                     #           MEANSCALED = NA, by = 'name') %>%
-                     add_column(tract_string = "rgn"),
-                   aes(y = MEANSCALED, x = name),
-                  na.rm = T) +
-        councilR::council_theme() +
-        ylim(c(0,10)) +
-        scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
-        theme(panel.grid.major.x = element_blank(),
-              axis.title.y = element_blank()) +
-        labs(y = "Score (out of 10,\nwhere 10 indicates higest priority)") +
-        coord_flip() 
-      
-      return(plot)
-    })
+#old priority plot with lineplot ------
+    # output$priority_plot <- renderPlot({
+    #   req(TEST() != "")
+    #   
+    #   ps <- param_selectedtractvalues() %>%
+    #     st_drop_geometry() %>%
+    #     rename(weights_scaled = MEAN) %>%
+    #     add_column(name = "Aggregated priority score") %>%
+    #     add_column(order = 1)
+    #   
+    #   plot <- eva_data_main %>%
+    #     filter(name %in%
+    #              if(map_selections$preset == "Environmental justice") {
+    #                metadata[metadata$ej == 1, ]$name
+    #              } else if(map_selections$preset == "Climate change") {
+    #                metadata[metadata$cc == 1, ]$name
+    #              } else if(map_selections$preset == "Public health") {
+    #                metadata[metadata$ph == 1, ]$name
+    #              } else if(map_selections$preset == "Conservation") {
+    #                metadata[metadata$cons == 1, ]$name
+    #              } else if(map_selections$preset == "Custom") {
+    #                c(map_selections$allInputs$value)}) %>%
+    #     mutate(flag = if_else(tract_string %in%
+    #                             if (geo_selections$selected_geo == "ctus") {
+    #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #                             } else if (geo_selections$selected_geo == "nhood") {
+    #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #                             } else {c(param_area())}, "selected", NA_character_)) %>%
+    #     filter(flag == "selected") %>%
+    #     add_column(order = 2) %>%
+    #     # filter(!is.na(weights_scaled)) %>%
+    #     bind_rows(ps)  %>%
+    #     
+    #     ggplot(aes(y = weights_scaled, x = forcats::fct_reorder(name, order, .desc = TRUE), col = tract_string, group = tract_string))+
+    #     geom_point(col = "black",
+    #                position = position_dodge(width = .2),
+    #                na.rm = T) + 
+    #       geom_line(col = "black", alpha = .2,
+    #                 position = position_dodge(width = .2),
+    #                 na.rm = T) +
+    #       geom_point(color = councilR::colors$councilBlue,
+    #                  pch = 8, size = 3,
+    #                  na.rm = T,
+    #                # stat = "identity",
+    #                  position = position_dodge(width = .2),
+    #                 data = metadata %>%
+    #                   filter(name %in%
+    #                            if(map_selections$preset == "Environmental justice") {
+    #                              metadata[metadata$ej == 1, ]$name
+    #                            } else if(map_selections$preset == "Climate change") {
+    #                              metadata[metadata$cc == 1, ]$name
+    #                            } else if(map_selections$preset == "Public health") {
+    #                              metadata[metadata$ph == 1, ]$name
+    #                            } else if(map_selections$preset == "Conservation") {
+    #                              metadata[metadata$cons == 1, ]$name
+    #                            } else {c(map_selections$allInputs$value)}) %>%  
+    #                   # full_join(tibble(name = "Aggregated priority score"),
+    #                   #           MEANSCALED = NA, by = 'name') %>%
+    #                   add_column(tract_string = "rgn"),
+    #                 aes(y = MEANSCALED, x = name)) +
+    #     geom_line(col = councilR::colors$councilBlue,
+    #                position = position_dodge(width = .2),
+    #                data = metadata %>%
+    #                  filter(name %in%
+    #                           if(map_selections$preset == "Environmental justice") {
+    #                             metadata[metadata$ej == 1, ]$name
+    #                           } else if(map_selections$preset == "Climate change") {
+    #                             metadata[metadata$cc == 1, ]$name
+    #                           } else if(map_selections$preset == "Public health") {
+    #                             metadata[metadata$ph == 1, ]$name
+    #                           } else if(map_selections$preset == "Conservation") {
+    #                             metadata[metadata$cons == 1, ]$name
+    #                           } else {c(map_selections$allInputs$value)}) %>%  
+    #                  # full_join(tibble(name = "Aggregated priority score"),
+    #                  #           MEANSCALED = NA, by = 'name') %>%
+    #                  add_column(tract_string = "rgn"),
+    #                aes(y = MEANSCALED, x = name),
+    #               na.rm = T) +
+    #     councilR::council_theme() +
+    #     ylim(c(0,10)) +
+    #     scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
+    #     theme(panel.grid.major.x = element_blank(),
+    #           axis.title.y = element_blank()) +
+    #     labs(y = "Score (out of 10,\nwhere 10 indicates higest priority)") +
+    #     coord_flip() 
+    #   
+    #   return(plot)
+    # })
     
     
     output$table_para <- renderUI({
@@ -587,7 +583,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       tagList(
           HTML(paste0( 
-            "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
+            # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
             "Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
             eab %>% sf::st_intersection(filter(if (geo_selections$selected_geo == "ctus") {
               ctu_list
@@ -599,7 +595,8 @@ mod_report_server <- function(id,
               .noWS = "outside",
               target = "_blank"), 
             "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-            "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
+            "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'other resources' tab at top."
+            # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
           )
           )
       )
@@ -622,6 +619,87 @@ mod_report_server <- function(id,
                shape = guide_legend(nrow = 6, byrow = T))
       
     })
+    
+    
+    # new priority plot with bars
+    output$priority_plot <- renderPlot({
+      req(TEST() != "")
+      
+      ps <- param_selectedtractvalues() %>%
+        st_drop_geometry() %>%
+        rename(weights_scaled = MEAN) %>%
+        add_column(name = "Aggregated priority score") %>%
+        add_column(order = 1)
+      
+      plot <- eva_data_main %>%
+        filter(name %in%
+                 if(map_selections$preset == "Environmental justice") {
+                   metadata[metadata$ej == 1, ]$name
+                 } else if(map_selections$preset == "Climate change") {
+                   metadata[metadata$cc == 1, ]$name
+                 } else if(map_selections$preset == "Public health") {
+                   metadata[metadata$ph == 1, ]$name
+                 } else if(map_selections$preset == "Conservation") {
+                   metadata[metadata$cons == 1, ]$name
+                 } else if(map_selections$preset == "Custom") {
+                   c(map_selections$allInputs$value)}) %>%
+        mutate(flag = if_else(tract_string %in%
+                                if (geo_selections$selected_geo == "ctus") {
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else if (geo_selections$selected_geo == "nhood") {
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else {c(param_area())}, "selected", NA_character_)) %>%
+        filter(flag == "selected") %>%
+        add_column(order = 2) %>%
+        # filter(!is.na(weights_scaled)) %>%
+        bind_rows(ps)  %>%
+        add_column(grouping = "Selected area") %>%
+        group_by(grouping, name, order) %>%
+        summarise(TEST = mean(weights_scaled, na.rm = T),
+                  SE = sd(weights_scaled, na.rm = T)/sqrt(n())) %>%
+        
+        full_join(metadata %>%
+                    filter(name %in%
+                             if(map_selections$preset == "Environmental justice") {
+                               metadata[metadata$ej == 1, ]$name
+                             } else if(map_selections$preset == "Climate change") {
+                               metadata[metadata$cc == 1, ]$name
+                             } else if(map_selections$preset == "Public health") {
+                               metadata[metadata$ph == 1, ]$name
+                             } else if(map_selections$preset == "Conservation") {
+                               metadata[metadata$cons == 1, ]$name
+                             } else {c(map_selections$allInputs$value)}) %>%
+                    # full_join(tibble(name = "Aggregated priority score"),
+                    #           MEANSCALED = NA, by = 'name') %>%
+                    add_column(grouping = "Region average", 
+                               order = 2) %>%
+                    rename(TEST = MEANSCALED)) %>%
+        
+        ggplot(aes(y = TEST, x = forcats::fct_reorder(name, order, .desc = TRUE)
+                   , fill = grouping))+
+        geom_bar(#color = councilR::colors$councilBlue,
+                   # pch = 8, size = 3,
+                   na.rm = T,
+                   width = .7,
+                   stat = "identity",
+                   position = position_dodge(width = .7)) +
+        scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen)) +
+        geom_errorbar(aes(ymin = TEST - SE, ymax = TEST + SE), 
+                      width = 0,
+                      position = position_dodge(width = .7)) +
+        councilR::council_theme() +
+        ylim(c(0,10)) +
+        scale_x_discrete(labels = function(x) str_wrap(x, width = 30))+
+        theme(panel.grid.major.x = element_blank(),
+              axis.title.y = element_blank(),
+              legend.position = "bottom") +
+        labs(y = "Score (out of 10,\nwhere 10 indicates higest priority)",
+             fill = "") +
+        coord_flip() 
+      
+      return(plot)
+    })
+    
     
     # resource para -----
     # output$resource_para <- renderUI({
@@ -683,7 +761,6 @@ mod_report_server <- function(id,
     #     )
     #   )
     # })
-    
     
 
     output$dl_report <- downloadHandler(
@@ -775,7 +852,7 @@ mod_report_server <- function(id,
     
     output$other_title <- renderUI({
       req(TEST() != "")
-      h4("Other considerations: ")})
+      h4("Threats: ")})
     
     # output$resource_title <- renderUI({
     #   req(TEST() != "")
