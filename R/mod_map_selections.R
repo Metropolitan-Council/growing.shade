@@ -22,34 +22,36 @@ mod_map_selections_ui <- function(id){
     #   tags$div(id = 'demo',  class="collapse in",
                
     
-    radioButtons(ns("onoff"),
-                 HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities such as climate resilience, equity, and health. Turn on/off this layer to focus on potential impact and identify areas where enhancing or managing the tree canopy could have a disproportionately positive benefit by looking at the intersection of the environment and other factors. </section></p><br>"),
-                 choices = c("On", "Off"),
-                 selected = "On",
-                 inline = T),  
+    # radioButtons(ns("onoff"),
+    #              HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities such as climate resilience, equity, and health. Turn on/off this layer to show the intersection of the tree canopy with other factors. </section></p><br>"),
+    #              choices = c("On", "Off"),
+    #              selected = "On",
+    #              inline = T),  
     
     
     
-    conditionalPanel(
-      ns = ns,
-      condition = "input.onoff == 'On'",
+    # conditionalPanel(
+      # ns = ns,
+      # condition = "input.onoff == 'On'",
       radioButtons(ns("preset"), 
-                   # HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities. Select a specific prioritization layer to identify areas where enhancing or managing the tree canopy could have a disproportionately positive benefit.</section></p><br>"),
-                   h4("Preset"),
+                   HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Select a priority layer to understand the overlap.</section></p><br>"),
+                   # h4("Preset"),
                   choices = c(
                     "Climate change",
                     "Conservation",
                     "Environmental justice",
                     "Public health",
                     "Custom"
-                  ), 
+                  ), inline= T,
                   selected = "Environmental justice"
       ) %>%
-        shinyhelper::helper(type = "markdown", content = "PresetHelp", size = "l")),
+        shinyhelper::helper(type = "markdown", content = "PresetHelp", size = "l"
+                            # )
+      ),
       
       conditionalPanel(
         ns = ns,
-        condition = "input.preset == 'Custom' && input.onoff == 'On'",
+        condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
         
         shinyWidgets::pickerInput(ns("peopleInput"), 
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
@@ -62,7 +64,7 @@ mod_map_selections_ui <- function(id){
         )),
         conditionalPanel(
           ns = ns,
-          condition = "input.preset == 'Custom' && input.onoff == 'On'",
+          condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
           
           shinyWidgets::pickerInput(ns("placeInput"), 
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
@@ -75,7 +77,7 @@ mod_map_selections_ui <- function(id){
           )),
           conditionalPanel(
             ns = ns,
-            condition = "input.preset == 'Custom' && input.onoff == 'On'",
+            condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
             
             shinyWidgets::pickerInput(ns("treeInput"), 
                                       label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
@@ -104,7 +106,7 @@ mod_map_selections_server <- function(input, output, session,
         rbind(as_tibble(input$placeInput)) %>%
         rbind(as_tibble(input$treeInput))
   
-  input_values$priority_layer <- input$onoff
+  # input_values$priority_layer <- input$onoff
   
   input_values$preset <- input$preset
   })

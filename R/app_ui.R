@@ -35,10 +35,13 @@ app_ui <- function(request) {
       #   br()
       # ),
 
-      
+      tabPanel("HOME",
+               # id = "B",
+               br(), br(),
+               (mod_storymap_ui("storymap_ui_1"))),
       
       tabPanel(
-        "Use the tool",
+        "Mapping tool",
         # id = "demo",
         div(
           style = 'width:100% !important;
@@ -54,7 +57,7 @@ app_ui <- function(request) {
                          p("Please refer to ", a("the user guide",
                                                  href = "www/Growing Shade User Guide (October 2021).pdf",
                                                  .noWS = "outside",
-                                                 target = "_blank"), " for more information about using this tool."),
+                                                 target = "_blank"), " for help. Navigate the different parts of this tool using the tabs at top."),
                          # br(),
                          # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
                          # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
@@ -73,6 +76,7 @@ app_ui <- function(request) {
             ),
             
             mainPanel(
+              tags$head(waiter::use_waiter()),
               width = 7,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
@@ -82,12 +86,7 @@ app_ui <- function(request) {
           )
         )), 
       
-      tabPanel("narrative",
-               # id = "B",
-               br(), br(),
-               (mod_storymap_ui("storymap_ui_1"))),
-      
-  tabPanel("Methods",
+  tabPanel("other Resources",
            mod_notes_ui("notes_ui_1")
     )
     
