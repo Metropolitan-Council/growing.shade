@@ -13,22 +13,22 @@ mod_geo_selection_ui <- function(id){
   tagList(
     # waiter::useWaitress(),
     
-    HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to keep reading.</strong></section></p>"),
     
     (radioButtons(
       ns("geo"),
-      h4("Report area"),
+      # h4("Report area"),
+      label = HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
+        "A Census tract (selected from the map)" = "tracts",
         "Cities and townships" = "ctus",
-        "Neighborhoods" = "nhood",
-        "An area (Census tract) selected from the map" = "tracts"
-      ),
-      selected = "ctus"
+        "Neighborhoods" = "nhood"
+      ), #multiple = F,
+      selected = "tracts"
     )),
     
     # uiOutput(ns("geodropdowns"))
     conditionalPanel(
-      ns = ns,
+      ns = ns, 
       condition = "input.geo == 'ctus'",
 
       shinyWidgets::pickerInput(ns("cityInput"),

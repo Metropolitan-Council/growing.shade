@@ -34,6 +34,17 @@ mn_tracts %>%
   rename(`Tract id` = tract_string) %>%
   sf::st_write(., "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/tree_tracts.shp", append = FALSE)
 
+#bipoc in tracts
+mn_tracts %>%
+  rename(tract_string = GEOID) %>%
+  right_join(eva_data_main %>%
+               filter(variable == "pbipoc") %>%
+               select(raw_value, tract_string) %>%
+               mutate(`Percent BIPOC` = raw_value * 100)) %>%
+  select(tract_string, `Percent BIPOC`) %>%
+  rename(`Tract id` = tract_string) %>%
+  sf::st_write(., "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/bipoc_tracts.shp", append = FALSE)
+
 
 # #trees in blocks
 # #blocks are just SO messy, it's not really worth it. Plus the census is unreliable at the block level anyhow

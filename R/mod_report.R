@@ -11,11 +11,11 @@ mod_report_ui <- function(id){
   ns <- NS(id)
   tagList(
     
-    uiOutput(ns("instructions")),
+    # uiOutput(ns("instructions")),
     
     fluidRow(column(width = 6, uiOutput(ns("get_the_report"))),
              column(width = 6,uiOutput(ns("get_the_data")))),
-    h3(uiOutput(ns("geoarea"))),
+    (uiOutput(ns("geoarea"))),
             
     uiOutput(ns("tree_title")),
     uiOutput(ns("tree_para")),
@@ -31,17 +31,17 @@ mod_report_ui <- function(id){
       uiOutput(ns("table_para")),
      # dataTableOutput(ns("priority_table")),
     tableOutput(ns("priority_table")),
-      
+
     uiOutput(ns("equity_title")),
     uiOutput(ns("equity_para")),
       uiOutput(ns("get_equity_plot")),
-      
+
     uiOutput(ns("other_title")),
     uiOutput(ns("other_para")),
-      uiOutput(ns("get_other_plot")),
-      
-    uiOutput(ns("resource_title")),
-    uiOutput(ns("resource_para")),
+      uiOutput(ns("get_other_plot"))#,
+
+    # uiOutput(ns("resource_title")),
+    # uiOutput(ns("resource_para")),
     )
     
 }
@@ -58,12 +58,6 @@ mod_report_server <- function(id,
     ns <- session$ns
  
     ####### things to export
-    # param_area <- reactive({
-    #   req(geo_selections$selected_area)
-    #   output <- geo_selections$selected_area
-    #   return(output)
-    # })
-    
     TEST <- reactive({
       TEST <- if (geo_selections$selected_geo == "ctus") {
         geo_selections$selected_area
@@ -73,7 +67,6 @@ mod_report_server <- function(id,
           tract_selections$selected_tract}
       return(TEST)
     })
-    
     
     param_area <- reactive({
       req(TEST() != "")
@@ -87,7 +80,7 @@ mod_report_server <- function(id,
         ctu_list[ctu_list$GEO_NAME == param_area(), ]$min
         } else if (geo_selections$selected_geo == "nhood") {
           nhood_list[nhood_list$GEO_NAME == param_area(), ]$min
-        } else {round(eva_data_main[eva_data_main$tract_string == "27003050107" & eva_data_main$variable == "canopy_percent", ]$raw_value * 100, 1)}
+        } else {NA}
       return(output)
     })
     
@@ -97,7 +90,7 @@ mod_report_server <- function(id,
         ctu_list[ctu_list$GEO_NAME == param_area(), ]$max
       } else if (geo_selections$selected_geo == "nhood") {
         nhood_list[nhood_list$GEO_NAME == param_area(), ]$max
-        } else {round(eva_data_main[eva_data_main$tract_string == "27003050107" & eva_data_main$variable == "canopy_percent", ]$raw_value * 100, 1)}
+        } else {round(eva_data_main[eva_data_main$tract_string == param_area() & eva_data_main$variable == "canopy_percent", ]$raw_value * 100, 1)}
       return(output)
     })
     
@@ -107,18 +100,20 @@ mod_report_server <- function(id,
         ctu_list[ctu_list$GEO_NAME == param_area(), ]$ntracts
       } else if (geo_selections$selected_geo == "nhood") {
           nhood_list[nhood_list$GEO_NAME == param_area(), ]$ntracts
-        } else {1}
+        } else {NA}
       return(output)
     })
 
     param_selectedtractvalues <- reactive({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       output <- filter(map_util$map_data2,
                        tract_string %in% 
                          if (geo_selections$selected_geo == "ctus") {
                            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                         } else {
+                         } else if (geo_selections$selected_geo == "nhood") {
                            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                         } else {
+                           c(param_area())
                          })
       return(output)
     })
@@ -178,19 +173,19 @@ mod_report_server <- function(id,
     
     
     #### things to populate report
-    output$instructions <- renderUI({
-      ns <- session$ns
-      tagList(
-        if (geo_selections$selected_area == "") {
-          "A custom analysis will be generated for you here. Please select either a specific city or neighborhood from the dropdown menu above in order to see the analysis. The resulting report and raw data will also be available here for download."} else {""}
-      )
-    })    
+    # output$instructions <- renderUI({
+    #   ns <- session$ns
+    #   tagList(
+    #     if (TEST() == "") {
+    #       "A custom analysis will be generated for you here. Please select either a specific city or neighborhood from the dropdown menu above in order to see the analysis. The resulting report and raw data will also be available here for download."} else {""}
+    #   )
+    # })    
     
     
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
-        paste0("Custom report for ", param_area())
+        HTML(paste0("<h3>Summary report for ", param_area(), "</h3>"))
       )
     })    
 
@@ -201,8 +196,8 @@ mod_report_server <- function(id,
       tagList(HTML(
         paste0(
           if(geo_selections$selected_geo == "tracts") {
-            paste0("Tract ", param_area(), "has an existing tree canopy of ", param_min(), 
-            ".  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
+            paste0("Tract ", param_area(), " has an existing tree canopy of ", param_max(), 
+            "%.  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
             } else { 
           paste0(param_area(),
           " has an existing tree canopy which ranges from ",
@@ -214,25 +209,25 @@ mod_report_server <- function(id,
           param_ntracts(),
           " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ",
           param_area(),
-          " are highlighted in green.<br><br>")},
-          " In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized."
+          " are highlighted in green.")}#,
+          # "<br><br> In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Lower tree coverage in areas with native tallgrass prairie should not be penalized."
         )
       ))
     })
     
 
     output$tree_plot <- renderPlot({
-      req(geo_selections$selected_area)
-
+      req(TEST() != "")
+      
       canopyplot<- eva_data_main %>%
         filter(variable %in% c("canopy_percent")) %>%
         select(tract_string, variable, raw_value) %>%
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else {
+                                  } else if (geo_selections$selected_geo == "nhood") {
                                     c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  }, "selected", NA_character_))
+                                  } else {c(param_area())}, "selected", NA_character_))
       plot <- ggplot()+
         ggdist::stat_halfeye(
           data = canopyplot, aes(x = raw_value, y = 1),
@@ -263,36 +258,43 @@ mod_report_server <- function(id,
     
     output$rank_para <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
-      tagList(
-        if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used. To change this, please scroll back up to the top and turn 'on' the priority layer."))
-          } else {
+      req(TEST() != "")
+      # tagList(
+        # if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used. To change this, please scroll back up to the top and turn 'on' the priority layer."))
+        #   } else {
 
         para <- HTML(paste0( 
-          "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. Based on the ",
+          # "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. ",
+          "Using the ",
           tolower(map_selections$preset), 
-          " preset used, tracts within ",
+          " preset, ", 
+          if (geo_selections$selected_geo == "tracts") {
+            paste0(" tract ", param_area(), " has a priority score of ", 
+                   round((param_selectedtractvalues()$MEAN), 2), 
+                   " with a region-wide ranking of ", 
+                   (param_selectedtractvalues()$RANK), ". A plot of the tract rankings are shown below.<br><br>")
+          } else {paste0("tracts within ",
           param_area(),
-          " have priority scores ranging from ",
+          " have overall priority scores ranging from ",
           round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
-          " (out of 10, with 10 indicating the highest priority). The ranking of these overall priority across all 704 Census tracts across the region range from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " where a higher rank (closer to 1) indicates tracts with higher priorities. A plot of the tract rankings are shown below.<br><br>"
+          " (out of 10, with 10 indicating the highest priority) with a region-wide ranking from ",
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (out of 704 tracts where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings are shown below.<br><br>")}
         )
         )
         return(para)
-        }
-      )
+        # }
+      # )
     })
     
     output$rank_plot <- renderPlot({
-      req(geo_selections$selected_area)
-    test <- param_selectedtractvalues() %>%
+      req(TEST() != "")
+      
+      test <- param_selectedtractvalues() %>%
       st_drop_geometry() 
     
-    
-    
-    plot <- if (map_selections$priority_layer == "Off") {print("nothing to see here")
-      } else {ggplot() +
+    plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
+      # } else {
+        ggplot() +
       scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
       ylim(0, 1) +
       geom_vline(data = test,
@@ -306,7 +308,7 @@ mod_report_server <- function(id,
             panel.grid.minor.x = element_blank()) +
       geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
       labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
-      }
+      # }
     return(plot)
     })
     
@@ -314,40 +316,43 @@ mod_report_server <- function(id,
     
     output$priority_para <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
-      tagList(
-        if (map_selections$priority_layer == "Off") {HTML(paste0(""))
-        } else {
+      req(TEST() != "")
+      # tagList(
+      #   if (map_selections$priority_layer == "Off") {HTML(paste0(""))
+      #   } else {
 
           para <- HTML(paste0( 
-            "The variables included in this prioritization layer are: <br> - ",
-            
-            if(map_selections$preset == "Environmental justice") {
-              paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
-            } else if(map_selections$preset == "Climate change") {
-              paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
-            } else if(map_selections$preset == "Public health") {
-              paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
-            } else if(map_selections$preset == "Conservation") {
-              paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
-            } else if(map_selections$preset == "Custom") {
-              paste(unlist(((map_selections$allInputs))), collapse = ",<br>- ") #this is the right format for here
-              }, 
-            
-            "<br><br> The plot below shows overall priority score as well as the individual score for each of the selected variables for each tract within ",
-            param_area(),
-            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5. But I am working on plotting it as well. A full data table with the raw values can be downloaded at the TOP of this report. Please see the Methods for more detail.<br>"
+            # "The variables included in this prioritization layer are: <br> - ",
+            # 
+            # if(map_selections$preset == "Environmental justice") {
+            #   paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
+            # } else if(map_selections$preset == "Climate change") {
+            #   paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
+            # } else if(map_selections$preset == "Public health") {
+            #   paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
+            # } else if(map_selections$preset == "Conservation") {
+            #   paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
+            # } else if(map_selections$preset == "Custom") {
+            #   paste(unlist(((map_selections$allInputs))), collapse = ",<br>- ") #this is the right format for here
+            #   }, 
+            # 
+            # "<br><br> ",
+            "The plot below shows overall priority score as well as the individual score for each of the  variables used in the prioritization layer for ", if(geo_selections$selected_geo == "tracts") {
+            paste0("tract ", param_area())
+            } else {paste0("each tract within ",
+            param_area())},
+            ". Because the scores are standardized and scaled from 0-10, the regional average score is approximately 5 for each of the values and is shown in blue. A full data table with the raw values can be downloaded at the TOP of this report.<br>"
           )
           )
           return(para)
-        }
-      )
+      #   }
+      # )
     })
     
     
 
     output$priority_plot <- renderPlot({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       
       ps <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
@@ -370,9 +375,9 @@ mod_report_server <- function(id,
         mutate(flag = if_else(tract_string %in%
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else {
+                                } else if (geo_selections$selected_geo == "nhood") {
                                   c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                }, "selected", NA_character_)) %>%
+                                } else {c(param_area())}, "selected", NA_character_)) %>%
         filter(flag == "selected") %>%
         add_column(order = 2) %>%
         # filter(!is.na(weights_scaled)) %>%
@@ -383,7 +388,7 @@ mod_report_server <- function(id,
                    position = position_dodge(width = .2)) + 
           geom_line(col = "black", alpha = .2,
                     position = position_dodge(width = .2)) +
-          geom_bar(color = councilR::colors$councilBlue,
+          geom_point(color = councilR::colors$councilBlue,
                      pch = 8, size = 3,
                    # stat = "identity",
                      position = position_dodge(width = .2),
@@ -441,6 +446,8 @@ mod_report_server <- function(id,
           return(para)
     })
     output$priority_table <- renderTable({
+      req(geo_selections$selected_area)
+      
       head(param_selectedtractvalues()%>%
                  as_tibble() %>%
                  select(tract_string, MEAN, RANK) %>%
@@ -486,33 +493,37 @@ mod_report_server <- function(id,
     
     output$equity_para <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
-          para <- HTML(paste0( 
-            "Research shows that trees are unevenly distributed across communities. In particular, neighborhoods with high BIPOC or low-income populations have less tree canopy (",
-            a("MacDonald 2021",
-              href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715",
-              .noWS = "outside",
-              target = "_blank"),
-              ") than areas which were historically redlined (", 
-            a("NPR news story, ",
-              href = "https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today",
-              .noWS = "outside",
-              target = "_blank"), 
-            a("Locke et al. 2021, ",
-              href = "https://www.nature.com/articles/s42949-021-00022-0",
-              .noWS = "outside",
-              target = "_blank"), 
-            a("Namin et al. 2020",
-              href = "https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub",
-              .noWS = "outside",
-              target = "_blank"), 
-            "). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (",
-            a("Sinha 2021",
-              href = "https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf",
-              .noWS = "outside",
-              target = "_blank"), 
-              ").<br><br>",
-            "At the MetCouncil, we have shown that areas where the annual median income is <$100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures below. Tracts within ", 
+      req(TEST() != "")
+      para <- HTML(paste0( 
+            "Research shows that trees are unevenly distributed across communities. ", 
+            # In particular, 
+            "Neighborhoods with high BIPOC or low-income populations have less tree canopy. ",
+            # "(",
+            # a("MacDonald 2021",
+            #   href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715",
+            #   .noWS = "outside",
+            #   target = "_blank"),
+            #   ") as do historically redlined areas (", 
+            # a("NPR news story, ",
+            #   href = "https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today",
+            #   .noWS = "outside",
+            #   target = "_blank"), 
+            # a("Locke et al. 2021, ",
+            #   href = "https://www.nature.com/articles/s42949-021-00022-0",
+            #   .noWS = "outside",
+            #   target = "_blank"), 
+            # a("Namin et al. 2020",
+            #   href = "https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub",
+            #   .noWS = "outside",
+            #   target = "_blank"), 
+            # "). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (",
+            # a("Sinha 2021",
+            #   href = "https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf",
+            #   .noWS = "outside",
+            #   target = "_blank"), 
+            #   ").<br><br>",
+            # "This is true in the Twin Cities. 
+            "In the plot below, tracts within ", 
             param_area(),
             " are in green, and the regional trend is in blue."
           )
@@ -521,7 +532,7 @@ mod_report_server <- function(id,
     })
     
     output$equity_plot <- renderPlot({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       
       equityplot <- eva_data_main %>% 
         filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
@@ -531,9 +542,9 @@ mod_report_server <- function(id,
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else {
+                                } else if (geo_selections$selected_geo == "nhood") {
                                   c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                }, "selected", NA_character_))
+                                } else {c(param_area())}, "selected", NA_character_))
       
         race_equity <- equityplot %>%
           ggplot(aes(x = pbipoc, y = canopy_percent)) + 
@@ -565,14 +576,15 @@ mod_report_server <- function(id,
     
     output$other_para <- renderUI({
       ns <- session$ns
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       tagList(
           HTML(paste0( 
             "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
             "Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
             eab %>% sf::st_intersection(filter(if (geo_selections$selected_geo == "ctus") {
               ctu_list
-            } else {nhood_list}, GEO_NAME == param_area())) %>% nrow(), " trees in ",
+            } else if (geo_selections$selected_geo == "nhood") {
+              nhood_list} else {mn_tracts}, GEO_NAME == param_area())) %>% nrow(), " trees in ",
             param_area(), " (",
             a("Minnesota DNR",
               href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
@@ -587,7 +599,6 @@ mod_report_server <- function(id,
     
     
     output$other_plot <- renderPlot({
-
       treebiodiv %>%
         ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
         geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
@@ -604,66 +615,66 @@ mod_report_server <- function(id,
       
     })
     
-    
-    output$resource_para <- renderUI({
-      ns <- session$ns
-      req(geo_selections$selected_area)
-      tagList(
-        HTML(paste0( 
-          "Managing the tree canopy is a complex and important subject. Growing Shade is a unique tool offering users the ability to customize prioritization and see detailed maps of tree canopy gaps. It is under active development, so please check back or contact us for more details. However there are other tools which may be useful, and it should be noted that there are still many unanswered questions. The list below has been compiled as a starting point.<br><br>", 
-          "Finally, our experience and research tells us that data cannot substitute for engagement with prioritized stakeholders to understand community-specific concerns or opportunities. The on-the-ground knowledge of residents and the expertise of practitioners are valuable sources of information necessary to enhance and refine the shared understanding of this data.<br><br>",
-          "<strong>Tools</strong> - What additional tools and assessments exist to help prioritize where to plant trees and maintain tree canopy? <br>-	",
-          a("American Forests Tree Equity Score project",
-            href = "https://www.americanforests.org/our-work/tree-equity-score/",
-            .noWS = "outside",
-            target = "_blank"),
-          "<br>- ", 
-          a("Hennepin County, MN Tree Canopy Tree Planting Priority Areas",
-            href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting",
-            .noWS = "outside",
-            target = "_blank"),
-          "<br>- ",
-          a("City of Saint Paul Urban Tree Canopy Assessment 2011",
-            href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment",
-            .noWS = "outside",
-            target = "_blank"),
-          "<br><br><strong>Information, Guides and Toolkits</strong> - Where can I lean more about the benefits provided by urban forests and learn how to build them?  <br>-	",
-          a("Vibrant Cities Lab",
-            href = "https://www.vibrantcitieslab.com/",
-            .noWS = "outside",
-            target = "_blank"),
-          "<br><br><strong>Climate Change</strong> - Where can I find more information about climate change impacts in the Twin Cities? <br>- ",
-          a("Climate Vulnerability Assessment by Metropolitan Council for the Twin Cities",
-            href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf%22 %EF%BF%BDHYPERLINK %22https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx",
-            .noWS = "outside",
-            target = "_blank"),
-          "<br>- ",
-          a("Extreme Heat Map Tool",
-            href = "https://metrocouncil.maps.arcgis.com/apps/webappviewer/index.html?id=fd0956de60c547ea9dea736f35b3b57e",
-            .noWS = "outside",
-            target = "_blank"), 
-          " by Metropolitian Council<br>- ",
-          a("Extreme Heat Story Map",
-            href = "https://metrocouncil.maps.arcgis.com/apps/MapJournal/index.html?appid=7d9cdd3929e9439bb5b25aa1186d5783",
-            .noWS = "outside",
-            target = "_blank"),
-          " by Metropolitian Council",
-          
-          "<br><br><strong>Human Health</strong> - Where can I learn about the impacts of tree on human health? <br>- ",
-          a("US Forest Service Report: Urban Nature for Human Health and Well-being 2018",
-            href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf",
-            .noWS = "outside",
-            target = "_blank"),
-          
-          "<br><br><strong>What’s Next</strong> - What new projects are underway that could support and inform urban forests in the Twin Cities?  <br>- ",
-          a("Urban LTER (Long-term Ecological Research) in the Twin Cities",
-            href = "https://mspurbanlter.umn.edu/overview",
-            .noWS = "outside",
-            target = "_blank")
-        )
-        )
-      )
-    })
+    # resource para -----
+    # output$resource_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   tagList(
+    #     HTML(paste0( 
+    #       "Managing the tree canopy is a complex and important subject. Growing Shade is a unique tool offering users the ability to customize prioritization and see detailed maps of tree canopy gaps. It is under active development, so please check back or contact us for more details. However there are other tools which may be useful, and it should be noted that there are still many unanswered questions. The list below has been compiled as a starting point.<br><br>", 
+    #       "Finally, our experience and research tells us that data cannot substitute for engagement with prioritized stakeholders to understand community-specific concerns or opportunities. The on-the-ground knowledge of residents and the expertise of practitioners are valuable sources of information necessary to enhance and refine the shared understanding of this data.<br><br>",
+    #       "<strong>Tools</strong> - What additional tools and assessments exist to help prioritize where to plant trees and maintain tree canopy? <br>-	",
+    #       a("American Forests Tree Equity Score project",
+    #         href = "https://www.americanforests.org/our-work/tree-equity-score/",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       "<br>- ", 
+    #       a("Hennepin County, MN Tree Canopy Tree Planting Priority Areas",
+    #         href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       "<br>- ",
+    #       a("City of Saint Paul Urban Tree Canopy Assessment 2011",
+    #         href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       "<br><br><strong>Information, Guides and Toolkits</strong> - Where can I lean more about the benefits provided by urban forests and learn how to build them?  <br>-	",
+    #       a("Vibrant Cities Lab",
+    #         href = "https://www.vibrantcitieslab.com/",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       "<br><br><strong>Climate Change</strong> - Where can I find more information about climate change impacts in the Twin Cities? <br>- ",
+    #       a("Climate Vulnerability Assessment by Metropolitan Council for the Twin Cities",
+    #         href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf%22 %EF%BF%BDHYPERLINK %22https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       "<br>- ",
+    #       a("Extreme Heat Map Tool",
+    #         href = "https://metrocouncil.maps.arcgis.com/apps/webappviewer/index.html?id=fd0956de60c547ea9dea736f35b3b57e",
+    #         .noWS = "outside",
+    #         target = "_blank"), 
+    #       " by Metropolitian Council<br>- ",
+    #       a("Extreme Heat Story Map",
+    #         href = "https://metrocouncil.maps.arcgis.com/apps/MapJournal/index.html?appid=7d9cdd3929e9439bb5b25aa1186d5783",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       " by Metropolitian Council",
+    #       
+    #       "<br><br><strong>Human Health</strong> - Where can I learn about the impacts of tree on human health? <br>- ",
+    #       a("US Forest Service Report: Urban Nature for Human Health and Well-being 2018",
+    #         href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf",
+    #         .noWS = "outside",
+    #         target = "_blank"),
+    #       
+    #       "<br><br><strong>What’s Next</strong> - What new projects are underway that could support and inform urban forests in the Twin Cities?  <br>- ",
+    #       a("Urban LTER (Long-term Ecological Research) in the Twin Cities",
+    #         href = "https://mspurbanlter.umn.edu/overview",
+    #         .noWS = "outside",
+    #         target = "_blank")
+    #     )
+    #     )
+    #   )
+    # })
     
     
 
@@ -743,56 +754,56 @@ mod_report_server <- function(id,
     ####### put things into reactive uis ----------
     
     output$tree_title <- renderUI({
-      req(geo_selections$selected_area)
-      h4("Tree canopy summary")})
+      req(TEST() != "")
+      h4("Tree canopy: ")})
     
     output$priority_title <- renderUI({
-      req(geo_selections$selected_area)
-      h4("Priortization summary")})
+      req(TEST() != "")
+      h4("Priortization: ")})
     
     output$equity_title <- renderUI({
-      req(geo_selections$selected_area)
-      h4("Equity analysis")})
+      req(TEST() != "")
+      h4("Equity: ")})
     
     output$other_title <- renderUI({
-      req(geo_selections$selected_area)
-      h4("Other considerations")})
+      req(TEST() != "")
+      h4("Other considerations: ")})
     
-    output$resource_title <- renderUI({
-      req(geo_selections$selected_area)
-      h4("Other resources")})
+    # output$resource_title <- renderUI({
+    #   req(TEST() != "")
+    #   h4("Other resources")})
     
     
     output$get_tree_plot <- renderUI({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m") })
     
     output$get_rank_plot <- renderUI({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       plotOutput(ns("rank_plot"), "100px", width = "100%")})
     
     output$get_priority_plot <- renderUI({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       plotOutput(ns("priority_plot"), "400px", width = "100%")})
     
     output$get_equity_plot <- renderUI({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       plotOutput(ns("equity_plot"), "400px", width = "80%")})
     
     output$get_other_plot <- renderUI({
-      req(geo_selections$selected_area)
+      req(TEST() != "")
       plotOutput(ns("other_plot"), "300px", width = "80%")})
     
 
     output$get_the_report <- renderUI({
-      req(geo_selections$selected_area)
-      downloadButton(ns('dl_report'), label = 'Download this report') })
+      req(TEST() != "")
+      downloadButton(ns('dl_report'), label = 'Comprehensive report') })
     
     
     output$get_the_data <- renderUI({
-      req(geo_selections$selected_area)
-      downloadButton(ns('dl_data'), label = 'Download data only') })
+      req(TEST() != "")
+      downloadButton(ns('dl_data'), label = 'Raw data') })
         
         
   })
