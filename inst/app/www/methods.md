@@ -3,6 +3,7 @@ Other resources
 
 -   [External resources](#external-resources)
 -   [Methods](#methods)
+    -   [Identifying tree canopy](#identifying-tree-canopy)
     -   [Priority variables](#priority-variables)
 
 ## External resources
@@ -77,7 +78,9 @@ forests in the Twin Cities?*
 
 ## Methods
 
-<br> \#\#\# Identifying tree canopy
+<br>
+
+### Identifying tree canopy
 
 Detailed priority areas where tree planting could be suitable were
 obtained using NDVI calculated from Sentinel-2 satellite data with all
@@ -100,7 +103,7 @@ canopy by 2. This scaling factor is appropriate for our methods of using
 10 m x 10 m resolution data, which is often much larger than tree
 canopies. This scaling factor makes our data align very closely with
 other reports while still leveraging the scalability and temporal
-accuracy of our method.
+accuracy of our method. <br>
 
 -   Winter (1 January 2020 - 15 March 2020): pixel classified as a
     conifer tree if winter NDVI is above 0.3 (identify trees which are
