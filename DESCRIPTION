@@ -43,7 +43,9 @@ Imports:
     mapview,
     ggdist,
     kableExtra,
-    rmarkdown (>= 2.7)
+    forcats,
+    rmarkdown (>= 2.7),
+    waiter
 Suggests: 
     data.table (>= 1.12.8),
     fs (>= 1.4.1),

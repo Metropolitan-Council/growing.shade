@@ -12,10 +12,20 @@ requireNamespace("fs", quietly = TRUE)
 requireNamespace("janitor", quietly = TRUE)
 requireNamespace("tidyverse", quietly = TRUE)
 library(tidyverse)
-# # # and this works when not inside a package
-# library("readxl") #if you get an error message, run `install.packages('readxl')` or the equivalent
-# library("janitor")
-# library("tidyverse")
+library(tigris)
+library(sf)
+
+
+####################
+# tract geographies
+#####################
+#### tracts ---------
+mn_tracts_1 <- tigris::tracts(state = "MN",
+                            county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
+  sf::st_transform(4326) %>%
+  mutate(GEO_NAME = GEOID)
+
+
 
 
 ################
@@ -30,14 +40,10 @@ tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
   select(-`system:index`, -.geo, -Year)
 # filter(tract_ndvi, ndvi == "No data")
 
-
-
-
-
 # canopy coverage
 canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
-  left_join(sf::st_drop_geometry(mn_tracts), by = c("GEOID10" = "GEOID")) %>%
+  left_join(sf::st_drop_geometry(mn_tracts_1), by = c("GEOID10" = "GEOID")) %>%
   transmute(GEOID10 = GEOID10, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
@@ -49,114 +55,204 @@ treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
 test <- reclassify(treecrs, cbind(-Inf, 0.5, NA), right=FALSE)
 raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
 
-#this takes FOREEVER. not goood
-# test <- rasterToPolygons(treecrs, dissolve = T)
-
-#this ballons the raster file size. not good
-# treecrs[treecrs == 0] <- NA
-# raster::writeRaster(treecrs, './data/tree_raster.tif', overwrite=TRUE)
 
 
-# library(tidyverse); library(leaflet); library(raster); library(leafem)
-# tract<- mn_tracts %>%
-#   filter(GEOID == "27163070406")# c("27163070406", "27053126000"))# "27053109100")
-
-# leaflet() %>%
-#   addMapPane(name = "Aerial Imagery", zIndex = 200) %>%
-#   addProviderTiles(
-#     provider = providers$Esri.WorldImagery,
-#     group = "Aerial Imagery",
-#     layerId = "base"
-#   ) %>%
-#   addProviderTiles("CartoDB.PositronOnlyLabels",
-#                    # options = leafletOptions(pane = "Aerial Imagery"),
-#                    group = "Aerial Imagery",
-#                    options = providerTileOptions(maxZoom = 18),
-#                    layerId = "labs") %>%
-#   addPolygons(data = tract, fill = NA)%>%
-# 
-#   addRasterImage(treecrs %>% raster::crop(tract) ,
-#                  # colors = pal,
-#                  color = "green",
-#                  opacity = 0.5,
-#                  layerId = "Trees",
-#                  group = "Trees")
-# 
-# plot(treecrs)# %>% raster::crop(tract), main="trees")
-# # treecrs %>% raster::crop(tract) 
-
-# 
-# 
-# library(leaflet)
-# library(leafem)
-# library(stars)
-# 
-# ## add 2 layers to 2 custom panes - doesn't work, both rendered on pane from last call
-# leaflet() %>%
-#   addTiles() %>%
-#   addMapPane("left", 200) %>%
-#   # addMapPane("right", 201) %>%
-#   addProviderTiles(
-#     providers$Esri.WorldImagery
-#     , group = "carto_left"
-#     , options = tileOptions(pane = "left")
-#     , layerId = "leftid"
-#   ) %>%
-#   # addProviderTiles(
-#   #   providers$Esri.WorldImagery
-#   #   , group = "carto_right"
-#   #   , options = tileOptions(pane = "right")
-#   #   , layerId = "rightid"
-#   # ) %>%
-#   leafem:::addGeotiff(
-#     file = "./data/TreeMap_crs4326_2020.tif"
-#     , group = "april"
-#     , layerId = "april_id"
-#     , resolution = 96
-#     , opacity = .7
-#     , options = tileOptions(
-#       pane = "left"
-#     )
-#     , colorOptions = leafem:::colorOptions("black")
-#   ) #%>%
-#   leafem:::addGeotiff(
-#     file = tiffl_05
-#     , group = "may"
-#     , layerId = "may_id"
-#     , resolution = 96
-#     , opacity = 1
-#     , options = tileOptions(
-#       pane = "right"
-#     )
-#     , colorOptions = leafem:::colorOptions(
-#       palette = pal
-#       , breaks = brks
-#       , na.color = "transparent"
-#     )
-#     , pixelValuesToColorFn = myCustomJSFunc
-#   ) %>%
-#   leaflet.extras2::addSidebyside(
-#     layerId = "sidebyside"
-#     , leftId = "leftid"
-#     , rightId = "rightid"
-#   ) %>%
-#   addLayersControl(overlayGroups = c("april", "may")) %>%
-#   addControl(htmltools::HTML("April 2020"), position = "bottomleft") %>%
-#   addControl(htmltools::HTML("May 2020"), position = "bottomright")
-# 
-# 
+##############
+# ctu and nhood summaries + geographies
+#############
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) %>% #these rivers are boundaries
+  st_buffer(200) %>% #add 10m buffer
+  # st_simplify(dTolerance = 100) %>%
+  # st_buffer(300) %>%
+  st_union() %>% st_buffer(0) 
 
 
+# fxns to make easy -----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+# find centroid of geographies
+find_centroid <- function(x, ...) {
+  points <- x %>%
+    mutate(zoom = case_when(Shape_Area < 1e6 ~ 15,
+                            Shape_Area < 1e8 ~ 13,
+                            Shape_Area < 1e9 ~ 12,
+                            TRUE ~ 11)) %>%
+    st_transform(26915) %>%
+    st_centroid() %>%
+    st_transform(4326) %>%
+    select(!!!quos(...), geometry, zoom) %>%
+    mutate(lat = unlist(map(.$geometry,1)),
+           long = unlist(map(.$geometry,2))) %>%
+    sf::st_drop_geometry()
+  geos <- x %>%
+    select(!!!quos(...), city, geometry) %>%
+    st_transform(4326)
+  combo <- full_join(geos, points) %>%
+    arrange(!!!(quos(...))) 
+  return(combo)
+}
+
+tree_summary <- function(x) {
+  x %>%
+    st_transform(26915) %>%
+    st_buffer(0) %>%
+    st_buffer(-200) %>% #give it a bit of a buffer
+    st_erase(river_lake_buffer) %>% #erase remaining rivers
+    st_intersection(mn_tracts_1 %>% 
+                      select(GEOID) %>%
+                      st_transform(26915)) %>%
+    left_join(canopy %>%
+                rename(GEOID = GEOID10),
+              by = "GEOID") %>%
+    st_drop_geometry() %>%
+    group_by(GEO_NAME) %>%
+    summarise(min = round(min(canopy_percent)*100, 1),
+              max = round(max(canopy_percent)*100, 1),
+              ntracts = n())
+}
+
+### neighborhoods -----------
+#st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
+#minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
+#brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
+
+minneap <- read_sf("./data-raw/minneapolis communities/Minneapolis_Communities.shp") %>%
+  rename(GEO_NAME = CommName) %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  mutate(city = "Minneapolis")
+
+stpaul <- read_sf("./data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  rename(GEO_NAME = name2) %>%
+  mutate(city = "St. Paul")
+
+nhood_list <- bind_rows(minneap, stpaul) %>%
+  find_centroid(., GEO_NAME) %>%
+  full_join(tree_summary(.)) %>%
+  arrange(city, GEO_NAME) %>%
+  st_transform(4326)
+
+usethis::use_data(nhood_list, overwrite = TRUE)
+
+#### ctus -----------
+temp <- tempfile()
+temp2 <- tempfile()
+download.file(
+  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+
+ctu_geo <-
+  sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  select(CTU_NAME, Shape_Area)# 
+
+## ctus ----------
+ctu_list <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  select(CTU_NAME, Shape_Area) %>%
+  add_column(city = "doesn't matter") %>%
+  find_centroid(., CTU_NAME) %>%
+  select(-city) %>%
+  rename(GEO_NAME = CTU_NAME) %>%
+  full_join(tree_summary(.)) %>%
+  arrange(GEO_NAME)
+
+files <- list.files(temp2, full.names = T)
+file.remove(files)
+
+usethis::use_data(ctu_list, overwrite = TRUE)
 
 
+###########
+# link tracts to ctus and nhoods
+#########
+ctu_crosswalk <- ctu_list %>%
+  select(GEO_NAME) %>%
+  st_transform(26915) %>%
+  st_buffer(-200) %>% #go up to -80 because carver
+  st_erase(river_lake_buffer) %>% #erase remaining rivers
+  st_intersection(mn_tracts_1 %>% 
+                    select(GEOID) %>%
+                    rename(tract_id = GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry()
+
+
+test <- "Fort Snelling (unorg.)"
+mn_tracts_1 %>%
+  right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+             by = c("GEOID" = "tract_id")) %>%
+  ggplot()+
+  geom_sf() +
+  geom_sf(data = filter(ctu_list, GEO_NAME ==test), fill = NA, color = "blue")
+
+# filter(wide_ctu_crosswalk_1, !is.na(`...7`)) %>% data.frame()
+library(leaflet); library(sf); library(tidyverse)
+leaflet() %>% 
+  addTiles() %>%
+  addPolygons(data = filter(ctu_list, GEO_NAME %in% c ("South St. Paul")) %>% 
+                st_transform(26915) %>% st_erase(river_lake_buffer) %>% st_buffer(-200) %>% st_transform(4326),
+              color = "purple") %>%
+  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27123980000")# %>%
+              # right_join(ctu_crosswalk %>% filter(GEO_NAME == test), by = c("GEOID" = "tract_id"))
+  ) #%>%
+  # addPolygons(data = river_lake %>% st_transform(4326), color = "red")
+
+filter(ctu_crosswalk, tract_id == "27123980000")
+nhood_crosswalk <- nhood_list %>%
+  select(GEO_NAME) %>%
+  st_transform(26915) %>%
+  st_buffer(-200) %>%
+  st_erase(river_lake_buffer) %>% #erase remaining rivers
+  st_intersection(mn_tracts_1 %>% 
+                    select(GEOID) %>%
+                    rename(tract_id = GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry()
+
+# test <- "The Greater East Side"
+# mn_tracts_1 %>%
+#   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
+#              by = c("GEOID" = "tract_id")) %>%
+#   ggplot()+
+#   geom_sf() +
+#   geom_sf(data = filter(nhood_list, GEO_NAME ==test), fill = NA, color = "blue")
+
+usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+
+wide_ctu_crosswalk_1 <- ctu_crosswalk %>% 
+  group_by(tract_id) %>%
+  count() %>%
+  full_join(ctu_crosswalk) %>%
+  add_column(cities = "cities") %>%
+  pivot_wider(names_from = cities, values_from = GEO_NAME) %>%
+  unnest_wider(cities) 
+
+wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
+  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`, `...5`, `...6`, `...7`, sep = ", ")) %>%
+  select(tract_id, jurisdiction) %>%
+  mutate(jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", "")) %>%
+  rename(GEOID = tract_id)
+usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
+
+
+mn_tracts <- mn_tracts_1 %>%
+  full_join(wide_ctu_crosswalk)
+usethis::use_data(mn_tracts, overwrite = TRUE)
 ###################
 # download equity considerations dataset
 ###################
-
-## ----------- equity considerations data
-# HOLC_PYLW	Share of tract's land acreage falling in the yellow ("Definitely Declining") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
-# HOLC_PRED	Share of tract's land acreage falling in the red ("Hazardous") zone of the 1934 Home Owner's Loan Corporation redlining map (Minneapolis and Saint Paul only)
-
 temp <- tempfile()
 download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_equity_considerations/xlsx_society_equity_considerations.zip",
   destfile = temp
@@ -326,7 +422,8 @@ eva_data_main <- eva_data_raw %>%
                                   interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))))) %>%
   # 
   #clean
-  select(-MEAN, -SD, -MIN, -MAX) 
+  select(-MEAN, -SD, -MIN, -MAX)  %>%
+  full_join(wide_ctu_crosswalk %>% rename(tract_string = GEOID))
 
 ########
 # save data
@@ -351,11 +448,18 @@ metadata <- eva_data_main %>%
 
 usethis::use_data(metadata, overwrite = TRUE)
 
+# 
+# 
+# #####
+# # create list of cities
+# ####
+# ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
+# usethis::use_data(ctus, overwrite = TRUE)
+# 
 
 
-#####
-# create list of cities
-####
-ctus <- levels(as.factor(equity$ctu_prmry)) #%>% as_tibble()
-usethis::use_data(ctus, overwrite = TRUE)
+
+
+
+
 
