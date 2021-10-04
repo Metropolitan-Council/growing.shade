@@ -299,6 +299,13 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("outline") %>%
                    clearGroup("Water")
                } else { 
+                 waiter_show(
+                   html = tagList(
+                     spin_fading_circles(),
+                     "Loading ..."
+                   )
+                 )
+                 
                  leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
                      clearGroup("Trees") %>%
@@ -337,6 +344,7 @@ mod_map_overview_server <- function(input, output, session,
                      options = pathOptions(pane = "geooutline2"),
                      layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
                    )
+                 waiter_hide()
                }
                }
   )
