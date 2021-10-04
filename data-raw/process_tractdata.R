@@ -86,7 +86,7 @@ find_centroid <- function(x, ...) {
 tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
-    st_buffer(-80) %>% #give it a bit of a buffer
+    st_buffer(-200) %>% #give it a bit of a buffer
     st_intersection(mn_tracts_1 %>% 
                       select(GEOID) %>%
                       st_transform(26915)) %>%
@@ -159,7 +159,7 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 ctu_crosswalk <- ctu_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
-  st_buffer(-80) %>% #go up to -80 because carver
+  st_buffer(-200) %>% #go up to -80 because carver
   st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
@@ -167,18 +167,27 @@ ctu_crosswalk <- ctu_list %>%
   st_drop_geometry()
 
 
-# test <- "Carver"
-# mn_tracts_1 %>%
-#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf() +
-#   geom_sf(data = filter(ctu_list, GEO_NAME ==test), fill = NA, color = "blue")
+test <- "Fort Snelling (unorg.)"
+mn_tracts_1 %>%
+  right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+             by = c("GEOID" = "tract_id")) %>%
+  ggplot()+
+  geom_sf() +
+  geom_sf(data = filter(ctu_list, GEO_NAME ==test), fill = NA, color = "blue")
+
+leaflet() %>% 
+  addTiles() %>%
+  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27053980000") %>%
+                right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+                           by = c("GEOID" = "tract_id"))) %>%
+  addPolygons(data = filter(ctu_list, GEO_NAME %in% c ("Fort Snelling (unorg.)", "Richfield")) %>% 
+                st_transform(26915) %>%st_buffer(-200) %>% st_transform(4326),
+              color = "grey")
 
 nhood_crosswalk <- nhood_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
-  st_buffer(-80) %>%
+  st_buffer(-200) %>%
   st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
