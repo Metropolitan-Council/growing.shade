@@ -905,11 +905,13 @@ mod_report_server <- function(id,
     
     output$get_rank_plot <- renderUI({
       req(TEST() != "")
-      plotOutput(ns("rank_plot"), "100px", width = "100%")})
+      plotOutput(ns("rank_plot"), "100px", width = "100%") %>%
+        shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m") })
     
     output$get_priority_plot <- renderUI({
       req(TEST() != "")
-      plotOutput(ns("priority_plot"), "400px", width = "100%")})
+      plotOutput(ns("priority_plot"), "400px", width = "100%") %>%
+        shinyhelper::helper(type = "markdown", content = "PriorityHelp", size = "m")})
     
     output$get_equity_plot <- renderUI({
       req(TEST() != "")
