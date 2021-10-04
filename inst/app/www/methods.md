@@ -4,7 +4,6 @@ Other resources
 -   [External resources](#external-resources)
 -   [Methods](#methods)
     -   [Priority variables](#priority-variables)
-    -   [Priority areas](#priority-areas)
 
 ## External resources
 
@@ -35,7 +34,7 @@ plant trees and maintain tree canopy?*
 -   <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City
     of Saint Paul Urban Tree Canopy Assessment 2011</a>
 
-**Information, Guides and Toolkits**
+<br> **Information, Guides and Toolkits**
 
 *Where can I lean more about the benefits provided by urban forests and
 learn how to build them?*
@@ -43,7 +42,7 @@ learn how to build them?*
 -   <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant
     Cities Lab</a>
 
-**Climate Change**
+<br> **Climate Change**
 
 *Where can I find more information about climate change impacts in the
 Twin Cities?*
@@ -58,7 +57,7 @@ Twin Cities?*
               target = "_blank">Extreme Heat Story Map </a> by
     Metropolitan Council
 
-**Human Health**
+<br> **Human Health**
 
 *Where can I learn about the impacts of tree on human health?*
 
@@ -66,7 +65,7 @@ Twin Cities?*
     Forest Service Report: Urban Nature for Human Health and Well-being
     2018</a>
 
-**What’s Next**
+<br> **What’s Next**
 
 *What new projects are underway that could support and inform urban
 forests in the Twin Cities?*
@@ -77,6 +76,44 @@ forests in the Twin Cities?*
 <br><br>
 
 ## Methods
+
+<br> \#\#\# Identifying tree canopy
+
+Detailed priority areas where tree planting could be suitable were
+obtained using NDVI calculated from Sentinel-2 satellite data with all
+processing done using Google Earth Engine. First, we removed all pixels
+identified as having tree canopy in 2020 or classified as having a land
+use of either water, highways, railroads, airports, or agricultural
+crops in 2016 (see below). Then we created a composite image of the year
+2020 where each pixel contained the maximum NDVI observed within the
+calendar year. Land use in 2016 was assigned to each pixel for mapping
+purposes.
+
+<br> Plant phenological patterns were leveraged in order to identify
+tree canopy gaps rather than identify gaps in overall ‘greenness.’ Five
+distinct phenological time periods were used. For each time period, a
+composite image was made showing the maximum NDVI observed. Then
+different thresholds of NDVI were used to separate trees from grasses
+and crops. All areas that were classified as water or cultivated
+cropland were removed. Finally, we then divided our calculated tree
+canopy by 2. This scaling factor is appropriate for our methods of using
+10 m x 10 m resolution data, which is often much larger than tree
+canopies. This scaling factor makes our data align very closely with
+other reports while still leveraging the scalability and temporal
+accuracy of our method.
+
+-   Winter (1 January 2020 - 15 March 2020): pixel classified as a
+    conifer tree if winter NDVI is above 0.3 (identify trees which are
+    green in the winter) OR
+-   Spring (15 March 2020 - 30 April 2020): pixel classified as a
+    deciduous tree if spring NDVI is less than 0.5 (remove cool season
+    grass) AND
+-   Early summer (1 May 2020 - 15 June 2020): early summer NDVI is
+    greater than 0.55 (remove warm season crops) AND
+-   Summer (1 July 2020 - 15 September 2020): summer NDVI is greater
+    than 0.55 (identify trees which are are green in the summer) AND
+-   Fall (15 September 2020 - 30 October 2020): fall NDVI is greater
+    than 0.4 (remove early senescing crops)
 
 <br>
 
@@ -102,46 +139,6 @@ create a single, integrated priority value. Download the pdf below for
 more information on that.
 
 <br>
-
-### Priority areas
-
-Detailed priority areas where tree planting could be suitable were
-obtained using NDVI calculated from Sentinel-2 satellite data with all
-processing done using Google Earth Engine. First, we removed all pixels
-identified as having tree canopy in 2020 or classified as having a land
-use of either water, highways, railroads, airports, or agricultural
-crops in 2016 (see below). Then we created a composite image of the year
-2020 where each pixel contained the maximum NDVI observed within the
-calendar year. Land use in 2016 was assigned to each pixel for mapping
-purposes.
-
-#### Identifying tree canopy in 2020
-
-Plant phenological patterns were leveraged in order to identify tree
-canopy gaps rather than identify gaps in overall ‘greenness.’ Five
-distinct phenological time periods were used. For each time period, a
-composite image was made showing the maximum NDVI observed. Then
-different thresholds of NDVI were used to separate trees from grasses
-and crops. All areas that were classified as water or cultivated
-cropland were removed. Finally, we then divided our calculated tree
-canopy by 2. This scaling factor is appropriate for our methods of using
-10 m x 10 m resolution data, which is often much larger than tree
-canopies. This scaling factor makes our data align very closely with
-other reports while still leveraging the scalability and temporal
-accuracy of our method.
-
--   Winter (1 January 2020 - 15 March 2020): pixel classified as a
-    conifer tree if winter NDVI is above 0.3 (identify trees which are
-    green in the winter) OR
--   Spring (15 March 2020 - 30 April 2020): pixel classified as a
-    deciduous tree if spring NDVI is less than 0.5 (remove cool season
-    grass) AND
--   Early summer (1 May 2020 - 15 June 2020): early summer NDVI is
-    greater than 0.55 (remove warm season crops) AND
--   Summer (1 July 2020 - 15 September 2020): summer NDVI is greater
-    than 0.55 (identify trees which are are green in the summer) AND
--   Fall (15 September 2020 - 30 October 2020): fall NDVI is greater
-    than 0.4 (remove early senescing crops)
 
 <!-- https://browser.creodias.eu/#lat=45.15999&lng=-92.79540&zoom=15&time=2020-07-05&preset=3_NDVI&datasource=Sentinel-2%20L1C -->
 <br>
