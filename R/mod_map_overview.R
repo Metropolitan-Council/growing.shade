@@ -33,7 +33,7 @@ mod_map_overview_server <- function(input, output, session,
   ns <- session$ns
   
 
-  w <- Waiter$new()
+  w <- Waiter$new(ns("map"))
   
   #### question ----
   # # if the radio buttons change, can I reset the input????
