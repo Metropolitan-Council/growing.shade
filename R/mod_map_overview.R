@@ -11,6 +11,7 @@ mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(        tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
                   useWaiter(),
+                  # useWaitress(color = "blue"),
                   
     leafletOutput(ns("map"), 
                   # width="100%", height="100%"
@@ -33,7 +34,11 @@ mod_map_overview_server <- function(input, output, session,
   ns <- session$ns
   
 
-  w <- Waiter$new(ns("map"))
+  w <- Waiter$new(ns("map"),
+                  html = spin_loader(),#spin_fading_circles(),
+                  color = "rgba(255,255,255,.5)")#, transparent(alpha = .5))
+  # w <- Waitress$new(theme = "overlay-percent")
+  
   
   #### question ----
   # # if the radio buttons change, can I reset the input????
@@ -444,6 +449,8 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("Water")
                } else {
                  w$show()
+                 # w$start()
+                 # w$inc(10)
                  leafletProxy("map") %>%
                    clearGroup("Trees") %>%
                    clearGroup("outline") %>%
@@ -472,7 +479,7 @@ mod_map_overview_server <- function(input, output, session,
                                options = pathOptions(pane = "Water"))
                  
                  w$hide()
-                 
+                 # w$close()
                }
                }
   )
