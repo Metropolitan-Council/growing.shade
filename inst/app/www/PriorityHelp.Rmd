@@ -17,6 +17,6 @@ This plot compares individual priority variables for selected area to regional a
 
 <br>
 <section style='font-size: 12pt; text-align: left'>
-If you this is report is for a city or neighborhood and multiple Census tracts make up that area, you will see error bars for the selected area. The bar shows the average (mean) value of all tracts within the selected area, and the error bar shows one standard error from the mean. 
+If this report is for a city or neighborhood with multiple Census tracts, you will see error bars for the selected area. The green bar shows the average (mean) value of all tracts within the selected area, and the error bar shows one standard error from the mean. 
 </section>
 
