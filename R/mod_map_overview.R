@@ -285,7 +285,7 @@ mod_map_overview_server <- function(input, output, session,
   
   # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
   ## jurisdiction outlines -----------
-  observeEvent(ignoreInit = FALSE,
+  observeEvent(ignoreInit = FALSE, #true
                geo_selections$selected_geo,
                { leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
@@ -304,7 +304,7 @@ mod_map_overview_server <- function(input, output, session,
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
-                     weight = if (geo_selections$selected_geo == 'tracts') {2} else {4},
+                     weight = 3,
                      color = "black", 
                      fillColor = "transparent",
                      opacity = 1,
@@ -319,7 +319,7 @@ mod_map_overview_server <- function(input, output, session,
                      stroke = T,
                      smoothFactor = 1,
                      color = "black", 
-                     weight = if (geo_selections$selected_geo == 'tracts') {2} else {4},
+                     weight = 3,
                      fill = F,
                      opacity = 1,
                      options = pathOptions(pane = "geooutline2"),

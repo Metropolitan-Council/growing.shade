@@ -34,7 +34,9 @@ mod_report_ui <- function(id){
 
     uiOutput(ns("equity_title")),
     uiOutput(ns("equity_para")),
-      uiOutput(ns("get_equity_plot")),
+    uiOutput(ns("get_equity_plot")),
+      # fluidRow(column(width = 6, uiOutput(ns("get_equity_plot_race"))),
+      #          column(width = 6, uiOutput(ns("get_equity_plot_income")))),
 
     uiOutput(ns("other_title")),
     uiOutput(ns("other_para"))#,
@@ -118,6 +120,20 @@ mod_report_server <- function(id,
       return(output)
     })
     
+    param_equity <- reactive({
+      equityplot <- eva_data_main %>% 
+        filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
+        select(tract_string, variable, raw_value) %>%
+        pivot_wider(names_from = variable, values_from = raw_value) %>%
+        # mutate(flag = if_else(tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Minneapolis", ]$tract_id), "selected", NA_character_))
+        mutate(flag = if_else(tract_string %in% 
+                                if (geo_selections$selected_geo == "ctus") {
+                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else if (geo_selections$selected_geo == "nhood") {
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else {c(param_area())}, "selected", NA_character_))
+      return(equityplot)
+    })
     
     param_dl_data <- reactive({
       req(geo_selections$selected_area)
@@ -535,44 +551,66 @@ mod_report_server <- function(id,
           return(para)
     })
     
+    # output$equity_plot_race <- renderPlot({
+    #   req(TEST() != "")
+    #   
+    #     race_equity <- param_equity() %>%
+    #       ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+    #       geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+    #       geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
+    #       geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+    #       councilR::council_theme() + 
+    #       scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    #       scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    #       labs(x = "BIPOC population\n(%)", y = "Tree canopy\ncoverage (%)")
+    #     
+    #     return(race_equity)
+    # })
+    # 
+    # output$equity_plot_income <- renderPlot({
+    #   req(TEST() != "")
+    #   
+    #     inc_equity <- param_equity()%>%
+    #       ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
+    #       geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+    #       geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
+    #       scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+    #       scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
+    #       geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+    #       councilR::council_theme() + 
+    #       labs(x = "Median household income\n($, thousands)", y = "Tree canopy\ncoverage (%)")
+    #     return(inc_equity)
+    #     # fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
+    #   
+    #   # return(fig_equity)
+    # })
+    # 
+    
+    
     output$equity_plot <- renderPlot({
       req(TEST() != "")
+      race_equity <- param_equity() %>%
+        ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+        geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+        geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+        councilR::council_theme() + 
+        scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+        labs(x = "BIPOC population\n(%)", y = "Tree canopy\ncoverage (%)")
       
-      equityplot <- eva_data_main %>% 
-        filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
-        select(tract_string, variable, raw_value) %>%
-        pivot_wider(names_from = variable, values_from = raw_value) %>%
-        # mutate(flag = if_else(tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Minneapolis", ]$tract_id), "selected", NA_character_))
-        mutate(flag = if_else(tract_string %in% 
-                                if (geo_selections$selected_geo == "ctus") {
-                                  c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else if (geo_selections$selected_geo == "nhood") {
-                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                } else {c(param_area())}, "selected", NA_character_))
-      
-        race_equity <- equityplot %>%
-          ggplot(aes(x = pbipoc, y = canopy_percent)) + 
-          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag)), na.rm = T) + 
-          geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = equityplot, na.rm = T) +
-          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected"), na.rm = T) + 
-          councilR::council_theme() + 
-          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-          scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-          labs(x = "BIPOC population\n(%)", y = "Tree canopy\ncoverage (%)")
-        
-        
-        inc_equity <- equityplot%>%
-          ggplot(aes(x = mdhhincnow, y = (canopy_percent))) + 
-          geom_point(col = "grey40", alpha = .3, data = filter(equityplot, is.na(flag)), na.rm = T) + 
-          geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
-          scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-          scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
-          geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(equityplot, flag == "selected"), na.rm = T) + 
-          councilR::council_theme() + 
-          labs(x = "Median household income", y = "Tree canopy\ncoverage (%)")
-        
-        fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
-      
+      inc_equity <- param_equity()%>%
+        ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
+        geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+        geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+        scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
+        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+        councilR::council_theme() + 
+        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\ncoverage (%)") +
+        theme(axis.title.y = element_blank(),
+              axis.text.y = element_blank())
+      fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
       return(fig_equity)
     })
     
@@ -584,7 +622,7 @@ mod_report_server <- function(id,
       tagList(
           HTML(paste0( 
             # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
-            "Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
+            "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
             eab %>% sf::st_intersection(filter(if (geo_selections$selected_geo == "ctus") {
               ctu_list
             } else if (geo_selections$selected_geo == "nhood") {
@@ -595,7 +633,7 @@ mod_report_server <- function(id,
               .noWS = "outside",
               target = "_blank"), 
             "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-            "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'other resources' tab at top."
+            "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'other resources' tab at top.<br><br>"
             # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
           )
           )
@@ -680,6 +718,7 @@ mod_report_server <- function(id,
         geom_bar(#color = councilR::colors$councilBlue,
                    # pch = 8, size = 3,
                    na.rm = T,
+                   col = "black",
                    width = .7,
                    stat = "identity",
                    position = position_dodge(width = .7)) +
@@ -693,7 +732,7 @@ mod_report_server <- function(id,
         theme(panel.grid.major.x = element_blank(),
               axis.title.y = element_blank(),
               legend.position = "bottom") +
-        labs(y = "Score (out of 10,\nwhere 10 indicates higest priority)",
+        labs(y = "Score (where \n10 = highest priority)",
              fill = "") +
         coord_flip() 
       
@@ -875,6 +914,14 @@ mod_report_server <- function(id,
     output$get_equity_plot <- renderUI({
       req(TEST() != "")
       plotOutput(ns("equity_plot"), "400px", width = "80%")})
+    
+    # output$get_equity_plot_race <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("equity_plot_race"), "100px")})
+    # 
+    # output$get_equity_plot_income <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("equity_plot_income"), "100px")})
     
     output$get_other_plot <- renderUI({
       req(TEST() != "")
