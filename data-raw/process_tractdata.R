@@ -62,11 +62,11 @@ raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
 #############
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
-river_lake <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
+river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
   filter(NAME_DNR %in% c("Mississippi", "Minnesota")) %>% #these rivers are boundaries
-  st_buffer(50) %>% #add 10m buffer
-  st_simplify(dTolerance = 100) %>%
-  st_buffer(50) %>%
+  st_buffer(200) %>% #add 10m buffer
+  # st_simplify(dTolerance = 100) %>%
+  # st_buffer(300) %>%
   st_union() %>% st_buffer(0) 
 
 
@@ -99,8 +99,8 @@ tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
     st_buffer(0) %>%
-    st_erase(river_lake) %>%
     st_buffer(-200) %>% #give it a bit of a buffer
+    st_erase(river_lake_buffer) %>% #erase remaining rivers
     st_intersection(mn_tracts_1 %>% 
                       select(GEOID) %>%
                       st_transform(26915)) %>%
@@ -174,6 +174,7 @@ ctu_crosswalk <- ctu_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-200) %>% #go up to -80 because carver
+  st_erase(river_lake_buffer) %>% #erase remaining rivers
   st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%
@@ -193,17 +194,20 @@ mn_tracts_1 %>%
 library(leaflet); library(sf); library(tidyverse)
 leaflet() %>% 
   addTiles() %>%
-  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27037061001")# %>%
-                # right_join(ctu_crosswalk %>% filter(GEO_NAME == test), by = c("GEOID" = "tract_id"))
-              ) %>%
-  addPolygons(data = filter(ctu_list, GEO_NAME %in% c ("Fort Snelling (unorg.)", "Richfield")) %>% 
-                st_transform(26915) %>%st_buffer(-200) %>% st_transform(4326),
-              color = "grey")
+  addPolygons(data = filter(ctu_list, GEO_NAME %in% c ("South St. Paul")) %>% 
+                st_transform(26915) %>% st_erase(river_lake_buffer) %>% st_buffer(-200) %>% st_transform(4326),
+              color = "purple") %>%
+  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27123980000")# %>%
+              # right_join(ctu_crosswalk %>% filter(GEO_NAME == test), by = c("GEOID" = "tract_id"))
+  ) #%>%
+  # addPolygons(data = river_lake %>% st_transform(4326), color = "red")
 
+filter(ctu_crosswalk, tract_id == "27123980000")
 nhood_crosswalk <- nhood_list %>%
   select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-200) %>%
+  st_erase(river_lake_buffer) %>% #erase remaining rivers
   st_intersection(mn_tracts_1 %>% 
                     select(GEOID) %>%
                     rename(tract_id = GEOID) %>%

@@ -52,7 +52,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Satellite", zIndex = 100) %>%
       addMapPane("redline2", zIndex = 110) %>%
       
-      addMapPane(name = "geooutline", zIndex = 149) %>%
+      # addMapPane(name = "geooutline", zIndex = 149) %>%
       addMapPane("Priority score", zIndex = 150) %>%
       addMapPane("Water", zIndex = 151) %>%
       addMapPane(name = "Road outlines", zIndex = 151) %>%
@@ -305,20 +305,20 @@ mod_map_overview_server <- function(input, output, session,
                      #   lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
                      #   zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
                      # ) %>%
-                     addPolygons(
-                     data = if(geo_selections$selected_geo == 'ctus') {ctu_list
-                       } else if (geo_selections$selected_geo == 'nhood') {nhood_list
-                       } else if (geo_selections$selected_geo == 'tracts') {mn_tracts},
-                     group = "Jurisdiction outlines",
-                     stroke = T,
-                     smoothFactor = 1,
-                     weight = 2,
-                     color = "black", 
-                     fillColor = "transparent",
-                     opacity = 1,
-                     options = pathOptions(pane = "geooutline"),
-                     layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
-                   ) %>%
+                   #   addPolygons(
+                   #   data = if(geo_selections$selected_geo == 'ctus') {ctu_list
+                   #     } else if (geo_selections$selected_geo == 'nhood') {nhood_list
+                   #     } else if (geo_selections$selected_geo == 'tracts') {mn_tracts},
+                   #   group = "Jurisdiction outlines",
+                   #   stroke = T,
+                   #   smoothFactor = 1,
+                   #   weight = 2,
+                   #   color = "black", 
+                   #   fillColor = "transparent",
+                   #   opacity = 1,
+                   #   options = pathOptions(pane = "geooutline"),
+                   #   layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
+                   # ) %>%
                    addPolygons(
                      data = if(geo_selections$selected_geo == 'ctus') {ctu_list
                      } else if (geo_selections$selected_geo == 'nhood') {nhood_list
