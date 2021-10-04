@@ -36,7 +36,6 @@ mod_map_overview_server <- function(input, output, session,
   # observeEvent(geo_selections$selected_geo, {
   #   updateTextInput(session, geo_selections$selected_area, value = "")
   # })
-  
   #### main map ---------
   output$map <- renderLeaflet({ #  map --------
     leaflet() %>%
@@ -45,6 +44,8 @@ mod_map_overview_server <- function(input, output, session,
         lng = -93.32,
         zoom = 10
       ) %>%
+      leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
+
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Map", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
@@ -287,7 +288,14 @@ mod_map_overview_server <- function(input, output, session,
   ## jurisdiction outlines -----------
   observeEvent(ignoreInit = FALSE, #true
                geo_selections$selected_geo,
-               { leafletProxy("map") %>%
+               { if (geo_selections$selected_geo == "tracts") {
+                 leafletProxy("map") %>%
+                   clearGroup("Jurisdiction outlines") %>%
+                   clearGroup("Trees") %>%
+                   clearGroup("outline") %>%
+                   clearGroup("Water")
+               } else { 
+                 leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
                      clearGroup("Trees") %>%
                      clearGroup("outline") %>%
@@ -304,7 +312,7 @@ mod_map_overview_server <- function(input, output, session,
                      group = "Jurisdiction outlines",
                      stroke = T,
                      smoothFactor = 1,
-                     weight = 3,
+                     weight = 2,
                      color = "black", 
                      fillColor = "transparent",
                      opacity = 1,
@@ -319,19 +327,20 @@ mod_map_overview_server <- function(input, output, session,
                      stroke = T,
                      smoothFactor = 1,
                      color = "black", 
-                     weight = 3,
+                     weight = 2,
                      fill = F,
                      opacity = 1,
                      options = pathOptions(pane = "geooutline2"),
                      layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
                    )
                }
+               }
   )
 
   # trees for city/nhood ------
   
-  observeEvent(ignoreInit = TRUE, 
-               req(geo_selections$selected_area,
+  observeEvent(ignoreInit = FALSE, #TRUE, 
+               req(#geo_selections$selected_area,
                    geo_selections$selected_area != "tracts"),
                {
                  if (geo_selections$selected_area == "") {
@@ -365,7 +374,14 @@ mod_map_overview_server <- function(input, output, session,
                        opacity = 1,
                        group = "outline",
                        smoothFactor = 0.2,
-                       options = pathOptions(pane = "outline"))
+                       options = pathOptions(pane = "outline"))%>%
+                     addPolygons(data = river_lake %>% st_crop(filter(ctu_list, GEO_NAME == geo_selections$selected_area)),
+                                 color = "black",
+                                 fillColor = "black",
+                                 fillOpacity = .9,
+                                 fill = T,
+                                 group = "Water",
+                                 options = pathOptions(pane = "Water"))
                  } else if (geo_selections$selected_geo == "nhood") {
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
@@ -387,22 +403,29 @@ mod_map_overview_server <- function(input, output, session,
                        opacity = 1,
                        group = "outline",
                        smoothFactor = 0.2,
-                       options = pathOptions(pane = "outline"))
+                       options = pathOptions(pane = "outline")) %>%
+                     addPolygons(data = river_lake %>% st_crop(filter(nhood_list, GEO_NAME == geo_selections$selected_area)),
+                                 color = "black",
+                                 fillColor = "black",
+                                 fillOpacity = .9,
+                                 fill = T,
+                                 group = "Water",
+                                 options = pathOptions(pane = "Water"))
                  }
                }
   )
 
-  
   # # trees for tracts  --------------
   toListen_clickytracts <- reactive({
     list(
       req(geo_selections$selected_geo == 'tracts'),
-      input$map_shape_click$id
+          req(input$map_shape_click$id)
+      
     )
   })
-  observeEvent(ignoreInit = TRUE,
+  observeEvent(ignoreInit = FALSE,
                toListen_clickytracts(),
-               { if (input$map_shape_click$id == "") {
+                 { if (input$map_shape_click$id == "") {
                  leafletProxy("map") %>%
                    clearGroup("Trees") %>%
                    clearGroup("outline") %>%
@@ -444,6 +467,7 @@ mod_map_overview_server <- function(input, output, session,
   observe({
     req(geo_selections$selected_geo == "tracts")
     event <- input$map_shape_click
+    vals$TEST <- event$id
     vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
     # vals$clicked_geo <-  input$map_shape_click$id
   })

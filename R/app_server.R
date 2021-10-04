@@ -47,6 +47,7 @@ app_server <- function( input, output, session ) {
              map_selections = map_selections,
              map_util = map_util,
              current_tab = input$nav)
+  observe({print(paste0("is.null event$id: ", is.null(tract_selections$TEST)))}) 
   observe({print(paste0("selected tract: ", (tract_selections$selected_tract)))}) #to check that selections are working
   
   mod_report_server("report_ui_1",
