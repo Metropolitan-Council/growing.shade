@@ -60,7 +60,19 @@ raster::writeRaster(test, './data/tree_raster.tif', overwrite=TRUE)
 ##############
 # ctu and nhood summaries + geographies
 #############
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+river_lake <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) %>% #these rivers are boundaries
+  st_buffer(50) %>% #add 10m buffer
+  st_simplify(dTolerance = 100) %>%
+  st_buffer(50) %>%
+  st_union() %>% st_buffer(0) 
+
+
 # fxns to make easy -----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
 # find centroid of geographies
 find_centroid <- function(x, ...) {
   points <- x %>%
@@ -86,6 +98,8 @@ find_centroid <- function(x, ...) {
 tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
+    st_buffer(0) %>%
+    st_erase(river_lake) %>%
     st_buffer(-200) %>% #give it a bit of a buffer
     st_intersection(mn_tracts_1 %>% 
                       select(GEOID) %>%
@@ -175,11 +189,13 @@ mn_tracts_1 %>%
   geom_sf() +
   geom_sf(data = filter(ctu_list, GEO_NAME ==test), fill = NA, color = "blue")
 
+# filter(wide_ctu_crosswalk_1, !is.na(`...7`)) %>% data.frame()
+library(leaflet); library(sf); library(tidyverse)
 leaflet() %>% 
   addTiles() %>%
-  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27053980000") %>%
-                right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-                           by = c("GEOID" = "tract_id"))) %>%
+  addPolygons(data = filter(mn_tracts_1, GEO_NAME == "27037061001")# %>%
+                # right_join(ctu_crosswalk %>% filter(GEO_NAME == test), by = c("GEOID" = "tract_id"))
+              ) %>%
   addPolygons(data = filter(ctu_list, GEO_NAME %in% c ("Fort Snelling (unorg.)", "Richfield")) %>% 
                 st_transform(26915) %>%st_buffer(-200) %>% st_transform(4326),
               color = "grey")
