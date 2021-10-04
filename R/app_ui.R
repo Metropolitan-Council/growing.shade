@@ -7,8 +7,10 @@
 app_ui <- function(request) {
   tagList(
     tags$html(lang = "en"),
+    # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
+
     # List the first level UI elements here 
  
     navbarPage(
@@ -25,119 +27,67 @@ app_ui <- function(request) {
         "body {padding-top: 75px;}"
       ),
       
-      tabPanel(
-        "HOME",
-        br(),
-        br(),
-        # mod_home_ui("home_ui_1"),
-        # br(),
-        # br(),
-        mod_intro_ui("intro_ui_1"),
-        br()
-      ),
-      tabPanel("narrative",
+      # tabPanel(
+      #   "HOME",
+      #   br(),
+      #   br(),
+      #   mod_intro_ui("intro_ui_1"),
+      #   br()
+      # ),
+
+      tabPanel("HOME",
+               # id = "B",
                br(), br(),
                (mod_storymap_ui("storymap_ui_1"))),
       
+      tabPanel(
+        "Mapping tool",
+        # id = "demo",
+        div(
+          style = 'width:100% !important;
+                    margin-left:0  !important; margin-top:30px  !important;
+                    max-width: 4000px !important; min-width:100% !important',
+          sidebarLayout(
+            sidebarPanel(width = 5,
+                         style = "height: 90vh; overflow-y: auto;",
+                         
+                         # width = 2,
+                         h2("Welcome to the Growing Shade tool"),
+                         br(),
+                         p("Please refer to ", a("the user guide",
+                                                 href = "www/Growing Shade User Guide (October 2021).pdf",
+                                                 .noWS = "outside",
+                                                 target = "_blank"), " for help. Navigate the different parts of this tool using the tabs at top."),
+                         # br(),
+                         # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
+                         # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
+                         # # p(" (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
+                                                  
+                           # a("Sinha 2021",
+                           #   href = ns("#B"), #"#tab-6122-2",
+                           #   .noWS = "outside"),
+                         hr(),
+                         mod_map_selections_ui("map_selections_ui_1"),
+                         hr(),
+                         mod_geo_selection_ui("geo_selection_ui_1"),
+                         hr(),
+                         mod_report_ui("report_ui_1")#,
+                         # mod_plot_tract_ui("plot_tract_ui_1")
+            ),
+            
+            mainPanel(
+              tags$head(waiter::use_waiter()),
+              width = 7,
+              # div(class="outer3",
+              div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
+                  mod_map_overview_ui("map_overview_ui_1")),
+            )
+            
+          )
+        )), 
       
-      tabPanel( 
-        "Use the tool",
-        # br(),br(),
-        # 
-        # h1("Priority map"),
-        div(class="outer",
-            # h1("Priority map"),
-
-        # p("Regional priority layers have been identified for key presets. Select 'custom' to use the 3 dropdown menus. Higher prioirity scores show where trees have disproportionately positive impacts. Click a priority area to 'mask' or 'blackout' existing trees, WATER AND TRANSPORTATION (hwy, airport, train)???, effectively resulting in a planting map."), 
-        # br(),
-        mod_map_overview_ui("map_overview_ui_1"),
-        mod_map_selections_ui("map_selections_ui_1"),
-        mod_plot_tract_ui("plot_tract_ui_1"),
-        mod_gethelp_ui("gethelp_ui_1")
-      )), 
-               
-               
-    #   tabPanel("other",
-    #                     
-    #                     fluidRow(
-    #                       HTML("<section style=' background-image:url(./www/3789.png); 
-    #                      min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
-    #                                  <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Why grow shade?</h1><br>
-    #                                  <p class='parallax_description'>Explore the science and stories behind tree planting efforts.</p>
-    #                                  </section>
-    #                                  ")
-    #                     ), br(),
-    #                     
-    #                     
-    #                     
-    #                     HTML("Placeholder, text and images for the narrative will go here. <br><br>Benefits of planting trees, challenges, etc. For brainstorming purposes, here are two ideas for showing how people connect with trees (an interactive story map or an interactive story generator). Of course, there are many other ways to consider doing something like this."),
-    #                     
-    #                     # mod_video_ui("video_ui_1"),
-    #                     
-    #                     mod_stories_ui("stories_ui_1"), br(), br(), #hr(), br(),
-    #                     
-    #                     # mod_why_ui("why_ui_1"),
-    #                     
-    #                     mod_story_generator_ui("story_generator_ui_1"), br(), hr(), br(),
-    #                     
-    #                     br(),hr(),br(),
-    #                     
-    #                     # fluidRow(column(width = 12, mod_next_ui("next_ui_1"))), br()
-    #                     # Highways, railways, airports, and agricultural fields are not elligible for greening. Showing tree locations instead would be faster
-    #                     
-    #                     
-    #                     # sidebarPanel(width = 3, 
-    #                     #              mod_map_selections_ui("map_selections_ui_1")),
-    #                     # mainPanel(width = 9,
-    #                     #           fluidRow(mod_map_overview_ui("map_overview_ui_1"))),
-    #                     # hr(), br(), br(),
-    #                     # h1("Tract-specific information"), br(),
-    #                     # HTML("<p>Click on a specific tract in the map above in order to view how it compares to the average tract. The table shows raw values (units vary across variables).</p>"), br(),
-    #                     # # fluidRow(column(width = 12,
-    #                     # #                 mod_plot_tract_ui("plot_tract_ui_1"),
-    #                     # #                 hr()
-    #                     # #                 # mod_evabar_ui("evabar_ui_1")
-    #                     # #                 )),
-    #                     
-    #                     # mod_biodiversity_ui("biodiversity_ui_1"),
-    #                     # br(), hr(), br(),
-    #                     
-    #                     fluidRow(
-    #                       HTML("<section style=' background-image:url(./www/2413.png); 
-    #                      min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
-    #                                  <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>What else to consider?</h1><br>
-    #                                  <p class='parallax_description'>Information to inform which species may be suitable for planting and the potential economic value of taking action.</p>
-    #                                  </section>
-    #                                  ")
-    #                     ), br(),
-    #                     
-    #                     mod_biodiversity_ui("biodiversity_ui_1"),
-    #                     
-    #                     fluidRow(
-    #                       HTML("<section style=' background-image:url(./www/3900.png); 
-    #                      min-height: 800px; background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover;'><br><br>
-    #                                  <h1 class='parallax' style='color:#78A22F; background-color: #ffffff; opacity: 0.8; padding:0px'>Beta version feedback?</h1><br>
-    #                                  <p class='parallax_description'>Should we pursue this? and other thoughts.....</p>
-    #                                  </section>
-    #                                  ")
-    #                     ), br(),
-    #                     
-    #                     fluidRow(
-    #                              column(width = 12,
-    #                                     mod_next_ui("next_ui_1")
-    #                                     # mod_table_ui("table_ui_1")
-    #                                     ))
-    # 
-    # ),
-    
-  tabPanel("Methods",
+  tabPanel("other Resources",
            mod_notes_ui("notes_ui_1")
-    # navbarMenu("Notes",
-               # tabPanel("Data Sources", HTML("<br><br><br>"), mod_notes_ui("notes_ui_1")),
-               # "----",
-               # "Future steps",
-               # tabPanel("Example", HTML("<br><br><br>A place holder to show how we might want to add information.")),
-               # tabPanel("Example2", HTML("<br><br><br>And more info could be added in a fashion similar to this."))
     )
     
     ))
@@ -158,6 +108,7 @@ golem_add_external_resources <- function(){
   )
  
   tags$head(
+    shiny::includeHTML("inst/app/www/google-analytics.html"),
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),

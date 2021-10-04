@@ -1,0 +1,44 @@
+---
+title: "Growing shade report"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+
+params:
+  param_area: NA
+  param_min: NA
+  param_max: NA
+  param_ntracts: NA
+urlcolor: blue
+---
+
+<style type="text/css">
+.caption {
+    font-size: .9em;
+    font-color: #A9A9A9
+}
+</style>
+
+
+```{r assignments, echo=F, message=F, warning=F, results='hide'}
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(tidyr)
+
+knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+
+```
+
+# Custom report for `r params$param_area`
+
+## Tree canopy summary
+
+ ```r params$param_area``` has an existing tree canopy which ranges from ```r params$param_min```% to ```r params$param_max```% across ```r params$param_ntracts``` Census tracts. The distribution of tree canopy across the region is shown below; tracts in ```r params$param_area``` are highlighted in green.
+
+In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
+
+```{r}
+
+
+```
+
+**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**

@@ -23,42 +23,6 @@ rmarkdown::render("intro.Rmd",
                   )
 )
 
-rmarkdown::render("stories.Rmd",
-                  output_format = "github_document", # -----
-                  output_file = "stories.md", output_dir = "inst/app/www",
-                  params = list(
-                    actor_id = "esch",
-                    data_date = Sys.Date(),
-                    sha = system("git rev-parse --short HEAD",
-                                 intern = TRUE
-                    )
-                  )
-)
-
-rmarkdown::render("where.Rmd",
-                  output_format = "github_document", # -----
-                  output_file = "where.md", output_dir = "inst/app/www",
-                  params = list(
-                    actor_id = "esch",
-                    data_date = Sys.Date(),
-                    sha = system("git rev-parse --short HEAD",
-                                 intern = TRUE
-                    )
-                  )
-)
-
-rmarkdown::render("next.Rmd",
-                  output_format = "github_document", # -----
-                  output_file = "next.md", output_dir = "inst/app/www",
-                  params = list(
-                    actor_id = "esch",
-                    data_date = Sys.Date(),
-                    sha = system("git rev-parse --short HEAD",
-                                 intern = TRUE
-                    )
-                  )
-)
-
 rmarkdown::render("notes.Rmd",
                   output_format = "pdf_document", # -----
                   output_file = "notes.pdf", output_dir = "inst/app/www",
@@ -95,9 +59,9 @@ rmarkdown::render("PresetHelp.Rmd", #"inst/app/www/PresetHelp.Rmd",
                   )
 )
 
-rmarkdown::render("inst/app/www/PriorityMapHelp.Rmd",
+rmarkdown::render("inst/app/www/LineplotHelp.Rmd",
                   output_format = "github_document", # -----
-                  output_file = "PriorityMapHelp.md", output_dir = "inst/app/www",
+                  output_file = "LineplotHelp.md", output_dir = "inst/app/www",
                   params = list(
                     actor_id = "esch",
                     data_date = Sys.Date(),
@@ -107,9 +71,22 @@ rmarkdown::render("inst/app/www/PriorityMapHelp.Rmd",
                   )
 )
 
-rmarkdown::render("inst/app/www/PlantingMapHelp.Rmd",
+rmarkdown::render("inst/app/www/RankHelp.Rmd",
                   output_format = "github_document", # -----
-                  output_file = "PlantingMapHelp.md", output_dir = "inst/app/www",
+                  output_file = "RankHelp.md", output_dir = "inst/app/www",
+                  params = list(
+                    actor_id = "esch",
+                    data_date = Sys.Date(),
+                    sha = system("git rev-parse --short HEAD",
+                                 intern = TRUE
+                    )
+                  )
+)
+
+
+rmarkdown::render("inst/app/www/PriorityHelp.Rmd",
+                  output_format = "github_document", # -----
+                  output_file = "PriorityHelp.md", output_dir = "inst/app/www",
                   params = list(
                     actor_id = "esch",
                     data_date = Sys.Date(),

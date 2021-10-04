@@ -11,20 +11,20 @@ mod_plot_tract_ui <- function(id){
   ns <- NS(id)
   tagList(
 
-    absolutePanel(
-      id = "controls",
-      class = "panel panel-default", 
-      fixed = TRUE,
-      draggable = TRUE, top = "13%", left = "50%", right = "auto", bottom = "auto",
-      style = "padding: 7px",
-      width = "auto", height = "auto",
-      HTML('<button data-toggle="collapse" data-target="#report">Create report</button>'),
-      tags$div(id = 'report',  class="collapse",#in
+    # absolutePanel(
+    #   id = "controls",
+    #   class = "panel panel-default", 
+    #   fixed = TRUE,
+    #   draggable = TRUE, top = "13%", left = "50%", right = "auto", bottom = "auto",
+    #   style = "padding: 7px",
+    #   width = "auto", height = "auto",
+    #   HTML('<button data-toggle="collapse" data-target="#report">Create report</button>'),
+    #   tags$div(id = 'report',  class="collapse",#in
                
       radioButtons(
       ns("geo"),
       label = h3("Report region"),
-      choices = c("Selected tract"),# "City (MetCouncil region only)"), #"County (within MN or WI)"),
+      choices = c("Selected tract", "City (MetCouncil region only)"), #"County (within MN or WI)"),
       selected = c("Selected tract"),#c("City (MetCouncil region only)"),
       inline = F 
       ),
@@ -54,8 +54,9 @@ mod_plot_tract_ui <- function(id){
       
     
     downloadButton(ns("tract_report"), "Generate a report")
-      ))
-  )
+      )
+  # )
+  # )
 }
     
 #' plot_tract Server Function
