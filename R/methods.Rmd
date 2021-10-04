@@ -65,12 +65,14 @@ Finally, our experience and research tells us that data cannot substitute for en
 ## Methods
 
 <br>
+
 ### Identifying tree canopy
 
 Detailed priority areas where tree planting could be suitable were obtained using NDVI calculated from Sentinel-2 satellite data with all processing done using Google Earth Engine. First, we removed all pixels identified as having tree canopy in 2020 or classified as having a land use of either water, highways, railroads, airports, or agricultural crops in 2016 (see below). Then we created a composite image of the year 2020 where each pixel contained the maximum NDVI observed within the calendar year. Land use in 2016 was assigned to each pixel for mapping purposes.
 
 <br>
 Plant phenological patterns were leveraged in order to identify tree canopy gaps rather than identify gaps in overall 'greenness.' Five distinct phenological time periods were used. For each time period, a composite image was made showing the maximum NDVI observed. Then different thresholds of NDVI were used to separate trees from grasses and crops. All areas that were classified as water or cultivated cropland were removed. Finally, we then divided our calculated tree canopy by 2. This scaling factor is appropriate for our methods of using 10 m x 10 m resolution data, which is often much larger than tree canopies. This scaling factor makes our data align very closely with other reports while still leveraging the scalability and temporal accuracy of our method. 
+<br>
 
 - Winter (1 January 2020 - 15 March 2020): pixel classified as a conifer tree if winter NDVI is above 0.3 (identify trees which are green in the winter) OR
 - Spring (15 March 2020 - 30 April 2020): pixel classified as a deciduous tree if spring NDVI is less than 0.5 (remove cool season grass) AND
