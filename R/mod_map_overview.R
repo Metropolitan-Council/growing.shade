@@ -10,7 +10,7 @@
 mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(        tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
-                  autoWaiter(),
+                  useWaiter(),
                   
     leafletOutput(ns("map"), 
                   # width="100%", height="100%"
@@ -33,16 +33,8 @@ mod_map_overview_server <- function(input, output, session,
   ns <- session$ns
   
 
-  output$plot <- renderPlot({
-    
-    for(i in 1:10){
-      waitress$inc(10) # increase by 10%
-      Sys.sleep(.3)
-    }
-    
-    hist(runif(20))
-    waitress$close() # hide when done
-  })
+  w <- Waiter$new()
+  
   #### question ----
   # # if the radio buttons change, can I reset the input????
   # observeEvent(geo_selections$selected_geo, {
@@ -443,6 +435,7 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("outline") %>%
                    clearGroup("Water")
                } else {
+                 w$show()
                  leafletProxy("map") %>%
                    clearGroup("Trees") %>%
                    clearGroup("outline") %>%
@@ -469,6 +462,8 @@ mod_map_overview_server <- function(input, output, session,
                                fill = T,
                                group = "Water",
                                options = pathOptions(pane = "Water"))
+                 
+                 w$hide()
                  
                }
                }
