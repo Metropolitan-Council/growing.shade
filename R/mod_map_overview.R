@@ -37,8 +37,7 @@ mod_map_overview_server <- function(input, output, session,
   w <- Waiter$new(ns("map"),
                   html = spin_loader(),#spin_fading_circles(),
                   color = "rgba(255,255,255,.5)")#, transparent(alpha = .5))
-  # w <- Waitress$new(theme = "overlay-percent")
-  
+
   
   #### question ----
   # # if the radio buttons change, can I reset the input????
@@ -304,13 +303,7 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("outline") %>%
                    clearGroup("Water")
                } else { 
-                 waiter_show(
-                   html = tagList(
-                     spin_fading_circles(),
-                     "Loading ..."
-                   )
-                 )
-                 
+
                  leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
                      clearGroup("Trees") %>%
@@ -349,7 +342,6 @@ mod_map_overview_server <- function(input, output, session,
                      options = pathOptions(pane = "geooutline2"),
                      layerId = if (geo_selections$selected_geo == 'tracts') {NULL} else {~GEO_NAME}
                    )
-                 waiter_hide()
                }
                }
   )
@@ -371,6 +363,8 @@ mod_map_overview_server <- function(input, output, session,
                    #   zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
                    # )
                  } else if (geo_selections$selected_geo == "ctus") {
+                   w$show()
+                   
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
                      clearGroup("Trees") %>%
@@ -399,7 +393,9 @@ mod_map_overview_server <- function(input, output, session,
                                  fill = T,
                                  group = "Water",
                                  options = pathOptions(pane = "Water"))
+                   w$hide()
                  } else if (geo_selections$selected_geo == "nhood") {
+                   w$show()
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
                      clearGroup("Trees") %>%
@@ -428,6 +424,8 @@ mod_map_overview_server <- function(input, output, session,
                                  fill = T,
                                  group = "Water",
                                  options = pathOptions(pane = "Water"))
+                   
+                   w$hide()
                  }
                }
   )
@@ -449,8 +447,7 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("Water")
                } else {
                  w$show()
-                 # w$start()
-                 # w$inc(10)
+
                  leafletProxy("map") %>%
                    clearGroup("Trees") %>%
                    clearGroup("outline") %>%
@@ -479,7 +476,6 @@ mod_map_overview_server <- function(input, output, session,
                                options = pathOptions(pane = "Water"))
                  
                  w$hide()
-                 # w$close()
                }
                }
   )
