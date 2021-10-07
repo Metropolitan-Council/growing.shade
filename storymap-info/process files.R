@@ -60,6 +60,8 @@ mn_tracts %>%
 #   addTiles() %>%
 #   addPolygons(data = filter(blocks, BLK10 == "270370608061012") %>% st_transform(4326))
 
+# tree in block groups
+trees_blockgroups
   
 
 usethis::use_data(ctu_list, overwrite = TRUE)
