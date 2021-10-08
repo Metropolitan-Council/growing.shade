@@ -25,6 +25,7 @@ mod_geo_selection_ui <- function(id){
       ), #multiple = F,
       selected = "ctus"
     )),
+    hr(),
     
     # uiOutput(ns("geodropdowns"))
     conditionalPanel(
