@@ -289,6 +289,11 @@ canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficeint
 
 canopy
+
+
+## ctu canopy ----
+ 
+
 # # tree raster
 # treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
 # treecrs
