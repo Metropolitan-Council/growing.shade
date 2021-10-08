@@ -57,7 +57,7 @@ app_ui <- function(request) {
                          p("Please refer to ", a("the user guide",
                                                  href = "www/Growing Shade User Guide (October 2021).pdf",
                                                  .noWS = "outside",
-                                                 target = "_blank"), " for help. Navigate the different parts of this tool using the tabs at top."),
+                                                 target = "_blank"), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."),
                          # br(),
                          # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
                          # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
