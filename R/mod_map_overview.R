@@ -161,12 +161,24 @@ mod_map_overview_server <- function(input, output, session,
       ) %>%
       
       #maybe not the best, but need city outlines to show up first
+      addPolygons(
+        data = ctu_list,
+        group = "Jurisdiction outlines",
+        stroke = T,
+        smoothFactor = 1,
+        color = "black", 
+        weight = 2,
+        fill = F,
+        opacity = 1,
+        options = pathOptions(pane = "geooutline2"),
+        layerId = ~GEO_NAME
+      ) %>%
       # addPolygons(
       #   data = ctu_list,
       #   group = "Jurisdiction outlines",
       #   stroke = T,
       #   smoothFactor = 1,
-      #   color = "black", 
+      #   color = "black",
       #   fillColor = "transparent",
       #   fillOpacity = 1,
       #   options = pathOptions(pane = "geooutline"),
@@ -183,8 +195,7 @@ mod_map_overview_server <- function(input, output, session,
       #   options = pathOptions(pane = "geooutline2"),
       #   layerId = ~GEO_NAME
       # ) %>%
-      hideGroup("Active transit stops") %>%
-      
+
       ### add layer control
       addLayersControl(
         position = "bottomright",
@@ -204,7 +215,7 @@ mod_map_overview_server <- function(input, output, session,
         ),
         options = layersControlOptions(collapsed = T)
       ) %>% 
-      hideGroup(c("Transit",
+      hideGroup(c("Active transit stops",
                   "Emerald ash borer",
                   "Historically redlined areas",
                   "Road outlines")) %>%
