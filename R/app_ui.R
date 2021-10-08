@@ -70,7 +70,8 @@ app_ui <- function(request) {
                          mod_map_selections_ui("map_selections_ui_1"),
                          hr(),
                          mod_geo_selection_ui("geo_selection_ui_1"),
-                         hr(),
+                         # hr(),
+                         br(),
                          mod_report_ui("report_ui_1")#,
                          # mod_plot_tract_ui("plot_tract_ui_1")
             ),
