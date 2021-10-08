@@ -72,6 +72,8 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("outline", zIndex = 650) %>%
       addMapPane("labels", zIndex = 651) %>%
       
+
+      addMapPane("treeraster", zIndex = 161) %>%
       # leaflet.multiopacity::addOpacityControls(layerId = c(
       #   "Trees",
       #   "score"
@@ -83,8 +85,9 @@ mod_map_overview_server <- function(input, output, session,
     
       #add tree tiles
       addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}", 
-                options = tileOptions(opacity =1),
-                group = "ALLTREE") %>% 
+                options = c(tileOptions(opacity = 1),
+                            pathOptions(pane = "treeraster")),
+                group = "Trees") %>% 
       
       #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
@@ -195,7 +198,6 @@ mod_map_overview_server <- function(input, output, session,
           "Water",
           "Active transit stops",
           "Road outlines",
-          "ALLTREE",
           "Historically redlined areas",
           "Emerald ash borer",
           "Jurisdiction outlines"#,
@@ -304,16 +306,16 @@ mod_map_overview_server <- function(input, output, session,
                { if (geo_selections$selected_geo == "tracts") {
                  leafletProxy("map") %>%
                    clearGroup("Jurisdiction outlines") %>%
-                   clearGroup("Trees") %>%
-                   clearGroup("outline") %>%
-                   clearGroup("Water")
+                   # clearGroup("Trees") %>%
+                   clearGroup("outline") #%>%
+                   # clearGroup("Water")
                } else { 
 
                  leafletProxy("map") %>%
                      clearGroup("Jurisdiction outlines") %>%
-                     clearGroup("Trees") %>%
+                     # clearGroup("Trees") %>%
                      clearGroup("outline") %>%
-                     clearGroup("Water") %>%
+                     # clearGroup("Water") %>%
                      # setView(
                      #   lat = 44.963,
                      #   lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
@@ -359,9 +361,9 @@ mod_map_overview_server <- function(input, output, session,
                {
                  if (geo_selections$selected_area == "") {
                  leafletProxy("map") %>%
-                   clearGroup("outline") %>%
-                   clearGroup("Trees") %>%
-                   clearGroup("Water") #%>%
+                   clearGroup("outline") #%>%
+                   # clearGroup("Trees") %>%
+                   # clearGroup("Water") #%>%
                    # setView(
                    #   lat = 44.963,
                    #   lng = if (geo_selections$selected_geo == 'nhood') {-93.12} else {-93.32},
@@ -447,9 +449,9 @@ mod_map_overview_server <- function(input, output, session,
                toListen_clickytracts(),
                  { if (input$map_shape_click$id == "") {
                  leafletProxy("map") %>%
-                   clearGroup("Trees") %>%
-                   clearGroup("outline") %>%
-                   clearGroup("Water")
+                   # clearGroup("Trees") %>%
+                   clearGroup("outline")# %>%
+                   # clearGroup("Water")
                } else {
                  # w$show()
 
