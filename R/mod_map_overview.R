@@ -72,7 +72,6 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("outline", zIndex = 650) %>%
       addMapPane("labels", zIndex = 651) %>%
       
-      
       # leaflet.multiopacity::addOpacityControls(layerId = c(
       #   "Trees",
       #   "score"
@@ -82,11 +81,12 @@ mod_map_overview_server <- function(input, output, session,
       # # renderOnLayerAdd = TRUE
       # ) %>%
     
-      #  #aerial with roads
-    addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{-y}.png", 
-              options = tileOptions(opacity =1),
-              group = "ALLTREE") %>% 
+      #add tree tiles
+      addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}", 
+                options = tileOptions(opacity =1),
+                group = "ALLTREE") %>% 
       
+      #  #aerial with roads
       addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
                        options = c(providerTileOptions(maxZoom=18),
                                    pathOptions(pane = "Road outlines")),
