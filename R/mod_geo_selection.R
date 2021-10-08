@@ -20,10 +20,10 @@ mod_geo_selection_ui <- function(id){
       label = HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
         "A Census tract (selected from the map)" = "tracts",
-        "Cities and townships (select from dropdown below)" = "ctus",
-        "Neighborhoods (select from dropdown which will appear below)" = "nhood"
+        "Cities and townships (use dropdown below)" = "ctus",
+        "Neighborhoods (use dropdown below)" = "nhood"
       ), #multiple = F,
-      selected = "tracts"
+      selected = "ctus"
     )),
     
     # uiOutput(ns("geodropdowns"))
@@ -35,7 +35,8 @@ mod_geo_selection_ui <- function(id){
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
                                 choices = ctu_list$GEO_NAME,
                                 options = list(title = "Pick a city or township", size = 20),
-                                multiple = F
+                                multiple = F,
+                                selected = "Oakdale"
       )),
 
     conditionalPanel(
@@ -48,7 +49,8 @@ mod_geo_selection_ui <- function(id){
                                   Minneapolis = nhood_list$GEO_NAME[nhood_list$city=="Minneapolis"],
                                   `St. Paul` = nhood_list$GEO_NAME[nhood_list$city=="St. Paul"]),
                                 options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 20),
-                                multiple = F
+                                multiple = F,
+                                selected = "Payne-Phalen"
       ))
   )
 }
