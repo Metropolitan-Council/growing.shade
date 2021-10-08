@@ -1,6 +1,7 @@
 
 library(sf)
 library(tidyverse)
+library(tigris)
 
 ######
 # export for GEE
@@ -61,8 +62,14 @@ mn_tracts %>%
 #   addPolygons(data = filter(blocks, BLK10 == "270370608061012") %>% st_transform(4326))
 
 # tree in block groups
-trees_blockgroups
+tigris::block_groups(state = "MN", county = c("Ramsey", "Hennepin", "Dakota", "Carver", "Scott", "Anoka", "Washington"), year = 2010) %>%
+  right_join(read_csv("./data-raw/TreeAcres_blockgroups_year2020.csv", 
+                      col_types = list("GEOID10" = "c"))) %>%
+  transmute(tract_string = GEOID10,
+            canopy_percent = `1` / ALAND10) %>%
+  sf::st_write(., "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/trees_blockgroups.shp", append = FALSE)
   
+
 
 usethis::use_data(ctu_list, overwrite = TRUE)
 
