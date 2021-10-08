@@ -1,0 +1,105 @@
+---
+title: "Growing Shade methods"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  github_document:
+    toc: true
+always_allow_html: true
+urlcolor: blue
+---
+
+The Growing Shade Project couples remote sensing data and demographic data to create insights about the intersection between the natural environment and people in real-time. 
+
+Becuase there are several steps which must be done in order, this document lays those steps out logically. 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F)
+library(tidyverse)
+library(tigris)
+library(sf)
+
+```
+
+# Create and export files for GEE
+
+Google Earth Engine needs some assets created. 
+
+```{r gee_assets}
+######
+# Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
+#####
+wholearea <- metc_region %>%
+  summarise(st_union(.))
+
+# make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
+g = st_make_grid(wholearea,
+                 n = c(36, 36)) %>% 
+  st_intersection(wholearea) 
+
+geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
+df <- st_sf(id = 1:length(g), geometry = g)
+
+# ggplot() +
+#   geom_sf(data = wholearea) +
+#   geom_sf(data = df,
+#           fill = "transparent")
+
+sf::st_write(df, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+
+
+
+```
+
+
+# Google Earth Engine
+
+Need to run some things, export some things etc.
+
+# Calibrate tree canopy coverage
+
+For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file. 
+
+
+```{r calibrate_trees}
+calibrate_trees <- read_csv("../data-raw/UMNTreeAcres_metcgrid_year2020.csv") %>%
+  rename(umn = `1`) %>%
+  full_join(read_csv("../data-raw/TreeAcres_metcgrid_year2020.csv") %>%
+              rename(sentinel = `1`),
+            by = 'id')
+
+# cor.test(~ umn + sentinel,
+#          data = calibrate_trees)
+# cor.test(~ umn + I(sentinel^2),
+#          data = calibrate_trees)
+
+calibrate_lm <- (lm(umn ~ sentinel, data = calibrate_trees))
+calibrate_lm2 <- (lm(umn ~ 0 + sentinel, data = calibrate_trees))
+calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
+anova(calibrate_lm, calibrate_lm2, calibrate_lm3) # the middle model is best!
+
+summary(calibrate_lm2)$r.squared # r2
+summary(calibrate_lm2)$coefficients[,4] # p-value
+
+calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
+
+calibrate_trees %>%
+  ggplot(aes(x = umn, y = (sentinel * calib_coeff))) +
+  geom_point(alpha = .5) +
+  geom_abline(slope=1, intercept=-25, col = 'blue', lwd = 2) +
+  # geom_smooth(method = "lm", fill = NA)+
+  theme_minimal()  + 
+  labs( x = "UMN tree acres in grid", y = "Sentinel acres in grid",
+        title = "calibrated")
+  # labs(y = expression ("Sentinel in"~m/s^2))
+
+```
+
+
+# adf
+
+
+
+
+
+
