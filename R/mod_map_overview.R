@@ -83,6 +83,10 @@ mod_map_overview_server <- function(input, output, session,
       # ) %>%
     
       #  #aerial with roads
+    addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{-y}.png", 
+              options = tileOptions(opacity =1),
+              group = "ALLTREE") %>% 
+      
       addProviderTiles("Stamen.TonerLines", #this is GOOD, but less into it
                        options = c(providerTileOptions(maxZoom=18),
                                    pathOptions(pane = "Road outlines")),
@@ -191,6 +195,7 @@ mod_map_overview_server <- function(input, output, session,
           "Water",
           "Active transit stops",
           "Road outlines",
+          "ALLTREE",
           "Historically redlined areas",
           "Emerald ash borer",
           "Jurisdiction outlines"#,
