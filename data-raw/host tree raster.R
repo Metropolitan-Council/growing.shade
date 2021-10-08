@@ -7,8 +7,8 @@
 
 # import gdal2tiles
 # 
-# gdal2tiles.generate_tiles('/Users/escheh/Documents/GitHub/planting.shade/data/tree_raster.tif', 
-#                           '/Users/escheh/Documents/GitHub/treeraster/', 
+# gdal2tiles.generate_tiles('/Users/escheh/Documents/GitHub/planting.shade/data/tree_raster.tif',
+#                           '/Users/escheh/Documents/GitHub/treeraster/',
 #                           zoom='8-17')
 
 
@@ -17,29 +17,25 @@
 library(leaflet)
 tiles <- "https://leonawicz.github.io/tiles/us48lr/tiles/{z}/{x}/{y}.png"
 leaflet(
-  options = leafletOptions(minZoom = 0, maxZoom = 16), width = "100%") %>%
+  options = leafletOptions(minZoom = 0, maxZoom = 15), width = "100%") %>%
   addProviderTiles("Stamen.Toner") %>%
-  addTiles(tiles, options = tileOptions(opacity = 0.8)) %>% setView(lat = 44.963,
-                                                                    lng = -93.32,
-                                                                    zoom = 15
-  )
+  addTiles(tiles, options = tileOptions(opacity = 0.8)) 
 
 
 library(leaflet)
-tiles <- "https://github.com/Metropolitan-Council/treeraster/tree/main/tiles/{z}/{x}/{y}.png"
-leaflet(
-  options = leafletOptions(minZoom = 10, maxZoom = 16), width = "100%") %>%
-  addProviderTiles(provider = providers$Esri.WorldImagery) %>%
-  # addTiles() %>%
-  addTiles(tiles, options = tileOptions(opacity =.5)) %>% 
+tiles_tree <- "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{-y}.png"
+leaflet(options = leafletOptions(minZoom = 7, maxZoom = 15)) %>%
+  # options = leafletOptions(minZoom = 10, maxZoom = 16)) %>%
+  # addProviderTiles("Stamen.Toner") %>% #provider = providers$Esri.WorldImagery) %>%
+  addTiles() %>%
+  # addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{-y}.png", 
+  #           options = tileOptions(opacity =1)) %>%   #this is good for gdal2tiles
+  # tiles/10/246/654.png #is an example of a gdaltile
+  addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}", 
+            options = tileOptions(opacity =1)) %>% #this is good for google cloud
+
   setView(
     lat = 44.963,
     lng = -93.32,
-    zoom = 15
+    zoom = 9
   )
-
-
-
-####
-# api key??
-# AIzaSyAc-W63-L-vERFxXMFarhFa7Y_ktOWhsQc
