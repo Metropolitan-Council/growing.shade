@@ -35,7 +35,8 @@ mod_geo_selection_ui <- function(id){
       shinyWidgets::pickerInput(ns("cityInput"),
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
                                 choices = ctu_list$GEO_NAME,
-                                options = list(title = "Pick a city or township", size = 20),
+                                options = list(title = "Pick a city or township", size = 10,
+                                               `live-search` = TRUE),
                                 multiple = F,
                                 selected = "Oakdale"
       )),
@@ -49,7 +50,8 @@ mod_geo_selection_ui <- function(id){
                                 choices = list(
                                   Minneapolis = nhood_list$GEO_NAME[nhood_list$city=="Minneapolis"],
                                   `St. Paul` = nhood_list$GEO_NAME[nhood_list$city=="St. Paul"]),
-                                options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 20),
+                                options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 10,
+                                               `live-search` = TRUE),
                                 multiple = F,
                                 selected = "Payne-Phalen"
       ))
