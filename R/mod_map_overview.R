@@ -46,7 +46,7 @@ mod_map_overview_server <- function(input, output, session,
   # })
   #### main map ---------
   output$map <- renderLeaflet({ #  map --------
-    leaflet(options = leafletOptions(minZoom = 7, maxZoom = 16)) %>%
+    leaflet(options = leafletOptions(minZoom = 8, maxZoom = 16)) %>%
       setView(
         lat = 44.963,
         lng = -93.32,
@@ -61,19 +61,19 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane("redline2", zIndex = 110) %>%
       
       # addMapPane(name = "geooutline", zIndex = 149) %>%
-      addMapPane("Priority score", zIndex = 150) %>%
+      addMapPane("Priority score", zIndex = 120) %>%
       addMapPane("Water", zIndex = 151) %>%
       addMapPane(name = "Road outlines", zIndex = 151) %>%
       addMapPane(name = "geooutline2", zIndex = 152) %>%
       addMapPane("redline", zIndex = 160) %>%
 
-      addMapPane("trans", zIndex = 400) %>%
-      addMapPane("EAB", zIndex = 400) %>%
-      addMapPane("outline", zIndex = 650) %>%
-      addMapPane("labels", zIndex = 651) %>%
+      addMapPane("trans", zIndex = 200) %>%
+      addMapPane("EAB", zIndex = 201) %>%
+      addMapPane("outline", zIndex = 250) %>%
+      addMapPane("labels", zIndex = 251) %>%
       
 
-      addMapPane("treeraster", zIndex = 161) %>%
+      addMapPane("Trees", zIndex = 130) %>%
       # leaflet.multiopacity::addOpacityControls(layerId = c(
       #   "Trees",
       #   "score"
@@ -84,9 +84,9 @@ mod_map_overview_server <- function(input, output, session,
       # ) %>%
     
       #add tree tiles
-      addTiles( "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}", 
+      addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}", 
                 options = c(tileOptions(opacity = .5),
-                            pathOptions(pane = "treeraster")),
+                            pathOptions(pane = "Trees")),
                 group = "Trees") %>% 
       
       #  #aerial with roads
