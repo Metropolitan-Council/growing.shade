@@ -547,8 +547,8 @@ metadata <- eva_data_main %>%
   dplyr::ungroup() %>%
   full_join(md1) %>%
   mutate(niceinterp = 
-               case_when(interpret_high_value == "high_opportunity" ~ "higher",
-                         TRUE ~ "lower"))
+               case_when(interpret_high_value == "high_opportunity" ~ "Higher",
+                         TRUE ~ "Lower"))
 
 usethis::use_data(metadata, overwrite = TRUE)
 
