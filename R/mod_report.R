@@ -201,7 +201,7 @@ mod_report_server <- function(id,
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
-        HTML(paste0("<h3>Summary report for ", param_area(), "</h3>"))
+        HTML(paste0("<h3>Growing Shade report for ", param_area(), "</h3>"))
       )
     })    
 
