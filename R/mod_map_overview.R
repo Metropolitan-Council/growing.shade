@@ -10,7 +10,7 @@
 mod_map_overview_ui <- function(id){
   ns <- NS(id)
   tagList(        tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
-                  useWaiter(),
+                  # useWaiter(),
                   # useWaitress(color = "blue"),
                   
     leafletOutput(ns("map"), 
@@ -34,9 +34,9 @@ mod_map_overview_server <- function(input, output, session,
   ns <- session$ns
   
 
-  w <- Waiter$new(ns("map"),
-                  html = spin_loader(),#spin_fading_circles(),
-                  color = "rgba(255,255,255,.5)")#, transparent(alpha = .5))
+  # w <- Waiter$new(ns("map"),
+  #                 html = spin_loader(),#spin_fading_circles(),
+  #                 color = "rgba(255,255,255,.5)")#, transparent(alpha = .5))
 
   
   #### question ----
@@ -368,7 +368,7 @@ mod_map_overview_server <- function(input, output, session,
                    #   zoom = if (geo_selections$selected_geo == 'nhood') {11} else {10}
                    # )
                  } else if (geo_selections$selected_geo == "ctus") {
-                   w$show()
+                   # w$show()
                    
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
@@ -398,9 +398,9 @@ mod_map_overview_server <- function(input, output, session,
                      #             fill = T,
                      #             group = "Water",
                      #             options = pathOptions(pane = "Water"))
-                   w$hide()
+                   # w$hide()()
                  } else if (geo_selections$selected_geo == "nhood") {
-                   w$show()
+                   # w$show()
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
                      # clearGroup("Trees") %>%
@@ -430,7 +430,7 @@ mod_map_overview_server <- function(input, output, session,
                      #             group = "Water",
                      #             options = pathOptions(pane = "Water"))
                    
-                   w$hide()
+                   # w$hide()()
                  }
                }
   )
@@ -451,7 +451,7 @@ mod_map_overview_server <- function(input, output, session,
                    clearGroup("outline") %>%
                    clearGroup("Water")
                } else {
-                 w$show()
+                 # w$show()
 
                  leafletProxy("map") %>%
                    # clearGroup("Trees") %>%
@@ -480,7 +480,7 @@ mod_map_overview_server <- function(input, output, session,
                    #             group = "Water",
                    #             options = pathOptions(pane = "Water"))
                  
-                 w$hide()
+                 # w$hide()()
                }
                }
   )
