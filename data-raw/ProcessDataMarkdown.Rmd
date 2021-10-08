@@ -545,7 +545,10 @@ metadata <- eva_data_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
-  full_join(md1)
+  full_join(md1) %>%
+  mutate(niceinterp = 
+               case_when(interpret_high_value == "high_opportunity" ~ "higher",
+                         TRUE ~ "lower"))
 
 usethis::use_data(metadata, overwrite = TRUE)
 

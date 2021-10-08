@@ -56,6 +56,10 @@ mod_map_selections_ui <- function(id){
         shinyWidgets::pickerInput(ns("peopleInput"), 
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
                                   choices = filter(metadata, type == "people") %>% .$name,
+                                  choicesOpt = list(
+                                    subtext = paste0("Higher values have ", 
+                                                     filter(metadata, type == "people") %>% .$niceinterp, 
+                                                     " priority scores")),
                                   options = list(`actions-box` = TRUE,
                                                  size = 10,
                                                  `selected-text-format` = "count > 1"),
@@ -69,6 +73,10 @@ mod_map_selections_ui <- function(id){
           shinyWidgets::pickerInput(ns("placeInput"), 
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
                                     choices = filter(metadata, type == "environment") %>% .$name,
+                                    choicesOpt = list(
+                                      subtext = paste0("Higher values have ", 
+                                                       filter(metadata, type == "environment") %>% .$niceinterp, 
+                                                       " priority scores")),
                                     options = list(`actions-box` = TRUE,
                                                    size = 20,
                                                    `selected-text-format` = "count > 1"),
@@ -82,6 +90,10 @@ mod_map_selections_ui <- function(id){
             shinyWidgets::pickerInput(ns("treeInput"), 
                                       label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
                                       choices = filter(metadata, type == "tree") %>% .$name,
+                                      choicesOpt = list(
+                                        subtext = paste0("Higher values have ", 
+                                                         filter(metadata, type == "tree") %>% .$niceinterp, 
+                                                         " priority scores")),
                                       options = list(`actions-box` = TRUE,
                                                      size = 20,
                                                      `selected-text-format` = "count > 1"),
