@@ -317,8 +317,8 @@ mod_report_server <- function(id,
           if (geo_selections$selected_geo == "tracts") {
             paste0(param_fancytract(), " has a priority score of ", 
                    round((param_selectedtractvalues()$MEAN), 2), 
-                   " with a region-wide ranking of ", 
-                   (param_selectedtractvalues()$RANK), ". A plot of the tract rankings are shown below.<br><br>")
+                   "(out of 10, where 10 indicates the highest priority) with a region-wide ranking of ", 
+                   (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings are shown below.<br><br>")
           } else {paste0("tracts within ",
           param_area(),
           " have overall priority scores ranging from ",
