@@ -99,11 +99,14 @@ calibrate_trees %>%
 
 # Make geometry shapefiles and crosswalks
 
-Since we're going to be making a map which shows census tracts, ctus, or neihborhoods depending on the user imput, 
+Since we're going to be making a map which shows census tracts, ctus, or neighborhoods depending on the user input, do the following:
 
-```{r geos}
-# fxns to make easy -----
-st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+- find centroid and zoom level of area (for reactive zooming, if I want to re-implement that)
+- make a crosswalk of which tracts belong in each ctu/neighborhood
+- get the tree canopy coverage of each tract
+- get the count of EAB 
+
+```{r find_centroid}
 
 # find centroid of geographies
 find_centroid <- function(x, ...) {
@@ -127,15 +130,6 @@ find_centroid <- function(x, ...) {
   return(combo)
 }
 
-# river layer to erase Mississippi and Minnesota rivers-------
-temp <- tempfile()
-download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
-river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
-  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) #%>% #these rivers are boundaries
-  # st_buffer(200) %>% #add 10m buffer
-  # # st_simplify(dTolerance = 100) %>%
-  # # st_buffer(300) %>%
-  # st_union() %>% st_buffer(0) 
 
 
 ########
@@ -186,12 +180,24 @@ ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
 
 files <- list.files(temp2, full.names = T)
 file.remove(files)
+```
 
+Make crosswalk linking tracts to ctus and neighborhoods
 
+```{r makecrosswalks}
+# fxns to make easy -----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 
-###########
-# link tracts to ctus and nhoods
-#########
+# river layer to erase Mississippi and Minnesota rivers-------
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) #%>% #these rivers are boundaries
+  # st_buffer(200) %>% #add 10m buffer
+  # # st_simplify(dTolerance = 100) %>%
+  # # st_buffer(300) %>%
+  # st_union() %>% st_buffer(0) 
+
 # find crosswalks
 find_crosswalks <- function(x) {
   crosswalk <- x %>%
@@ -213,23 +219,23 @@ find_crosswalks <- function(x) {
 ctu_crosswalk <- find_crosswalks(ctu_geo)
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
-test <- "Hilltop"
-test <- "Landfall"
-test <- "South St. Paul"
-mn_tracts_1 %>%
-  right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-             by = c("GEOID" = "tract_id")) %>%
-  ggplot()+
-  geom_sf() +
-  geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = NA, color = "blue")
-
-test <- "The Greater East Side"
-mn_tracts_1 %>%
-  right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
-             by = c("GEOID" = "tract_id")) %>%
-  ggplot()+
-  geom_sf() +
-  geom_sf(data = filter(nhood_geo, GEO_NAME ==test), fill = NA, color = "blue")
+# test <- "Hilltop"
+# test <- "Landfall"
+# test <- "South St. Paul"
+# mn_tracts_1 %>%
+#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+#              by = c("GEOID" = "tract_id")) %>%
+#   ggplot()+
+#   geom_sf() +
+#   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = NA, color = "blue")
+# 
+# test <- "The Greater East Side"
+# mn_tracts_1 %>%
+#   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
+#              by = c("GEOID" = "tract_id")) %>%
+#   ggplot()+
+#   geom_sf() +
+#   geom_sf(data = filter(nhood_geo, GEO_NAME ==test), fill = NA, color = "blue")
 
 
 
@@ -259,20 +265,26 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
   rename(GEOID = tract_id)
 usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
-
-mn_tracts <- mn_tracts_1 %>%
-  full_join(wide_ctu_crosswalk)
-usethis::use_data(mn_tracts, overwrite = TRUE)
-
-
-
 ```
 
-# Process GEE code
+- process GEE code to link canopy with geography
+  - GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+  - https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
 
 ```{r gee}
-# GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
-# https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
+tree_summary <- function(x) {
+  x %>%
+    left_join(canopy %>%
+                rename(tract_id = GEOID10),
+              by = "tract_id") %>%
+    # st_drop_geometry() %>%
+    group_by(GEO_NAME) %>%
+    summarise(min = round(min(canopy_percent)*100, 1),
+              max = round(max(canopy_percent)*100, 1),
+              ntracts = n())
+}
+
+
 
 # ndvi
 tract_ndvi <- read_csv("../data-raw/meanNDVI_tracts_year2020.csv",
@@ -287,9 +299,6 @@ canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficeint
-
-canopy
-
 
 ## ctu canopy ----
  
@@ -313,24 +322,48 @@ canopy
 # plot(test)
 ```
 
+- get EAB counts
 
-# link canopy coverage with geographies
-```{r}
-tree_summary <- function(x) {
-  x %>%
-    left_join(canopy %>%
-                rename(tract_id = GEOID10),
-              by = "tract_id") %>%
-    # st_drop_geometry() %>%
-    group_by(GEO_NAME) %>%
-    summarise(min = round(min(canopy_percent)*100, 1),
-              max = round(max(canopy_percent)*100, 1),
-              ntracts = n())
+```{r eab}
+temp <- tempfile()
+temp2 <- tempfile()
+
+download.file(
+  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_mda/env_emerald_ash_borer/shp_env_emerald_ash_borer.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+eab <-
+  sf::read_sf(paste0(temp2, pattern = "/eab_trees.shp")) %>%
+  # filter()
+  st_transform(4326) 
+files <- list.files(temp2, full.names = T)
+file.remove(files)
+
+eab_counts <- function(x, ...) {
+  eab %>%
+    st_transform(26915) %>%
+    st_intersection(x %>%
+                      st_transform(26915) %>%
+                      st_buffer(0)) %>%
+  st_drop_geometry() %>%
+  group_by(!!!quos(...)) %>%
+  count() %>%
+  rename(EAB = n)
 }
 
+usethis::use_data(eab, overwrite = TRUE)
+```
 
+
+- bind everything together
+
+```{r}
 nhood_list <- nhood_geo %>%
   full_join(tree_summary(nhood_crosswalk)) %>%
+  full_join(eab_counts(., GEO_NAME)) %>%
+    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326)
 
@@ -339,10 +372,20 @@ usethis::use_data(nhood_list, overwrite = TRUE)
 
 ctu_list <- ctu_geo %>%
   full_join(tree_summary(ctu_crosswalk)) %>%
+    full_join(eab_counts(., GEO_NAME)) %>%
+    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   arrange(GEO_NAME) %>%
   st_transform(4326)
 
 usethis::use_data(ctu_list, overwrite = TRUE)
+
+mn_tracts <- mn_tracts_1 %>%
+  full_join(wide_ctu_crosswalk) %>%
+      full_join(eab_counts(., GEOID)) %>%
+    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+  full_join(canopy %>% rename(GEOID = GEOID10))
+
+usethis::use_data(mn_tracts, overwrite = TRUE)
 
 ```
 
