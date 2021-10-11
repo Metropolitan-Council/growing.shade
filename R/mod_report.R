@@ -105,6 +105,18 @@ mod_report_server <- function(id,
         } else {NA}
       return(output)
     })
+    
+    param_areasummary <- reactive({
+      req(TEST() != "")
+      output <- if (geo_selections$selected_geo == "ctus") {
+        ctu_list[ctu_list$GEO_NAME == param_area(), ]
+      } else if (geo_selections$selected_geo == "nhood") {
+        nhood_list[nhood_list$GEO_NAME == param_area(), ]
+      } else if (geo_selections$selected_geo == "tracts") {
+        mn_tracts[mn_tracts$GEOID == param_area(), ]
+      }
+      return(output)
+    })
 
     param_selectedtractvalues <- reactive({
       req(TEST() != "")
@@ -641,10 +653,7 @@ mod_report_server <- function(id,
           HTML(paste0( 
             # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
             "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ", 
-            eab %>% sf::st_intersection(filter(if (geo_selections$selected_geo == "ctus") {
-              ctu_list
-            } else if (geo_selections$selected_geo == "nhood") {
-              nhood_list} else {mn_tracts}, GEO_NAME == param_area())) %>% nrow(), " trees in ",
+            param_areasummary()$EAB, " trees in ",
             if (geo_selections$selected_geo == "tracts") {
               param_fancytract()} else {param_area()}, " (",
             a("Minnesota DNR",
