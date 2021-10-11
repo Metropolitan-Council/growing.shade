@@ -31,33 +31,33 @@ mn_tracts_1 <- tigris::tracts(state = "MN",
 ################
 # process google earth engine data
 ##################
-# GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
-# https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
-
-# ndvi
-tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
-                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-  select(-`system:index`, -.geo, -Year)
-# filter(tract_ndvi, ndvi == "No data")
-
-# canopy coverage
-canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
-                   col_types = cols(.default = "d", GEOID10 = "c")) %>%
-  left_join(sf::st_drop_geometry(mn_tracts_1), by = c("GEOID10" = "GEOID")) %>%
-  transmute(GEOID10 = GEOID10, 
-            treeacres = `1`,
-            landacres = ALAND / 4046.86,
-            canopy_percent = treeacres / landacres / 2) #it has a % so use fraction instead; and halve itbecuase 10x10 is big
-
-
-# tree raster
-treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
-treecrs
-
-cuts=c(0, 1) #set breaks
-pal <- colorRampPalette(c("white","green"))
-plot((treecrs %>% crop(filter(ctu_list, GEO_NAME == "Afton"))), breaks=cuts, col = pal(7)) #plot with defined breaks
-plot((treecrs %>% crop(filter(ctu_list, GEO_NAME == "Afton")))) #plot with defined breaks
+# # GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+# # https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
+# 
+# # ndvi
+# tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
+#                        col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
+#   select(-`system:index`, -.geo, -Year)
+# # filter(tract_ndvi, ndvi == "No data")
+# 
+# # canopy coverage
+# canopy <- read_csv("./data-raw/TreeAcres_tracts_year2020.csv",
+#                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
+#   left_join(sf::st_drop_geometry(mn_tracts_1), by = c("GEOID10" = "GEOID")) %>%
+#   transmute(GEOID10 = GEOID10, 
+#             treeacres = `1`,
+#             landacres = ALAND / 4046.86,
+#             canopy_percent = treeacres / landacres / 2) #it has a % so use fraction instead; and halve itbecuase 10x10 is big
+# 
+# 
+# # tree raster
+# treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
+# treecrs
+# 
+# cuts=c(0, 1) #set breaks
+# pal <- colorRampPalette(c("white","green"))
+# plot((treecrs %>% crop(filter(ctu_list, GEO_NAME == "Afton"))), breaks=cuts, col = pal(7)) #plot with defined breaks
+# plot((treecrs %>% crop(filter(ctu_list, GEO_NAME == "Afton")))) #plot with defined breaks
 
 
 # # I did this to crop NDVI, but I'm not using NDVI anymore
@@ -68,41 +68,7 @@ plot((treecrs %>% crop(filter(ctu_list, GEO_NAME == "Afton")))) #plot with defin
 #   crop(filter(ctu_list, GEO_NAME == "Lake Elmo"))
 # plot(test)
 
-test <- raster(x = "./data/Blah_crs4326_2020.tif") %>% #urg, same ndvi
-  crop(filter(ctu_list, GEO_NAME == "Lake Elmo"))
-test[test<.1] <- 0
-test[test>.1] <- 1000
-s <- setValues(raster(test), test[])
-plot(test)
-plot(s)
-raster::writeRaster(test, './data/blah_lakeelmo.tif', overwrite=TRUE)
 
-lidar_dem <- raster(x = "./data/TreeMap_crs4326_2020.tif") %>%
-  crop(filter(ctu_list, GEO_NAME == "Lake Elmo")) #%>%
-  # reclassify(., cbind(-Inf, .5, NA), right=FALSE) %>%
-  # reclassify(., cbind(.1, 1, 1), right=FALSE)
-lidar_dem[lidar_dem<.1] <- NA
-lidar_dem[lidar_dem>.1] <- 1
-
-#then python to make green
-
-gr <- raster(x = "./data/tree_lakeelmo.tif")
-gr[gr<.1] <- NA
-plot(gr)
-raster::writeRaster(gr, './data/tree_lakeelmoGREEN.tif', datatype = 'INT2S', overwrite=TRUE)
-hdr(gr, format="VRT", filename = "./data/tree_lakeelmoGREEN.tif")
-# x <- RGB(lidar_dem)
-# plotRGB(x)
-# plot(x, col = gray(0:9/10))
-raster::writeRaster(lidar_dem, './data/tree_lakeelmo.tif', datatype='INT1U', overwrite=TRUE)
-  # reclassify(., cbind(-Inf, .5, NA), right=FALSE) 
-hist(lidar_dem)
-plot(lidar_dem)
-lidar_dem[lidar_dem<.1] <- NA
-lidar_dem[lidar_dem>.1] <- 1
-raster::writeRaster(lidar_dem, './data/tree_lakeelmo.tif', datatype='INT1U', overwrite=TRUE)
-
-plot(lidar_dem)
 ##############
 # ctu and nhood summaries + geographies
 #############

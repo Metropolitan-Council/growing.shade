@@ -184,7 +184,20 @@ mod_report_server <- function(id,
     
     param_test <- reactive({
       req(geo_selections$selected_area)
-      
+    })
+    
+    param_fancytract <- reactive({
+      req(geo_selections$selected_geo == "tracts")
+     fancyname <-  
+        paste0(if (substr(param_area(), 3, 5) == "053") {"Hennepin County tract "
+        } else if (substr(param_area(), 3, 5) == "003") {"Anoka County tract "
+        } else if (substr(param_area(), 3, 5) == "019") {"Carver County tract "
+        } else if (substr(param_area(), 3, 5) == "037") {"Dakota County tract "
+        } else if (substr(param_area(), 3, 5) == "123") {"Ramsey County tract "
+        } else if (substr(param_area(), 3, 5) == "139") {"Scott County tract "
+        } else if (substr(param_area(), 3, 5) == "163") {"Washington County tract "}, 
+        as.numeric(substr(param_area(), 6, 11))/100)
+     return(fancyname)
     })
     
     
@@ -201,7 +214,8 @@ mod_report_server <- function(id,
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
-        HTML(paste0("<h3>Summary report for ", param_area(), "</h3>"))
+        HTML(paste0("<h3>Growing Shade report for ", 
+                    if(geo_selections$selected_geo == "tracts") {param_fancytract()} else {param_area()}, "</h3>"))
       )
     })    
 
@@ -212,7 +226,7 @@ mod_report_server <- function(id,
       tagList(HTML(
         paste0(
           if(geo_selections$selected_geo == "tracts") {
-            paste0("Tract ", param_area(), " has an existing tree canopy of ", param_max(), 
+            paste0(param_fancytract(), " has an existing tree canopy of ", param_max(), 
             "%.  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
             } else { 
           paste0(param_area(),
@@ -289,7 +303,7 @@ mod_report_server <- function(id,
           tolower(map_selections$preset), 
           " preset, ", 
           if (geo_selections$selected_geo == "tracts") {
-            paste0(" tract ", param_area(), " has a priority score of ", 
+            paste0(param_fancytract(), " has a priority score of ", 
                    round((param_selectedtractvalues()$MEAN), 2), 
                    " with a region-wide ranking of ", 
                    (param_selectedtractvalues()$RANK), ". A plot of the tract rankings are shown below.<br><br>")
@@ -543,9 +557,13 @@ mod_report_server <- function(id,
             #   target = "_blank"), 
             #   ").<br><br>",
             # "This is true in the Twin Cities. 
-            "In the plot below, tracts within ", 
+            "In the plot below, ",
+            if (geo_selections$selected_geo == "tracts") {
+              paste0(param_fancytract(), " is ")
+              } else {paste0("tracts within ", 
             param_area(),
-            " are in green, and the regional trend is in blue."
+            " are ")},
+            "in green, and the regional trend is in blue."
           )
           )
           return(para)
@@ -597,7 +615,7 @@ mod_report_server <- function(id,
         councilR::council_theme() + 
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        labs(x = "BIPOC population\n(%)", y = "Tree canopy\ncoverage (%)")
+        labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
       
       inc_equity <- param_equity()%>%
         ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
@@ -607,9 +625,9 @@ mod_report_server <- function(id,
         scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
-        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\ncoverage (%)") +
-        theme(axis.title.y = element_blank(),
-              axis.text.y = element_blank())
+        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
+        # theme(axis.title.y = element_blank(),
+        #       axis.text.y = element_blank())
       fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
       return(fig_equity)
     })
@@ -627,7 +645,8 @@ mod_report_server <- function(id,
               ctu_list
             } else if (geo_selections$selected_geo == "nhood") {
               nhood_list} else {mn_tracts}, GEO_NAME == param_area())) %>% nrow(), " trees in ",
-            param_area(), " (",
+            if (geo_selections$selected_geo == "tracts") {
+              param_fancytract()} else {param_area()}, " (",
             a("Minnesota DNR",
               href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
               .noWS = "outside",
@@ -808,7 +827,8 @@ mod_report_server <- function(id,
         tempReport <- file.path(tempdir(), "report_new.Rmd")
         file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
         # Set up parameters to pass to Rmd document
-        params <- list(param_area = param_area(),
+        params <- list(param_geo = geo_selections$selected_geo,
+                       param_area = param_area(),
                        param_min = param_min(),
                        param_max = param_max(),
                        param_ntracts = param_ntracts()
