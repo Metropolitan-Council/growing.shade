@@ -122,35 +122,37 @@ temporal accuracy of our method. <br>
 
 Priority variables were sourced from several locations including:
 
-<br> - Equity Considerations Dataset published by the Met Council. Data
-is given at the Census tract level. More information about those
-variables can be found on the
-(<a href="https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations" target="_blank">Minnesota
-Geospatial Commons</a>). - PLACES data published by the Center of
-Disease Control and Prevention. Data is at the tract level.
-(<a href="https://www.cdc.gov/places/index.html" target="_blank">Learn
-more at their website.</a>) - Tree canopy information obtained from
-Sentinel-2 and processed in GEE. - Census tract average greenness was
-calculated from Sentinel-2 satellite data processed on Google Earth
-Engine. Briefly, the Normalized Difference Vegetation Index (NDVI) was
-used as a measure of greenness. A composite image of the year 2020 was
-made where each pixel contained the maximum NDVI observed within the
-calendar year. Sentinel-2 collects measurements approximately 2-3 times
-a week, with a pixel resolution of 10 meters x 10 meters. Then, the
-tract-average NDVI value from this ‘maximum NDVI’ composite image was
-taken. NDVI over water bodies (rivers or lakes) was not included.
+<br>
+
+-   Equity Considerations Dataset published by the Met Council. Data is
+    given at the Census tract level. More information about those
+    variables can be found on the
+    (<a href="https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations" target="_blank">Minnesota
+    Geospatial Commons</a>).
+-   PLACES data published by the Center of Disease Control and
+    Prevention. Data is at the tract level.
+    (<a href="https://www.cdc.gov/places/index.html" target="_blank">Learn
+    more at their website.</a>)
+-   Tree canopy information obtained from Sentinel-2 and processed in
+    GEE.
+-   Census tract average greenness was calculated from Sentinel-2
+    satellite data processed on Google Earth Engine. Briefly, the
+    Normalized Difference Vegetation Index (NDVI) was used as a measure
+    of greenness. A composite image of the year 2020 was made where each
+    pixel contained the maximum NDVI observed within the calendar year.
+    Sentinel-2 collects measurements approximately 2-3 times a week,
+    with a pixel resolution of 10 meters x 10 meters. Then, the
+    tract-average NDVI value from this ‘maximum NDVI’ composite image
+    was taken. NDVI over water bodies (rivers or lakes) was not
+    included.
 
 <br><br> Priority variables were standardized and scaled so that the
-z-score was normally distributed on a 0-10 scale. It is calculated
-according to:
+z-score was normally distributed on a 0-10 scale (by multiplying the
+normal distribution of the z-score for each variable by 10).
 
-Where “higher is better”: <br> weights standard score = (normal
-distribution of z-score)
-
-Where “lower is better”: <br> weights standard score = 10 - (normal
-distribution of z-score) <br><br> Finally, based on user-defined
-selection of priority variables, standard scorces are averages to create
-a single, integrated priority value.
+<br><br> Finally, based on user-defined selection of priority variables,
+standard scorces are averages to create a single, integrated priority
+value.
 
 <br>
 
