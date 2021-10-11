@@ -357,7 +357,7 @@ usethis::use_data(eab, overwrite = TRUE)
 ```
 
 
-- bind everything together
+- bind everything together for city and nhood
 
 ```{r}
 nhood_list <- nhood_geo %>%
@@ -379,13 +379,8 @@ ctu_list <- ctu_geo %>%
 
 usethis::use_data(ctu_list, overwrite = TRUE)
 
-mn_tracts <- mn_tracts_1 %>%
-  full_join(wide_ctu_crosswalk) %>%
-      full_join(eab_counts(., GEOID)) %>%
-    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
-  full_join(canopy %>% rename(GEOID = GEOID10))
+sf::st_write(ctu_list, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 
-usethis::use_data(mn_tracts, overwrite = TRUE)
 
 ```
 
@@ -596,6 +591,106 @@ metadata <- eva_data_main %>%
 usethis::use_data(metadata, overwrite = TRUE)
 
 ```
+
+
+# Highest priority by area
+
+For storymap??
+
+And to make tract database
+
+```{r}
+highest_p <- function(x) {
+  test <- enquo(x)
+  
+   eva_data_main %>%
+  filter(name %in% (metadata %>%
+                      filter(!!test == 1)))
+}
+
+highest_p(ph)
+
+highest_p <- function(group_var) {
+  selectedvars <- metadata %>%
+    filter(!!enquo(group_var) == 1) %>%
+    .[,2]
+  eva_data_main %>% 
+    filter(name %in% selectedvars$name) %>%
+      group_by(tract_string) %>%
+      summarise(MEAN = mean(weights_scaled, na.rm = T))
+}
+
+priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
+  full_join(highest_p(cons) %>% rename(Conservation = MEAN)) %>%
+  full_join(highest_p(ej) %>% rename(`Environmental justice` = MEAN)) %>%
+  full_join(highest_p(cc) %>% rename(`Climate change` = MEAN)) %>%
+  pivot_longer(names_to = "preset", values_to = "score", -tract_string) 
+
+priority_summary <- priority_summary_1 %>%
+  group_by(tract_string) %>%
+  summarise(score = max(score)) %>%
+  left_join(priority_summary_1) %>%
+  rename(highest_priority = preset) %>%
+  rename(GEOID = tract_string)
+
+
+
+mn_tracts <- mn_tracts_1 %>%
+  full_join(wide_ctu_crosswalk) %>%
+      full_join(eab_counts(., GEOID)) %>%
+    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+  full_join(canopy %>% rename(GEOID = GEOID10)) %>%
+  full_join(priority_summary)
+
+usethis::use_data(mn_tracts, overwrite = TRUE)
+
+
+sf::st_write(mn_tracts, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_tracts.shp", append = FALSE)
+
+
+
+# library(leaflet)
+# factpal <- colorFactor(palette = c(
+#                        "ej" = "purple", #black
+#                        "cons" = "#b1d3fc", #hispanic
+#                        "cc" = "green",#"#996633", #indg
+#                        "ph" = "#E69F00"),
+#                        c("ej", "cons", "cc", "ph"))#,
+                       
+                       
+# leaflet() %>%
+#   addPolygons(data = test,
+#               fillColor = ~factpal(test[[20]]),
+#               fillOpacity = .5,
+#               weight = .5,
+#               color = "#666666",
+#               popup = ~paste0("Geography ID: ", test$GEOID,
+#                                          "<br>", ": ", test$highest_priority
+#                          )) %>%
+#   addLegend(title = "highest",
+#                          position = "bottomleft",
+#                          # group = "Census data",
+#                          # layerId = "Census data",
+#                          pal = factpal,
+#                          values = test[[20]]
+#                        )
+
+
+# %>%
+  # full_join(ctu_crosswalk)
+
+
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
