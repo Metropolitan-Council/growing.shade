@@ -17,14 +17,15 @@ mod_geo_selection_ui <- function(id){
     (radioButtons(
       ns("geo"),
       # h4("Report area"),
-      label = HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to keep reading.</strong></section></p>"),
+      label = HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
         "A Census tract (selected from the map)" = "tracts",
-        "Cities and townships" = "ctus",
-        "Neighborhoods" = "nhood"
+        "Cities and townships (use dropdown below)" = "ctus",
+        "Neighborhoods (use dropdown below)" = "nhood"
       ), #multiple = F,
-      selected = "tracts"
+      selected = "ctus"
     )),
+    hr(),
     
     # uiOutput(ns("geodropdowns"))
     conditionalPanel(
@@ -34,8 +35,10 @@ mod_geo_selection_ui <- function(id){
       shinyWidgets::pickerInput(ns("cityInput"),
                                 label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
                                 choices = ctu_list$GEO_NAME,
-                                options = list(title = "Pick a city or township", size = 20),
-                                multiple = F
+                                options = list(title = "Pick a city or township", size = 10,
+                                               `live-search` = TRUE),
+                                multiple = F,
+                                selected = "Oakdale"
       )),
 
     conditionalPanel(
@@ -47,8 +50,10 @@ mod_geo_selection_ui <- function(id){
                                 choices = list(
                                   Minneapolis = nhood_list$GEO_NAME[nhood_list$city=="Minneapolis"],
                                   `St. Paul` = nhood_list$GEO_NAME[nhood_list$city=="St. Paul"]),
-                                options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 20),
-                                multiple = F
+                                options = list(title = "Pick a neighborhood in St. Paul or Minneapolis", size = 10,
+                                               `live-search` = TRUE),
+                                multiple = F,
+                                selected = "Payne-Phalen"
       ))
   )
 }
