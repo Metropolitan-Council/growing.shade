@@ -615,7 +615,7 @@ mod_report_server <- function(id,
         councilR::council_theme() + 
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        labs(x = "BIPOC population\n(%)", y = "Tree canopy\ncoverage (%)")
+        labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
       
       inc_equity <- param_equity()%>%
         ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
@@ -625,9 +625,9 @@ mod_report_server <- function(id,
         scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
-        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\ncoverage (%)") +
-        theme(axis.title.y = element_blank(),
-              axis.text.y = element_blank())
+        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
+        # theme(axis.title.y = element_blank(),
+        #       axis.text.y = element_blank())
       fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
       return(fig_equity)
     })
@@ -827,7 +827,8 @@ mod_report_server <- function(id,
         tempReport <- file.path(tempdir(), "report_new.Rmd")
         file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
         # Set up parameters to pass to Rmd document
-        params <- list(param_area = param_area(),
+        params <- list(param_geo = geo_selections$selected_geo,
+                       param_area = param_area(),
                        param_min = param_min(),
                        param_max = param_max(),
                        param_ntracts = param_ntracts()

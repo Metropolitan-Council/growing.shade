@@ -23,17 +23,17 @@ rmarkdown::render("intro.Rmd",
                   )
 )
 
-rmarkdown::render("notes.Rmd",
-                  output_format = "pdf_document", # -----
-                  output_file = "notes.pdf", output_dir = "inst/app/www",
-                  params = list(
-                    actor_id = "esch",
-                    data_date = Sys.Date(),
-                    sha = system("git rev-parse --short HEAD",
-                                 intern = TRUE
-                    )
-                  )
-)
+# rmarkdown::render("notes.Rmd",
+#                   output_format = "pdf_document", # -----
+#                   output_file = "notes.pdf", output_dir = "inst/app/www",
+#                   params = list(
+#                     actor_id = "esch",
+#                     data_date = Sys.Date(),
+#                     sha = system("git rev-parse --short HEAD",
+#                                  intern = TRUE
+#                     )
+#                   )
+# )
 
 rmarkdown::render("./R/methods.Rmd",
                   output_format = "github_document", # -----
