@@ -730,10 +730,41 @@ st_drop_geometry() %>%
   geom_jitter(aes(x = canopy_percent, y = 1))
 
 ggplot()+
-  geom_jitter(aes(x = canopy_percent, y = 1), 
+  geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = "City"),
+              alpha = .5,
+              data = ctu_list) +
+  geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = "City"),
+              data = filter(ctu_list, 
+                            GEO_NAME == "St. Paul"),
+              col = councilR::colors$cdGreen, size = 3) +
+  
+  
+  geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = 'Tracts'), 
+              alpha = .5,
               data = st_drop_geometry(mn_tracts)) +
-  geom_jitter(aes(x = ))
+    geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = 'Tracts'), 
+              data = filter(st_drop_geometry(mn_tracts),
+              jurisdiction == "St. Paul"),
+              col = councilR::colors$cdGreen, size = 3) +
+  
+  # geom_jitter(width = 0, 
+  #             aes(x = canopy_percent, y = "Nhood"),
+  #             alpha = .5,
+  #             data = nhood_list) +
+  # geom_jitter(width = 0, 
+  #             aes(x = canopy_percent, y = "Nhood"),
+  #             data = filter(nhood_list, 
+  #                           city == "St. Paul"),
+  #             col = councilR::colors$cdGreen, size = 3) +
+  
 
+  councilR::council_theme()
+
+ctu_list %>% arrange(-canopy_percent)
 ```
 
 
