@@ -206,7 +206,7 @@ mod_map_overview_server <- function(input, output, session,
         overlayGroups = c(
           "Priority score",
           "Trees",
-          "Water",
+          # "Water",
           "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
