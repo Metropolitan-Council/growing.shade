@@ -267,6 +267,27 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 ```
 
+- get aland for nhood and city
+```{r}
+ctu_land <- ctu_geo %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_erase(river_lake_buffer %>%
+             st_union() %>%
+             st_buffer(0)) %>%
+  mutate(ALAND = as.numeric(st_area(.)))
+
+nhood_land <- nhood_geo %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_erase(river_lake_buffer %>%
+             st_union() %>%
+             st_buffer(0)) %>%
+  mutate(ALAND = as.numeric(st_area(.)))
+
+```
+
+
 - process GEE code to link canopy with geography
   - GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
   - https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
@@ -301,8 +322,23 @@ canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficeint
 
 ## ctu canopy ----
- 
+canopy_ctu <- read_csv("../data-raw/TreeAcres_ctus_year2020.csv",
+                   col_types = cols(.default = "d", CTU_NAME = "c")) %>%
+  left_join(ctu_land, by = c("CTU_NAME" = "GEO_NAME")) %>%
+  transmute(GEO_NAME = CTU_NAME, 
+            treeacres = `1`,
+            landacres = ALAND / 4046.86,
+            canopy_percent = treeacres / landacres * calib_coeff) 
 
+## nhood canopy ----
+canopy_nhood <- read_csv("../data-raw/TreeAcres_neighborhoods_year2020.csv",
+                   col_types = cols(.default = "d", GEO_NAME = "c")) %>%
+  left_join(nhood_land, by = c("GEO_NAME" = "GEO_NAME")) %>%
+  transmute(GEO_NAME = GEO_NAME, 
+            treeacres = `1`,
+            landacres = ALAND / 4046.86,
+            canopy_percent = treeacres / landacres * calib_coeff) 
+canopy_nhood %>% arrange(canopy_percent)
 # # tree raster
 # treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
 # treecrs
@@ -364,6 +400,7 @@ nhood_list <- nhood_geo %>%
   full_join(tree_summary(nhood_crosswalk)) %>%
   full_join(eab_counts(., GEO_NAME)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+  full_join(canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326)
 
@@ -374,6 +411,7 @@ ctu_list <- ctu_geo %>%
   full_join(tree_summary(ctu_crosswalk)) %>%
     full_join(eab_counts(., GEO_NAME)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+  full_join(canopy_ctu) %>%
   arrange(GEO_NAME) %>%
   st_transform(4326)
 
@@ -683,10 +721,20 @@ sf::st_write(mn_tracts, "/Users/escheh/Documents/GitHub/planting.shade/storymap-
 ```
 
 
+can i improve distribution maps?
 
+```{r}
+mn_tracts %>%
+st_drop_geometry() %>%
+  ggplot() +
+  geom_jitter(aes(x = canopy_percent, y = 1))
 
+ggplot()+
+  geom_jitter(aes(x = canopy_percent, y = 1), 
+              data = st_drop_geometry(mn_tracts)) +
+  geom_jitter(aes(x = ))
 
-
+```
 
 
 
