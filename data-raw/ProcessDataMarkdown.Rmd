@@ -678,7 +678,13 @@ mn_tracts <- mn_tracts_1 %>%
       full_join(eab_counts(., GEOID)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(canopy %>% rename(GEOID = GEOID10)) %>%
-  full_join(priority_summary)
+  full_join(priority_summary) %>%
+  full_join(priority_summary_1%>%
+              group_by(preset) %>% 
+              mutate(rank = rank(-score)) %>%
+              select(-score) %>%
+              pivot_wider(names_from = preset, values_from = rank)
+            %>% rename(GEOID = tract_string))
 
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
@@ -717,7 +723,6 @@ sf::st_write(mn_tracts, "/Users/escheh/Documents/GitHub/planting.shade/storymap-
 # %>%
   # full_join(ctu_crosswalk)
 
-
 ```
 
 
@@ -731,25 +736,25 @@ st_drop_geometry() %>%
 
 ggplot()+
   geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "City"),
-              alpha = .5,
+              aes(x = canopy_percent, y = "All Cities"),
+              alpha = .4,
               data = ctu_list) +
   geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "City"),
+              aes(x = canopy_percent, y = "All Cities"),
               data = filter(ctu_list, 
                             GEO_NAME == "St. Paul"),
-              col = "red", size = 3) +
+              pch = 21, col = "black", fill = "red", size = 3) +
   
   
-  geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = 'Tracts'), 
-              alpha = .5,
-              data = st_drop_geometry(mn_tracts)) +
+  # geom_jitter(width = 0, height = .2,
+  #             aes(x = canopy_percent, y = 'Tracts'), 
+  #             alpha = .4,
+  #             data = st_drop_geometry(mn_tracts)) +
     geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = 'Tracts'), 
+              aes(x = canopy_percent, y = 'aa_St.Paul_tracts'), 
               data = filter(st_drop_geometry(mn_tracts),
               jurisdiction == "St. Paul"),
-              col = "red", size = 3) +
+              pch = 21, col = "black", fill = "red", size = 3) +
   
   # geom_jitter(width = 0, 
   #             aes(x = canopy_percent, y = "Nhood"),
@@ -762,10 +767,81 @@ ggplot()+
   #             col = councilR::colors$cdGreen, size = 3) +
   
 
-  councilR::council_theme()
+  councilR::council_theme() +
+          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(x = "Tree canopy cover",
+       y = "Geography",
+       title = "St. Paul")
 
-ctu_list %>% arrange(-canopy_percent)
+ggplot()+
+  geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = "All Cities"),
+              alpha = .4,
+              data = ctu_list) +
+  geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = "All Cities"),
+              data = filter(ctu_list, 
+                            GEO_NAME == "Birchwood Village"),
+              pch = 21, col = "black", fill = "red", size = 3) +
+  
+  
+  # geom_jitter(width = 0, height = .2,
+  #             aes(x = canopy_percent, y = 'Tracts'), 
+  #             alpha = .4,
+  #             data = st_drop_geometry(mn_tracts)) +
+    geom_jitter(width = 0, height = .2,
+              aes(x = canopy_percent, y = 'aa_Birchwood Village_tracts'), 
+              data = filter(st_drop_geometry(mn_tracts),
+              str_detect(jurisdiction, "Birchwood Village")),
+              pch = 21, col = "black", fill = "red", size = 3) +
+  
+  # geom_jitter(width = 0, 
+  #             aes(x = canopy_percent, y = "Nhood"),
+  #             alpha = .5,
+  #             data = nhood_list) +
+  # geom_jitter(width = 0, 
+  #             aes(x = canopy_percent, y = "Nhood"),
+  #             data = filter(nhood_list, 
+  #                           city == "St. Paul"),
+  #             col = councilR::colors$cdGreen, size = 3) +
+  
+
+  councilR::council_theme() +
+          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(x = "Tree canopy cover",
+       y = "Geography",
+       title = "Birchwood Village")
+
 ```
+
+
+can i improve priortization?
+
+```{r}
+mn_tracts %>% 
+  st_drop_geometry() %>%
+  filter((jurisdiction == "St. Paul")) %>%
+  pivot_longer(names_to = "preset", values_to = "rank", c(`Public health`:`Climate change`)) %>%
+  ggplot() + 
+  scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
+      ylim(0, 1) +
+  # scale_y_continuous(limits = c(0,1), expand = c(3,3))+
+      geom_segment(aes(x = rank, xend = rank, y = 0, yend = .8)) +
+      # geom_vline(aes(xintercept = rank)) +
+      geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0)) +
+  facet_wrap(~preset, ncol = 1) +
+  expand_limits(x = 2, y = 20) +
+  labs(title = "St. Paul") +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+            axis.title.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor.x = element_blank())
+```
+
+
 
 
 ```{r}
