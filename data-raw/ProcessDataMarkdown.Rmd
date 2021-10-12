@@ -776,26 +776,70 @@ ana <- eva_data_main %>%
   select(tract_string, variable, z_score) %>%
   pivot_wider(names_from = variable, values_from = z_score) %>%
   filter(!is.na(ppov185)) %>%
-  select(-ndvi2, -canopy_percent2)
+  select(-ndvi2, -canopy_percent2,
+         # -p_0017, -p_65up, 
+         -sens_age,
+         -pwk_nowork,
+         # -pasiannh, -phisppop, -pamindnh, -pblacknh,
+         -pbipoc)
 
 # ana[, -1] %>% summary()
 
 ec.pca <- prcomp(ana[, -1], scale = T)
 fviz_eig(ec.pca)
-
-fviz_pca_var(ec.pca,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
-             )
+# 
+# fviz_pca_var(ec.pca,
+#              col.var = "contrib", # Color by contributions to the PC
+#              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#              repel = TRUE     # Avoid text overlapping
+#              )
 
 
 fviz_pca_biplot(ec.pca, repel = TRUE,
                 label = 'var',
-                col.var = "#2E9FDF", # Variables color
-                col.ind = "#696969"  # Individuals color
+                col.var = "black", #2E9FDF", # Variables color
+                col.ind = "#696969",  # Individuals color,
+                alpha.ind = .3
                 )
 ```
+
+
+```{r}
+library(corrplot)
+
+race <- eva_data_main %>%
+  select(tract_string, variable, z_score) %>%
+  pivot_wider(names_from = variable, values_from = z_score) %>%
+  filter(!is.na(ppov185)) %>%
+  select(ndvi, canopy_percent, 
+         pasiannh, phisppop, pamindnh, pblacknh,
+         pbipoc,
+         mdhhincnow) %>%
+  rename(NDVI = ndvi,
+         `Tree canopy` = canopy_percent,
+         Asian = pasiannh,
+         `Am Indian` = pamindnh,
+         `Hispanic` = phisppop,
+         Black = pblacknh,
+         BIPOC = pbipoc,
+         `HH income` = mdhhincnow)
+
+res <- cor(race)
+# round(res, 2)
+corrplot(res, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+as_tibble(res) %>%
+  add_column(var = rownames(res)) %>%
+    ggplot(aes(x = var, y = `Tree canopy`)) +
+  geom_bar(stat = 'identity')
+rownames(res)
+```
+
+
+
+
+
 
 
 
