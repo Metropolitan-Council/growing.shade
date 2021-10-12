@@ -46,7 +46,7 @@ mod_map_overview_server <- function(input, output, session,
   # })
   #### main map ---------
   output$map <- renderLeaflet({ #  map --------
-    leaflet(options = leafletOptions(minZoom = 8, maxZoom = 16)) %>%
+    leaflet(options = leafletOptions(minZoom = 8, maxZoom = 17)) %>%
       setView(
         lat = 44.963,
         lng = -93.32,
