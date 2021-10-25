@@ -26,27 +26,27 @@ library(sf)
 Google Earth Engine needs some assets created. 
 
 ```{r gee_assets}
-######
-# Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
-#####
-wholearea <- metc_region %>%
-  summarise(st_union(.))
-
-# make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
-g = st_make_grid(wholearea,
-                 n = c(36, 36)) %>% 
-  st_intersection(wholearea) 
-
-geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
-df <- st_sf(id = 1:length(g), geometry = g)
-
-# ggplot() +
-#   geom_sf(data = wholearea) +
-#   geom_sf(data = df,
-#           fill = "transparent")
-
-sf::st_write(df, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
-
+# ######
+# # Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
+# #####
+# wholearea <- metc_region %>%
+#   summarise(st_union(.))
+# 
+# # make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
+# g = st_make_grid(wholearea,
+#                  n = c(36, 36)) %>% 
+#   st_intersection(wholearea) 
+# 
+# geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
+# df <- st_sf(id = 1:length(g), geometry = g)
+# 
+# # ggplot() +
+# #   geom_sf(data = wholearea) +
+# #   geom_sf(data = df,
+# #           fill = "transparent")
+# 
+# sf::st_write(df, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+# 
 
 
 ```
@@ -463,7 +463,21 @@ equity_data_raw <- equity %>%
          phisppop,
          pamindnh,
          pwk_nowork,
-         pownhome) %>%
+         pownhome,
+         # for equity considerations talk
+         p_usborn,
+         ppov500rat,
+         pothmultnh,
+         pbanc_totl, pbanc_afri, pbanc_afam, parac_totl, parac_aind, parac_hmon, plat_totl, pind_totl, pind_dako,
+         pind_ojib, plat_mexi, plat_ecua,
+         ppov185,
+         ppov500,
+         ppov500rat,
+         mdhhincnow,
+         phhi_qntl1,
+         phhi_qntl5,
+         mdern_ftyr, aca, acp
+         ) %>%
   rowwise() %>%
   mutate(luse_notgreen = 1 - luse_green,
          pbipoc = 1 - pwhitenh,
@@ -572,7 +586,7 @@ eva_data_main <- eva_data_raw %>%
          COUNT = as.numeric(sum(!is.na(raw_value))),
          z_score = (raw_value - MEAN)/SD) %>%
   
-  right_join(eva_data_codes, by = 'variable') %>%
+  full_join(eva_data_codes, by = 'variable') %>%
   
   # #we want high opportunity to be a high value, so this reorders those values if needed
   # mutate(opportunity_zscore = case_when(interpret_high_value == "high_opportunity" ~ z_score,
@@ -882,6 +896,8 @@ fviz_pca_biplot(ec.pca, repel = TRUE,
 
 ```{r}
 library(corrplot)
+library("Hmisc")
+
 
 race <- eva_data_main %>%
   select(tract_string, variable, z_score) %>%
@@ -890,34 +906,239 @@ race <- eva_data_main %>%
   select(ndvi, canopy_percent, 
          pasiannh, phisppop, pamindnh, pblacknh,
          pbipoc,
-         mdhhincnow) %>%
+         pd_any,
+         mdhhincnow, ppov185,
+         p_usborn,
+         holc_pred,
+         avg_temp,# prim_flood,
+         p_65up, p_0017) %>%
   rename(NDVI = ndvi,
          `Tree canopy` = canopy_percent,
-         Asian = pasiannh,
-         `Am Indian` = pamindnh,
-         `Hispanic` = phisppop,
-         Black = pblacknh,
-         BIPOC = pbipoc,
-         `HH income` = mdhhincnow)
+         `Disability, % any` = pd_any,
+         `Race, % Asian` = pasiannh,
+         `Race, % Am. Indian` = pamindnh,
+         `Race, % Hispanic` = phisppop,
+         `Race, % Black` = pblacknh,
+         `Race, % BIPOC` = pbipoc,
+         `SE, median income` = mdhhincnow,
+         `SE,  <185% poverty threshold` = ppov185,
+         `Migration, % US born` = p_usborn,
+         `Historic, % redlined` = holc_pred,
+         `Env., summer temp` = avg_temp,
+         # `Env., flood zone` = prim_flood,
+         `Age, % over 64` = p_65up,
+         `Age, % under 18` = p_0017)
 
 res <- cor(race)
+
+# cor_2 <- rcorr(as.matrix(race))
+# cor_2$P %>% 
+#   add_column(var = rownames(cor_2$r))
+
 # round(res, 2)
-corrplot(res, type = "upper", order = "hclust", 
-         tl.col = "black", tl.srt = 45)
+# corrplot(res, type = "upper", order = "hclust", 
+#          tl.col = "black", tl.srt = 45)
 
 as_tibble(res) %>%
   add_column(var = rownames(res)) %>%
+  mutate(var = fct_reorder(var, (`Tree canopy`))) %>%
     ggplot(aes(x = var, y = `Tree canopy`)) +
-  geom_bar(stat = 'identity')
-rownames(res)
+  geom_bar(stat = 'identity') +
+  theme_minimal() +
+  labs(x = "Variable", y = "Correlation coefficient with \n'Tree canopy coverage'") +
+  coord_flip()
+# rownames(res)
+```
+
+```{r flooding}
+
+race <- eva_data_main %>%
+  select(tract_string, variable, z_score) %>%
+  pivot_wider(names_from = variable, values_from = z_score) %>%
+  filter(!is.na(ppov185)) %>%
+  select(ndvi, canopy_percent, 
+         pasiannh, phisppop, pamindnh, pblacknh,
+         pbipoc,
+         pd_any,
+         mdhhincnow, ppov185,
+         p_usborn,
+         holc_pred,
+         avg_temp, prim_flood,
+         p_65up, p_0017) %>%
+  rename(NDVI = ndvi,
+         `Tree canopy` = canopy_percent,
+         `Disability, % any` = pd_any,
+         `Race, % Asian` = pasiannh,
+         `Race, % Am. Indian` = pamindnh,
+         `Race, % Hispanic` = phisppop,
+         `Race, % Black` = pblacknh,
+         `Race, % BIPOC` = pbipoc,
+         `SE, median income` = mdhhincnow,
+         `SE,  <185% poverty threshold` = ppov185,
+         `Migration, % US born` = p_usborn,
+         `Historic, % redlined` = holc_pred,
+         `Env., summer temp` = avg_temp,
+         `Flood zone` = prim_flood,
+         `Age, % over 64` = p_65up,
+         `Age, % under 18` = p_0017)
+
+res <- cor(race)
+
+# cor_2 <- rcorr(as.matrix(race))
+# cor_2$P %>% 
+#   add_column(var = rownames(cor_2$r))
+
+# round(res, 2)
+# corrplot(res, type = "upper", order = "hclust", 
+#          tl.col = "black", tl.srt = 45)
+
+as_tibble(res) %>%
+  add_column(var = rownames(res)) %>%
+  mutate(var = fct_reorder(var, (`Flood zone`))) %>%
+    ggplot(aes(x = var, y = `Flood zone`)) +
+  geom_bar(stat = 'identity') +
+  theme_minimal() +
+  labs(x = "Variable", y = "Correlation coefficient with \n'Areas at risk of flooding'") +
+  coord_flip()
+# rownames(res)
+
+```
+
+
+
+```{r}
+library(cowplot)
+race_fig<-eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  filter(variable %in% c("canopy_percent", "pbipoc")) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  ggplot(aes(x = pbipoc, y = canopy_percent)) +
+  geom_point(pch = 21, col = "grey40") +#colors$suppGray) +
+  geom_smooth(col = councilR::colors$cdGreen, fill = NA, lwd = 3, method = 'lm') +
+  councilR::council_theme() +
+  scale_x_continuous(labels = scales::percent, limits = c(0, .45))+#, trans = log2_trans()) +
+  scale_y_continuous(labels = scales::percent)+#, trans = log2_trans()) +
+  labs(x = "Residents who identify as BIPOC (%)", y = "")
+
+
+inc_fig <-eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  filter(variable %in% c("canopy_percent", "mdhhincnow")) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  ggplot(aes(x = mdhhincnow, y = canopy_percent)) +
+  geom_point(pch = 21, col = "grey40") +#colors$suppGray) +
+  geom_smooth(col = councilR::colors$cdGreen, fill = NA, lwd = 3, method = 'lm') +
+  councilR::council_theme() +
+    scale_y_continuous(labels = scales::percent, limits = c(0, .45))+#, trans = log2_trans()) +
+  scale_x_continuous(labels = scales::dollar)+#, trans = log2_trans()) +
+  labs(x = "Median household income ($)", y = "")
+
+fig_equity <- plot_grid(race_fig, inc_fig, labels = "AUTO")#, age, cost)
+fig_equity
+ggsave("/Users/escheh/Desktop/equity.png",fig_equity,  width = 10, height = 4.5, units = "in", device = "png")
+
 ```
 
 
 
 
+```{r}
+eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  select(tract_string, canopy_percent, 
+         pbanc_totl, pbanc_afri, pbanc_afam, parac_totl, parac_aind, parac_hmon, plat_totl, pind_totl, pind_dako,
+         pind_ojib, plat_mexi, plat_ecua) %>%
+  rename(
+    `Asian, Asian Indian` = parac_aind,
+    `Black, African American` = pbanc_afam,
+    `Indigenous, Dakota/Sioux` = pind_dako,
+    `Indigenous, Ojibwe/Chippewa/Anishinabe` = pind_ojib,
+    `Asian, Hmong` = parac_hmon,
+    `Black, sub-Saharan African` = pbanc_afri,
+    `Indigenous, any ancestry` = pind_totl,
+    `Asian, any Asian ancestry` = parac_totl, 
+    `Black,  any Black ancestry` = pbanc_totl,
+    `Hispanic or Latino, any ancestry` = plat_totl,
+    `Hispanic, Mexican` = plat_mexi,
+    `Hispanic, Ecuadorian` = plat_ecua) %>%
+  pivot_longer(names_to = "Race", values_to = "value", -c(tract_string, canopy_percent)) %>%
+  ggplot(aes(x = value, y = canopy_percent)) +
+  geom_point(pch = 21, col = "grey40") +#colors$suppGray) +
+  geom_smooth(col = councilR::colors$cdGreen, fill = NA, lwd = 1, method = 'lm') +
+  councilR::council_theme() +
+    scale_y_continuous(labels = scales::percent, limits = c(0, .45))+#, trans = log2_trans()) +
+  scale_x_continuous(labels = scales::percent)+#, trans = log2_trans()) +
+  facet_wrap(~Race, scales = "free_x", ncol = 3) +
+  labs(x = "Residents identifying with racial category (%)", y = "")
+
+```
+
+```{r}
+eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  select(tract_string, canopy_percent, 
+         ppov185,
+         ppov500,
+         # mdhhincnow,
+         phhi_qntl1,
+         phhi_qntl5,
+         # mdern_ftyr
+         ) %>%
+  rename(
+   `Income < 185% poverty threshold` =  ppov185,
+         `Income > 500% poverty threshold` = ppov500,
+         # `Median household income ($)` = mdhhincnow,
+         `Households in bottom quintile for income` = phhi_qntl1,
+         `Households in top quintile for income` = phhi_qntl5,
+         # `Median annual earnings for full-time workers ($)` = mdern_ftyr
+   ) %>%
+  pivot_longer(names_to = "Race", values_to = "value", -c(tract_string, canopy_percent)) %>%
+  ggplot(aes(x = value, y = canopy_percent)) +
+  geom_point(pch = 21, col = "grey40") +#colors$suppGray) +
+  geom_smooth(col = councilR::colors$cdGreen, fill = NA, lwd = 1, method = 'lm') +
+  councilR::council_theme() +
+    scale_y_continuous(labels = scales::percent, limits = c(0, .45))+#, trans = log2_trans()) +
+  scale_x_continuous(labels = scales::percent)+#, trans = log2_trans()) +
+  facet_wrap(~Race, scales = "free_x", ncol = 2) +
+  labs(x = "Households falling into income category (%)", y = "")
 
 
+eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  select(tract_string, canopy_percent, aca, acp) %>%
+  rename(`Area of concentrated affluence` = aca,
+         `Area of concentrated poverty` = acp) %>%
+  pivot_longer(names_to = "Race", values_to = "value", -c(tract_string, canopy_percent)) %>%
+  mutate(value = na_if(value, 0)) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(x = Race, y = canopy_percent)) +
+  ggdist::stat_halfeye(
+          adjust = .5,  width = .3,  .width = 0,  justification = -.6, 
+          point_colour = NA,
+          na.rm = T) + 
+        geom_boxplot(width = .25, outlier.shape = NA,
+                     na.rm = T) +
+        councilR::council_theme() +
+        geom_point(size = 1.3,alpha = .3,
+                   position = position_jitter(seed = 1, width = 0.1, height = 0),
+                   col = "grey40",
+                   na.rm = T) +
+        labs( y = " ", x = "") +
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1))
 
+
+mn_tracts %>% 
+  right_join(eva_data_main %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  select(tract_string, canopy_percent, aca, acp) %>%
+    filter(aca == 1)) %>%
+  ggplot() +
+  geom_sf(aes(fill = canopy_percent))
+```
 
 
 

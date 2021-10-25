@@ -84,4 +84,70 @@ mn_tracts %>%
                mutate(`Canopy coverage` = raw_value * 100)) %>%
   select(tract_string, `Canopy coverage`) %>%
   rename(`Tract id` = tract_string) %>%
-  sf::st_write(., "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/tree_tracts.shp", append = FALSE)
+  
+
+
+
+###########
+#export native lands
+###########
+oceti <- jsonlite::fromJSON("https://native-land.ca/api/index.php?maps=territories&name=oceti-sakowin-sioux,/indigenousTerritories.json") 
+st_as_sfc(oceti, GeoJSON = TRUE)
+meuse_sf = st_as_sf(oceti, coords = c("x", "y"), crs = 28992, agr = "constant")
+st_write(meuse, "meuse.geojson")
+
+
+rgdal::writeOGR(oceti,dsn= "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/oceti.GeoJSON", layer="oceti", driver="GeoJSON")
+
+# oceti_geoms = oceti$geometry
+# oceti_types = oceti_geoms$type
+# oceti_geoms = oceti_geoms$coordinates
+# oceti_plgs = lapply(1:length(oceti_geoms), function(x) {
+#   iter_type = glue::glue("{toupper(oceti_types[x])}")
+#   iter_geom = oceti_geoms[[x]]
+#   iter_geom = glue::glue("{iter_geom[,,1]} {iter_geom[,,2]}")
+#   iter_geom = paste(iter_geom, collapse = ', ')
+#   iter_out = as.character(glue::glue("{iter_type}(({iter_geom}))"))
+#   iter_out
+# })
+# oceti_properties = oceti$properties
+# oceti_properties$geometry = oceti_plgs
+# oceti_properties = sf::st_as_sf(oceti_properties, wkt = "geometry")
+
+jsonlite::write_json(oceti, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/oceti.json")
+
+read_sf("https://native-land.ca/api/index.php?maps=territories&name=oceti-sakowin-sioux,/indigenousTerritories.json") 
+
+
+
+
+
+########
+#city tree canopy
+######
+st_drop_geometry(ctu_list) %>% 
+  full_join(st_drop_geometry(nhood_list)) %>%
+  select(GEO_NAME, canopy_percent) %>%
+  filter(GEO_NAME != "Minneapolis",
+         GEO_NAME != "St. Paul") %>%
+  arrange(canopy_percent)
+
+
+st_drop_geometry(nhood_list) %>%
+  filter(city == "St. Paul") %>%
+  select(GEO_NAME, canopy_percent) %>%
+  arrange(-canopy_percent) %>%    # First sort by val. This sort the dataframe but NOT the factor levels
+  mutate(GEO_NAME=factor(GEO_NAME, levels=GEO_NAME)) %>%   # This trick update the factor levels
+  ggplot( aes(x=GEO_NAME, y=canopy_percent)) +
+  geom_segment( aes(xend=GEO_NAME, yend=0)) +
+  geom_point( size=4, color=councilR::colors$cdGreen) +
+  coord_flip() +
+  theme_minimal() +
+  xlab("")
+
+
+  mutate(GEO_NAME = fct_reorder(GEO_NAME, -canopy_percent)) %>%
+  ggplot(aes(x = canopy_percent,
+             y = GEO_NAME)) +
+  geom_segment(aes(yend=canopy_percent, yend=0)) +
+  geom_point(size = 4) 
