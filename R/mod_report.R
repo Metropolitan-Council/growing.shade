@@ -262,7 +262,12 @@ mod_report_server <- function(id,
         paste0(
           if(geo_selections$selected_geo == "tracts") {
             paste0(param_fancytract(), " has an existing tree canopy coverage of ", param_max(), 
-                   "% in 2020. The distribution of tree canopy coverage acrooss all of the region's tracts is shown below; the selected tract is highlighted in green. <br><br>")
+                   "% in 2020. Compared to other tracts across the region, the tree canopy in ", param_area(), " is ",
+                   if(param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {"above"
+                   } else if(param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {"below"
+                   } else {"about equal to"}, 
+                   " average (", round(param_areasummary()$avgcanopy*100, 1), "%).<br><br> ", 
+                   "The distribution of tree canopy coverage acrooss all of the region's tracts is shown below; the selected tract is highlighted in green. See the 'methods' to understand why our numbers may differ from other tools. ")
           } else { 
             paste0(param_area(),
                    " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent*100, 1), 
@@ -373,9 +378,10 @@ mod_report_server <- function(id,
                      na.rm = T) +
         councilR::council_theme() +
         theme(panel.grid.minor = element_blank(),
-              panel.grid.major.y = element_blank()#,
-              # axis.text.y = element_blank()
+              panel.grid.major.y = element_blank(),
+              axis.text.y = element_text(size = 12)
               ) +
+          ggtitle(paste0(param_area(), " tree canopy"))+
         geom_point(size = 1.3, alpha = .3,
                    position = position_jitter(seed = 1, width = 0, height = .3),
                    col = "grey40",
@@ -384,11 +390,10 @@ mod_report_server <- function(id,
                    na.rm = T) +
         labs(y = "", x = "Tree canopy cover (%)") +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        geom_point(aes(x = raw_value, y = type), 
-                     fill = councilR::colors$cdGreen, 
-                     size = 4, col = "black", pch = 21, 
-                     data = filter(canopyplot, flag == "selected", t2 != "tracts"),
-                     na.rm = T) +
+          geom_point(aes(x = raw_value, y = type), 
+                      fill = councilR::colors$cdGreen, 
+                      size = 4, col = "black", pch = 21, 
+                      data = filter(canopyplot, flag == "selected", is.na(t2))) +
         geom_jitter(aes(x = raw_value, y = type), 
                     position = position_jitter(seed = 1, width = 0, height = .3), 
                     fill = councilR::colors$cdGreen, 
@@ -409,6 +414,7 @@ mod_report_server <- function(id,
           theme(panel.grid.minor = element_blank(),
                 panel.grid.major.y = element_blank(),
                 axis.text.y = element_blank()) +
+          ggtitle(paste0(param_fancytract(), " tree canopy"))+
           geom_point(size = 1.3,alpha = .3,
                      position = position_jitter(seed = 1, width = 0, height = .3),
                      col = "grey40",
@@ -1058,7 +1064,7 @@ mod_report_server <- function(id,
     
     output$get_tree_plot <- renderUI({
       req(TEST() != "")
-      plotOutput(ns("tree_plot"), "300px", width = "100%") %>%
+      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m") })
     
     output$get_rank_plot <- renderUI({

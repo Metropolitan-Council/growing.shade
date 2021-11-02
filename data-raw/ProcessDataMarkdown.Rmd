@@ -430,8 +430,10 @@ nhood_list <- nhood_geo %>%
   full_join(canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326) %>%
-  group_by(city) %>% mutate(tree = sum(treeacres), land = sum(landacres), avgcanopy = tree/land * calib_coeff,
-                            umncanopy = sum(`1`/land))
+  group_by(city) %>%  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
+
+  # group_by(city) %>% mutate(tree = sum(treeacres), land = sum(landacres), avgcanopy = tree/land * calib_coeff,
+                            # umncanopy = sum(`1`/land))
 
 usethis::use_data(nhood_list, overwrite = TRUE)
 
@@ -443,7 +445,8 @@ ctu_list <- ctu_geo %>%
   full_join(canopy_ctu) %>%
   arrange(GEO_NAME) %>%
   st_transform(4326) %>%
-  mutate(tree = sum(treeacres, na.rm = T), land = sum(landacres, na.rm = T), avgcanopy = tree/land * calib_coeff)
+  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
+  # mutate(tree = sum(treeacres, na.rm = T), land = sum(landacres, na.rm = T), avgcanopy = tree/land * calib_coeff)
 
 #should check credit river / credit river twp.
 nhood_list %>% arrange(avgcanopy, canopy_percent)
@@ -730,7 +733,8 @@ mn_tracts <- mn_tracts_2 %>%
               mutate(rank = rank(-score)) %>%
               select(-score) %>%
               pivot_wider(names_from = preset, values_from = rank)
-            %>% rename(GEOID = tract_string))
+            %>% rename(GEOID = tract_string)) %>%
+  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
 
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
