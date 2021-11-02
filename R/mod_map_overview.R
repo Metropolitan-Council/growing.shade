@@ -289,7 +289,7 @@ mod_map_overview_server <- function(input, output, session,
                                        "<br>City: ", map_util$map_data2$jurisdiction, 
                                        "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
                                        "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
-                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"),
+                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value *100, 1), "%"),
                        options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%

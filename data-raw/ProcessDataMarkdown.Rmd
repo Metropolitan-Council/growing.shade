@@ -10,7 +10,7 @@ urlcolor: blue
 
 The Growing Shade Project couples remote sensing data and demographic data to create insights about the intersection between the natural environment and people in real-time. 
 
-Becuase there are several steps which must be done in order, this document lays those steps out logically. 
+Because there are several steps which must be done in order, this document lays those steps out logically. 
 
 
 ```{r setup, include=FALSE}
@@ -79,21 +79,36 @@ calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
 calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
 anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
 
+# AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3)
+anova(calibrate_lm, calibrate_lm2)
+anova(calibrate_lm2, calibrate_lm3)
+
 summary(calibrate_lm2)$r.squared # r2
 summary(calibrate_lm2)$coefficients[,4] # p-value
 
 calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
+calib_coeff
 
 calibrate_trees %>%
   ggplot(aes(x = (umn), y = (sentinel * calib_coeff))) +
   geom_point(alpha = .5) +
-  geom_abline(slope=1, intercept=-25, col = 'blue', lwd = 2) +
+  geom_abline(slope=1, intercept=0, col = 'blue', lwd = 2) +
   # geom_smooth(method = "lm", fill = NA)+
   theme_minimal()  + 
-  labs( x = "UMN tree acres in grid", y = "Sentinel acres in grid",
+  labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
         title = "calibrated")
   # labs(y = expression ("Sentinel in"~m/s^2))
 
+
+# calibrate_trees %>%
+#   ggplot(aes(x = (sentinel), y = (umn))) +
+#   geom_point(alpha = .5) +
+#   geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
+#       stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
+#   # geom_smooth(method = "lm", fill = NA)+
+#   theme_minimal()  +
+#   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
+#         title = "UNcalibrated")
 ```
 
 
@@ -139,7 +154,8 @@ find_centroid <- function(x, ...) {
 mn_tracts_1 <- tigris::tracts(state = "MN",
                             county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
   sf::st_transform(4326) %>%
-  mutate(GEO_NAME = GEOID)
+  mutate(GEO_NAME = GEOID)# %>%
+  # mutate(Shape_Area = as.numeric(st_area(.)))
 
 
 ### neighborhoods -----------
@@ -285,6 +301,15 @@ nhood_land <- nhood_geo %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
 
+
+mn_tracts_2 <- mn_tracts_1 %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_erase(river_lake_buffer %>%
+             st_union() %>%
+             st_buffer(0)) %>%
+  mutate(ALAND = as.numeric(st_area(.)))
+
 ```
 
 
@@ -315,7 +340,7 @@ tract_ndvi <- read_csv("../data-raw/meanNDVI_tracts_year2020.csv",
 # canopy coverage
 canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
-  left_join(sf::st_drop_geometry(mn_tracts_1), by = c("GEOID10" = "GEOID")) %>%
+  left_join(sf::st_drop_geometry(mn_tracts_2), by = c("GEOID10" = "GEOID")) %>%
   transmute(GEOID10 = GEOID10, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
@@ -337,7 +362,9 @@ canopy_nhood <- read_csv("../data-raw/TreeAcres_neighborhoods_year2020.csv",
   transmute(GEO_NAME = GEO_NAME, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
-            canopy_percent = treeacres / landacres * calib_coeff) 
+            canopy_percent = treeacres / landacres * calib_coeff) %>%
+  full_join(read_csv("/Users/escheh/Downloads/UMNTreeAcres_neighborhoods_year2020_scale1.csv")) %>%
+  mutate(umn_canopy = `1`/landacres)
 canopy_nhood %>% arrange(canopy_percent)
 # # tree raster
 # treecrs <- raster::raster("./data/TreeMap_crs4326_2020.tif")
@@ -402,7 +429,9 @@ nhood_list <- nhood_geo %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
-  st_transform(4326)
+  st_transform(4326) %>%
+  group_by(city) %>% mutate(tree = sum(treeacres), land = sum(landacres), avgcanopy = tree/land * calib_coeff,
+                            umncanopy = sum(`1`/land))
 
 usethis::use_data(nhood_list, overwrite = TRUE)
 
@@ -413,8 +442,11 @@ ctu_list <- ctu_geo %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(canopy_ctu) %>%
   arrange(GEO_NAME) %>%
-  st_transform(4326)
+  st_transform(4326) %>%
+  mutate(tree = sum(treeacres, na.rm = T), land = sum(landacres, na.rm = T), avgcanopy = tree/land * calib_coeff)
 
+#should check credit river / credit river twp.
+nhood_list %>% arrange(avgcanopy, canopy_percent)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
 sf::st_write(ctu_list, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
@@ -687,7 +719,7 @@ priority_summary <- priority_summary_1 %>%
 
 
 
-mn_tracts <- mn_tracts_1 %>%
+mn_tracts <- mn_tracts_2 %>%
   full_join(wide_ctu_crosswalk) %>%
       full_join(eab_counts(., GEOID)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
@@ -1141,6 +1173,11 @@ mn_tracts %>%
 ```
 
 
+
+```{r}
+
+
+```
 
 
 

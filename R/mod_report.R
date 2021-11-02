@@ -232,26 +232,54 @@ mod_report_server <- function(id,
     })    
 
     # tree canopy section ------------
+    # output$tree_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   tagList(HTML(
+    #     paste0(
+    #       if(geo_selections$selected_geo == "tracts") {
+    #         paste0(param_fancytract(), " has an existing tree canopy of ", param_max(), 
+    #         "%.  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
+    #         } else { 
+    #       paste0(param_area(),
+    #       " has an average tree canopy of ", round(param_areasummary()$canopy_percent*100, 1), "%. Across " ,
+    #       param_ntracts(),
+    #       " Census tracts falling within the city boundary, tree canopy ranges from ",
+    #       param_min(),
+    #       "% to ",
+    #       param_max(),
+    #       "% . The distribution of region's tree canopy across is shown below. In the top panel the region's 187 communities are shown with ", 
+    #       param_area(),
+    #       " highlighted in green. In the second panel, tracts within the city are shown in green - these tracts have different sizes and may overlap other communities as well so city average canopy may not be the mean of the tracts.")}#,
+    #       # "<br><br> In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Lower tree coverage in areas with native tallgrass prairie should not be penalized."
+    #     )
+    #   ))
+    # })
+    
     output$tree_para <- renderUI({
-      ns <- session$ns
       req(TEST() != "")
       tagList(HTML(
         paste0(
           if(geo_selections$selected_geo == "tracts") {
-            paste0(param_fancytract(), " has an existing tree canopy of ", param_max(), 
-            "%.  The distribution of tree canopy across the region is shown below; the selected tract is highlighted in green. <br><br>")
-            } else { 
-          paste0(param_area(),
-          " has an existing tree canopy which ranges from ",
-          param_min(),
-          "% to ",
-          param_max(),
-          "% ",
-          "across ",
-          param_ntracts(),
-          " Census tracts. The distribution of tree canopy across the region is shown below; tracts in ",
-          param_area(),
-          " are highlighted in green.")}#,
+            paste0(param_fancytract(), " has an existing tree canopy coverage of ", param_max(), 
+                   "% in 2020. The distribution of tree canopy coverage acrooss all of the region's tracts is shown below; the selected tract is highlighted in green. <br><br>")
+          } else { 
+            paste0(param_area(),
+                   " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent*100, 1), 
+                   "% in 2020. Compared to other ", if(geo_selections$selected_geo == "ctus") {"cities and townships"} else {"neighborhoods"},
+                   " across ", if(geo_selections$selected_geo == "ctus") {"the region"} else (param_areasummary()$city),
+                   ", the tree canopy in ", param_area(), " is ",
+                   if(param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {"above"
+                     } else if(param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {"below"
+                     } else {"about equal to"}, 
+                   " average (", round(param_areasummary()$avgcanopy*100, 1), "%). ",
+                   "Within " , param_area(), ", there are ",
+                   param_ntracts(),
+                   " Census block groups with tree canopy cover ranging from ",
+                   param_min(),
+                   "% to ",
+                   param_max(),
+                   "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census block groups have different areas and may overlap with other geographies, thus the average canopy cover may not be the mean of the block group canopy cover. See the 'methods' to understand why our numbers may differ from other tools. ")}#,
           # "<br><br> In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Lower tree coverage in areas with native tallgrass prairie should not be penalized."
         )
       ))
@@ -261,43 +289,144 @@ mod_report_server <- function(id,
     output$tree_plot <- renderPlot({
       req(TEST() != "")
       
-      canopyplot<- eva_data_main %>%
+      # canopyplot<- eva_data_main %>%
+      #   filter(variable %in% c("canopy_percent")) %>%
+      #   select(tract_string, variable, raw_value) %>%
+      #   mutate(flag = if_else(tract_string %in% 
+      #                           if (geo_selections$selected_geo == "ctus") {
+      #                             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+      #                             } else if (geo_selections$selected_geo == "nhood") {
+      #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+      #                             } else {c(param_area())}, "selected", NA_character_))
+      # plot <- ggplot()+
+      #   ggdist::stat_halfeye(
+      #     data = canopyplot, aes(x = raw_value, y = 1),
+      #     adjust = .5,  width = .6,  .width = 0,  justification = -.6, 
+      #     point_colour = NA,
+      #     na.rm = T) + 
+      #   geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
+      #                width = .75, outlier.shape = NA,
+      #                na.rm = T) +
+      #   councilR::council_theme() +
+      #   theme(panel.grid.minor = element_blank(),
+      #         panel.grid.major.y = element_blank(),
+      #         axis.text.y = element_blank()) +
+      #   geom_point(size = 1.3,alpha = .3,
+      #              position = position_jitter(seed = 1, width = 0, height = .3),
+      #              col = "grey40",
+      #              aes(x = raw_value, y = 1),
+      #              data = filter(canopyplot, is.na(flag)),
+      #              na.rm = T) +
+      #   labs(y = "", x = "Tree canopy cover (%)") +
+      #   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+      #   geom_jitter(aes(x = raw_value, y = 1), 
+      #               position = position_jitter(seed = 1, width = 0, height = .3), 
+      #              fill = councilR::colors$cdGreen, 
+      #              size = 5, col = "black", pch = 21, 
+      #              data = filter(canopyplot, flag == "selected"),
+      #              na.rm = T)
+      # return(plot)
+      
+      
+      if(geo_selections$selected_geo != "tracts") {
+        canopyplot<- eva_data_main %>%
         filter(variable %in% c("canopy_percent")) %>%
         select(tract_string, variable, raw_value) %>%
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else if (geo_selections$selected_geo == "nhood") {
-                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else {c(param_area())}, "selected", NA_character_))
-      plot <- ggplot()+
-        ggdist::stat_halfeye(
-          data = canopyplot, aes(x = raw_value, y = 1),
-          adjust = .5,  width = .6,  .width = 0,  justification = -.6, 
-          point_colour = NA,
-          na.rm = T) + 
-        geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
-                     width = .75, outlier.shape = NA,
+                                } else if (geo_selections$selected_geo == "nhood") {
+                                  c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                } else {c(param_area())}, "selected", NA_character_)) %>%
+        mutate(type = paste0(" Block groups\nwithin ", param_area()),
+               t2 = "tracts") %>%
+        filter(flag == "selected") %>%
+        bind_rows(as_tibble(if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}) %>%
+                    mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
+                    rename(tract_string = GEO_NAME,
+                           raw_value = canopy_percent) %>%
+                    select(tract_string, raw_value, flag) %>%
+                    mutate(variable = "canopy_percent",
+                           type = if(geo_selections$selected_geo == "ctus") {"Cities across\nthe region"} else {paste0("Neighborhoods across\n", param_areasummary()$city)}))
+      } else {
+        canopyplot <- eva_data_main %>%
+            filter(variable %in% c("canopy_percent")) %>%
+            select(tract_string, variable, raw_value) %>%
+            mutate(flag = if_else(tract_string %in%
+                                    if (geo_selections$selected_geo == "ctus") {
+                                      c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                      } else if (geo_selections$selected_geo == "nhood") {
+                                        c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+                                      } else {c(param_area())}, "selected", NA_character_))
+      }
+      
+      if(geo_selections$selected_geo != "tracts") {
+        plot <- ggplot()+
+        # ggdist::stat_halfeye(
+        #   data = filter(canopyplot, type != " tracts"), aes(x = raw_value, y = type),
+        #   adjust = .5,  width = .1,  .width = 0,  justification = -.6,
+        #   point_colour = NA, height = .35,
+        #   na.rm = T) +
+        geom_boxplot(data = canopyplot, aes(x = raw_value, y = type),
+                     # width = .35, 
+                     outlier.shape = NA,
                      na.rm = T) +
         councilR::council_theme() +
         theme(panel.grid.minor = element_blank(),
-              panel.grid.major.y = element_blank(),
-              axis.text.y = element_blank()) +
-        geom_point(size = 1.3,alpha = .3,
+              panel.grid.major.y = element_blank()#,
+              # axis.text.y = element_blank()
+              ) +
+        geom_point(size = 1.3, alpha = .3,
                    position = position_jitter(seed = 1, width = 0, height = .3),
                    col = "grey40",
-                   aes(x = raw_value, y = 1),
+                   aes(x = raw_value, y = type),
                    data = filter(canopyplot, is.na(flag)),
                    na.rm = T) +
         labs(y = "", x = "Tree canopy cover (%)") +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        geom_jitter(aes(x = raw_value, y = 1), 
+        geom_point(aes(x = raw_value, y = type), 
+                     fill = councilR::colors$cdGreen, 
+                     size = 4, col = "black", pch = 21, 
+                     data = filter(canopyplot, flag == "selected", t2 != "tracts"),
+                     na.rm = T) +
+        geom_jitter(aes(x = raw_value, y = type), 
                     position = position_jitter(seed = 1, width = 0, height = .3), 
-                   fill = councilR::colors$cdGreen, 
-                   size = 5, col = "black", pch = 21, 
-                   data = filter(canopyplot, flag == "selected"),
-                   na.rm = T)
+                    fill = councilR::colors$cdGreen, 
+                    size = 4, col = "black", pch = 21, 
+                    data = filter(canopyplot, flag == "selected", t2 == "tracts"),
+                    na.rm = T)
+      } else {
+        plot<- ggplot() +
+          ggdist::stat_halfeye(
+            data = canopyplot, aes(x = raw_value, y = 1),
+            adjust = .5,  width = .6,  .width = 0,  justification = -.6,
+            point_colour = NA,
+            na.rm = T) +
+          geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
+                       width = .75, outlier.shape = NA,
+                       na.rm = T) +
+          councilR::council_theme() +
+          theme(panel.grid.minor = element_blank(),
+                panel.grid.major.y = element_blank(),
+                axis.text.y = element_blank()) +
+          geom_point(size = 1.3,alpha = .3,
+                     position = position_jitter(seed = 1, width = 0, height = .3),
+                     col = "grey40",
+                     aes(x = raw_value, y = 1),
+                     data = filter(canopyplot, is.na(flag)),
+                     na.rm = T) +
+          labs(y = "", x = "Tree canopy cover (%)") +
+          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+          geom_point(aes(x = raw_value, y = 1),
+                     fill = councilR::colors$cdGreen,
+                     size = 5, col = "black", pch = 21,
+                     data = filter(canopyplot, flag == "selected"),
+                     na.rm = T)
+      }
       return(plot)
+      
+      
+      
     })
     
     # ranking section ------------
@@ -929,7 +1058,7 @@ mod_report_server <- function(id,
     
     output$get_tree_plot <- renderUI({
       req(TEST() != "")
-      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
+      plotOutput(ns("tree_plot"), "300px", width = "100%") %>%
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m") })
     
     output$get_rank_plot <- renderUI({
