@@ -605,7 +605,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "ndvi", "Greenness (2020 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
                           "ndvi2", "Greenness (2020 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
-                          "holc_pred", "Share of tract's land acreage redlined", "environment", "high_opportunity", 0, 1, 0, 0,
+                          "holc_pred", "% of tract's land acreage redlined", "environment", "high_opportunity", 0, 1, 0, 0,
                           "canopy_percent", "Tree canopy in 2020 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
                           "canopy_percent2", "Tree canopy in 2020 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, #, 2015-2019 period (in 2019 dollars)

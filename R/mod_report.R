@@ -522,36 +522,7 @@ mod_report_server <- function(id,
     
     # priority section -----------
     
-    # output$priority_para <- renderUI({
-    #   ns <- session$ns
-    #   req(TEST() != "")
-    #   # tagList(
-    #   #   if (map_selections$priority_layer == "Off") {HTML(paste0(""))
-    #   #   } else {
-    # 
-    #       para <- HTML(paste0( 
-    #         # "The variables included in this prioritization layer are: <br> - ",
-    #         # 
-    #         # if(map_selections$preset == "Environmental justice") {
-    #         #   paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
-    #         # } else if(map_selections$preset == "Climate change") {
-    #         #   paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
-    #         # } else if(map_selections$preset == "Public health") {
-    #         #   paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
-    #         # } else if(map_selections$preset == "Conservation") {
-    #         #   paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
-    #         # } else if(map_selections$preset == "Custom") {
-    #         #   paste(unlist(((map_selections$allInputs))), collapse = ",<br>- ") #this is the right format for here
-    #         #   }, 
-    #         # 
-    #         # "<br><br> ",
-    #         "This is how the selected area compares to the region for the proritization variables used. Scaled and standardized scores are on the x-axis. The selected area is shown in green and the regional average in blue.<br>"
-    #       )
-    #       )
-    #       return(para)
-    #   #   }
-    #   # )
-    # })
+
     
     
     output$table_para <- renderUI({
@@ -614,9 +585,12 @@ mod_report_server <- function(id,
           ungroup() %>%
           select(grouping, name, RAW) %>% #, SE) %>%
           filter(!is.na(name)) %>%
-          
+
           pivot_wider(names_from = grouping, values_from = RAW) %>%
-          rename(Variable = name)# c(RAW, SE))
+          rename(Variable = name) %>%
+          mutate(`Selected area` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
+                                             TRUE ~ as.character(round(`Selected area`, 2)))) 
+        # c(RAW, SE))
       # fake <- tibble(grouping = c("selected", "selected", "rgn", "rgn"),
       #                name = c("a", "b", "a", "b"),
       #                RAW = c(.1,2,.5,6),
@@ -722,8 +696,6 @@ mod_report_server <- function(id,
         geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
-        theme(panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
         labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
@@ -788,90 +760,7 @@ mod_report_server <- function(id,
     })
     
     
-    # #  priority plot with bars
-    # # i don't like this much becuase of course the regional average is close to 5 rescaled
-    # output$priority_plot <- renderPlot({
-    #   req(TEST() != "")
-    #   
-    #   ps <- param_selectedtractvalues() %>%
-    #     st_drop_geometry() %>%
-    #     rename(weights_scaled = MEAN) %>%
-    #     add_column(name = "Aggregated priority score") %>%
-    #     add_column(order = 1)
-    #   
-    #   plot <- eva_data_main %>%
-    #     filter(name %in%
-    #              if(map_selections$preset == "Environmental justice") {
-    #                metadata[metadata$ej == 1, ]$name
-    #              } else if(map_selections$preset == "Climate change") {
-    #                metadata[metadata$cc == 1, ]$name
-    #              } else if(map_selections$preset == "Public health") {
-    #                metadata[metadata$ph == 1, ]$name
-    #              } else if(map_selections$preset == "Conservation") {
-    #                metadata[metadata$cons == 1, ]$name
-    #              } else if(map_selections$preset == "Custom") {
-    #                c(map_selections$allInputs$value)}) %>%
-    #     mutate(flag = if_else(tract_string %in%
-    #                             if (geo_selections$selected_geo == "ctus") {
-    #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                             } else if (geo_selections$selected_geo == "nhood") {
-    #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-    #                             } else {c(param_area())}, "selected", NA_character_)) %>%
-    #     filter(flag == "selected") %>%
-    #     add_column(order = 2) %>%
-    #     # filter(!is.na(weights_scaled)) %>%
-    #     bind_rows(ps)  %>%
-    #     add_column(grouping = "Selected area") %>%
-    #     group_by(grouping, name, order) %>%
-    #     summarise(TEST = mean(weights_scaled, na.rm = T),
-    #               SE = sd(weights_scaled, na.rm = T)/sqrt(n())) %>%
-    #     
-    #     full_join(metadata %>%
-    #                 filter(name %in%
-    #                          if(map_selections$preset == "Environmental justice") {
-    #                            metadata[metadata$ej == 1, ]$name
-    #                          } else if(map_selections$preset == "Climate change") {
-    #                            metadata[metadata$cc == 1, ]$name
-    #                          } else if(map_selections$preset == "Public health") {
-    #                            metadata[metadata$ph == 1, ]$name
-    #                          } else if(map_selections$preset == "Conservation") {
-    #                            metadata[metadata$cons == 1, ]$name
-    #                          } else {c(map_selections$allInputs$value)}) %>%
-    #                 # full_join(tibble(name = "Aggregated priority score"),
-    #                 #           MEANSCALED = NA, by = 'name') %>%
-    #                 add_column(grouping = "Region average", 
-    #                            order = 2) %>%
-    #                 rename(TEST = MEANSCALED)) %>%
-    #     
-    #     ggplot(aes(y = TEST, x = forcats::fct_reorder(name, order, .desc = TRUE)
-    #                , fill = grouping))+
-    #     geom_bar(#color = councilR::colors$councilBlue,
-    #                # pch = 8, size = 3,
-    #                na.rm = T,
-    #                col = "black",
-    #                width = .7,
-    #                stat = "identity",
-    #                position = position_dodge(width = .7)) +
-    #     scale_fill_manual(values = c(councilR::colors$councilBlue, councilR::colors$cdGreen)) +
-    #     geom_errorbar(aes(ymin = TEST - SE, ymax = TEST + SE), 
-    #                   width = 0,
-    #                   position = position_dodge(width = .7)) +
-    #     councilR::council_theme() +
-    #     ylim(c(0,10)) +
-    #     scale_x_discrete(labels = function(x) str_wrap(x, width = 30))+
-    #     theme(panel.grid.major.x = element_blank(),
-    #           axis.title.y = element_blank(),
-    #           legend.position = "bottom") +
-    #     labs(y = "Score (where \n10 = highest priority)",
-    #          fill = "") +
-    #     coord_flip() 
-    #   
-    #   return(plot)
-    # })
     
-  
-    
-
     output$dl_report <- downloadHandler(
       filename = paste0("GrowingShade_", Sys.Date(), ".html"),
       content = function(file) {
@@ -963,11 +852,7 @@ mod_report_server <- function(id,
     output$other_title <- renderUI({
       req(TEST() != "")
       h4("Threats: ")})
-    
-    # output$resource_title <- renderUI({
-    #   req(TEST() != "")
-    #   h4("Other resources")})
-    
+
     
     output$get_tree_plot <- renderUI({
       req(TEST() != "")
@@ -979,22 +864,11 @@ mod_report_server <- function(id,
       plotOutput(ns("rank_plot"), "300px", width = "100%") %>%
         shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m") })
     
-    # output$get_priority_plot <- renderUI({
-    #   req(TEST() != "")
-    #   plotOutput(ns("priority_plot"), "400px", width = "100%") %>%
-    #     shinyhelper::helper(type = "markdown", content = "PriorityHelp", size = "m")})
     
     output$get_equity_plot <- renderUI({
       req(TEST() != "")
       plotOutput(ns("equity_plot"), "400px", width = "80%")})
     
-    # output$get_equity_plot_race <- renderUI({
-    #   req(TEST() != "")
-    #   plotOutput(ns("equity_plot_race"), "100px")})
-    # 
-    # output$get_equity_plot_income <- renderUI({
-    #   req(TEST() != "")
-    #   plotOutput(ns("equity_plot_income"), "100px")})
     
     output$get_other_plot <- renderUI({
       req(TEST() != "")
