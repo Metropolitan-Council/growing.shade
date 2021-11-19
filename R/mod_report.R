@@ -315,13 +315,7 @@ mod_report_server <- function(id,
       
       if(geo_selections$selected_geo != "tracts") {
         plot <- ggplot()+
-          # ggdist::stat_halfeye(
-          #   data = filter(canopyplot, type != " tracts"), aes(x = raw_value, y = type),
-          #   adjust = .5,  width = .1,  .width = 0,  justification = -.6,
-          #   point_colour = NA, height = .35,
-          #   na.rm = T) +
           geom_boxplot(data = canopyplot, aes(x = raw_value, y = type),
-                       # width = .35, 
                        outlier.shape = NA,
                        na.rm = T) +
           councilR::council_theme() +
@@ -337,15 +331,15 @@ mod_report_server <- function(id,
                      data = filter(canopyplot, is.na(flag)),
                      na.rm = T) +
           labs(y = "", x = "Tree canopy cover (%)") +
-          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-          geom_point(aes(x = raw_value, y = type), 
-                     fill = councilR::colors$cdGreen, 
-                     size = 4, col = "black", pch = 21, 
+          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+          geom_point(aes(x = raw_value, y = type),
+                     fill = councilR::colors$cdGreen,
+                     size = 4, col = "black", pch = 21,
                      data = filter(canopyplot, flag == "selected", is.na(t2))) +
-          geom_jitter(aes(x = raw_value, y = type), 
-                      position = position_jitter(seed = 1, width = 0, height = .3), 
-                      fill = councilR::colors$cdGreen, 
-                      size = 4, col = "black", pch = 21, 
+          geom_jitter(aes(x = raw_value, y = type),
+                      position = position_jitter(seed = 1, width = 0, height = .3),
+                      fill = councilR::colors$cdGreen,
+                      size = 4, col = "black", pch = 21,
                       data = filter(canopyplot, flag == "selected", t2 == "tracts"),
                       na.rm = T)
       } else {
@@ -361,10 +355,7 @@ mod_report_server <- function(id,
           councilR::council_theme() +
           theme(panel.grid.minor = element_blank(),
                 panel.grid.major.y = element_blank(),
-                axis.text.y = element_blank()#,
-                # axis.title.x = element_text(size = 6),
-                # axis.text.x = element_text(size =8),
-                # plot.title = element_text(size = 2)
+                axis.text.y = element_blank()
           ) +
           ggtitle(paste0(param_fancytract(), " tree canopy"))+
           geom_point(size = 1.3,alpha = .3,
@@ -387,154 +378,52 @@ mod_report_server <- function(id,
     output$tree_plot <- renderPlot({
       req(TEST() != "")
       tree_report_plot()
-      # if(geo_selections$selected_geo != "tracts") {
-      #   canopyplot<- eva_data_main %>%
-      #   filter(variable %in% c("canopy_percent")) %>%
-      #   select(tract_string, variable, raw_value) %>%
-      #   mutate(flag = if_else(tract_string %in% 
-      #                           if (geo_selections$selected_geo == "ctus") {
-      #                             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                           } else if (geo_selections$selected_geo == "nhood") {
-      #                             c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                           } else {c(param_area())}, "selected", NA_character_)) %>%
-      #   mutate(type = paste0(" Tracts\nwithin ", param_area()),
-      #          t2 = "tracts") %>%
-      #   filter(flag == "selected") %>%
-      #   bind_rows(as_tibble(if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}) %>%
-      #               mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
-      #               rename(tract_string = GEO_NAME,
-      #                      raw_value = canopy_percent) %>%
-      #               select(tract_string, raw_value, flag) %>%
-      #               mutate(variable = "canopy_percent",
-      #                      type = if(geo_selections$selected_geo == "ctus") {"Cities across\nthe region"} else {paste0("Neighborhoods across\n", param_areasummary()$city)}))
-      # } else {
-      #   canopyplot <- eva_data_main %>%
-      #       filter(variable %in% c("canopy_percent")) %>%
-      #       select(tract_string, variable, raw_value) %>%
-      #       mutate(flag = if_else(tract_string %in%
-      #                               if (geo_selections$selected_geo == "ctus") {
-      #                                 c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                                 } else if (geo_selections$selected_geo == "nhood") {
-      #                                   c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                                 } else {c(param_area())}, "selected", NA_character_))
-      # }
-      # 
-      # if(geo_selections$selected_geo != "tracts") {
-      #   plot <- ggplot()+
-      #   # ggdist::stat_halfeye(
-      #   #   data = filter(canopyplot, type != " tracts"), aes(x = raw_value, y = type),
-      #   #   adjust = .5,  width = .1,  .width = 0,  justification = -.6,
-      #   #   point_colour = NA, height = .35,
-      #   #   na.rm = T) +
-      #   geom_boxplot(data = canopyplot, aes(x = raw_value, y = type),
-      #                # width = .35, 
-      #                outlier.shape = NA,
-      #                na.rm = T) +
-      #   councilR::council_theme() +
-      #   theme(panel.grid.minor = element_blank(),
-      #         panel.grid.major.y = element_blank(),
-      #         axis.text.y = element_text(size = 12)
-      #         ) +
-      #     ggtitle(paste0(param_area(), " tree canopy"))+
-      #   geom_point(size = 1.3, alpha = .3,
-      #              position = position_jitter(seed = 1, width = 0, height = .3),
-      #              col = "grey40",
-      #              aes(x = raw_value, y = type),
-      #              data = filter(canopyplot, is.na(flag)),
-      #              na.rm = T) +
-      #   labs(y = "", x = "Tree canopy cover (%)") +
-      #   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-      #     geom_point(aes(x = raw_value, y = type), 
-      #                 fill = councilR::colors$cdGreen, 
-      #                 size = 4, col = "black", pch = 21, 
-      #                 data = filter(canopyplot, flag == "selected", is.na(t2))) +
-      #   geom_jitter(aes(x = raw_value, y = type), 
-      #               position = position_jitter(seed = 1, width = 0, height = .3), 
-      #               fill = councilR::colors$cdGreen, 
-      #               size = 4, col = "black", pch = 21, 
-      #               data = filter(canopyplot, flag == "selected", t2 == "tracts"),
-      #               na.rm = T)
-      # } else {
-      #   plot<- ggplot() +
-      #     ggdist::stat_halfeye(
-      #       data = canopyplot, aes(x = raw_value, y = 1),
-      #       adjust = .5,  width = .6,  .width = 0,  justification = -.6,
-      #       point_colour = NA,
-      #       na.rm = T) +
-      #     geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
-      #                  width = .75, outlier.shape = NA,
-      #                  na.rm = T) +
-      #     councilR::council_theme() +
-      #     theme(panel.grid.minor = element_blank(),
-      #           panel.grid.major.y = element_blank(),
-      #           axis.text.y = element_blank()#,
-      #           # axis.title.x = element_text(size = 6),
-      #           # axis.text.x = element_text(size =8),
-      #           # plot.title = element_text(size = 2)
-      #           ) +
-      #     ggtitle(paste0(param_fancytract(), " tree canopy"))+
-      #     geom_point(size = 1.3,alpha = .3,
-      #                position = position_jitter(seed = 1, width = 0, height = .3),
-      #                col = "grey40",
-      #                aes(x = raw_value, y = 1),
-      #                data = filter(canopyplot, is.na(flag)),
-      #                na.rm = T) +
-      #     labs(y = "", x = "Tree canopy cover (%)") +
-      #     scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-      #     geom_point(aes(x = raw_value, y = 1),
-      #                fill = councilR::colors$cdGreen,
-      #                size = 5, col = "black", pch = 21,
-      #                data = filter(canopyplot, flag == "selected"),
-      #                na.rm = T)
-      # }
-      # return(plot)
-      
-      
-      
     }#, res = 150)
     )
     # ranking section ------------
     
-    output$rank_para <- renderUI({
-      ns <- session$ns
+    rank_text <- reactive({
       req(TEST() != "")
-        para <- HTML(paste0( 
-          "Using the ",
-          tolower(map_selections$preset), 
-          " preset, ", 
-          if (geo_selections$selected_geo == "tracts") {
-            paste0(param_fancytract(), " has a priority score of ", 
-                   round((param_selectedtractvalues()$MEAN), 2), 
-                   " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ", 
-                   (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
-                   tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")
-          } else {paste0("tracts within ",
-          param_area(),
-          " have overall priority scores ranging from ",
-          round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
-          " and a region-wide ranking from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
-          tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")}
-        )
-        )
-        return(para)
-        # }
-      # )
+      tagList(HTML(
+        paste0( 
+        "Using the ",
+        tolower(map_selections$preset), 
+        " preset, ", 
+        if (geo_selections$selected_geo == "tracts") {
+          paste0(param_fancytract(), " has a priority score of ", 
+                 round((param_selectedtractvalues()$MEAN), 2), 
+                 " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ", 
+                 (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
+                 tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")
+        } else {paste0("tracts within ",
+                       param_area(),
+                       " have overall priority scores ranging from ",
+                       round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
+                       " and a region-wide ranking from ",
+                       min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
+                       tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")}
+      )
+      ))
     })
     
     
-    output$rank_plot <- renderPlot({
+    output$rank_para <- renderUI({
+      ns <- session$ns
       req(TEST() != "")
-      
+      rank_text()
+    })
+    
+    report_rank_plot <- reactive({
+      req(TEST() != "")
       test2 <- if (map_selections$preset != "Custom") {tibble()
-      # } else if (nrow(map_selections$allInputs) > 0) {
-      #   tibble(rank = (NA),
-      #            priority = " Custom")
+        # } else if (nrow(map_selections$allInputs) > 0) {
+        #   tibble(rank = (NA),
+        #            priority = " Custom")
       } else {
         param_selectedtractvalues() %>%
           rename(rank = RANK) %>%
           mutate(priority = " Custom")
-        }
+      }
       
       segment_line <- if (map_selections$preset != "Custom") {
         tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change"))
@@ -553,41 +442,102 @@ mod_report_server <- function(id,
         # } else {
         ggplot() +
         scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
-        geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = fct_rev(priority)), height = .5) +
+        geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme(#axis.text.y = element_blank(),
-              axis.title.y = element_blank(),
-              panel.grid.major.y = element_blank(),
-              panel.grid.minor.y = element_blank(),
-              panel.grid.major.x = element_blank(),
-              panel.grid.minor.x = element_blank()) +
+          axis.title.y = element_blank(),
+          panel.grid.major.y = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank()) +
         geom_segment(aes(x = 1, xend = 700, y = segment_line$y, 
                          yend = segment_line$y)) +
         labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)") 
       # }
       return(plot)
+      
+    })
+    
+    output$rank_plot <- renderPlot({
+      req(TEST() != "")
+      report_rank_plot()
     })
     
     # priority section -----------
     
 
-    
-    
-    output$table_para <- renderUI({
-      ns <- session$ns
-      req(geo_selections$selected_area)
-      tagList(
-          para <- HTML(paste0( 
-            "<br> Here is a table of the tracts with the highest priority score in ", param_area(), ". To get the raw values, and/or see the numbers for all of the tracts, please download the data file at the top of this report.  <br>")
-          ) )
-          return(para)
-    })
-    
+    # output$report_priority_table <- reactive({
+    #   req(TEST() != "")
+    #   
+    #   x <- eva_data_main %>%
+    #     filter(name %in%
+    #              if(map_selections$preset == "Environmental justice") {
+    #                metadata[metadata$ej == 1, ]$name
+    #              } else if(map_selections$preset == "Climate change") {
+    #                metadata[metadata$cc == 1, ]$name
+    #              } else if(map_selections$preset == "Public health") {
+    #                metadata[metadata$ph == 1, ]$name
+    #              } else if(map_selections$preset == "Conservation") {
+    #                metadata[metadata$cons == 1, ]$name
+    #              } else if(map_selections$preset == "Custom") {
+    #                c(map_selections$allInputs$value)}) %>%
+    #     mutate(flag = if_else(tract_string %in%
+    #                             if (geo_selections$selected_geo == "ctus") {
+    #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #                             } else if (geo_selections$selected_geo == "nhood") {
+    #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+    #                             } else {c(param_area())}, "selected", NA_character_)) %>%
+    #     filter(flag == "selected") %>%
+    #     add_column(order = 2) %>%
+    #     # filter(!is.na(raw_value)) %>%
+    #     # bind_rows(ps)  %>%
+    #     add_column(grouping = "Selected area") %>%
+    #     group_by(grouping, name, order) %>%
+    #     summarise(RAW = mean(raw_value, na.rm = T),
+    #               SE = sd(raw_value, na.rm = T)/sqrt(n())) %>%
+    #     
+    #     full_join(metadata %>%
+    #                 filter(name %in%
+    #                          if(map_selections$preset == "Environmental justice") {
+    #                            metadata[metadata$ej == 1, ]$name
+    #                          } else if(map_selections$preset == "Climate change") {
+    #                            metadata[metadata$cc == 1, ]$name
+    #                          } else if(map_selections$preset == "Public health") {
+    #                            metadata[metadata$ph == 1, ]$name
+    #                          } else if(map_selections$preset == "Conservation") {
+    #                            metadata[metadata$cons == 1, ]$name
+    #                          } else {c(map_selections$allInputs$value)}) %>%
+    #                 # full_join(tibble(name = "Aggregated priority score"),
+    #                 #           MEANSCALED = NA, by = 'name') %>%
+    #                 add_column(grouping = "Region average",
+    #                            order = 2) %>%
+    #                 rename(RAW = MEANRAW)) %>%
+    #     ungroup() %>%
+    #     select(grouping, name, RAW) %>% #, SE) %>%
+    #     filter(!is.na(name)) %>%
+    #     
+    #     pivot_wider(names_from = grouping, values_from = RAW) %>%
+    #     rename(Variable = name) %>%
+    #     mutate(`Region average` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 2), "%"),
+    #                                         TRUE ~ as.character(round(`Region average`, 2)))) %>%
+    #     
+    #     mutate(`Selected area` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
+    #                                        TRUE ~ as.character(round(`Selected area`, 2)))) 
+    #   # c(RAW, SE))
+    #   # fake <- tibble(grouping = c("selected", "selected", "rgn", "rgn"),
+    #   #                name = c("a", "b", "a", "b"),
+    #   #                RAW = c(.1,2,.5,6),
+    #   #                SE = c(1,2,3,4))
+    #   # fake %>% pivot_wider(names_from = grouping, values_from = c(RAW, SE))
+    #   
+    #   return(x)
+    # })
     
     output$priority_table <- renderTable({
-      # req(geo_selections$selected_area)
+      # report_priority_table()
+      req(geo_selections$selected_area)
       req(TEST() != "")
-      
+
         x <- eva_data_main %>%
           filter(name %in%
                    if(map_selections$preset == "Environmental justice") {
@@ -639,16 +589,16 @@ mod_report_server <- function(id,
           rename(Variable = name) %>%
           mutate(`Region average` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 2), "%"),
                                              TRUE ~ as.character(round(`Region average`, 2)))) %>%
-        
+
           mutate(`Selected area` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
-                                             TRUE ~ as.character(round(`Selected area`, 2)))) 
+                                             TRUE ~ as.character(round(`Selected area`, 2))))
         # c(RAW, SE))
       # fake <- tibble(grouping = c("selected", "selected", "rgn", "rgn"),
       #                name = c("a", "b", "a", "b"),
       #                RAW = c(.1,2,.5,6),
       #                SE = c(1,2,3,4))
       # fake %>% pivot_wider(names_from = grouping, values_from = c(RAW, SE))
-      
+
       return(x)
     })
     
@@ -784,18 +734,13 @@ mod_report_server <- function(id,
         # Set up parameters to pass to Rmd document
         params <- list(param_geo = geo_selections$selected_geo,
                        param_area = param_area(),
-                       param_min = param_min(),
-                       param_max = param_max(),
-                       param_ntracts = param_ntracts(),
-                       param_equitypara = tree_text()
+                       param_equitypara = tree_text(),
+                       param_treeplot = tree_report_plot(),
+                       param_ranktext = rank_text(),
+                       param_rankplot = report_rank_plot()#,
+                       # param_prioritytable = report_priority_table(),
+
                        
-                       # selected_geo = input$geo,
-                       # selected_city = input$cityInput,
-                       # vars_used = map_selections$preset,
-                       # priority_score = map_util$map_data2,#round(map_util$map_data2$MEAN, 3),
-                       # rank_total = nrow(map_util$map_data2),
-                       # vars_selected = map_selections$allInputs,
-                       # canopy = map_util$canopycov
                        )
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document

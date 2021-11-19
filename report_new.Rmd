@@ -5,10 +5,11 @@ date: "`r format(Sys.time(), '%d %B %Y')`"
 params:
   param_geo: NA
   param_area: NA
-  param_min: NA
-  param_max: NA
-  param_ntracts: NA
   param_equitypara: NA
+  param_treeplot: NA
+  param_ranktext: NA
+  param_rankplot: NA
+  param_prioritytable: NA
 urlcolor: blue
 ---
 
@@ -26,7 +27,7 @@ library(stringr)
 library(ggplot2)
 library(tidyr)
 
-knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 
 fancyname <- if (params$param_geo == "tracts") {
   paste0(if (substr(params$param_area, 3, 5) == "053") {"Hennepin County tract "
@@ -39,6 +40,8 @@ fancyname <- if (params$param_geo == "tracts") {
         as.numeric(substr(params$param_area, 6, 11))/100)} else {params$param_area}
 
 ```
+
+**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
 # Report for `r fancyname`
 
@@ -66,7 +69,6 @@ if(params$param_geo == "tracts") {
 
 ```
 
-**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
 This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. 
 
@@ -83,7 +85,10 @@ Trees connect to regional issues and priorities. Public health, environmental ju
 In most areas in our region, a goal of 30% tree canopy coverage (as detected by our methods) is suitable. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
 
+```{r treeplot, fig.align="center", out.width= "80%", fig.asp = .4}
+params$param_treeplot
 
+```
 
 ### Methodology note
 
@@ -138,7 +143,9 @@ canopyplot<- eva_data_main %>%
 
 ## Priortization
 
-Using the environmental justice preset, tracts within  ```r fancyname``` have overall priority scores ranging from 
+`r params$param_ranktext`
+
+
 
 ## Equity
 
