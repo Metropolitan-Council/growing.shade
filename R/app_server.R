@@ -10,7 +10,7 @@ app_server <- function( input, output, session ) {
   options(shiny.usecairo=T)
   
   
-  callModule(mod_intro_server, "intro_ui_1")
+  # callModule(mod_intro_server, "intro_ui_1")
   mod_storymap_server("storymap_ui_1")
   
   # observeEvent(input$link_to_tabpanel_b, {
