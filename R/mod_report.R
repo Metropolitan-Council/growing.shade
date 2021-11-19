@@ -158,24 +158,24 @@ mod_report_server <- function(id,
     
     param_dl_data <- reactive({
       req(geo_selections$selected_area)
-      ps <- param_selectedtractvalues() %>%
-        st_drop_geometry() %>%
-        rename(raw_value = MEAN) %>%
-        add_column(name = "Aggregated priority score") %>%
-        add_column(order = 1)
+      # ps <- param_selectedtractvalues() %>%
+      #   st_drop_geometry() %>%
+      #   rename(raw_value = MEAN) %>%
+      #   add_column(name = "Aggregated priority score") %>%
+      #   add_column(order = 1)
       
       output <- eva_data_main %>%
-        filter(name %in%
-                 if(map_selections$preset == "Environmental justice") {
-                   metadata[metadata$ej == 1, ]$name
-                 } else if(map_selections$preset == "Climate change") {
-                   metadata[metadata$cc == 1, ]$name
-                 } else if(map_selections$preset == "Public health") {
-                   metadata[metadata$ph == 1, ]$name
-                 } else if(map_selections$preset == "Conservation") {
-                   metadata[metadata$cons == 1, ]$name
-                 } else if(map_selections$preset == "Custom") {
-                   c(map_selections$allInputs$value)}) %>%
+        # filter(name %in%
+        #          if(map_selections$preset == "Environmental justice") {
+        #            metadata[metadata$ej == 1, ]$name
+        #          } else if(map_selections$preset == "Climate change") {
+        #            metadata[metadata$cc == 1, ]$name
+        #          } else if(map_selections$preset == "Public health") {
+        #            metadata[metadata$ph == 1, ]$name
+        #          } else if(map_selections$preset == "Conservation") {
+        #            metadata[metadata$cons == 1, ]$name
+        #          } else if(map_selections$preset == "Custom") {
+        #            c(map_selections$allInputs$value)}) %>%
         mutate(flag = if_else(tract_string %in%
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
@@ -183,20 +183,20 @@ mod_report_server <- function(id,
                                   c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 }, "selected", NA_character_)) %>%
         filter(flag == "selected") %>%
-        add_column(order = 2) %>%
-        # filter(!is.na(weights_scaled)) %>%
-        bind_rows(ps) %>%
-        ungroup() %>%
-        select(tract_string, name, raw_value) %>%
-        mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Lake Elmo", ]$tract_id), "selected", NA_character_)) %>%
-        mutate(across(c(raw_value), ~ifelse(str_detect(name, c("%")), . * 100, .))) %>%
-        mutate(across(where(is.numeric), round, 2)) %>%
-        # arrange(tract_string, name) %>%
-        rename(`Tract id` = tract_string,
-               Variable = name,
-               `Raw value` = raw_value) %>%
-        pivot_wider(names_from = Variable, values_from = `Raw value`) %>%
-        ungroup() %>%
+        # add_column(order = 2) %>%
+        # # filter(!is.na(weights_scaled)) %>%
+        # bind_rows(ps) %>%
+        # ungroup() %>%
+        # select(tract_string, name, raw_value) %>%
+        # mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Lake Elmo", ]$tract_id), "selected", NA_character_)) %>%
+        # mutate(across(c(raw_value), ~ifelse(str_detect(name, c("%")), . * 100, .))) %>%
+        # mutate(across(where(is.numeric), round, 2)) %>%
+        # # arrange(tract_string, name) %>%
+        # rename(`Tract id` = tract_string,
+        #        Variable = name,
+        #        `Raw value` = raw_value) %>%
+        # pivot_wider(names_from = Variable, values_from = `Raw value`) %>%
+        # ungroup() %>%
         select(-flag)
       
       return(output)
@@ -739,11 +739,21 @@ mod_report_server <- function(id,
       filename = function() {paste0("GrowingShadeReport_", param_area(), "_", Sys.Date(), ".xlsx")},
       content = function(file) {writexl::write_xlsx(
         list(
-          # "Metadata" = metadata %>%
-          #      rbind(c(""), c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""), 
-          #            c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""), 
-          #            c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
-             "Raw Data" = (param_dl_data()) # "Counties" = (eva_data_main)
+          "Metadata" = tibble() %>% #metadata %>%
+            # select(-type, -n, -niceinterp, -nicer_interp, -interpret_high_value) %>%
+            # rename(`Variable description` = name) %>%
+            # filter(!is.na(`Variable description`)) %>%
+               rbind(c(""), c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""),
+                     c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""),
+                     c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
+             "Raw Data" = (param_dl_data() %>%
+                             filter(!is.na(name)) %>%
+                             select(tract_string, name, raw_value, weights_scaled, overall_rank) %>%
+                             rename(GEOID = tract_string,
+                                    `Variable description` = name,
+                                    `Raw value` = raw_value,
+                                    `Scaled and centered score`= weights_scaled,
+                                    `Rank of score` = overall_rank)) # "Counties" = (eva_data_main)
              # #i'll probably want something like this
              # eva_data_main %>%
              #   filter(name %in% test) %>%
