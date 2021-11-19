@@ -10,7 +10,7 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
-
+    
     # List the first level UI elements here 
  
     navbarPage(
@@ -110,6 +110,7 @@ golem_add_external_resources <- function(){
  
   tags$head(
     shiny::includeHTML("inst/app/www/google-analytics.html"),
+    
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),

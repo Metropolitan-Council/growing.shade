@@ -33,11 +33,11 @@ mod_report_ui <- function(id){
                                  uiOutput(ns("rank_para")),
                                  uiOutput(ns("get_rank_plot")),
                                  br(),
-                                 uiOutput(ns("priority_para")),
+                                 # uiOutput(ns("priority_para")),
                                  # uiOutput(ns("get_priority_plot")),
                                  # br(),
                                  # uiOutput(ns("table_para")),
-                                 dataTableOutput(ns("priority_tabledt")),
+                                 # dataTableOutput(ns("priority_tabledt")),
                                  tableOutput(ns("priority_table")))),
 
     fluidRow(shinydashboard::box(title = "Equity: ",
@@ -298,7 +298,7 @@ mod_report_server <- function(id,
                    param_min(),
                    "% to ",
                    param_max(),
-                   "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census tracts have different areas and may overlap with other geographies, thus the average canopy cover may not be the mean of the tract canopy cover. See the 'methods' to understand why our canopy cover numbers may differ from other tools. ")}#,
+                   "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census tracts have different areas and may overlap with other geographies, thus the exisiting tree canopy cover in the selected area may not be the mean of the tract canopy covers. Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools. ")}#,
           # "<br><br> In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Lower tree coverage in areas with native tallgrass prairie should not be penalized."
         )
       ))
@@ -514,21 +514,13 @@ mod_report_server <- function(id,
       req(TEST() != "")
       
       test2 <- if (map_selections$preset != "Custom") {tibble()
+      # } else if (nrow(map_selections$allInputs) > 0) {
+      #   tibble(rank = (NA),
+      #            priority = " Custom")
       } else {
         param_selectedtractvalues() %>%
           rename(rank = RANK) %>%
           mutate(priority = " Custom")
-        # param_selectedtractvalues() %>%
-        #     st_drop_geometry() %>%
-        #     filter(name %in%
-        #                c(map_selections$allInputs$value)) %>%
-        #     mutate(flag = if_else(tract_string %in%
-        #                             if (geo_selections$selected_geo == "ctus") {
-        #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-        #                             } else if (geo_selections$selected_geo == "nhood") {
-        #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-        #                             } else {c(param_area())}, "selected", NA_character_)) %>%
-        #     filter(flag == "selected")
         }
       
       segment_line <- if (map_selections$preset != "Custom") {
@@ -548,9 +540,6 @@ mod_report_server <- function(id,
         # } else {
         ggplot() +
         scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
-        # ylim(0, 1) +
-        # geom_vline(data = test,
-        #            aes(xintercept = rank, y = 1)) + facet_wrap(~priority, nrow = 4) +
         geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme(#axis.text.y = element_blank(),
@@ -568,36 +557,36 @@ mod_report_server <- function(id,
     
     # priority section -----------
     
-    output$priority_para <- renderUI({
-      ns <- session$ns
-      req(TEST() != "")
-      # tagList(
-      #   if (map_selections$priority_layer == "Off") {HTML(paste0(""))
-      #   } else {
-
-          para <- HTML(paste0( 
-            # "The variables included in this prioritization layer are: <br> - ",
-            # 
-            # if(map_selections$preset == "Environmental justice") {
-            #   paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
-            # } else if(map_selections$preset == "Climate change") {
-            #   paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
-            # } else if(map_selections$preset == "Public health") {
-            #   paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
-            # } else if(map_selections$preset == "Conservation") {
-            #   paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
-            # } else if(map_selections$preset == "Custom") {
-            #   paste(unlist(((map_selections$allInputs))), collapse = ",<br>- ") #this is the right format for here
-            #   }, 
-            # 
-            # "<br><br> ",
-            "This is how the selected area compares to the region for the proritization variables used. Scaled and standardized scores are on the x-axis. The selected area is shown in green and the regional average in blue.<br>"
-          )
-          )
-          return(para)
-      #   }
-      # )
-    })
+    # output$priority_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   # tagList(
+    #   #   if (map_selections$priority_layer == "Off") {HTML(paste0(""))
+    #   #   } else {
+    # 
+    #       para <- HTML(paste0( 
+    #         # "The variables included in this prioritization layer are: <br> - ",
+    #         # 
+    #         # if(map_selections$preset == "Environmental justice") {
+    #         #   paste(unlist(((metadata[metadata$ej == 1, ]$name))), collapse = ",<br>- ")
+    #         # } else if(map_selections$preset == "Climate change") {
+    #         #   paste(unlist(((metadata[metadata$cc == 1, ]$name))), collapse = ",<br>- ")
+    #         # } else if(map_selections$preset == "Public health") {
+    #         #   paste(unlist(((metadata[metadata$ph == 1, ]$name))), collapse = ",<br>- ")
+    #         # } else if(map_selections$preset == "Conservation") {
+    #         #   paste(unlist(((metadata[metadata$cons == 1, ]$name))), collapse = ",<br>- ")
+    #         # } else if(map_selections$preset == "Custom") {
+    #         #   paste(unlist(((map_selections$allInputs))), collapse = ",<br>- ") #this is the right format for here
+    #         #   }, 
+    #         # 
+    #         # "<br><br> ",
+    #         "This is how the selected area compares to the region for the proritization variables used. Scaled and standardized scores are on the x-axis. The selected area is shown in green and the regional average in blue.<br>"
+    #       )
+    #       )
+    #       return(para)
+    #   #   }
+    #   # )
+    # })
     
     
     output$table_para <- renderUI({
@@ -682,36 +671,36 @@ mod_report_server <- function(id,
       #      n = 5)
     })
     
-    output$priority_tabledt <- renderDataTable({
-      req(geo_selections$selected_area)
-
-      # param_dl_data() %>%
-      #   arrange(`Aggregated priority score`)
-      DT::datatable(param_selectedtractvalues()%>%
-        as_tibble() %>%
-        select(tract_string, MEAN, RANK) %>%
-        mutate(MEAN = round(MEAN, 3)) %>%
-        rename(`Tract ID` = tract_string,
-               `Priority score` = MEAN,
-               `Rank of priority score` = RANK),
-        options = list(
-          pageLength = 5))
-
-      # output <- DT::datatable(data2,
-      #               options = list(lengthMenu = c(5, 10), pageLength = 5))
-      # return(data2,
-      #        options = list(pageLength = 5))
-      # DT::datatable(
-      #   (param_selectedtractvalues %>%
-      #   as_tibble() %>%
-      #   select(tract_string, MEAN, RANK) %>%
-      #   rename(`Tract ID` = tract_string,
-      #          `Priority score` = MEAN,
-      #          `Rank of priority score` = RANK
-      #          )),
-      # options = list(
-      #   pageLength = 5))
-    })
+    # output$priority_tabledt <- renderDataTable({
+    #   req(geo_selections$selected_area)
+    # 
+    #   # param_dl_data() %>%
+    #   #   arrange(`Aggregated priority score`)
+    #   DT::datatable(param_selectedtractvalues()%>%
+    #     as_tibble() %>%
+    #     select(tract_string, MEAN, RANK) %>%
+    #     mutate(MEAN = round(MEAN, 3)) %>%
+    #     rename(`Tract ID` = tract_string,
+    #            `Priority score` = MEAN,
+    #            `Rank of priority score` = RANK),
+    #     options = list(
+    #       pageLength = 5))
+    # 
+    #   # output <- DT::datatable(data2,
+    #   #               options = list(lengthMenu = c(5, 10), pageLength = 5))
+    #   # return(data2,
+    #   #        options = list(pageLength = 5))
+    #   # DT::datatable(
+    #   #   (param_selectedtractvalues %>%
+    #   #   as_tibble() %>%
+    #   #   select(tract_string, MEAN, RANK) %>%
+    #   #   rename(`Tract ID` = tract_string,
+    #   #          `Priority score` = MEAN,
+    #   #          `Rank of priority score` = RANK
+    #   #          )),
+    #   # options = list(
+    #   #   pageLength = 5))
+    # })
     
     
     output$equity_para <- renderUI({
