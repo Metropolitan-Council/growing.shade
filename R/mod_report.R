@@ -10,36 +10,50 @@
 mod_report_ui <- function(id){
   ns <- NS(id)
   tagList(
-    
+    shinyWidgets::useShinydashboard(),
     # uiOutput(ns("instructions")),
     
     fluidRow(column(width = 6, uiOutput(ns("get_the_report"))),
-             column(width = 6,uiOutput(ns("get_the_data")))),
-    (uiOutput(ns("geoarea"))),
-            
-    uiOutput(ns("tree_title")),
-    uiOutput(ns("tree_para")),
-      uiOutput(ns("get_tree_plot")),
-
-    uiOutput(ns("priority_title")),
-    uiOutput(ns("rank_para")),
-      uiOutput(ns("get_rank_plot")),
+             column(width = 6,uiOutput(ns("get_the_data"))))
+    ,(uiOutput(ns("geoarea")))
+    ,
     br(),
-      uiOutput(ns("priority_para")),
-      # uiOutput(ns("get_priority_plot")),
-    # br(),
-      # uiOutput(ns("table_para")),
-     dataTableOutput(ns("priority_tabledt")),
-    tableOutput(ns("priority_table")),
+            
+    # uiOutput(ns("tree_title")),
+    fluidRow(shinydashboard::box(title = ("Tree canopy: "),
+                        width = 12, collapsed = F,
+                        status = "danger", solidHeader = F, collapsible = TRUE,
+    uiOutput(ns("tree_para")),
+      uiOutput(ns("get_tree_plot")))),
 
-    uiOutput(ns("equity_title")),
+    fluidRow(shinydashboard::box(title = "Priortization: ",
+                                 width = 12, collapsed = F,
+                                 status = "danger", solidHeader = F, collapsible = TRUE,
+                                 # uiOutput(ns("priority_title")),
+                                 uiOutput(ns("rank_para")),
+                                 uiOutput(ns("get_rank_plot")),
+                                 br(),
+                                 uiOutput(ns("priority_para")),
+                                 # uiOutput(ns("get_priority_plot")),
+                                 # br(),
+                                 # uiOutput(ns("table_para")),
+                                 dataTableOutput(ns("priority_tabledt")),
+                                 tableOutput(ns("priority_table")))),
+
+    fluidRow(shinydashboard::box(title = "Equity: ",
+                                 width = 12, collapsed = F,
+                                 status = "danger", solidHeader = F, collapsible = TRUE,
+                                 # uiOutput(ns("equity_title")),
     uiOutput(ns("equity_para")),
-    uiOutput(ns("get_equity_plot")),
+    uiOutput(ns("get_equity_plot")))),
       # fluidRow(column(width = 6, uiOutput(ns("get_equity_plot_race"))),
       #          column(width = 6, uiOutput(ns("get_equity_plot_income")))),
 
-    uiOutput(ns("other_title")),
-    uiOutput(ns("other_para"))#,
+    fluidRow(shinydashboard::box(title = "Threats: ",
+                                 width = 12, collapsed = F,
+                                 status = "danger", solidHeader = F, collapsible = TRUE,
+                                 # uiOutput(ns("other_title")),
+    uiOutput(ns("other_para"))))#,
       # uiOutput(ns("get_other_plot"))#,
 
     # uiOutput(ns("resource_title")),
@@ -680,7 +694,7 @@ mod_report_server <- function(id,
       para <- HTML(paste0( 
             "Research shows that trees are unevenly distributed across communities. ", 
             # In particular, 
-            "Neighborhoods with high BIPOC or low-income populations have less tree canopy. ",
+            "Areas with high BIPOC or low-income populations have less tree canopy. ",
             # "(",
             # a("MacDonald 2021",
             #   href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715",
