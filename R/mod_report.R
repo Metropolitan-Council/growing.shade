@@ -438,33 +438,6 @@ mod_report_server <- function(id,
       # )
     })
     
-
-    # #old - single priority
-    # output$rank_plot <- renderPlot({
-    #   req(TEST() != "")
-    #   
-    #   test <- param_selectedtractvalues() %>%
-    #   st_drop_geometry() 
-    # 
-    # plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
-    #   # } else {
-    #     ggplot() +
-    #   scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
-    #   ylim(0, 1) +
-    #   geom_vline(data = test,
-    #              aes(xintercept = RANK)) +
-    #   councilR::council_theme() +
-    #   theme(axis.text.y = element_blank(),
-    #         axis.title.y = element_blank(),
-    #         panel.grid.major.y = element_blank(),
-    #         panel.grid.minor.y = element_blank(),
-    #         panel.grid.major.x = element_blank(),
-    #         panel.grid.minor.x = element_blank()) +
-    #   geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
-    #   labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
-    #   # }
-    # return(plot)
-    # })
     
     output$rank_plot <- renderPlot({
       req(TEST() != "")
@@ -528,7 +501,8 @@ mod_report_server <- function(id,
     
     
     output$priority_table <- renderTable({
-      req(geo_selections$selected_area)
+      # req(geo_selections$selected_area)
+      req(TEST() != "")
       
         x <- eva_data_main %>%
           filter(name %in%
@@ -589,48 +563,9 @@ mod_report_server <- function(id,
       # fake %>% pivot_wider(names_from = grouping, values_from = c(RAW, SE))
       
       return(x)
-      
-      # head(param_selectedtractvalues()%>%
-      #            as_tibble() %>%
-      #            select(tract_string, MEAN, RANK) %>%
-      #            mutate(MEAN = round(MEAN, 3))  %>%
-      #        arrange(RANK) %>%
-      #            rename(`Tract ID` = tract_string,
-      #                   `Priority score` = MEAN,
-      #                   `Rank of priority score` = RANK), 
-      #      n = 5)
     })
     
-    # output$priority_tabledt <- renderDataTable({
-    #   req(geo_selections$selected_area)
-    # 
-    #   # param_dl_data() %>%
-    #   #   arrange(`Aggregated priority score`)
-    #   DT::datatable(param_selectedtractvalues()%>%
-    #     as_tibble() %>%
-    #     select(tract_string, MEAN, RANK) %>%
-    #     mutate(MEAN = round(MEAN, 3)) %>%
-    #     rename(`Tract ID` = tract_string,
-    #            `Priority score` = MEAN,
-    #            `Rank of priority score` = RANK),
-    #     options = list(
-    #       pageLength = 5))
-    # 
-    #   # output <- DT::datatable(data2,
-    #   #               options = list(lengthMenu = c(5, 10), pageLength = 5))
-    #   # return(data2,
-    #   #        options = list(pageLength = 5))
-    #   # DT::datatable(
-    #   #   (param_selectedtractvalues %>%
-    #   #   as_tibble() %>%
-    #   #   select(tract_string, MEAN, RANK) %>%
-    #   #   rename(`Tract ID` = tract_string,
-    #   #          `Priority score` = MEAN,
-    #   #          `Rank of priority score` = RANK
-    #   #          )),
-    #   # options = list(
-    #   #   pageLength = 5))
-    # })
+ 
     
     
     output$equity_para <- renderUI({
