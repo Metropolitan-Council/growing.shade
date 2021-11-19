@@ -55,7 +55,7 @@ app_ui <- function(request) {
                          h2("Welcome to the Growing Shade tool"),
                          br(),
                          p("Please refer to ", a("the user guide",
-                                                 href = "www/Growing Shade User Guide (October 2021).pdf",
+                                                 href = "www/Growing Shade User Guide (November 2021).pdf",
                                                  .noWS = "outside",
                                                  target = "_blank"), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."),
                          # br(),
