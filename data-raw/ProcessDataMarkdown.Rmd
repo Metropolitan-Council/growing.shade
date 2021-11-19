@@ -158,6 +158,15 @@ mn_tracts_1 <- tigris::tracts(state = "MN",
   # mutate(Shape_Area = as.numeric(st_area(.)))
 
 
+wi_bgs <- tigris::block_groups(state = "WI", county = c("Pierce", "Polk", "St. Croix"))
+mn_bgs_1 <- tigris::block_groups(state = "MN") %>%
+  bind_rows(wi_bgs) %>%
+  sf::st_transform(4326) %>%
+  mutate(GEO_NAME = GEOID)# %>%
+  # mutate(Shape_Area = as.numeric(st_area(.)))
+sf::st_write(mn_bgs_1, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_bgs_1.shp", append = FALSE)
+
+
 ### neighborhoods -----------
 #st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
 #minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
@@ -284,7 +293,7 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 ```
 
 - get aland for nhood and city
-```{r}
+```{r getaland}
 ctu_land <- ctu_geo %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
@@ -303,6 +312,15 @@ nhood_land <- nhood_geo %>%
 
 
 mn_tracts_2 <- mn_tracts_1 %>%
+  st_transform(26915) %>%
+  st_buffer(0) %>%
+  st_erase(river_lake_buffer %>%
+             st_union() %>%
+             st_buffer(0)) %>%
+  mutate(ALAND = as.numeric(st_area(.)))
+
+
+mn_bgs_2 <- mn_bgs_1 %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
   st_erase(river_lake_buffer %>%
@@ -344,7 +362,7 @@ canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
   transmute(GEOID10 = GEOID10, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
-            canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficeint
+            canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
 
 ## ctu canopy ----
 canopy_ctu <- read_csv("../data-raw/TreeAcres_ctus_year2020.csv",
@@ -564,6 +582,241 @@ eva_data_raw <- equity_data_raw %>%
          canopy_percent2 = canopy_percent) %>%
   rename(tract_string = tr10) #and for this project, I need to rename the tract variable
 
+###################
+# add some human-readable metadata
+###################
+
+## -------------------------------describe data
+#cc (climate change preset) = prim_flood, avg_temp, ndvi
+#ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
+#ph (public health preset)
+eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
+                          "ppov185",	"% people with income <185% of the poverty threshold", "people", "high_opportunity", 0, 1, 0, 0,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
+                          "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0, 0,
+                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
+                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
+                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
+                          # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
+                          # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
+                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
+                          # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
+                          "ndvi", "Average greenness (2020 NDVI)", "tree", "low_opportunity", 1, 0, 1,  0,
+                          "ndvi2", "Average greenness (2020 NDVI) - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
+                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
+                          "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0,
+                          "canopy_percent", "% tree canopy coverage in 2020", "tree", "low_opportunity", 1, 0, 1, 0,
+                          "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
+                          "mdhhincnow", "Median household income, 2015-2019 period (in 2019 dollars)", "people", "low_opportunity", 0, 0, 0, 0,
+                          "sens_age", "% people 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0,
+                          "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pblacknh", "% residents who identify as Black or African American, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pasiannh", "% residents who identify as Asian, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "phisppop", "% residents who identify as Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pamindnh", "% residents who identify as Indigenous, non-Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pownhome", "% of residents who own their home", "people", "high_opportunity", 0,0,0,0,
+                          "MHLTH", "Mental health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "PHLTH", "Physical health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "COPD", "Chronic obstructive pulmonary disease among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
+                          "CASTHMA", "Current asthma among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0
+                          )
+eva_data_codes %>% filter(ph == 1)
+
+###################
+# #create final dataset - no spatial data here
+# #note: spatial data should be joined after any summarizing is done to save some computation time
+###################
+
+# #long data
+eva_data_main <- eva_data_raw %>%
+  pivot_longer(names_to = "variable", values_to = "raw_value", -tract_string) %>% #end the code after this line if you just want the reshaped data
+  group_by(variable) %>%
+  mutate(MEAN = mean(raw_value, na.rm = T),
+         SD = sd(raw_value, na.rm = T),
+         MIN = min(raw_value, na.rm = T),
+         MAX = max(raw_value, na.rm = T),
+         COUNT = as.numeric(sum(!is.na(raw_value))),
+         z_score = (raw_value - MEAN)/SD) %>%
+  
+  full_join(eva_data_codes, by = 'variable') %>%
+  
+  # #we want high opportunity to be a high value, so this reorders those values if needed
+  # mutate(opportunity_zscore = case_when(interpret_high_value == "high_opportunity" ~ z_score,
+  #                                       interpret_high_value == "low_opportunity" ~ z_score * (-1),
+  #                                         TRUE ~ NA_real_)) %>%
+  
+  #create nominal weights
+  mutate(weights_nominal = case_when(interpret_high_value == "high_opportunity" ~ (raw_value - MIN) / (MAX - MIN) * 10,
+                                     interpret_high_value == "low_opportunity" ~ 10 - (raw_value - MIN) / (MAX - MIN) * 10,
+                                     TRUE ~ NA_real_)) %>%
+  
+  #Weights Standard Score
+  mutate(weights_scaled = case_when(interpret_high_value == "high_opportunity" ~ pnorm(z_score) * 10,
+                                    interpret_high_value == "low_opportunity" ~ (10 - pnorm(z_score) * 10),
+                                    TRUE ~ NA_real_)) %>%
+  
+  #weights rank
+  mutate(weights_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
+                                  interpret_high_value == "low_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
+                                  TRUE ~ NA_real_)) %>%
+  
+  # #rank
+  mutate(overall_rank = case_when(interpret_high_value == "high_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))),
+                                  interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))))) %>%
+  # 
+  #clean
+  select(-MEAN, -SD, -MIN, -MAX)  %>%
+  full_join(wide_ctu_crosswalk %>% rename(tract_string = GEOID))
+
+########
+# save data
+########
+
+#this works if you're in a package
+usethis::use_data(eva_data_main, overwrite = TRUE)
+
+#otherwise use this
+# write_csv(eva_data_main, "./eva_data_main.csv")
+
+# ########
+# # create metadata
+# #########
+md1 <- eva_data_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
+                                                          MEANSCALED = mean(weights_scaled, na.rm = T))
+metadata <- eva_data_main %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
+  dplyr::count() %>%
+  dplyr::ungroup() %>%
+  full_join(md1) %>%
+  mutate(niceinterp = 
+               case_when(interpret_high_value == "high_opportunity" ~ "Higher",
+                         TRUE ~ "Lower"))
+
+usethis::use_data(metadata, overwrite = TRUE)
+
+```
+
+# Demographics but at block level
+
+```{r blocksdemos}
+
+##########
+# equity considerations data in some cases
+#########
+equity_bg <- read_csv("/Volumes/shared/CommDev/Research/Research/EquityConsiderationsData/2_OutputData/CSV/Release_20210225/EquityConsiderationsBlockGroups.csv",
+                   col_types = cols( .default = "?", BG10 = "c")) %>%
+  janitor::clean_names() 
+equity_data_raw_bg <- equity_bg %>%
+  select(bg10,#tr10, 
+         ppov185,
+         prim_flood,
+         pwhitenh,
+         p_0017,
+         p_65up,
+         avg_temp,
+         phhi_qntl1,
+         green_roof,
+         env_cancer,
+         luse_green,
+         tr_ej,
+         holc_pred,
+         mdhhincnow,
+         pd_any,
+         pwk_nowork,
+         pownhome,
+         pblacknh,
+         pasiannh,
+         phisppop,
+         pamindnh,
+         pothmultnh,
+         pbipoc
+         ) %>%
+  rowwise() %>%
+  mutate(luse_notgreen = 1 - luse_green,
+         # pbipoc = 1 - pwhitenh,
+         holc_pred = if_else(is.na(holc_pred), 0, holc_pred),
+         sens_age = p_0017 + p_65up) %>% #"mutate" reformats any variables that need it
+  select(-luse_notgreen,#and then I want to remove the variable I don't need anymore
+         -pwhitenh) 
+
+
+###################
+# download acs dataset
+###################
+temp <- tempfile()
+download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
+  destfile = temp
+)
+
+acs <- readxl::read_xlsx(unzip(temp, "CensusACSBlockGroup.xlsx")) %>%
+  janitor::clean_names() 
+
+fs::file_delete("CensusACSBlockGroup.xlsx")
+
+
+## --------------variables of interest from equity considerations
+acs_data_raw <- acs %>%
+  select(geog_unit, 
+         pov185rate,
+         poptotal,
+         whitenh,
+         ageunder18,
+         age65up,
+         medianhhi,
+         blacknh,
+         asiannh,
+         hisppop,
+         amindnh,
+         homeownpct
+         ) %>%
+  rowwise() %>%
+  transmute(
+    bg10 = geog_unit,
+    ppov185 = pov185rate,
+    mdhhincnow = medianhhi,
+    pownhome = homeownpct,
+    pwhitenh = whitenh / poptotal,
+         pblacknh = blacknh / poptotal,
+         pasiannh = asiannh / poptotal,
+         phisppop = hisppop / poptotal,
+         pamindnh = amindnh / poptotal,
+         pbipoc = 1 - pwhitenh,
+         p_0017 = ageunder18 / poptotal,
+         p_65up = age65up / poptotal,
+         sens_age = p_0017 + p_65up) 
+
+
+
+###################
+# combine data sources
+###################
+
+eva_data_raw_bg <- acs_data_raw %>%
+  filter(!str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
+  full_join(equity_data_raw_bg) %>%
+
+# a <- eva_data_raw_bg %>%
+#   mutate(cty = str_sub(bg10, 1, 5)) %>%
+#   filter(str_detect(cty, "55"))
+# levels(as.factor(a$cty))
+  # full_join(acs_data_raw)
+  full_join(canopy %>% rename(tr10 = GEOID10)) %>%
+  full_join(tract_ndvi %>% rename(tr10 = GEOID10)) %>%
+  full_join(health2) %>%
+  mutate(ndvi2 = ndvi,
+         canopy_percent2 = canopy_percent) %>%
+  rename(tract_string = tr10) #and for this project, I need to rename the tract variable
+
+  filter(equity_data_raw_bg, bg10 == "270030501071") %>%
+    full_join(
+  filter(acs_data_raw, bg10 == "270030501071"))
+  
+`%notin%` <- Negate(`%in%`)
+  
+filter(acs_data_raw,bg10 %notin% c(eva_data_raw_bg$bg10))
+
+```
 ###################
 # add some human-readable metadata
 ###################
