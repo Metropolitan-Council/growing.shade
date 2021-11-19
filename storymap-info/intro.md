@@ -1,99 +1,71 @@
 
-<center>
-<img src='www/3026.png' width='100%' max-width='1200px !important' alt='a picture of trees surrounding a river' /img>
-</center>
+# Welcome to an Economic Values Atlas for the Twin Cities region.
 
-# Welcome to the Growing Shade Project
-
-<br> Trees provide critical ecosystem services and are important
-components of both natural and built environments. With a desire to
-create healthy places for people to live and a resilient future,
-building or enhancing tree canopy cover is an actionable step.
-
-<br> **We suggest using a desktop browser for the best experience. Click
-the tabs at the top of the page to start using the tool.**
-
-<br>
+Brookings Institution pioneered an Economic Values Atlas in 2019
+(<a href="https://www.brookings.edu/research/announcing-the-economic-value-atlas-a-new-approach-to-regional-transportation-and-land-use-planning/" target="_blank">Tomer
+et al.</a>). This is an implementation of the concept for our region.
+Please scroll down to start using this tool. We suggest you use a
+desktop web browser for the best experience.
 
 ## What this tool does
 
-This interactive provides stories and data to identify areas where an
-enhanced tree canopy could have a disproportionately positive benefit
-for people and environment. Stories provide a narrative to contextualize
-the importance of this work within our region. Users can customize data
-variables to reflect specific priorities towards identifying tree
-planting opportunities. Data is also provided towards helping
-stakeholders evaluate other considerations involved with tree plantings,
-such as species considerations.
+This interactive provides data—primarily census and Council data—on the
+characteristics of residents near parks and trails in the Twin Cities’
+regional system. It provides a snapshot of who lives there today, and
+the population changes forecasted to 2040.
 
-<br>
+## What this tool *cannot* do
 
-## What this tool cannot do
+Users can create valuable, data-driven analysis through this app. But
+our experience tells us that demographic data are most powerful when
+used as starting point. In other words, the census and Council data
+cannot substitute for engagement with prioritized stakeholders. The
+on-the-ground knowledge of agency staff and the community expertise of
+residents are also valued sources of information and enhance and refine
+the shared understanding of this data.
 
-Users can create valuable, data-driven analyses through this tool. Our
-experience and research tells us that data cannot substitute for
-engagement with prioritized stakeholders to understand
-community-specific concerns or opportunities. The on-the-ground
-knowledge of residents and the expertise of practitioners are valuable
-sources of information necessary to enhance and refine the shared
-understanding of this data.
+## Who can use it?
 
-<br>
+We developed this interactive tool primarily for regional park agency
+planning, outreach, programming, research and other agency staff. It is
+available for anyone who wants detailed information about housing and
+demographic data surrounding the existing and future regional park
+system.
 
-## Who can use this tool
+## How you can use it
 
-We developed this interactive primarily for regional foresters and
-stakeholders involved in aspects of natural resource management and
-environmental justice. The tool is available for anyone who wants
-tree-centric information about the intersection between people with the
-built and natural environments.
+-   **Planning**. Understanding today’s proximate demographics can help
+    inform questions about needed amenities like multilingual signage.
+    Visualizing forecasted changes in population can help plan for the
+    future. Further, this tool can help complete the
+    <a href="https://metrocouncil.org/Parks/Publications-And-Resources/POLICY-PLANS/2040-REGIONAL-PARKS-POLICY-PLAN-(2020-version)/2040-Regional-Parks-Policy-Plan.aspx#page=83" target="_blank">Equity
+    Analysis Requirement for park and trail master plans (Question 1
+    *Project Data*)</a>.
 
-<br> <br>
+-   **Outreach and Engagement**. Learning more about who lives near
+    parks and trails can guide strategies for community partnerships,
+    communications efforts, and equity investments such as translation
+    or transportation.
 
-<!-- # Why grow shade? -->
-<!-- <br> -->
-<!-- Placeholder, text and images for the narrative will go here. Benefits of planting trees, challenges, etc. -->
-<!-- <br> -->
-<!-- For brainstorming purposes, here are two ideas for showing how people connect with trees (an interactive story map or an interactive story generator). Of course, there are many other ways to consider doing something like this.   -->
+-   **Programming**. Learning more about who lives near parks and trails
+    can deepen your understanding of bilingual, multigenerational, and
+    other programming innovations that might be of interest to who lives
+    close by.
 
-<br>
+-   **Research**. Use the data to better understand demographic gaps in
+    potential versus actual visitors. We can use the data to ask
+    questions about the inclusivity of current research practices
+    relative to surrounding demographics. The data can be downloaded for
+    additional analyses, but are subject to change with regular data
+    releases (see “notes” tab).
 
-<!-- <br> -->
-<!-- Apart from the benefits that trees can provide, there are three key challenges that our region's tree canopy faces. These challenges underscore the importance of continuing to plant trees: -->
-<!-- <br> -->
-<!-- <br> -->
-<!-- - **Logging**: Over the last 200 years, Minnesota has experienced profound land cover changes. Commercial logging in Minnesota began in 1839 with the founding of a sawmill in Marine on St. Croix in Washington County. This created a legacy of reduced tree cover which still persists today. Learn more about our region's widespread deforestation by <a href = 'https://www.mnhs.org/foresthistory/learn/logging' target = '_blank'>visiting the Minnesota Historical Society website</a> or <a href = 'https://www.youtube.com/watch?v=HhqP6ghXKaU&t=1s' target = '_blank'>watching a video about logging in Stillwater</a>. -->
-<!-- - **Invasive species**: Spread of invasive species like the Emerald Ash borer (invasive insect) or Dutch elm disease (invasive pathogen) threaten trees and the benefits they provide. Costing millions of dollars to manage with results that often fail to save trees, such invasive species have left the region with new canopy gaps. Read a story about <a href = 'https://www.mprnews.org/story/2015/03/15/ash-borer' target = '_blank'>towns currently managing the Emerald Ash Borer</a> and look at a <a href = 'http://collections.mnhs.org/mnhistorymagazine/articles/65/v65i02p44-53.pdf' target = '_blank'>report of how Dutch elm devastated trees in Minneapolis and St. Paul</a>. -->
-<!-- - **Extreme weather**: Extreme weather events like tornadoes and straight line winds are natural occurrences in our region, although climate change can intensify their severity. Trees are susceptible to damage by these storms, and re-vegetation after weather events has been a challenge faced <a href = 'https://sahanjournal.com/climate/northside-tornado-recovery/' target = '_blank'>in North Minneapolis</a> as well as other communities in our region. -->
-<!-- <br> -->
-<!-- <center><img src="www/schematic.png" alt = "challenges and opportunities of planting trees"></center> -->
-<!-- <br> -->
-<!-- The benefits of planting trees are numerous: -->
-<!-- <br> -->
-<!-- <br> -->
-<!-- - **Community health**: Trees can improve community livability and beauty. Mental and physical wellness of residents... Legacy of redlining + concerns over green gentrification... -->
-<!-- - **Ecosystem health**: Trees can improve ecosystem health and climate resilience.... Clean air, clean water, habitat for biodiversity.... -->
-<!-- - **Business opportunity**: Trees have value and create jobs - lumber industry, maple syrup, christmas trees, tree maintenance industry, fruit trees, tree nurseries and garden centers,  -->
-<!-- - **Reduce costs**: Energy savings... -->
-<!-- <br> -->
-<!-- There are many dimensions that can and should be considered when deciding where to plant trees. -->
-<!-- - **Existing tree cover**: knowing which areas have relatively low tree cover versus areas that have relatively high tree cover can help direct tree planting efforts.  -->
-<!-- - **Equity**: communities of color and other marginalized groups disproportionately live in areas which lack tree cover and/or have high negative externalities which could be mitigated in part by tree cover (air pollution, etc.) -->
-<!-- - **Existing land use**: information about land use can help direct messaging and outreach (ie if opportunities exist for planting trees within residential area, the messaging will look very different than if the greatest opportunities for planting trees lies within commercial zoned areas) -->
-<!-- - Other: ... -->
-<!-- <br> -->
-<!-- Similarly, there are multiple things to consider in making a useful tool: -->
-<!-- - **Understandable**: clear and actionable conclusions need to be drawn from complex and disparate data sources. Conclusions should be understandable to the general public (given that tree planting fundamentally impacts people and neighborhoods), to practitioners (to make informed decisions about planting trees), and to subject matter experts (to facilitate the iterative nature of this work and ensure the tool incorporates the best available research).  -->
-<!-- - **Narrative**: planting trees today will change the trajectory of a neighborhood's canopy for the future. Incorporating stories needs to be part of the tool... -->
-<!-- - **Research-based**: this tool should incorporate relevant research and be transparent in our methods. This tool should be designed flexibly so that new research and new data sources can improve the conclusions (especially around climate resiliency/adaptation), spatial accuracy (down to 1m in accuracy would be the gold standard), and geographic spread (expanding from the Twin Cities region to statewide and beyond) of this tool.  -->
-<!-- - **Interactive**: knowing that different funding programs and/or local priorities will dictate on-the-ground action (of planting trees), this tool should allow for users to set their own prioritization scheme if they so desire. -->
-<!-- <br> -->
-<!-- This data was aggregated to help facilitate discussions around enhancing our region's tree canopy in order to improve climate resilience, livability, and beauty. Of course, important pieces are missing, not fully unpacked, and/or tied together in incomplete ways. For instance, there are practical limitations on data availability/vintage/accuracy/spatial resolution. There are also limitations on which parts of the discussion data can contribute to ("yes" to identifying ares which might be suitable for tree planting, "no" (at the moment) to knowing which tree species might be most suitable for the location). -->
-<!-- <br> -->
-<!-- This is a quick and dirty test to see if this works. And/or if it would be useful to jump start future conversations. If this seems like a useful approach, let's think more critically about everything. -->
-<!-- <br> -->
-<!-- ## Methods -->
-<!-- Pulling together: -->
-<!-- - "Greenness" (normalized difference vegetation index (NDVI) from Sentinel-2, peak NDVI in 2020 aggregated to the block group level and also at 10x10m resolution) -->
-<!-- - Equity considerations data -->
-<!-- - Existing land use -->
+## Why we built it
+
+*Thrive MSP 2040* directs the Council to collaborate with the
+Metropolitan Parks and Open Space Commission, regional park implementing
+agencies, and state partners to strengthen equitable use of regional
+parks and trails. Read more about this in the
+<a href="https://metrocouncil.org/Parks/Planning/Parks-Policy-Plan.aspx" target="_blank">2040
+Regional Parks Policy Plan Update</a> or
+<a href="https://metrocouncil.org/planning/projects/thrive-2040.aspx" target="_blank">Thrive
+MSP 2040</a>.
