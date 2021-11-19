@@ -33,11 +33,6 @@ mod_report_ui <- function(id){
                                  uiOutput(ns("rank_para")),
                                  uiOutput(ns("get_rank_plot")),
                                  br(),
-                                 # uiOutput(ns("priority_para")),
-                                 # uiOutput(ns("get_priority_plot")),
-                                 # br(),
-                                 # uiOutput(ns("table_para")),
-                                 # dataTableOutput(ns("priority_tabledt")),
                                  tableOutput(ns("priority_table")))),
 
     fluidRow(shinydashboard::box(title = "Equity: ",
@@ -419,20 +414,16 @@ mod_report_server <- function(id,
     output$rank_para <- renderUI({
       ns <- session$ns
       req(TEST() != "")
-      # tagList(
-        # if (map_selections$priority_layer == "Off") {HTML(paste0("No prioritization layer was used. To change this, please scroll back up to the top and turn 'on' the priority layer."))
-        #   } else {
-
         para <- HTML(paste0( 
-          # "Understanding the intersection of the tree canopy, people, and the built environment is important for prioritization and planning efforts. ",
           "Using the ",
           tolower(map_selections$preset), 
           " preset, ", 
           if (geo_selections$selected_geo == "tracts") {
             paste0(param_fancytract(), " has a priority score of ", 
                    round((param_selectedtractvalues()$MEAN), 2), 
-                   "(out of 10, where 10 indicates the highest priority) with a region-wide ranking of ", 
-                   (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings are shown below.<br><br>")
+                   " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ", 
+                   (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
+                   tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")
           } else {paste0("tracts within ",
           param_area(),
           " have overall priority scores ranging from ",
