@@ -473,7 +473,7 @@ mod_report_server <- function(id,
           " have overall priority scores ranging from ",
           round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
           " and a region-wide ranking from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings are shown below.<br><br>")}
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities and a lower rank (closer to 704) indicates lower priorities). A plot of the tract rankings are shown below.<br><br>")}
         )
         )
         return(para)
