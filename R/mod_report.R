@@ -280,11 +280,11 @@ mod_report_server <- function(id,
                    " average (", round(param_areasummary()$avgcanopy*100, 1), "%). ",
                    "Within " , param_area(), ", there are ",
                    param_ntracts(),
-                   " Census block groups with tree canopy cover ranging from ",
+                   " Census tracts with tree canopy cover ranging from ",
                    param_min(),
                    "% to ",
                    param_max(),
-                   "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census block groups have different areas and may overlap with other geographies, thus the average canopy cover may not be the mean of the block group canopy cover. See the 'methods' to understand why our numbers may differ from other tools. ")}#,
+                   "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census tracts have different areas and may overlap with other geographies, thus the average canopy cover may not be the mean of the tract canopy cover. See the 'methods' to understand why our canopy cover numbers may differ from other tools. ")}#,
           # "<br><br> In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Lower tree coverage in areas with native tallgrass prairie should not be penalized."
         )
       ))
@@ -343,7 +343,7 @@ mod_report_server <- function(id,
                                 } else if (geo_selections$selected_geo == "nhood") {
                                   c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
                                 } else {c(param_area())}, "selected", NA_character_)) %>%
-        mutate(type = paste0(" Block groups\nwithin ", param_area()),
+        mutate(type = paste0(" Tracts\nwithin ", param_area()),
                t2 = "tracts") %>%
         filter(flag == "selected") %>%
         bind_rows(as_tibble(if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}) %>%
@@ -467,30 +467,63 @@ mod_report_server <- function(id,
       # )
     })
     
+
+    # #old - single priority
+    # output$rank_plot <- renderPlot({
+    #   req(TEST() != "")
+    #   
+    #   test <- param_selectedtractvalues() %>%
+    #   st_drop_geometry() 
+    # 
+    # plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
+    #   # } else {
+    #     ggplot() +
+    #   scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
+    #   ylim(0, 1) +
+    #   geom_vline(data = test,
+    #              aes(xintercept = RANK)) +
+    #   councilR::council_theme() +
+    #   theme(axis.text.y = element_blank(),
+    #         axis.title.y = element_blank(),
+    #         panel.grid.major.y = element_blank(),
+    #         panel.grid.minor.y = element_blank(),
+    #         panel.grid.major.x = element_blank(),
+    #         panel.grid.minor.x = element_blank()) +
+    #   geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
+    #   labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
+    #   # }
+    # return(plot)
+    # })
+    
     output$rank_plot <- renderPlot({
       req(TEST() != "")
       
       test <- param_selectedtractvalues() %>%
-      st_drop_geometry() 
-    
-    plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
-      # } else {
+        # mn_tracts %>% filter(GEO_NAME == "27037060716") %>%#
+        st_drop_geometry()  %>%
+        select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
+        pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME)
+      
+      plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
+        # } else {
         ggplot() +
-      scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
-      ylim(0, 1) +
-      geom_vline(data = test,
-                 aes(xintercept = RANK)) +
-      councilR::council_theme() +
-      theme(axis.text.y = element_blank(),
-            axis.title.y = element_blank(),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.y = element_blank(),
-            panel.grid.major.x = element_blank(),
-            panel.grid.minor.x = element_blank()) +
-      geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0))+
-      labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
+        scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
+        # ylim(0, 1) +
+        # geom_vline(data = test,
+        #            aes(xintercept = rank, y = 1)) + facet_wrap(~priority, nrow = 4) +
+        geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = priority), height = .5) +
+        councilR::council_theme() +
+        theme(#axis.text.y = element_blank(),
+              axis.title.y = element_blank(),
+              panel.grid.major.y = element_blank(),
+              panel.grid.minor.y = element_blank(),
+              panel.grid.major.x = element_blank(),
+              panel.grid.minor.x = element_blank()) +
+        geom_segment(aes(x = 1, xend = 700, y = c("Public health", "Environmental justice", "Conservation", "Climate change"), 
+                         yend = c("Public health", "Environmental justice", "Conservation", "Climate change"))) +
+        labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)") 
       # }
-    return(plot)
+      return(plot)
     })
     
     # priority section -----------
@@ -1069,7 +1102,7 @@ mod_report_server <- function(id,
     
     output$get_rank_plot <- renderUI({
       req(TEST() != "")
-      plotOutput(ns("rank_plot"), "100px", width = "100%") %>%
+      plotOutput(ns("rank_plot"), "300px", width = "100%") %>%
         shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m") })
     
     output$get_priority_plot <- renderUI({
