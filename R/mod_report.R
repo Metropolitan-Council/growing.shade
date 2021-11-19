@@ -473,7 +473,7 @@ mod_report_server <- function(id,
           " have overall priority scores ranging from ",
           round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
           " and a region-wide ranking from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities and a lower rank (closer to 704) indicates lower priorities). A plot of the tract rankings are shown below.<br><br>")}
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities and a lower rank (closer to 704) indicates lower priorities). A plot of the tract rankings is shown below.<br><br>")}
         )
         )
         return(para)
@@ -512,11 +512,36 @@ mod_report_server <- function(id,
     output$rank_plot <- renderPlot({
       req(TEST() != "")
       
+      test2 <- if (map_selections$preset != "Custom") {tibble()
+      } else {
+        param_selectedtractvalues() %>%
+          rename(rank = RANK) %>%
+          mutate(priority = " Custom")
+        # param_selectedtractvalues() %>%
+        #     st_drop_geometry() %>%
+        #     filter(name %in%
+        #                c(map_selections$allInputs$value)) %>%
+        #     mutate(flag = if_else(tract_string %in%
+        #                             if (geo_selections$selected_geo == "ctus") {
+        #                               c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+        #                             } else if (geo_selections$selected_geo == "nhood") {
+        #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+        #                             } else {c(param_area())}, "selected", NA_character_)) %>%
+        #     filter(flag == "selected")
+        }
+      
+      segment_line <- if (map_selections$preset != "Custom") {
+        tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change"))
+      } else {
+        tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change", " Custom"))
+      }
+      
       test <- param_selectedtractvalues() %>%
         # mn_tracts %>% filter(GEO_NAME == "27037060716") %>%#
         st_drop_geometry()  %>%
         select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
-        pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME)
+        pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME) %>%
+        bind_rows(test2)
       
       plot <- #if (map_selections$priority_layer == "Off") {print("nothing to see here")
         # } else {
@@ -525,7 +550,7 @@ mod_report_server <- function(id,
         # ylim(0, 1) +
         # geom_vline(data = test,
         #            aes(xintercept = rank, y = 1)) + facet_wrap(~priority, nrow = 4) +
-        geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = priority), height = .5) +
+        geom_errorbarh(data = test,aes(xmax = rank, xmin = rank, y = fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme(#axis.text.y = element_blank(),
               axis.title.y = element_blank(),
@@ -533,8 +558,8 @@ mod_report_server <- function(id,
               panel.grid.minor.y = element_blank(),
               panel.grid.major.x = element_blank(),
               panel.grid.minor.x = element_blank()) +
-        geom_segment(aes(x = 1, xend = 700, y = c("Public health", "Environmental justice", "Conservation", "Climate change"), 
-                         yend = c("Public health", "Environmental justice", "Conservation", "Climate change"))) +
+        geom_segment(aes(x = 1, xend = 700, y = segment_line$y, 
+                         yend = segment_line$y)) +
         labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)") 
       # }
       return(plot)
