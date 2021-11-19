@@ -48,7 +48,7 @@ app_ui <- function(request) {
                     margin-left:0  !important; margin-top:30px  !important;
                     max-width: 4000px !important; min-width:100% !important',
           sidebarLayout(
-            sidebarPanel(width = 5,
+            sidebarPanel(width = 6,
                          style = "height: 90vh; overflow-y: auto;",
                          
                          # width = 2,
@@ -78,7 +78,7 @@ app_ui <- function(request) {
             
             mainPanel(
               tags$head(waiter::use_waiter()),
-              width = 7,
+              width = 6,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
                   mod_map_overview_ui("map_overview_ui_1")),
