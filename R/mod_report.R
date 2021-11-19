@@ -722,6 +722,8 @@ mod_report_server <- function(id,
         geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
+        theme(panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
         labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
@@ -734,6 +736,8 @@ mod_report_server <- function(id,
         scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
+        theme(panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
         labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
         # theme(axis.title.y = element_blank(),
         #       axis.text.y = element_blank())
