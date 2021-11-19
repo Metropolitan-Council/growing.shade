@@ -553,6 +553,9 @@ mod_report_server <- function(id,
 
           pivot_wider(names_from = grouping, values_from = RAW) %>%
           rename(Variable = name) %>%
+          mutate(`Region average` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 2), "%"),
+                                             TRUE ~ as.character(round(`Region average`, 2)))) %>%
+        
           mutate(`Selected area` = case_when(str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
                                              TRUE ~ as.character(round(`Selected area`, 2)))) 
         # c(RAW, SE))
@@ -622,6 +625,8 @@ mod_report_server <- function(id,
         geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
         councilR::council_theme() + 
+        theme(panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
         scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
         labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
