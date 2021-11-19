@@ -173,6 +173,15 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "geooutline2"),
         layerId = ~GEO_NAME
       ) %>%
+      addPolygons(
+        data =  filter(ctu_list, GEO_NAME == "Oakdale"),
+        stroke = TRUE,
+        color =  "blue",
+        fill = NA,
+        opacity = 1,
+        group = "outline",
+        smoothFactor = 0.2,
+        options = pathOptions(pane = "outline")) %>%
       # addPolygons(
       #   data = ctu_list,
       #   group = "Jurisdiction outlines",

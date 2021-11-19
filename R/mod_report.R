@@ -308,45 +308,6 @@ mod_report_server <- function(id,
     output$tree_plot <- renderPlot({
       req(TEST() != "")
       
-      # canopyplot<- eva_data_main %>%
-      #   filter(variable %in% c("canopy_percent")) %>%
-      #   select(tract_string, variable, raw_value) %>%
-      #   mutate(flag = if_else(tract_string %in% 
-      #                           if (geo_selections$selected_geo == "ctus") {
-      #                             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                             } else if (geo_selections$selected_geo == "nhood") {
-      #                               c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                             } else {c(param_area())}, "selected", NA_character_))
-      # plot <- ggplot()+
-      #   ggdist::stat_halfeye(
-      #     data = canopyplot, aes(x = raw_value, y = 1),
-      #     adjust = .5,  width = .6,  .width = 0,  justification = -.6, 
-      #     point_colour = NA,
-      #     na.rm = T) + 
-      #   geom_boxplot(data = canopyplot, aes(x = raw_value, y = 1),
-      #                width = .75, outlier.shape = NA,
-      #                na.rm = T) +
-      #   councilR::council_theme() +
-      #   theme(panel.grid.minor = element_blank(),
-      #         panel.grid.major.y = element_blank(),
-      #         axis.text.y = element_blank()) +
-      #   geom_point(size = 1.3,alpha = .3,
-      #              position = position_jitter(seed = 1, width = 0, height = .3),
-      #              col = "grey40",
-      #              aes(x = raw_value, y = 1),
-      #              data = filter(canopyplot, is.na(flag)),
-      #              na.rm = T) +
-      #   labs(y = "", x = "Tree canopy cover (%)") +
-      #   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-      #   geom_jitter(aes(x = raw_value, y = 1), 
-      #               position = position_jitter(seed = 1, width = 0, height = .3), 
-      #              fill = councilR::colors$cdGreen, 
-      #              size = 5, col = "black", pch = 21, 
-      #              data = filter(canopyplot, flag == "selected"),
-      #              na.rm = T)
-      # return(plot)
-      
-      
       if(geo_selections$selected_geo != "tracts") {
         canopyplot<- eva_data_main %>%
         filter(variable %in% c("canopy_percent")) %>%
@@ -427,7 +388,11 @@ mod_report_server <- function(id,
           councilR::council_theme() +
           theme(panel.grid.minor = element_blank(),
                 panel.grid.major.y = element_blank(),
-                axis.text.y = element_blank()) +
+                axis.text.y = element_blank()#,
+                # axis.title.x = element_text(size = 6),
+                # axis.text.x = element_text(size =8),
+                # plot.title = element_text(size = 2)
+                ) +
           ggtitle(paste0(param_fancytract(), " tree canopy"))+
           geom_point(size = 1.3,alpha = .3,
                      position = position_jitter(seed = 1, width = 0, height = .3),
@@ -447,8 +412,8 @@ mod_report_server <- function(id,
       
       
       
-    })
-    
+    }#, res = 150)
+    )
     # ranking section ------------
     
     output$rank_para <- renderUI({
