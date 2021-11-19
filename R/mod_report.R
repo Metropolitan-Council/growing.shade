@@ -473,7 +473,8 @@ mod_report_server <- function(id,
           " have overall priority scores ranging from ",
           round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
           " and a region-wide ranking from ",
-          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities and a lower rank (closer to 704) indicates lower priorities). A plot of the tract rankings is shown below.<br><br>")}
+          min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (", 
+          tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>")}
         )
         )
         return(para)
