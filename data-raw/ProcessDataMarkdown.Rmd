@@ -109,6 +109,16 @@ calibrate_trees %>%
 #   theme_minimal()  +
 #   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
 #         title = "UNcalibrated")
+# calibrate_trees %>%
+#   ggplot(aes(x = (sentinel), y = log(umn))) +
+#   geom_point(alpha = .5) +
+#   stat_smooth(fill = NA)+
+#   # geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
+#       # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "red", fill = NA) +
+#   # geom_smooth(method = "lm", fill = NA)+
+#   theme_minimal()  +
+#   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
+#         title = "UNcalibrated")
 ```
 
 
@@ -294,10 +304,16 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 - get aland for nhood and city
 ```{r getaland}
+
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+river_lake_all <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) 
+
+
 ctu_land <- ctu_geo %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
-  st_erase(river_lake_buffer %>%
+  st_erase(river_lake_all %>%
              st_union() %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
@@ -305,7 +321,7 @@ ctu_land <- ctu_geo %>%
 nhood_land <- nhood_geo %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
-  st_erase(river_lake_buffer %>%
+  st_erase(river_lake_all %>%
              st_union() %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
@@ -314,7 +330,7 @@ nhood_land <- nhood_geo %>%
 mn_tracts_2 <- mn_tracts_1 %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
-  st_erase(river_lake_buffer %>%
+  st_erase(river_lake_all %>%
              st_union() %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
@@ -323,7 +339,7 @@ mn_tracts_2 <- mn_tracts_1 %>%
 mn_bgs_2 <- mn_bgs_1 %>%
   st_transform(26915) %>%
   st_buffer(0) %>%
-  st_erase(river_lake_buffer %>%
+  st_erase(river_lake_all %>%
              st_union() %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
@@ -937,6 +953,33 @@ metadata <- eva_data_main %>%
 usethis::use_data(metadata, overwrite = TRUE)
 
 ```
+
+
+
+# THink about temperature and trees
+
+```{r}
+
+#some agricultural communities have high greenness and temperature, but low tree canopy
+eva_data_main %>%
+  filter(variable %in% c("avg_temp", "canopy_percent")) %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  ggplot(aes(x = canopy_percent, y = avg_temp)) +
+  geom_point(alpha = .6) 
+
+
+# ndvi and temp are in the same model; so of course this is a nice relationship
+eva_data_main %>%
+  filter(variable %in% c("avg_temp", "ndvi")) %>%
+  select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  ggplot(aes(x = ndvi, y = avg_temp)) +
+  geom_point(alpha = .6) 
+
+```
+
+
 
 
 # Highest priority by area
