@@ -54,11 +54,11 @@ mod_map_selections_ui <- function(id){
         condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
         
         shinyWidgets::pickerInput(ns("peopleInput"), 
-                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>People & Equity</span></h4>")),
+                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Demographics</span></h4>")),
                                   choices = filter(metadata, type == "people") %>% .$name,
-                                  choicesOpt = list(
-                                    subtext = paste0(filter(metadata, type == "people") %>% .$niceinterp, 
-                                                     " values have higher priority scores")),
+                                  # choicesOpt = list(
+                                  #   subtext = paste0(filter(metadata, type == "people") %>% .$niceinterp, 
+                                  #                    " values have higher priority scores")),
                                   options = list(`actions-box` = TRUE,
                                                  size = 10,
                                                  `selected-text-format` = "count > 1"),
@@ -73,31 +73,54 @@ mod_map_selections_ui <- function(id){
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
                                     choices = filter(metadata, type == "environment") %>% .$name,
                                     choicesOpt = list(
-                                      subtext = paste0(filter(metadata, type == "environment") %>% .$niceinterp, 
-                                                       " values have higher priority scores")),
+                                      subtext = paste0(filter(metadata, type == "environment") %>% .$nicer_interp)
+                                    ),
+                                    # choicesOpt = list(
+                                    #   subtext = paste0(filter(metadata, type == "environment") %>% .$niceinterp, 
+                                    #                    " values have higher priority scores")),
                                     options = list(`actions-box` = TRUE,
                                                    size = 20,
                                                    `selected-text-format` = "count > 1"),
                                     multiple = T,
-                                    selected = NULL #filter(metadata, type == "environment")[1, 2]
-          )),
-          conditionalPanel(
-            ns = ns,
-            condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
-            
-            shinyWidgets::pickerInput(ns("treeInput"), 
-                                      label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Existing tree canopy</span></h4>")),
-                                      choices = filter(metadata, type == "tree") %>% .$name,
-                                      choicesOpt = list(
-                                        subtext = paste0(filter(metadata, type == "tree") %>% .$niceinterp, 
-                                                          " values have higher priority scores")),
-                                      options = list(`actions-box` = TRUE,
-                                                     size = 20,
-                                                     `selected-text-format` = "count > 1"),
-                                      multiple = T,
-                                      selected = filter(metadata, type == "tree")[1, 2]
-            )
-      ))
+                                    selected = filter(metadata, type == "environment")[7, 2]
+          ))
+      ,conditionalPanel(
+        ns = ns,
+        condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
+        
+        shinyWidgets::pickerInput(ns("healthInput"),
+                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Health</span></h4>")),
+                                  choices = filter(metadata, type == "health") %>% .$name,
+                                  # choicesOpt = list(
+                                  #   subtext = paste0(filter(metadata, type == "health") %>% .$niceinterp,
+                                  #                     " values have higher priority scores")),
+                                  options = list(`actions-box` = TRUE,
+                                                 size = 20,
+                                                 `selected-text-format` = "count > 1"),
+                                  multiple = T,
+                                  selected = NULL
+        )
+      )
+      
+      ,conditionalPanel(
+        ns = ns,
+        condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
+        
+        shinyWidgets::pickerInput(ns("dollarInput"),
+                                  label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Socioeconomics</span></h4>")),
+                                  choices = filter(metadata, type == "dollar") %>% .$name,
+                                  # choicesOpt = list(
+                                  #   subtext = paste0(filter(metadata, type == "dollar") %>% .$niceinterp,
+                                  #                    " values have higher priority scores")),
+                                  options = list(`actions-box` = TRUE,
+                                                 size = 20,
+                                                 `selected-text-format` = "count > 1"),
+                                  multiple = T,
+                                  selected = NULL
+        )
+      )
+
+      )
 
 }
     
@@ -113,7 +136,8 @@ mod_map_selections_server <- function(input, output, session,
   
   observe({ input_values$allInputs <- as_tibble(input$peopleInput) %>%
         rbind(as_tibble(input$placeInput)) %>%
-        rbind(as_tibble(input$treeInput))
+        rbind(as_tibble(input$healthInput)) %>%
+    rbind(as_tibble(input$dollarInput))
   
   # input_values$priority_layer <- input$onoff
   

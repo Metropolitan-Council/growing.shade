@@ -5,9 +5,11 @@ date: "`r format(Sys.time(), '%d %B %Y')`"
 params:
   param_geo: NA
   param_area: NA
-  param_min: NA
-  param_max: NA
-  param_ntracts: NA
+  param_equitypara: NA
+  param_treeplot: NA
+  param_ranktext: NA
+  param_rankplot: NA
+  param_prioritytable: NA
 urlcolor: blue
 ---
 
@@ -25,7 +27,7 @@ library(stringr)
 library(ggplot2)
 library(tidyr)
 
-knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 
 fancyname <- if (params$param_geo == "tracts") {
   paste0(if (substr(params$param_area, 3, 5) == "053") {"Hennepin County tract "
@@ -38,6 +40,8 @@ fancyname <- if (params$param_geo == "tracts") {
         as.numeric(substr(params$param_area, 6, 11))/100)} else {params$param_area}
 
 ```
+
+**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
 # Report for `r fancyname`
 
@@ -57,22 +61,44 @@ if(params$param_geo == "tracts") {
     geom_sf(data = filter(nhood_list, GEO_NAME == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()}
 
+# Growing Shade was developed for planners and foresters, but is available to anyone who wants this information.
+# 
+# Trees provide critical ecosystem services and are important components of the human, natural and built environments. Enhancing and maintaining tree canopy cover is an actionable step to create healthy places for people to live and a resilient future.
+
+# This report synthesizes and summarizes data about trees, people, and the built environments. Understanding the tree canopy within this larger context is important for prioritization and planning efforts. Please review "what's next for Growing Shade" or contact us at SOME EMAIL HERE if this report does not address your data needs - we welcome the feedback and may be able to accommodate requests.
+
 ```
 
-**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
-This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. Trees provide critical ecosystem services and are important components of the human, natural and built environments. Enhancing and maintaining tree canopy cover is an actionable step to create healthy places for people to live and a resilient future.
+This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. 
 
-This report synthesizes and summarizes data about trees, people, and the built environments. Understanding the tree canopy within this larger context is important for prioritization and planning efforts. Please review "what's next for Growing Shade" or contact us at SOME EMAIL HERE if this report does not address your data needs - we welcome the feedback and may be able to accommodate requests.
+Trees help communities thrive. Community-wide benefits of trees include cooler temperatures, improved air quality, cleaner stormwater, improved mental health, and enhanced biodiversity. Enhancing tree canopy cover is an actionable step to create healthy places for people to live and a resilient future. The Growing Shade Project provides data and resources to inform tree planting and canopy maintenance for the greater Twin Cities region.
+
+Trees connect to regional issues and priorities. Public health, environmental justice, climate change, and natural resource conservation all intersect with the tree canopy. Understanding the tree canopy within this larger context is important for prioritization and planning efforts.
+
 
 
 ## Tree canopy
 
- ```r fancyname``` has an existing tree canopy which ranges from ```r params$param_min```% to ```r params$param_max```% across ```r params$param_ntracts``` Census tracts. The distribution of tree canopy across the region is shown below; tracts in ```r fancyname``` are highlighted in green.
+`r params$param_equitypara`
 
-In most areas in our region, a tree canopy coverage of 40% (as detected by our methods) leads to the greatest benefits. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
+In most areas in our region, a goal of 30% tree canopy coverage (as detected by our methods) is suitable. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
-```{r canopystatus, fig.width=7, fig.height = 3, echo=F, message=F, warning=F, fig.cap = "\\label{fig:canopystatus}The distribution of tree canopy coverage across tracts. This plot shows the distribution of the tree canopy across the region’s 704 Census tracts. The selected tract, or tracts which make up a selected city or neighborhood are highlighted in green. <br>On the top is a density plot. The more occurrences of a value, the taller this plot gets. The density plot is showing that most Census tracts have a tree canopy coverage of 20-35%.<br>On the bottom is a box plot, where each grey circle shows the tree cover in one Census tract. The line in the middle of the box shows the median value: half of the tracts fall below the median, and half of them lie above the median. The median is also known as the 50th percentile. The top and bottom edges of the box show the 75th percentile (the value below which 75% of the geographic areas fall) and the 25th percentile (the value below which 25% of the geographic areas fall). Tracts located above and below the vertical lines extending from the box are particularly extreme values."}
+
+```{r treeplot, fig.align="center", out.width= "80%", fig.asp = .4}
+params$param_treeplot
+
+```
+
+### Methodology note
+
+The method used to detect tree canopy varies across tools. The 30% goal of canopy coverage and values about current canopy coverage in Growing Shade may not align with goals or values presented in other tools. In Growing Shade, we prioritize using current data. We feel that current data is particularly important as our region continues to feel the impact of emerald ash borer on the tree canopy. 
+
+To get current (near real-time) data, Growing Shade leverages metrics of greenness (normalized difference vegetation index, NDVI) and seasonal patterns in plant growth (phenology) to detect trees from Sentinel-2 satellite data. Sentinel collects data approximately every 10 days, and our method does not need to rely on older data (for instance, lidar data for our region is from 2011 and out-of-date). While Sentinel's temporal resolution is excellent, the satellite data has a spatial resolution of 10 meters squared. This is often a bigger area than tree canopies. 
+
+When comparing tree canopy coverage from Sentinel with a more spatially accurate (but less temporally accurate) 1 meter squared landcover data set, we found that Sentinel tree cover has high correlation with 1 meter landcover, but Sentinel detects about twice as much tree canopy. Essentially, this means that we are detecting areas with at least 50% tree canopy coverage. We re-scaled our data using this relationship to improve the clarity of messaging. However, another way to view the data is a goal of 30% canopy is actually a goal of 60% land area covered by at least 50% tree canopy. 
+
+```{r canopystatus, include = F, eval = F, fig.width=7, fig.height = 3, echo=F, message=F, warning=F, fig.cap = "\\label{fig:canopystatus}The distribution of tree canopy coverage across tracts. This plot shows the distribution of the tree canopy across the region’s 704 Census tracts. The selected tract, or tracts which make up a selected city or neighborhood are highlighted in green. <br>On the top is a density plot. The more occurrences of a value, the taller this plot gets. The density plot is showing that most Census tracts have a tree canopy coverage of 20-35%.<br>On the bottom is a box plot, where each grey circle shows the tree cover in one Census tract. The line in the middle of the box shows the median value: half of the tracts fall below the median, and half of them lie above the median. The median is also known as the 50th percentile. The top and bottom edges of the box show the 75th percentile (the value below which 75% of the geographic areas fall) and the 25th percentile (the value below which 25% of the geographic areas fall). Tracts located above and below the vertical lines extending from the box are particularly extreme values."}
 
 canopyplot<- eva_data_main %>%
         filter(variable %in% c("canopy_percent")) %>%
@@ -117,7 +143,9 @@ canopyplot<- eva_data_main %>%
 
 ## Priortization
 
-Using the environmental justice preset, tracts within  ```r fancyname``` have overall priority scores ranging from 
+`r params$param_ranktext`
+
+
 
 ## Equity
 

@@ -1,3 +1,61 @@
+.box.box-solid.box-danger>.box-header {
+  color:#ffffff;
+  background:#0054A4
+                    }
+
+.box.box-solid.box-danger{
+border-bottom-color:#0054A4;
+border-left-color:#0054A4;
+border-right-color:#0054A4;
+border-top-color:#0054A4;
+}
+
+.box.box-danger>.box-header {
+  color:#0054A4;
+  background:#ffffff
+                    }
+
+.box.box-danger{
+border-bottom-color:#0054A4;
+border-left-color:#0054A4;
+border-right-color:#0054A4;
+border-top-color:#0054A4;
+}
+
+.box-title {
+  color:#0054A4; /*#ffffff;*/
+  font-size:16pt !important;
+  font-weight: 200 !important;
+                    }
+
+
+
+.modal-content {
+	position: relative;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #999;
+	border: 1px solid rgba(0,0,0,.2);
+	border-radius: 6px;
+	-webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	box-shadow: 0 3px 9px rgba(0,0,0,.5);
+	outline: 0;
+	color: black;
+	text-align: center;
+}
+
+.modal-title {
+	margin: 0;
+	line-height: 1.42857143;
+	font-size: 30px;
+}
+
+.modal-body {
+	position: relative;
+	padding: 15px;
+	font-size: 24px;
+}
+
 
 div.outer {
   position: fixed;

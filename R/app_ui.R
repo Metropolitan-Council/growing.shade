@@ -10,7 +10,7 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
-
+    
     # List the first level UI elements here 
  
     navbarPage(
@@ -48,16 +48,20 @@ app_ui <- function(request) {
                     margin-left:0  !important; margin-top:30px  !important;
                     max-width: 4000px !important; min-width:100% !important',
           sidebarLayout(
-            sidebarPanel(width = 5,
+            sidebarPanel(width = 6,
                          style = "height: 90vh; overflow-y: auto;",
                          
                          # width = 2,
                          h2("Welcome to the Growing Shade tool"),
                          br(),
-                         p("Please refer to ", a("the user guide",
-                                                 href = "www/Growing Shade User Guide (October 2021).pdf",
+                         p("Please refer to the ", a("text user guide",
+                                                 href = "www/Growing Shade User Guide (November 2021).pdf",
                                                  .noWS = "outside",
-                                                 target = "_blank"), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."),
+                                                 target = "_blank"), 
+                           " or the ", a("video user guide",
+                                        href = "https://www.youtube.com/watch?v=R3Qbhaq4gWs",
+                                        .noWS = "outside",
+                                        target = "_blank"), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."),
                          # br(),
                          # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
                          # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
@@ -78,7 +82,7 @@ app_ui <- function(request) {
             
             mainPanel(
               tags$head(waiter::use_waiter()),
-              width = 7,
+              width = 6,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
                   mod_map_overview_ui("map_overview_ui_1")),
@@ -110,6 +114,7 @@ golem_add_external_resources <- function(){
  
   tags$head(
     shiny::includeHTML("inst/app/www/google-analytics.html"),
+    
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),

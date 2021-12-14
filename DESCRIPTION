@@ -35,7 +35,6 @@ Imports:
     processx (>= 3.5.0),
     shinyjs (>= 2.0.0),
     shinyWidgets (>= 0.6.0),
-    readxl (>= 1.3.1),
     pkgload,
     DT (>= 0.18),
     readr(>= 1.4.0),
@@ -43,9 +42,9 @@ Imports:
     mapview,
     ggdist,
     kableExtra,
-    forcats,
     rmarkdown (>= 2.7),
-    waiter
+    waiter,
+    shinydashboard (>= 0.7.1)
 Suggests: 
     data.table (>= 1.12.8),
     fs (>= 1.4.1),
