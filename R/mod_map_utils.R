@@ -59,10 +59,21 @@ mod_map_utils_server <- function(input, output, session,
     step2 <- step1 %>%
       group_by(tract_string) %>%
       summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
+      mutate(RANK = min_rank(desc(MEAN))) %>%
       left_join(mn_tracts, by = c("tract_string" = "GEOID")) %>%
-      st_as_sf() %>%
-      st_transform(4326) %>%
-      mutate(RANK = min_rank(desc(MEAN)))
+      st_as_sf()# %>%
+      # st_transform(4326) 
+    
+    # #80
+    # profvis::profvis(
+    #   data.table::data.table(eva_data_main)[, .(MEAN = mean(weights_scaled, na.rm = T)), tract_string] %>%
+    #     mutate(RANK = min_rank(desc(MEAN))) %>%
+    #     # .[, RANK:=min_rank(desc(MEAN))] %>%
+    #     left_join(mn_tracts, by = c("tract_string" = "GEOID")) #%>%
+    #     # st_as_sf() %>%
+    #     # st_transform(4326)
+    # )
+    
 
     return(step2)
   })

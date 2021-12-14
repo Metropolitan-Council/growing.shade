@@ -62,7 +62,7 @@ mod_map_overview_server <- function(input, output, session,
       
       # addMapPane(name = "geooutline", zIndex = 149) %>%
       addMapPane("Priority score", zIndex = 120) %>%
-      addMapPane("Water", zIndex = 151) %>%
+      # addMapPane("Water", zIndex = 151) %>%
       addMapPane(name = "Road outlines", zIndex = 151) %>%
       addMapPane(name = "geooutline2", zIndex = 152) %>%
       addMapPane("redline", zIndex = 160) %>%
@@ -430,16 +430,6 @@ mod_map_overview_server <- function(input, output, session,
                    # w$show()
                    leafletProxy("map") %>%
                      clearGroup("outline") %>%
-                     # clearGroup("Trees") %>%
-                     # clearGroup("Water") %>%
-                     # # setView(lng = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$lat,
-                     # #         lat = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$long,
-                     # #         zoom = nhood_list[nhood_list$GEO_NAME == geo_selections$selected_area, ]$zoom) %>%
-                     # addRasterImage(trees %>% raster::crop(filter(nhood_list, GEO_NAME == geo_selections$selected_area)),
-                     #                colors = "#35978f",
-                     #                opacity = .7,
-                     #                layerId = "Trees",
-                     #                group = "Trees") %>%
                      addPolygons(
                        data =  filter(nhood_list, GEO_NAME == geo_selections$selected_area),
                        stroke = TRUE,
