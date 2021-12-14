@@ -273,7 +273,7 @@ mod_map_overview_server <- function(input, output, session,
                    leafletProxy("map") %>%
                      clearGroup("Priority score") %>%
                      addPolygons(
-                       data = map_util$map_data2 %>% st_transform(4326),
+                       data = map_util$map_data2,
                        group = "Priority score",
                        stroke = TRUE,
                        color =  councilR::colors$suppGray,
@@ -479,7 +479,7 @@ mod_map_overview_server <- function(input, output, session,
                  leafletProxy("map") %>%
                    clearGroup("outline") %>%
                    addPolygons(
-                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id) %>% st_transform(4326),
+                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
                      stroke = TRUE,
                      color =  "blue",
                      fill = NA,
