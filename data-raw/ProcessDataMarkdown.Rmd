@@ -12,6 +12,19 @@ The Growing Shade Project couples remote sensing data and demographic data to cr
 
 Because there are several steps which must be done in order, this document lays those steps out logically. 
 
+These are the files that must be in the data folder:
+
+- mn_tracts.rda
+- eva_data_main.rda
+- metadata.rda
+- eab.rda
+- ctu_list.rda
+- nhood_list.rda
+- redline.rda
+- trans_stops.rda
+- ctu_crosswalk.rda
+- nhood_crosswalk.rda
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F)
