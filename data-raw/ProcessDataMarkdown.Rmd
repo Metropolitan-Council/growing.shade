@@ -1480,10 +1480,33 @@ mn_tracts %>%
 
 
 
-```{r}
+```{r treetrust-fig}
+# https://www.bls.gov/cpi/tables/supplemental-files/historical-cpi-u-202111.pdf
+cpi05 <- 193.2
+cpi21 <-  266.236
+tribble(~`Benefits`, ~`Total ($)`, ~`SE ($)`, ~`$/tree`, ~`SE ($/tree)`, ~`$/capita`, ~`SE ($/capita)`,
+ "Energy", 6824046, (483981), 34.36, (2.44), 8.79, (.62),
+ "CO2", 826875, (58644), 4.16, (.3), 1.06, (.08),
+ "Air quality", 1134334, (80450), 5.71, (.41), 1.46, (.1),
+ "Stormwater", 9071809, (643399), 45.67, (3.24), 11.68, (.83),
+ "Aesthetic/Other", 7076370, (501877), 35.63, (2.53), 9.11, (.65),
+"Total Benefits", 24933434, (1766384), 125.53, (8.89), 32.10, (2.27)) %>%
+  mutate(Total21 = `$/tree` * cpi21/cpi05) %>%
+  ggplot(aes(x = Total21, y = Benefits)) +
+  geom_point()
+
+
 
 
 ```
+
+Making it faster
+
+```{r}
+devtools::install_github("rstudio/profvis")
+library(profvis)
+```
+
 
 
 
