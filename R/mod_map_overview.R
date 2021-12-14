@@ -173,6 +173,15 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "geooutline2"),
         layerId = ~GEO_NAME
       ) %>%
+      addPolygons(
+        data =  filter(ctu_list, GEO_NAME == "Oakdale"),
+        stroke = TRUE,
+        color =  "blue",
+        fill = NA,
+        opacity = 1,
+        group = "outline",
+        smoothFactor = 0.2,
+        options = pathOptions(pane = "outline")) %>%
       # addPolygons(
       #   data = ctu_list,
       #   group = "Jurisdiction outlines",
@@ -289,7 +298,7 @@ mod_map_overview_server <- function(input, output, session,
                                        "<br>City: ", map_util$map_data2$jurisdiction, 
                                        "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
                                        "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
-                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value, 1)*100, "%"),
+                                       "<br>Current tree canopy cover: ", round(map_util$canopycov$raw_value *100, 1), "%"),
                        options = pathOptions(pane = "Priority score"),
                        layerId = ~tract_string
                      ) %>%
@@ -465,40 +474,19 @@ mod_map_overview_server <- function(input, output, session,
                toListen_clickytracts(),
                  { if (input$map_shape_click$id == "") {
                  leafletProxy("map") %>%
-                   # clearGroup("Trees") %>%
-                   clearGroup("outline")# %>%
-                   # clearGroup("Water")
+                   clearGroup("outline")
                } else {
-                 # w$show()
-
                  leafletProxy("map") %>%
-                   # clearGroup("Trees") %>%
                    clearGroup("outline") %>%
-                   # clearGroup("Water") %>%
-                   # addRasterImage(trees %>%
-                   #                  raster::crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
-                   #                colors = "#35978f", #pal,
-                   #                opacity = .7,
-                   #                layerId = "Trees",
-                   #                group = "Trees") %>%
                    addPolygons(
-                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
+                     data =  mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id) %>% st_transform(4326),
                      stroke = TRUE,
                      color =  "blue",
                      fill = NA,
                      opacity = 1,
                      group = "outline",
                      smoothFactor = 0.2,
-                     options = pathOptions(pane = "outline"))# %>%
-                   # addPolygons(data = river_lake %>% st_crop(filter(mn_tracts, GEO_NAME == input$map_shape_click$id)),
-                   #             color = "black",
-                   #             fillColor = "black",
-                   #             fillOpacity = .9,
-                   #             fill = T,
-                   #             group = "Water",
-                   #             options = pathOptions(pane = "Water"))
-                 
-                 # w$hide()()
+                     options = pathOptions(pane = "outline"))
                }
                }
   )
