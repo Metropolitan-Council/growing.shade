@@ -525,8 +525,8 @@ mod_report_server <- function(id,
       # return(fig_equity)
       
       df <- param_equity() %>%
-        pivot_longer(names_to = "names", values_to = "values", -c(flag, canopy_percent)) %>%
-        mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value / 1000))
+        pivot_longer(names_to = "names", values_to = "values", -c(flag, canopy_percent, tract_string)) %>%
+        mutate(raw_value = if_else(names == "pbipoc", values * 100, values / 1000))
       
       fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
@@ -539,7 +539,7 @@ mod_report_server <- function(id,
               strip.placement = "outside") +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
         labs(x = "", y = "Tree canopy\n (%)") +
-          facet_wrap(~variable, scales = "free_x", nrow = 2, strip.position = "bottom",
+          facet_wrap(~names, scales = "free_x", nrow = 2, strip.position = "bottom",
                      labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household income\n($, thousands)")  ))
       
       return(fig_equity)
