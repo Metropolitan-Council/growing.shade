@@ -1,19 +1,15 @@
-Other resources
+ 
 ================
 
--   [External resources](#external-resources)
-
-## External resources
-
-<br> Managing the tree canopy is a complex and important subject.
-Growing Shade is a unique tool offering users the ability to customize
+Managing the tree canopy is a complex and important subject. Growing
+Shade is a unique tool offering users the ability to customize
 prioritization and see detailed maps of tree canopy gaps. It is under
 active development, so please check back or contact us for more details.
-However there are other tools which may be useful, and it should be
-noted that there are still many unanswered questions. The list below has
-been compiled as a starting point.
+However there are other external resources tools which may be useful,
+and it should be noted that there are still many unanswered questions.
+The list below has been compiled as a starting point.
 
-<br> Finally, our experience and research tells us that data cannot
+<br> Additionally, our experience and research tells us that data cannot
 substitute for engagement with prioritized stakeholders to understand
 community-specific concerns or opportunities. The on-the-ground
 knowledge of residents and the expertise of practitioners are valuable

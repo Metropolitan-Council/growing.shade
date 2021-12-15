@@ -24,7 +24,7 @@ These are the files that must be in the data folder:
 - trans_stops.rda
 - ctu_crosswalk.rda
 - nhood_crosswalk.rda
-
+- metc_region.rda
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F)
@@ -228,6 +228,11 @@ ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
 
 files <- list.files(temp2, full.names = T)
 file.remove(files)
+
+
+metc_region <- mn_tracts_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
+usethis::use_data(metc_region, overwrite = TRUE)
+
 ```
 
 Make crosswalk linking tracts to ctus and neighborhoods
