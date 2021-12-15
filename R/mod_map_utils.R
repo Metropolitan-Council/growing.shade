@@ -17,6 +17,7 @@ mod_map_utils_ui <- function(id){
 #' map_utils Server Function
 #'
 #' @noRd 
+#' @import sf
 mod_map_utils_server <- function(input, output, session,
                                  map_selections,
                                  geo_selections){
@@ -56,13 +57,37 @@ mod_map_utils_server <- function(input, output, session,
         eva_data_main %>%
           filter(name %in% map_selections$allInputs$value)}
     
+    # step1 <- eva_data_main %>%
+    #   if (map_selections$preset == "Climate change") {
+    #     filter(name %in% metadata$name[metadata$cc == 1])
+    #     } else if (map_selections$preset == "Conservation") {
+    #       filter(name %in% metadata$name[metadata$cons == 1])
+    #       } else if (map_selections$preset == "Environmental justice") {
+    #         filter(name %in% metadata$name[metadata$ej == 1])
+    #         } else if (map_selections$preset == "Public health") {
+    #           filter(name %in% metadata$name[metadata$ph == 1])
+    #           } else if (map_selections$preset == "Custom") {
+    #             filter(name %in% map_selections$allInputs$value)}
+    
+    
     step2 <- step1 %>%
       group_by(tract_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = T)) %>%
+      summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
+      mutate(RANK = min_rank(desc(MEAN))) %>%
       left_join(mn_tracts, by = c("tract_string" = "GEOID")) %>%
-      st_as_sf() %>%
-      st_transform(4326) %>%
-      mutate(RANK = min_rank(desc(MEAN)))
+      st_as_sf()# %>%
+      # st_transform(4326) 
+    
+    # #80
+    # profvis::profvis(
+    #   data.table::data.table(eva_data_main)[, .(MEAN = mean(weights_scaled, na.rm = T)), tract_string] %>%
+    #     mutate(RANK = min_rank(desc(MEAN))) %>%
+    #     # .[, RANK:=min_rank(desc(MEAN))] %>%
+    #     left_join(mn_tracts, by = c("tract_string" = "GEOID")) #%>%
+    #     # st_as_sf() %>%
+    #     # st_transform(4326)
+    # )
+    
 
     return(step2)
   })

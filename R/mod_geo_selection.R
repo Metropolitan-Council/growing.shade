@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-#' @import waiter
+
 mod_geo_selection_ui <- function(id){
   ns <- NS(id)
   tagList(

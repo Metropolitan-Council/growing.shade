@@ -7,35 +7,14 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @import dplyr 
+#' 
 mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
     
-    # absolutePanel(
-    #   id = "controls",
-    #   class = "panel panel-default", 
-    #   fixed = TRUE,
-    #   draggable = TRUE, top = "13%", left = "5%", right = "auto", bottom = "auto",
-    #   style = "padding: 7px; z-index: 900",
-    #   width = "auto", height = "auto",
-    #   HTML('<button data-toggle="collapse" data-target="#demo">Customizations</button>'),
-    #   tags$div(id = 'demo',  class="collapse in",
-               
-    
-    # radioButtons(ns("onoff"),
-    #              HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>The region's tree canopy intersects with regional issues and priorities such as climate resilience, equity, and health. Turn on/off this layer to show the intersection of the tree canopy with other factors. </section></p><br>"),
-    #              choices = c("On", "Off"),
-    #              selected = "On",
-    #              inline = T),  
-    
-    
-    
-    # conditionalPanel(
-      # ns = ns,
-      # condition = "input.onoff == 'On'",
       radioButtons(ns("preset"), 
                    HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Select a priority layer to understand the overlap.</section></p><br>"),
-                   # h4("Preset"),
                   choices = c(
                     "Climate change",
                     "Conservation",
@@ -55,7 +34,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("peopleInput"), 
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Demographics</span></h4>")),
-                                  choices = filter(metadata, type == "people") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "people") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "people") %>% .$niceinterp, 
                                   #                    " values have higher priority scores")),
@@ -71,9 +50,9 @@ mod_map_selections_ui <- function(id){
           
           shinyWidgets::pickerInput(ns("placeInput"), 
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
-                                    choices = filter(metadata, type == "environment") %>% .$name,
+                                    choices = dplyr::filter(metadata, type == "environment") %>% .$name,
                                     choicesOpt = list(
-                                      subtext = paste0(filter(metadata, type == "environment") %>% .$nicer_interp)
+                                      subtext = paste0(dplyr::filter(metadata, type == "environment") %>% .$nicer_interp)
                                     ),
                                     # choicesOpt = list(
                                     #   subtext = paste0(filter(metadata, type == "environment") %>% .$niceinterp, 
@@ -82,7 +61,7 @@ mod_map_selections_ui <- function(id){
                                                    size = 20,
                                                    `selected-text-format` = "count > 1"),
                                     multiple = T,
-                                    selected = filter(metadata, type == "environment")[7, 2]
+                                    selected = dplyr::filter(metadata, type == "environment")[7, 2]
           ))
       ,conditionalPanel(
         ns = ns,
@@ -90,7 +69,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("healthInput"),
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Health</span></h4>")),
-                                  choices = filter(metadata, type == "health") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "health") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "health") %>% .$niceinterp,
                                   #                     " values have higher priority scores")),
@@ -108,7 +87,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("dollarInput"),
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Socioeconomics</span></h4>")),
-                                  choices = filter(metadata, type == "dollar") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "dollar") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "dollar") %>% .$niceinterp,
                                   #                    " values have higher priority scores")),
@@ -138,8 +117,6 @@ mod_map_selections_server <- function(input, output, session,
         rbind(as_tibble(input$placeInput)) %>%
         rbind(as_tibble(input$healthInput)) %>%
     rbind(as_tibble(input$dollarInput))
-  
-  # input_values$priority_layer <- input$onoff
   
   input_values$preset <- input$preset
   })
