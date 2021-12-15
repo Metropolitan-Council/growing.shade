@@ -1,15 +1,9 @@
-Methods
+ 
 ================
 
--   [Methods](#methods)
-    -   [Identifying tree canopy](#identifying-tree-canopy)
-    -   [Priority variables](#priority-variables)
+Some intro about this project.
 
-## Methods
-
-<br>
-
-### Identifying tree canopy
+## Tree canopy
 
 The existing tree canopy was identified using Sentinel-2 satellite data
 using Google Earth Engine. We prefer using this data over other sources
@@ -47,11 +41,9 @@ temporal accuracy of our method. <br>
 
 <br>
 
-### Priority variables
+## Priority variables
 
 Priority variables were sourced from several locations including:
-
-<br>
 
 -   Equity Considerations Dataset published by the Met Council. Data is
     given at the Census tract level. More information about those

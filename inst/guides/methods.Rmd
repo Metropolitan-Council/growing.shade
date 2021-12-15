@@ -1,20 +1,19 @@
 ---
-title: "Methods"
+title: "&nbsp;"
 output: 
   github_document:
     html_preview: false
-    toc: TRUE
+    toc: FALSE
 # params: 
 #   actor_id: "esch" 
 #   data_date: "2020-03-26"
 #   sha: "sha"
 ---
 
-## Methods
+Some intro about this project. 
 
-<br>
 
-### Identifying tree canopy
+## Tree canopy
 
 The existing tree canopy was identified using Sentinel-2 satellite data using Google Earth Engine. We prefer using this data over other sources (although all have their merits) so as to have a "real-time" inventory of the region's tree canopy. 
 
@@ -30,11 +29,9 @@ Plant phenological patterns were leveraged in order to identify tree canopy. Fiv
 
 <br>
 
-### Priority variables
+## Priority variables
 
 Priority variables were sourced from several locations including:
-
-<br>
 
 - Equity Considerations Dataset published by the Met Council. Data is given at the Census tract level. More information about those variables can be found on the  (<a href="https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations" target="_blank">Minnesota Geospatial Commons</a>). 
 - PLACES data published by the Center of Disease Control and Prevention. Data is at the tract level.  (<a href="https://www.cdc.gov/places/index.html" target="_blank">Learn more at their website.</a>) 

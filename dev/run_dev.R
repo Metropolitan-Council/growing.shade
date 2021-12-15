@@ -11,7 +11,8 @@ options(
 golem::detach_all_attached()
 # rm(list=ls(all.names = TRUE))
 
-planting.shade::render_guides()
+# planting.shade::
+render_guides()
 
 
 
