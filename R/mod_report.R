@@ -517,32 +517,54 @@ mod_report_server <- function(id,
     
     output$equity_plot <- renderPlot({
       req(TEST() != "")
-      race_equity <- param_equity() %>%
-        ggplot(aes(x = pbipoc, y = canopy_percent)) + 
-        geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
-        geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
-        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
-        councilR::council_theme() + 
-        theme(panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
+      # race_equity <- param_equity() %>%
+      #   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+      #   geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+      #   geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
+      #   geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+      #   councilR::council_theme() + 
+      #   theme(panel.grid.minor = element_blank(),
+      #         panel.grid.major = element_blank()) +
+      #   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+      #   labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
+      # 
+      # inc_equity <- param_equity()%>%
+      #   ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
+      #   geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
+      #   geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
+      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+      #   scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
+      #   geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
+      #   councilR::council_theme() + 
+      #   theme(panel.grid.minor = element_blank(),
+      #         panel.grid.major = element_blank()) +
+      #   labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
+      #   # theme(axis.title.y = element_blank(),
+      #   #       axis.text.y = element_blank())
+      # fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
+      # return(fig_equity)
       
-      inc_equity <- param_equity()%>%
-        ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) + 
-        geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) + 
-        geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-        scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) + 
-        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) + 
-        councilR::council_theme() + 
+      df <- param_equity() %>%
+        select(pbipoc, canopy_percent, flag, mdhhincnow) %>%
+        pivot_longer(names_to = "names", values_to = "values", -c(flag, canopy_percent)) %>%
+        mutate(values = if_else(names == "pbipoc", values * 100, values / 1000))
+      
+      fig_equity <-
+        ggplot(aes(x = values, y = canopy_percent), data = df) +
+        geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
+        geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        councilR::council_theme() +
         theme(panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
-        labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
-        # theme(axis.title.y = element_blank(),
-        #       axis.text.y = element_blank())
-      fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
+              panel.grid.major = element_blank(),
+              strip.placement = "outside") +
+        # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+        labs(x = "", y = "Tree canopy\n (%)") +
+          facet_wrap(~names, scales = "free_x", nrow = 2, strip.position = "bottom",
+                     labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household income\n($, thousands)")  ))
+      
       return(fig_equity)
     })
     
