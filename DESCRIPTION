@@ -38,12 +38,9 @@ Imports:
     pkgload,
     DT (>= 0.18),
     readr(>= 1.4.0),
-    leaflet.multiopacity (>= 0.1.1),
-    mapview,
     ggdist,
     kableExtra,
     rmarkdown (>= 2.7),
-    waiter,
     shinydashboard (>= 0.7.1)
 Suggests: 
     data.table (>= 1.12.8),

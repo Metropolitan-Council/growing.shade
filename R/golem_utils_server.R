@@ -76,7 +76,6 @@ rvtl <- shiny::reactiveValuesToList
 #' @import shinyWidgets
 #' @import DT
 #' @import readr
-#' @import leaflet.multiopacity
 require(magrittr)
 # load('./data/eva_data_main.rda')
 # 
