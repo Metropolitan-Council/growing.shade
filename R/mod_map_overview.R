@@ -25,6 +25,7 @@ mod_map_overview_ui <- function(id){
 #' map_overview Server Function
 #'
 #' @noRd 
+#' @import leaflet
 mod_map_overview_server <- function(input, output, session,
                                     map_selections,
                                     geo_selections,

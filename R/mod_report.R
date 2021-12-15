@@ -49,6 +49,10 @@ mod_report_ui <- function(id){
 #' report Server Functions
 #'
 #' @noRd 
+#' @import ggplot2
+#' @import tidyr
+#' @import tibble
+#' @import stringr
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,

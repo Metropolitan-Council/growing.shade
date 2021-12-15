@@ -7,6 +7,8 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @import dplyr 
+#' 
 mod_map_selections_ui <- function(id){
   ns <- NS(id)
   tagList(
@@ -32,7 +34,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("peopleInput"), 
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Demographics</span></h4>")),
-                                  choices = filter(metadata, type == "people") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "people") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "people") %>% .$niceinterp, 
                                   #                    " values have higher priority scores")),
@@ -48,9 +50,9 @@ mod_map_selections_ui <- function(id){
           
           shinyWidgets::pickerInput(ns("placeInput"), 
                                     label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
-                                    choices = filter(metadata, type == "environment") %>% .$name,
+                                    choices = dplyr::filter(metadata, type == "environment") %>% .$name,
                                     choicesOpt = list(
-                                      subtext = paste0(filter(metadata, type == "environment") %>% .$nicer_interp)
+                                      subtext = paste0(dplyr::filter(metadata, type == "environment") %>% .$nicer_interp)
                                     ),
                                     # choicesOpt = list(
                                     #   subtext = paste0(filter(metadata, type == "environment") %>% .$niceinterp, 
@@ -59,7 +61,7 @@ mod_map_selections_ui <- function(id){
                                                    size = 20,
                                                    `selected-text-format` = "count > 1"),
                                     multiple = T,
-                                    selected = filter(metadata, type == "environment")[7, 2]
+                                    selected = dplyr::filter(metadata, type == "environment")[7, 2]
           ))
       ,conditionalPanel(
         ns = ns,
@@ -67,7 +69,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("healthInput"),
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Health</span></h4>")),
-                                  choices = filter(metadata, type == "health") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "health") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "health") %>% .$niceinterp,
                                   #                     " values have higher priority scores")),
@@ -85,7 +87,7 @@ mod_map_selections_ui <- function(id){
         
         shinyWidgets::pickerInput(ns("dollarInput"),
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Socioeconomics</span></h4>")),
-                                  choices = filter(metadata, type == "dollar") %>% .$name,
+                                  choices = dplyr::filter(metadata, type == "dollar") %>% .$name,
                                   # choicesOpt = list(
                                   #   subtext = paste0(filter(metadata, type == "dollar") %>% .$niceinterp,
                                   #                    " values have higher priority scores")),
