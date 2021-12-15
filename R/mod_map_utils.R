@@ -56,6 +56,19 @@ mod_map_utils_server <- function(input, output, session,
         eva_data_main %>%
           filter(name %in% map_selections$allInputs$value)}
     
+    # step1 <- eva_data_main %>%
+    #   if (map_selections$preset == "Climate change") {
+    #     filter(name %in% metadata$name[metadata$cc == 1])
+    #     } else if (map_selections$preset == "Conservation") {
+    #       filter(name %in% metadata$name[metadata$cons == 1])
+    #       } else if (map_selections$preset == "Environmental justice") {
+    #         filter(name %in% metadata$name[metadata$ej == 1])
+    #         } else if (map_selections$preset == "Public health") {
+    #           filter(name %in% metadata$name[metadata$ph == 1])
+    #           } else if (map_selections$preset == "Custom") {
+    #             filter(name %in% map_selections$allInputs$value)}
+    
+    
     step2 <- step1 %>%
       group_by(tract_string) %>%
       summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
