@@ -81,7 +81,6 @@ app_ui <- function(request) {
             ),
             
             mainPanel(
-              # tags$head(waiter::use_waiter()),
               width = 6,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',

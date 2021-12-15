@@ -17,6 +17,7 @@ mod_map_utils_ui <- function(id){
 #' map_utils Server Function
 #'
 #' @noRd 
+#' @import sf
 mod_map_utils_server <- function(input, output, session,
                                  map_selections,
                                  geo_selections){

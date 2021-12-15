@@ -76,7 +76,8 @@ rvtl <- shiny::reactiveValuesToList
 #' @import shinyWidgets
 #' @import DT
 #' @import readr
-require(magrittr)
+#' @import magrittr
+# require(magrittr)
 # load('./data/eva_data_main.rda')
 # 
 # eva_vars <- eva_data_main %>%
