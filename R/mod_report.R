@@ -448,7 +448,9 @@ mod_report_server <- function(id,
                       #           MEANSCALED = NA, by = 'name') %>%
                       add_column(grouping = "Region average",
                                  order = 2) %>%
-                      rename(RAW = MEANRAW)) %>%
+                      rename(RAW = MEANRAW),
+                    by = c("grouping", "name", "order", "RAW")
+                    ) %>%
           ungroup() %>%
           select(grouping, name, RAW) %>% #, SE) %>%
           filter(!is.na(name)) %>%
