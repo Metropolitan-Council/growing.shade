@@ -62,69 +62,55 @@ drop_nulls <- function(x) {
 rv <- shiny::reactiveValues
 rvtl <- shiny::reactiveValuesToList
 
-#' @import leaflet
-#' @import tibble
-#' @import dplyr 
-#' @import ggplot2
-#' @import sf
-#' @import tidyr
-#' @import stringr
-#' @import cowplot
-#' @import councilR
-#' @import fmsb
-#' @import shinyjs
-#' @import shinyWidgets
-#' @import DT
-#' @import readr
-#' @import leaflet.multiopacity
-require(magrittr)
-load('./data/eva_data_main.rda')
 
-eva_vars <- eva_data_main %>%
-  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
-  dplyr::count() %>%
-  dplyr::ungroup()
-
-
-labelFormat2 <- function(
-  prefix = "(", suffix = ")", between = " &ndash; ", digits = 5, big.mark = ",",
-  transform = identity
-) {
-  
-  formatNum <- function(x) {
-    format(
-      round(transform(x), digits), trim = FALSE, scientific = FALSE,
-      big.mark = big.mark
-    )
-  }
-  
-  function(type, ...) {
-    switch(
-      type,
-      numeric = (function(cuts) {
-        paste0(prefix, formatNum(cuts), suffix)
-      })(...), # nolint
-      bin = (function(cuts) {w
-        n <- length(cuts)
-        paste0(prefix, formatNum(cuts[-n]), between, formatNum(cuts[-1]), suffix)
-      })(...), # nolint
-      quantile = (function(cuts, p) {
-        n <- length(cuts)
-        p <- paste0(round(p * 100), "%")
-        cuts <- paste0(formatNum(cuts[-n]), between, formatNum(cuts[-1]))
-        # mouse over the legend labels to see the values (quantiles)
-        paste0(
-          "<span title=\"", cuts, "\">", prefix, p[-n], between, p[-1], suffix,
-          "</span>"
-        )
-      })(...), # nolint
-      factor = (function(cuts) {
-        paste0(prefix, as.character(transform(cuts)), suffix)
-      })(...) # nolint
-    )
-  }
-  
-}
+# require(magrittr)
+# load('./data/eva_data_main.rda')
+# 
+# eva_vars <- eva_data_main %>%
+#   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
+#   dplyr::count() %>%
+#   dplyr::ungroup()
+# 
+# 
+# labelFormat2 <- function(
+#   prefix = "(", suffix = ")", between = " &ndash; ", digits = 5, big.mark = ",",
+#   transform = identity
+# ) {
+#   
+#   formatNum <- function(x) {
+#     format(
+#       round(transform(x), digits), trim = FALSE, scientific = FALSE,
+#       big.mark = big.mark
+#     )
+#   }
+#   
+#   function(type, ...) {
+#     switch(
+#       type,
+#       numeric = (function(cuts) {
+#         paste0(prefix, formatNum(cuts), suffix)
+#       })(...), # nolint
+#       bin = (function(cuts) {w
+#         n <- length(cuts)
+#         paste0(prefix, formatNum(cuts[-n]), between, formatNum(cuts[-1]), suffix)
+#       })(...), # nolint
+#       quantile = (function(cuts, p) {
+#         n <- length(cuts)
+#         p <- paste0(round(p * 100), "%")
+#         cuts <- paste0(formatNum(cuts[-n]), between, formatNum(cuts[-1]))
+#         # mouse over the legend labels to see the values (quantiles)
+#         paste0(
+#           "<span title=\"", cuts, "\">", prefix, p[-n], between, p[-1], suffix,
+#           "</span>"
+#         )
+#       })(...), # nolint
+#       factor = (function(cuts) {
+#         paste0(prefix, as.character(transform(cuts)), suffix)
+#       })(...) # nolint
+#     )
+#   }
+#   
+# }
 # 
 # icon_ecosystem <- leaflet::awesomeIcons(
 #   icon = "fa-leaf",

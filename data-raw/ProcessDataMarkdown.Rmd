@@ -12,6 +12,19 @@ The Growing Shade Project couples remote sensing data and demographic data to cr
 
 Because there are several steps which must be done in order, this document lays those steps out logically. 
 
+These are the files that must be in the data folder:
+
+- mn_tracts.rda
+- eva_data_main.rda
+- metadata.rda
+- eab.rda
+- ctu_list.rda
+- nhood_list.rda
+- redline.rda
+- trans_stops.rda
+- ctu_crosswalk.rda
+- nhood_crosswalk.rda
+- metc_region.rda
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F)
@@ -215,6 +228,11 @@ ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
 
 files <- list.files(temp2, full.names = T)
 file.remove(files)
+
+
+metc_region <- mn_tracts_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
+usethis::use_data(metc_region, overwrite = TRUE)
+
 ```
 
 Make crosswalk linking tracts to ctus and neighborhoods
@@ -1024,7 +1042,7 @@ priority_summary <- priority_summary_1 %>%
 
 
 
-mn_tracts <- mn_tracts_2 %>%
+mn_tracts <- mn_tracts_1 %>%
   full_join(wide_ctu_crosswalk) %>%
       full_join(eab_counts(., GEOID)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
@@ -1036,7 +1054,9 @@ mn_tracts <- mn_tracts_2 %>%
               select(-score) %>%
               pivot_wider(names_from = preset, values_from = rank)
             %>% rename(GEOID = tract_string)) %>%
-  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
+  mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
+  st_as_sf() %>%
+      st_transform(4326)
 
 usethis::use_data(mn_tracts, overwrite = TRUE)
 

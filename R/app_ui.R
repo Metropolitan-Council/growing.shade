@@ -81,7 +81,6 @@ app_ui <- function(request) {
             ),
             
             mainPanel(
-              tags$head(waiter::use_waiter()),
               width = 6,
               # div(class="outer3",
               div(style = 'top:25em !important;', #style = 'width:100% !important; top:25em !important; ',
@@ -92,8 +91,10 @@ app_ui <- function(request) {
         )), 
       
   tabPanel("other Resources",
-           mod_notes_ui("notes_ui_1")
-    )
+           mod_other_resources_ui("other_resources_ui_1")# mod_notes_ui("notes_ui_1")
+    ),
+  tabPanel("methods",
+           mod_methods_ui("methods_ui_1"))
     
     ))
 }
