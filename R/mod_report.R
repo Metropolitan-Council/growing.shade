@@ -107,10 +107,9 @@ mod_report_server <- function(id,
     
     param_equity <- reactive({
       equityplot <- eva_data_main %>% 
-        filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
+        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow")) %>%
         select(tract_string, variable, raw_value) %>%
         pivot_wider(names_from = variable, values_from = raw_value) %>%
-        # mutate(flag = if_else(tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Minneapolis", ]$tract_id), "selected", NA_character_))
         mutate(flag = if_else(tract_string %in% 
                                 if (geo_selections$selected_geo == "ctus") {
                                   c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
@@ -159,16 +158,6 @@ mod_report_server <- function(id,
         as.numeric(substr(param_area(), 6, 11))/100)
      return(fancyname)
     })
-    
-    
-    #### things to populate report
-    # output$instructions <- renderUI({
-    #   ns <- session$ns
-    #   tagList(
-    #     if (TEST() == "") {
-    #       "A custom analysis will be generated for you here. Please select either a specific city or neighborhood from the dropdown menu above in order to see the analysis. The resulting report and raw data will also be available here for download."} else {""}
-    #   )
-    # })    
     
     
     output$geoarea <- renderUI({
@@ -221,35 +210,30 @@ mod_report_server <- function(id,
     tree_report_plot <- reactive({
       req(TEST() != "")
       if(geo_selections$selected_geo != "tracts") {
-        canopyplot<- eva_data_main %>%
-          filter(variable %in% c("canopy_percent")) %>%
-          select(tract_string, variable, raw_value) %>%
-          mutate(flag = if_else(tract_string %in% 
-                                  if (geo_selections$selected_geo == "ctus") {
-                                    c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else if (geo_selections$selected_geo == "nhood") {
-                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else {c(param_area())}, "selected", NA_character_)) %>%
-          mutate(type = paste0(" Tracts\nwithin ", param_area()),
-                 t2 = "tracts") %>%
-          filter(flag == "selected") %>%
-          bind_rows(as_tibble(if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}) %>%
-                      mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
-                      rename(tract_string = GEO_NAME,
-                             raw_value = canopy_percent) %>%
-                      select(tract_string, raw_value, flag) %>%
-                      mutate(variable = "canopy_percent",
-                             type = if(geo_selections$selected_geo == "ctus") {"Cities across\nthe region"} else {paste0("Neighborhoods across\n", param_areasummary()$city)}))
+        canopyplot<- 
+            (as_tibble(if(geo_selections$selected_geo == "ctus") {ctu_list} else {nhood_list}) %>%
+                        mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
+                        rename(tract_string = GEO_NAME
+                               ) %>%
+                        select(tract_string, canopy_percent, flag) %>%
+                        mutate(type = if(geo_selections$selected_geo == "ctus") {"Cities across\nthe region"} else {paste0("Neighborhoods across\n", param_areasummary()$city)})) %>%
+
+          bind_rows(filter(param_equity(), flag == "selected") %>%
+                      mutate(t2 = "tracts",
+                             type = paste0(" Tracts\nwithin ", param_area()))) %>%
+          rename(raw_value = canopy_percent)
       } else {
-        canopyplot <- eva_data_main %>%
-          filter(variable %in% c("canopy_percent")) %>%
-          select(tract_string, variable, raw_value) %>%
-          mutate(flag = if_else(tract_string %in%
-                                  if (geo_selections$selected_geo == "ctus") {
-                                    c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else if (geo_selections$selected_geo == "nhood") {
-                                    c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-                                  } else {c(param_area())}, "selected", NA_character_))
+        # canopyplot <- eva_data_main %>%
+        #   filter(variable %in% c("canopy_percent")) %>%
+        #   select(tract_string, variable, raw_value) %>%
+        #   mutate(flag = if_else(tract_string %in%
+        #                           if (geo_selections$selected_geo == "ctus") {
+        #                             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+        #                           } else if (geo_selections$selected_geo == "nhood") {
+        #                             c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+        #                           } else {c(param_area())}, "selected", NA_character_))
+        canopyplot <- param_equity() %>%
+          rename(raw_value = canopy_percent)
       }
       
       if(geo_selections$selected_geo != "tracts") {
@@ -465,10 +449,7 @@ mod_report_server <- function(id,
 
       return(x)
     })
-    
- 
-    
-    
+
     output$equity_para <- renderUI({
       ns <- session$ns
       req(TEST() != "")
@@ -512,9 +493,7 @@ mod_report_server <- function(id,
           )
           return(para)
     })
-    
 
-    
     output$equity_plot <- renderPlot({
       req(TEST() != "")
       # race_equity <- param_equity() %>%
@@ -546,12 +525,11 @@ mod_report_server <- function(id,
       # return(fig_equity)
       
       df <- param_equity() %>%
-        select(pbipoc, canopy_percent, flag, mdhhincnow) %>%
         pivot_longer(names_to = "names", values_to = "values", -c(flag, canopy_percent)) %>%
-        mutate(values = if_else(names == "pbipoc", values * 100, values / 1000))
+        mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value / 1000))
       
       fig_equity <-
-        ggplot(aes(x = values, y = canopy_percent), data = df) +
+        ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
@@ -559,10 +537,9 @@ mod_report_server <- function(id,
         theme(panel.grid.minor = element_blank(),
               panel.grid.major = element_blank(),
               strip.placement = "outside") +
-        # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) + 
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
         labs(x = "", y = "Tree canopy\n (%)") +
-          facet_wrap(~names, scales = "free_x", nrow = 2, strip.position = "bottom",
+          facet_wrap(~variable, scales = "free_x", nrow = 2, strip.position = "bottom",
                      labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household income\n($, thousands)")  ))
       
       return(fig_equity)
