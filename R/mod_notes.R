@@ -14,21 +14,9 @@ mod_notes_ui <- function(id){
 
     shiny::div(
       id = "methods",
-      includeMarkdown(system.file("app/www/methods.md", package = "planting.shade"))
+      includeMarkdown(system.file("guides/methods.md", package = "planting.shade"))
     ),
-    
-    
-    br()#,
-    # # htmlOutput("frame"
-    # fluidRow(column(width = 12, align = "center",
-    #                 tags$iframe(style="height:600px; width:70%; scrolling=yes", #style="height:600px; width:50%", 
-    #             src="www/notes.pdf#zoom=110"))
-    # # div(style="display: inline-block;", embed(src="www/notes.pdf", height="100%")
-    # # shiny::div(
-    # #   id = "notes",
-    # #   includeMarkdown(system.file("app/www/notes.pdf", package = "planting.shade"))
-    # ),
-    # br(),br()
+    br()
   )
 }
     
