@@ -62,21 +62,7 @@ drop_nulls <- function(x) {
 rv <- shiny::reactiveValues
 rvtl <- shiny::reactiveValuesToList
 
-#' @import leaflet
-#' @import tibble
-#' @import dplyr 
-#' @import ggplot2
-#' @import sf
-#' @import tidyr
-#' @import stringr
-#' @import cowplot
-#' @import councilR
-#' @import fmsb
-#' @import shinyjs
-#' @import shinyWidgets
-#' @import DT
-#' @import readr
-#' @import magrittr
+
 # require(magrittr)
 # load('./data/eva_data_main.rda')
 # 
