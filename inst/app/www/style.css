@@ -44,6 +44,31 @@
 }
 
 
+/* warning box */
+
+.box.box-solid.box-warning>.box-header {
+    color: var(--color-blue-4);
+    background-color: var(--background-blue-4);
+}
+
+.box.box-solid.box-warning {
+    border-color: var(--council-blue);
+}
+
+.box.box-warning>.box-header {
+    color: var(--color-blue-4);
+    background-color: var(--background-blue-4);
+}
+
+.box.box-warning {
+    border-color: var(--council-blue);
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-style: solid;
+}
+
 .box-header .box-title,
 .box-header>.fa,
 .box-header>.glyphicon,
