@@ -241,6 +241,31 @@ a:hover, a:focus {
     color: #0070e0;
 }
 
+
+.btn {
+  font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
+	display: inline-block;
+	margin-bottom: 0;
+	font-weight: 400;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	padding: 6px 12px;
+	font-size: 13pt;
+	line-height: 1.42857143;
+	border-radius: 4px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+
 .dropdown-menu > li > a {
 	color: var(--council-gray);
 }
