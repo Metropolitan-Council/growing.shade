@@ -36,13 +36,14 @@
     /*#ffffff;*/
     font-size: 16pt !important;
     font-weight: 200 !important;
+
+}
 .box.box-solid.box-primary {
     border-bottom-color: var(--council-blue);
     border-left-color: var(--council-blue);
     border-right-color: var(--council-blue);
     border-top-color: var(--council-blue);
 }
-
 
 /* warning box */
 
