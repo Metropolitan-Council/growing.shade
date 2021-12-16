@@ -31,6 +31,7 @@ knitr::opts_chunk$set(echo = F, message = F, warning = F)
 library(tidyverse)
 library(tigris)
 library(sf)
+source("packages_global.R")
 
 ```
 

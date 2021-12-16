@@ -1,7 +1,5 @@
 # ` script to download user tracts from tigris. works for 2 state/county combinations
-library(tidyverse)
-library(tigris)
-library(sf)
+source("packages_global.R")
 
 blocks_ctus <- readxl::read_xlsx("/Volumes/shared/CommDev/Research/Research/Crosswalks/BlockstoCOCTUs.xlsx") %>%
   filter(YEAR == 2017) %>%

@@ -1,6 +1,4 @@
-library(tidyverse)
-library(sf)
-library(tigris)
+source("packages_global.R")
 
 ###
 # metc region

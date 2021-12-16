@@ -7,14 +7,7 @@ date <- format(Sys.time(), "%Y%m%d")
 # # load packages -----
 ########
 # # this works when working inside the package
-requireNamespace("readxl", quietly = TRUE)
-requireNamespace("fs", quietly = TRUE)
-requireNamespace("janitor", quietly = TRUE)
-requireNamespace("tidyverse", quietly = TRUE)
-library(tidyverse)
-library(tigris)
-library(sf)
-
+source("packages_global.R")
 
 ####################
 # tract geographies
@@ -214,9 +207,6 @@ mn_tracts_1 %>%
   geom_sf(data = filter(ctu_list, GEO_NAME == test), fill = NA, color = "blue")
 
 # filter(wide_ctu_crosswalk_1, !is.na(`...7`)) %>% data.frame()
-library(leaflet)
-library(sf)
-library(tidyverse)
 leaflet() %>%
   addTiles() %>%
   addPolygons(
@@ -338,7 +328,6 @@ equity_data_raw <- equity %>%
 # variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
 # api token: https://chronicdata.cdc.gov/profile/edit/developer_settings
 
-library("RSocrata")
 # metadata https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh
 
 health <- read.socrata(
