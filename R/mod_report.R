@@ -462,7 +462,7 @@ mod_report_server <- function(id,
 
     # priority section -----------
 
-    output$priority_table <- renderTable({
+    output$priority_table <- renderTable(striped = TRUE, {
       # report_priority_table()
       req(geo_selections$selected_area)
       req(TEST() != "")
