@@ -7,11 +7,12 @@
     color: var(--council-white) !important;
     background: var(--council-blue);
 }
+
 .box.box-solid.box-danger {
-    border-bottom-color: #0054A4;
-    border-left-color: #0054A4;
-    border-right-color: #0054A4;
-    border-top-color: #0054A4;
+    border-bottom-color: var(--council-blue);
+    border-left-color: var(--council-blue);
+    border-right-color: var(--council-blue);
+    border-top-color: var(--council-blue);
 }
 
 .box.box-danger>.box-header {
@@ -20,9 +21,11 @@
 }
 
 .box.box-danger {
-    border-bottom-color: #0054A4;
-    border-left-color: #0054A4;
-    border-right-color: #0054A4;
+    border-bottom-color: var(--council-blue);
+    border-left-color: var(--council-blue);
+    border-right-color: var(--council-blue);
+    border-top-color: var(--council-blue);
+}
 .box.box-solid.box-primary>.box-header {
     color: var(--council-blue);
     background: var(--council-gray);
@@ -33,7 +36,13 @@
     /*#ffffff;*/
     font-size: 16pt !important;
     font-weight: 200 !important;
+.box.box-solid.box-primary {
+    border-bottom-color: var(--council-blue);
+    border-left-color: var(--council-blue);
+    border-right-color: var(--council-blue);
+    border-top-color: var(--council-blue);
 }
+
 
 .modal-content {
     position: relative;
