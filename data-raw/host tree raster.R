@@ -7,8 +7,8 @@
 
 # import gdal2tiles
 #
-# gdal2tiles.generate_tiles('/Users/escheh/Documents/GitHub/planting.shade/data/tree_raster.tif',
-#                           '/Users/escheh/Documents/GitHub/treeraster/',
+# gdal2tiles.generate_tiles('~/Documents/GitHub/planting.shade/data/tree_raster.tif',
+#                           '~/Documents/GitHub/treeraster/',
 #                           zoom='8-17')
 
 
