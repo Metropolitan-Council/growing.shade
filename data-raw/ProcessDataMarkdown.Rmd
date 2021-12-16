@@ -27,7 +27,9 @@ These are the files that must be in the data folder:
 - metc_region.rda
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F)
+knitr::opts_chunk$set(echo = F, message = F, warning = F,
+                      cache = TRUE,
+                      cache.path = "cache/")
 library(tidyverse)
 library(tigris)
 library(sf)
@@ -251,6 +253,7 @@ river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>%
   # # st_simplify(dTolerance = 100) %>%
   # # st_buffer(300) %>%
   # st_union() %>% st_buffer(0) 
+fs::file_delete("water_lakes_rivers.gpkg")
 
 # find crosswalks
 find_crosswalks <- function(x) {
