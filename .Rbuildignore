@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^app\.R$
 ^rsconnect$
+^\.DS_Store$
+^data-raw/maggie$

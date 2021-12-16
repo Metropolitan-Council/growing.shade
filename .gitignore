@@ -28,3 +28,5 @@ inst/app/www/notes.pdf
 inst/app/www/notes.pdf
 inst/app/www/3026 copy.png
 .DS_Store
+
+data-raw/cache/
