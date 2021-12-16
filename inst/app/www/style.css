@@ -1,8 +1,12 @@
 .box.box-solid.box-danger>.box-header {
-    color: #ffffff;
-    background: #0054A4
+    color: var(--council-white);
+    background: var(--council-blue);
 }
 
+.box.box-solid.box-danger>.box-header>.box-title {
+    color: var(--council-white) !important;
+    background: var(--council-blue);
+}
 .box.box-solid.box-danger {
     border-bottom-color: #0054A4;
     border-left-color: #0054A4;
@@ -11,19 +15,21 @@
 }
 
 .box.box-danger>.box-header {
-    color: #0054A4;
-    background: #ffffff
+    color: var(--council-blue);
+    background: var(--council-white);
 }
 
 .box.box-danger {
     border-bottom-color: #0054A4;
     border-left-color: #0054A4;
     border-right-color: #0054A4;
-    border-top-color: #0054A4;
+.box.box-solid.box-primary>.box-header {
+    color: var(--council-blue);
+    background: var(--council-gray);
 }
 
-.box-title {
-    color: #0054A4;
+.box.box-solid.box-primary>.box-title {
+    color: var(--council-white);
     /*#ffffff;*/
     font-size: 16pt !important;
     font-weight: 200 !important;
