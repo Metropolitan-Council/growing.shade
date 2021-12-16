@@ -230,6 +230,16 @@ hr {
 }
 
 
+a {
+    font-family: Bold-Condensed;
+    color: var(--council-blue);
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+    color: #0070e0;
+}
 /*
 #input_demos_ui_1-inputCensusTracts {
 	margin-left: 5%;
