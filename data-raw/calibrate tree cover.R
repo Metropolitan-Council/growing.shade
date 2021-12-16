@@ -14,7 +14,7 @@ geometry <- st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
 df <- st_sf(id = 1:length(g), geometry = g)
 
 
-sf::st_write(df, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
 
 ggplot() +
   geom_sf(data = wholearea) +
