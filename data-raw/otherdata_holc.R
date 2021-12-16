@@ -21,7 +21,7 @@ download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_
 redline <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
   filter(HSG_SCALE == "Hazardous") %>% # | HSG_SCALE == "Definitely Declining") %>%
   st_union() %>%
-  st_transform(4326) 
+  st_transform(4326)
 
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
 
@@ -63,4 +63,4 @@ files
 file.remove(files)
 
 usethis::use_data(ctuoutline, overwrite = TRUE)
-#make sure to restart R after processing ctus...it's causing it to fail for some reason.
+# make sure to restart R after processing ctus...it's causing it to fail for some reason.

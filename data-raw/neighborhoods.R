@@ -1,24 +1,24 @@
-#neighborhoods
-#st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
-#minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
-#brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
+# neighborhoods
+# st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
+# minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
+# brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
 
 library(sf)
 library(tidyverse)
 
-#centroids
+# centroids
 # step 2 = process things
 ## functions to make this easier-----
 # swp_sum <- function(...) {
 #   totals <- swp %>%
 #     sf::st_drop_geometry() %>%
-#     group_by(!!!quos(...)) %>% 
+#     group_by(!!!quos(...)) %>%
 #     summarise(total_vol_half = sum(VOL_HALF_F, na.rm = T),
 #               total_solar_pot = sum(SOLAR_POT, na.rm = T),
-#               total_area = sum(AREA, na.rm = T)) 
+#               total_area = sum(AREA, na.rm = T))
 #   bldg_type <- swp %>%
 #     sf::st_drop_geometry() %>%
-#     group_by(!!!quos(...), FEATURE_TY) %>% 
+#     group_by(!!!quos(...), FEATURE_TY) %>%
 #     summarise(vol_half = sum(VOL_HALF_F, na.rm = T),
 #               solar_pot = sum(SOLAR_POT, na.rm = T),
 #               area = sum(AREA, na.rm = T)) %>%
@@ -30,22 +30,26 @@ library(tidyverse)
 
 swp_centroid <- function(x, ...) {
   points <- minneap %>%
-    mutate(zoom = case_when(Shape_Area < 1e6 ~ 15,
-                            Shape_Area < 1e8 ~ 13,
-                            Shape_Area < 1e9 ~ 12,
-                            TRUE ~ 11)) %>%
+    mutate(zoom = case_when(
+      Shape_Area < 1e6 ~ 15,
+      Shape_Area < 1e8 ~ 13,
+      Shape_Area < 1e9 ~ 12,
+      TRUE ~ 11
+    )) %>%
     st_transform(26915) %>%
     st_centroid() %>%
     st_transform(4326) %>%
     select(!!!quos(...), geometry, zoom) %>%
-    mutate(lat = unlist(map(.$geometry,1)),
-           long = unlist(map(.$geometry,2))) %>%
+    mutate(
+      lat = unlist(map(.$geometry, 1)),
+      long = unlist(map(.$geometry, 2))
+    ) %>%
     sf::st_drop_geometry()
   geos <- x %>%
     select(!!!quos(...), geometry) %>%
     st_transform(4326)
   combo <- full_join(geos, points) %>%
-    arrange(!!!(quos(...))) 
+    arrange(!!!(quos(...)))
   return(combo)
 }
 
@@ -62,8 +66,8 @@ minneap <- read_sf("./data-raw/minneapolis communities/Minneapolis_Communities.s
 stpaul <- read_sf("./data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   rename(GEO_NAME = name2) %>%
-    swp_centroid(., GEO_NAME) %>%
-    # select(nhood) %>%
+  swp_centroid(., GEO_NAME) %>%
+  # select(nhood) %>%
   mutate(city = "St. Paul")
 
 nhood_list <- bind_rows(minneap, stpaul) %>%
@@ -74,9 +78,9 @@ usethis::use_data(nhood_list, overwrite = TRUE)
 
 
 ####
-#city
+# city
 
-# step 1 ctus 
+# step 1 ctus
 temp <- tempfile()
 temp2 <- tempfile()
 download.file(
@@ -88,7 +92,7 @@ list.files(temp2)
 
 ctu_geo <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME, Shape_Area)# 
+  select(CTU_NAME, Shape_Area) #
 
 files <- list.files(temp2, full.names = T)
 # files

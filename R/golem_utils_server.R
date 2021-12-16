@@ -65,25 +65,25 @@ rvtl <- shiny::reactiveValuesToList
 
 # require(magrittr)
 # load('./data/eva_data_main.rda')
-# 
+#
 # eva_vars <- eva_data_main %>%
 #   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph) %>%
 #   dplyr::count() %>%
 #   dplyr::ungroup()
-# 
-# 
+#
+#
 # labelFormat2 <- function(
 #   prefix = "(", suffix = ")", between = " &ndash; ", digits = 5, big.mark = ",",
 #   transform = identity
 # ) {
-#   
+#
 #   formatNum <- function(x) {
 #     format(
 #       round(transform(x), digits), trim = FALSE, scientific = FALSE,
 #       big.mark = big.mark
 #     )
 #   }
-#   
+#
 #   function(type, ...) {
 #     switch(
 #       type,
@@ -109,30 +109,30 @@ rvtl <- shiny::reactiveValuesToList
 #       })(...) # nolint
 #     )
 #   }
-#   
+#
 # }
-# 
+#
 # icon_ecosystem <- leaflet::awesomeIcons(
 #   icon = "fa-leaf",
 #   iconColor = "black",
 #   library = "fa",
 #   markerColor = "purple"
 # )
-# 
+#
 # icon_community <- leaflet::awesomeIcons(
 #   icon = "fa-user-md",
 #   iconColor = "black",
 #   library = "fa",
 #   markerColor = "blue"
 # )
-# 
+#
 # icon_cost <- leaflet::awesomeIcons(
 #   icon = "fa-power-off",
 #   iconColor = "black",
 #   library = "fa",
 #   markerColor = "orange"
 # )
-# 
+#
 # icon_bus <- leaflet::awesomeIcons(
 #   icon = "cash",
 #   # icon = "fa-money-bill",
@@ -140,20 +140,20 @@ rvtl <- shiny::reactiveValuesToList
 #   library = "ion",
 #   markerColor = "green"
 # )
-# 
+#
 # iconeab <- leaflet::awesomeIcons(
 #   icon = "ios-close",
 #   iconColor = "black",
 #   library = "ion",
 #   markerColor = "red"
 # )
-# 
+#
 # story_topic_vars <- readxl::read_xlsx("./data/story generator.xlsx",
 #                                       col_types = "text") %>%
 #   dplyr::group_by(topic) %>%
 #   dplyr::count() %>%
 #   dplyr::ungroup()
-# 
+#
 # # ag <- raster::raster("./data/greenest2020_glu2016_treemask_ag.tif")
 # # ind <- raster::raster("./data/greenest2020_glu2016_treemask_ind.tif")
 # # inst <- raster::raster("./data/greenest2020_glu2016_treemask_inst.tif")
@@ -165,4 +165,4 @@ rvtl <- shiny::reactiveValuesToList
 # trees <- raster::raster("./data/tree_raster.tif")
 # # trees <- raster::raster("./data/tree_raster.tif")
 # # trees <- leaflet::projectRasterForLeaflet(raster::raster("./data/tree_raster.tif"), method= "bilinear") #this actually takes a long time, could do for the tiff
-#   
+#
