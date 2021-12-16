@@ -75,9 +75,9 @@ For some good reasons we are going to use data from 2020 for the tree canopy cov
 
 
 ```{r calibrate_trees}
-calibrate_trees <- read_csv("../data-raw/UMNTreeAcres_metcgrid_year2020.csv") %>%
+calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcres_metcgrid_year2020.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2020.csv") %>%
               rename(sentinel = `1`),
             by = 'id')
 
