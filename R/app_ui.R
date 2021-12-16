@@ -17,6 +17,7 @@ app_ui <- function(request) {
       title = div(
         img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")
       ),
+      windowTitle = "Growing Shade Tool",
       id = "nav",
       collapsible = TRUE,
       position = "fixed-top",
