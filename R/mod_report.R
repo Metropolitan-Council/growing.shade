@@ -18,14 +18,14 @@ mod_report_ui <- function(id) {
     (uiOutput(ns("geoarea"))),
     br(),
     fluidRow(shinydashboard::box(
-      title = ("Tree canopy: "),
+      title = ("Tree canopy "),
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("tree_para")),
       uiOutput(ns("get_tree_plot"))
     )),
     fluidRow(shinydashboard::box(
-      title = "Priortization: ",
+      title = "Priortization  ",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("rank_para")),
@@ -34,14 +34,14 @@ mod_report_ui <- function(id) {
       tableOutput(ns("priority_table"))
     )),
     fluidRow(shinydashboard::box(
-      title = "Equity: ",
+      title = "Equity  ",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
       uiOutput(ns("get_equity_plot"))
     )),
     fluidRow(shinydashboard::box(
-      title = "Threats: ",
+      title = "Threats  ",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("other_para"))
