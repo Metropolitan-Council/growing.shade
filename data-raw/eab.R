@@ -1,6 +1,5 @@
 # EAB
-library(tidyverse)
-library(sf)
+source("packages_global.R")
 
 ### land cover -------
 temp <- tempfile()
@@ -23,7 +22,6 @@ usethis::use_data(eab, overwrite = TRUE)
 # fs::file_delete("biota_marschner_presettle_veg.gpkg")
 # save(historic_veg, file = "historic_veg.rda")
 
-# library(leaflet)
 #
 # leaflet() %>%
 # addCircles(

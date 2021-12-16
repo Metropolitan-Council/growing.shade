@@ -3,8 +3,7 @@
 # minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
 # brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
 
-library(sf)
-library(tidyverse)
+source("packages_global.R")
 
 # centroids
 # step 2 = process things

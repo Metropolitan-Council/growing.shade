@@ -1,6 +1,7 @@
 #####
 # host tree raster
 #####
+source("packages_global.R")
 
 # In python run this code:
 # reference: https://gdal2tiles.readthedocs.io/en/latest/readme.html#basic-usage
@@ -14,7 +15,6 @@
 
 # issues; no color (would be good if tiles had that)
 
-library(leaflet)
 tiles <- "https://leonawicz.github.io/tiles/us48lr/tiles/{z}/{x}/{y}.png"
 leaflet(
   options = leafletOptions(minZoom = 0, maxZoom = 15), width = "100%"
@@ -23,7 +23,6 @@ leaflet(
   addTiles(tiles, options = tileOptions(opacity = 0.8))
 
 
-library(leaflet)
 tiles_tree <- "https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{-y}.png"
 leaflet(options = leafletOptions(minZoom = 7, maxZoom = 15)) %>%
   # options = leafletOptions(minZoom = 10, maxZoom = 16)) %>%
