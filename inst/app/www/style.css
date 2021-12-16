@@ -44,6 +44,18 @@
 }
 
 
+.box-header .box-title,
+.box-header>.fa,
+.box-header>.glyphicon,
+.box-header>.ion {
+    text-transform: lowercase;
+}
+
+.box-title::first-letter {
+    text-transform: capitalize;
+}
+
+
 .modal-content {
     position: relative;
     background-color: #fff;
