@@ -29,9 +29,9 @@ mn_tracts %>%
   rename(tract_string = GEOID) %>%
   right_join(eva_data_main %>%
   filter(variable == "canopy_percent") %>%
-  select(raw_value, tract_string) %>%
+  dplyr::select(raw_value, tract_string) %>%
   mutate(`Canopy coverage` = raw_value * 100)) %>%
-  select(tract_string, `Canopy coverage`) %>%
+  dplyr::select(tract_string, `Canopy coverage`) %>%
   rename(`Tract id` = tract_string) %>%
   sf::st_write(., "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/tree_tracts.shp", append = FALSE)
 
@@ -40,9 +40,9 @@ mn_tracts %>%
   rename(tract_string = GEOID) %>%
   right_join(eva_data_main %>%
                filter(variable == "pbipoc") %>%
-               select(raw_value, tract_string) %>%
+               dplyr::select(raw_value, tract_string) %>%
                mutate(`Percent BIPOC` = raw_value * 100)) %>%
-  select(tract_string, `Percent BIPOC`) %>%
+  dplyr::select(tract_string, `Percent BIPOC`) %>%
   rename(`Tract id` = tract_string) %>%
   sf::st_write(., "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/bipoc_tracts.shp", append = FALSE)
 
@@ -80,9 +80,9 @@ mn_tracts %>%
   rename(tract_string = GEOID) %>%
   right_join(eva_data_main %>%
                filter(variable == "canopy_percent") %>%
-               select(raw_value, tract_string) %>%
+               dplyr::select(raw_value, tract_string) %>%
                mutate(`Canopy coverage` = raw_value * 100)) %>%
-  select(tract_string, `Canopy coverage`) %>%
+  dplyr::select(tract_string, `Canopy coverage`) %>%
   rename(`Tract id` = tract_string) %>%
   
 
@@ -127,7 +127,7 @@ read_sf("https://native-land.ca/api/index.php?maps=territories&name=oceti-sakowi
 ######
 st_drop_geometry(ctu_list) %>% 
   full_join(st_drop_geometry(nhood_list)) %>%
-  select(GEO_NAME, canopy_percent) %>%
+  dplyr::select(GEO_NAME, canopy_percent) %>%
   filter(GEO_NAME != "Minneapolis",
          GEO_NAME != "St. Paul") %>%
   arrange(canopy_percent)
@@ -135,7 +135,7 @@ st_drop_geometry(ctu_list) %>%
 
 st_drop_geometry(nhood_list) %>%
   filter(city == "St. Paul") %>%
-  select(GEO_NAME, canopy_percent) %>%
+  dplyr::select(GEO_NAME, canopy_percent) %>%
   arrange(-canopy_percent) %>%    # First sort by val. This sort the dataframe but NOT the factor levels
   mutate(GEO_NAME=factor(GEO_NAME, levels=GEO_NAME)) %>%   # This trick update the factor levels
   ggplot( aes(x=GEO_NAME, y=canopy_percent)) +
