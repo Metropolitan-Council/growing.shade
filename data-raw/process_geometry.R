@@ -8,7 +8,7 @@ blocks_ctus <- readxl::read_xlsx("/Volumes/shared/CommDev/Research/Research/Cros
   count() %>%
   group_by(GEOID) %>%
   mutate(ncity = row_number()) %>%
-  select(-n) %>%
+  dplyr::select(-n) %>%
   pivot_wider(names_from = ncity, values_from = CTU_NAME, -CTU_CODE)
 
 mn_tracts <- tigris::tracts(
@@ -62,7 +62,7 @@ usethis::use_data(metc_region, overwrite = TRUE)
 #   filter(ALAND <= 809371) %>%
 #   st_drop_geometry() %>%
 #   left_join(blocks_ctus) %>%
-#   select(GEO_NAME, `1`) %>%
+#   dplyr::select(GEO_NAME, `1`) %>%
 #   rename(CTU_NAME = `1`) %>%
 #   left_join(mn_ctus) %>%
 #   st_as_sf()

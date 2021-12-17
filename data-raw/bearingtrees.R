@@ -42,13 +42,14 @@ fs::file_delete("biota_marschner_presettle_veg.gpkg")
 # download S1 File: S1 File. Zip file for all data processing. https://doi.org/10.1371/journal.pone.0151935.s001
 # Supplement_1/data/input/fullpaleon_conversion_v0.4.csv
 
-spp_cleaner <- read_csv("./data-raw/fullpaleon_conversion_v0.4.csv") %>%
+spp_cleaner <- read_csv("./data-raw/fullpaleon_conversion_v0.4.csv",
+                        show_col_types = FALSE) %>%
   filter(Domain %in% "Upper Midwest") %>%
   mutate(
     spp_code = tolower(`Level 1`),
     spp_name = tolower(`Level 3a`)
   ) %>%
-  select(spp_code, spp_name)
+  dplyr::select(spp_code, spp_name)
 
 temp <- tempfile()
 download.file(

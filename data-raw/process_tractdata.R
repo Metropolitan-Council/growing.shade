@@ -32,7 +32,7 @@ mn_tracts_1 <- tigris::tracts(
 # # ndvi
 # tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
 #                        col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-#   select(-`system:index`, -.geo, -Year)
+  dplyr::select(-`system:index`, -.geo, -Year)
 # # filter(tract_ndvi, ndvi == "No data")
 #
 # # canopy coverage
@@ -93,14 +93,14 @@ find_centroid <- function(x, ...) {
     st_transform(26915) %>%
     st_centroid() %>%
     st_transform(4326) %>%
-    select(!!!quos(...), geometry, zoom) %>%
+    dplyr::select(!!!quos(...), geometry, zoom) %>%
     mutate(
       lat = unlist(map(.$geometry, 1)),
       long = unlist(map(.$geometry, 2))
     ) %>%
     sf::st_drop_geometry()
   geos <- x %>%
-    select(!!!quos(...), city, geometry) %>%
+    dplyr::select(!!!quos(...), city, geometry) %>%
     st_transform(4326)
   combo <- full_join(geos, points) %>%
     arrange(!!!(quos(...)))
@@ -114,7 +114,7 @@ tree_summary <- function(x) {
     st_buffer(-200) %>% # give it a bit of a buffer
     st_erase(river_lake_buffer) %>% # erase remaining rivers
     st_intersection(mn_tracts_1 %>%
-      select(GEOID) %>%
+      dplyr::select(GEOID) %>%
       st_transform(26915)) %>%
     left_join(canopy %>%
       rename(GEOID = GEOID10),
@@ -164,14 +164,14 @@ list.files(temp2)
 
 ctu_geo <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME, Shape_Area) #
+  dplyr::select(CTU_NAME, Shape_Area) #
 
 ## ctus ----------
 ctu_list <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME, Shape_Area) %>%
+  dplyr::select(CTU_NAME, Shape_Area) %>%
   add_column(city = "doesn't matter") %>%
   find_centroid(., CTU_NAME) %>%
-  select(-city) %>%
+  dplyr::select(-city) %>%
   rename(GEO_NAME = CTU_NAME) %>%
   full_join(tree_summary(.)) %>%
   arrange(GEO_NAME)
@@ -186,12 +186,12 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 # link tracts to ctus and nhoods
 #########
 ctu_crosswalk <- ctu_list %>%
-  select(GEO_NAME) %>%
+  dplyr::select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-200) %>% # go up to -80 because carver
   st_erase(river_lake_buffer) %>% # erase remaining rivers
   st_intersection(mn_tracts_1 %>%
-    select(GEOID) %>%
+    dplyr::select(GEOID) %>%
     rename(tract_id = GEOID) %>%
     st_transform(26915)) %>%
   st_drop_geometry()
@@ -222,12 +222,12 @@ leaflet() %>%
 
 filter(ctu_crosswalk, tract_id == "27123980000")
 nhood_crosswalk <- nhood_list %>%
-  select(GEO_NAME) %>%
+  dplyr::select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-200) %>%
   st_erase(river_lake_buffer) %>% # erase remaining rivers
   st_intersection(mn_tracts_1 %>%
-    select(GEOID) %>%
+    dplyr::select(GEOID) %>%
     rename(tract_id = GEOID) %>%
     st_transform(26915)) %>%
   st_drop_geometry()
@@ -253,7 +253,7 @@ wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
 
 wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
   mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`, `...5`, `...6`, `...7`, sep = ", ")) %>%
-  select(tract_id, jurisdiction) %>%
+  dplyr::select(tract_id, jurisdiction) %>%
   mutate(
     jurisdiction = str_replace(jurisdiction, ", NA", ""),
     jurisdiction = str_replace(jurisdiction, ", NA", ""),
@@ -286,7 +286,7 @@ fs::file_delete("EquityConsiderations_Full.xlsx")
 
 ## --------------variables of interest from equity considerations
 equity_data_raw <- equity %>%
-  select(
+  dplyr::select(
     tr10,
     ppov185,
     prim_flood,
@@ -316,7 +316,7 @@ equity_data_raw <- equity %>%
     holc_pred = if_else(is.na(holc_pred), 0, holc_pred),
     sens_age = p_0017 + p_65up
   ) %>% # "mutate" reformats any variables that need it
-  select(
+  dplyr::select(
     -luse_notgreen, # and then I want to remove the variable I don't need anymore
     -pwhitenh
   )
@@ -349,7 +349,7 @@ health2 <- health %>%
     "Mental health not good for >=14 days among adults aged >=18 years",
     "Physical health not good for >=14 days among adults aged >=18 years"
   )) %>%
-  select(GEOID10, measureid, data_value) %>%
+  dplyr::select(GEOID10, measureid, data_value) %>%
   mutate(data_value = as.numeric(data_value) / 100) %>% # change to fraction
   pivot_wider(names_from = measureid, values_from = data_value) %>%
   rename(tr10 = GEOID10)
@@ -458,7 +458,7 @@ eva_data_main <- eva_data_raw %>%
   )) %>%
   #
   # clean
-  select(-MEAN, -SD, -MIN, -MAX) %>%
+  dplyr::select(-MEAN, -SD, -MIN, -MAX) %>%
   full_join(wide_ctu_crosswalk %>% rename(tract_string = GEOID))
 
 ########
