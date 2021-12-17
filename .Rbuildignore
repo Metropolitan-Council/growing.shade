@@ -4,3 +4,4 @@
 ^rsconnect$
 ^\.DS_Store$
 ^data-raw/maggie$
+^data-raw/cache$
