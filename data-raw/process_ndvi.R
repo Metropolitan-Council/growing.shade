@@ -1,5 +1,5 @@
 
-source("packages_global.R")
+source("data-raw/packages_global.R")
 
 # # # whole region NDVI - lakes/rivers removed
 # s2 <- raster("./data-raw/greenest_map_metc_2020.tif") %>%
