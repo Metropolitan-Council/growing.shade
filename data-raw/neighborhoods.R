@@ -28,7 +28,7 @@ source("data-raw/packages_global.R")
 # # swp_sum(WMO_NAME)
 
 swp_centroid <- function(x, ...) {
-  points <- minneap %>%
+  points <- x %>%
     mutate(zoom = case_when(
       Shape_Area < 1e6 ~ 15,
       Shape_Area < 1e8 ~ 13,
@@ -38,15 +38,17 @@ swp_centroid <- function(x, ...) {
     st_transform(26915) %>%
     st_centroid() %>%
     st_transform(4326) %>%
-    select(!!!quos(...), geometry, zoom) %>%
+    dplyr::select(!!!quos(...), geometry, zoom) %>%
     mutate(
       lat = unlist(map(.$geometry, 1)),
       long = unlist(map(.$geometry, 2))
     ) %>%
     sf::st_drop_geometry()
+  
   geos <- x %>%
-    select(!!!quos(...), geometry) %>%
+    dplyr::select(!!!quos(...), geometry) %>%
     st_transform(4326)
+  
   combo <- full_join(geos, points) %>%
     arrange(!!!(quos(...)))
   return(combo)
@@ -59,14 +61,14 @@ minneap <- read_sf("./data-raw/minneapolis communities/Minneapolis_Communities.s
   rename(GEO_NAME = CommName) %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   swp_centroid(., GEO_NAME) %>%
-  # select(nhood) %>%
+  # dplyr::select(nhood) %>%
   mutate(city = "Minneapolis")
 
 stpaul <- read_sf("./data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   rename(GEO_NAME = name2) %>%
   swp_centroid(., GEO_NAME) %>%
-  # select(nhood) %>%
+  # dplyr::select(nhood) %>%
   mutate(city = "St. Paul")
 
 nhood_list <- bind_rows(minneap, stpaul) %>%
@@ -91,7 +93,7 @@ list.files(temp2)
 
 ctu_geo <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME, Shape_Area) #
+  dplyr::select(CTU_NAME, Shape_Area) #
 
 files <- list.files(temp2, full.names = T)
 # files
