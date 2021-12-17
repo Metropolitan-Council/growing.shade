@@ -1,7 +1,7 @@
 #####
 # host tree raster
 #####
-source("packages_global.R")
+source("data-raw/packages_global.R")
 
 # In python run this code:
 # reference: https://gdal2tiles.readthedocs.io/en/latest/readme.html#basic-usage

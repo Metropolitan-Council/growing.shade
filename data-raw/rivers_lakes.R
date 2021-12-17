@@ -1,5 +1,5 @@
 # water bodies -----------------
-source("packages_global.R")
+source("data-raw/packages_global.R")
 
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)

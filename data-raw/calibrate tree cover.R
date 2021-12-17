@@ -1,6 +1,6 @@
 # calibrate tree coverage from sentinel with lidar
 
-source("packages_global.R")
+source("data-raw/packages_global.R")
 wholearea <- metc_region %>%
   summarise(st_union(.))
 

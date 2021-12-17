@@ -1,4 +1,4 @@
-source("packages_global.R")
+source("data-raw/packages_global.R")
 
 ###
 # metc region

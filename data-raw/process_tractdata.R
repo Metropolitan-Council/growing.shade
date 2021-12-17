@@ -7,7 +7,7 @@ date <- format(Sys.time(), "%Y%m%d")
 # # load packages -----
 ########
 # # this works when working inside the package
-source("packages_global.R")
+source("data-raw/packages_global.R")
 
 ####################
 # tract geographies
