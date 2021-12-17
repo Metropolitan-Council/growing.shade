@@ -1,7 +1,7 @@
 # prepare transit routes
 
 source("data-raw/packages_global.R")
-
+source("data-raw/shared_drive.R")
 
 ## holc  ---------------
 # ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
@@ -19,7 +19,7 @@ fs::file_delete("plan_historic_holc_appraisal.gpkg")
 # levels(as.factor(redline$HSG_SCALE))
 # redline %>% ggplot()+geom_sf()
 usethis::use_data(redline, overwrite = TRUE)
-sf::st_write(redline, "/Volumes/shared/CommDev/Research/Research/EllenEsch/redline/redline.shp", append = FALSE)
+sf::st_write(redline, paste0(shared_drive, "/EllenEsch/redline/redline.shp"), append = FALSE)
 
 
 ## transit routes ---------------

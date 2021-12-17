@@ -1,7 +1,8 @@
 # ` script to download user tracts from tigris. works for 2 state/county combinations
 source("data-raw/packages_global.R")
+source("data-raw/shared_drive.R")
 
-blocks_ctus <- readxl::read_xlsx("/Volumes/shared/CommDev/Research/Research/Crosswalks/BlockstoCOCTUs.xlsx") %>%
+blocks_ctus <- readxl::read_xlsx(paste0(shared_drive, "/Crosswalks/BlockstoCOCTUs.xlsx")) %>%
   filter(YEAR == 2017) %>%
   mutate(GEOID = substr(BLK10, start = 1, stop = 11)) %>%
   group_by(GEOID, CTU_NAME, CTU_CODE) %>%
