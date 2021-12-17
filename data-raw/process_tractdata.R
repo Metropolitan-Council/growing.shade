@@ -26,7 +26,7 @@ mn_tracts_1 <- tigris::tracts(
 ################
 # process google earth engine data
 ##################
-# # GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+# # GEE data is in repo "~MetCoucil/GrowingShade_CanopyCoverage"
 # # https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
 #
 # # ndvi
