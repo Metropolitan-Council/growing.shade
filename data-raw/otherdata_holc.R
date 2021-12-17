@@ -54,4 +54,4 @@ files
 file.remove(files)
 
 usethis::use_data(ctuoutline, overwrite = TRUE)
-# make sure to restart R after processing ctus...it's causing it to fail for some reason.
+message("make sure to restart R after processing ctus...it's causing it to fail for some reason.")
