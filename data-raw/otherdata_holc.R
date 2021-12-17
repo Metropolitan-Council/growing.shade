@@ -46,7 +46,7 @@ unzip(zipfile = temp, exdir = temp2)
 list.files(temp2)
 ctuoutline <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME) %>%
+  dplyr::dplyr::select(CTU_NAME) %>%
   st_transform(4326)
 
 files <- list.files(temp2, full.names = T)
