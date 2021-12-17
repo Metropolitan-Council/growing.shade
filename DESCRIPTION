@@ -43,7 +43,7 @@ Suggests:
     readxl (>= 1.3.1),
     testthat (>= 2.3.2)
 Remotes:
-    Metropolitan-Council/councilR
+    github::Metropolitan-Council/councilR
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
