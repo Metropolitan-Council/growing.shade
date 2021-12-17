@@ -30,3 +30,9 @@ inst/app/www/3026 copy.png
 .DS_Store
 
 data-raw/cache/
+
+biota_original_pls_bearing_trees.gpkg
+
+water_lakes_rivers.gpkg
+
+data-raw/shared_drive.R
