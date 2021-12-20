@@ -4,14 +4,13 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
-#' @importFrom shiny NS tagList 
-mod_notes_ui <- function(id){
+#' @importFrom shiny NS tagList
+mod_notes_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    br(),br(),
-
+    br(), br(),
     shiny::div(
       id = "methods",
       includeMarkdown(system.file("guides/methods.md", package = "planting.shade"))
@@ -19,24 +18,22 @@ mod_notes_ui <- function(id){
     br()
   )
 }
-    
+
 #' notes Server Function
 #'
-#' @noRd 
-mod_notes_server <- function(input, output, session){
+#' @noRd
+mod_notes_server <- function(input, output, session) {
   ns <- session$ns
-  
+
   # output$frame <- renderUI({
   #   my_test <- tags$iframe(src="www/notes.pdf", style="height:800px; width:100%;scrolling=yes")
   #   print(my_test)
   #   my_test
   # })
- 
 }
-    
+
 ## To be copied in the UI
 # mod_notes_ui("notes_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_notes_server, "notes_ui_1")
- 

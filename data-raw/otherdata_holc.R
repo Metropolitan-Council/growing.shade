@@ -1,16 +1,7 @@
 # prepare transit routes
 
-requireNamespace("readxl", quietly = TRUE)
-requireNamespace("fs", quietly = TRUE)
-requireNamespace("tigris", quietly = TRUE)
-requireNamespace("janitor", quietly = TRUE)
-
-library(dplyr)
-library(fs)
-library(sf)
-library(tigris)
-library(janitor)
-
+source("data-raw/packages_global.R")
+source("data-raw/shared_drive.R")
 
 ## holc  ---------------
 # ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
@@ -21,14 +12,14 @@ download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_
 redline <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
   filter(HSG_SCALE == "Hazardous") %>% # | HSG_SCALE == "Definitely Declining") %>%
   st_union() %>%
-  st_transform(4326) 
+  st_transform(4326)
 
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
 
 # levels(as.factor(redline$HSG_SCALE))
 # redline %>% ggplot()+geom_sf()
 usethis::use_data(redline, overwrite = TRUE)
-sf::st_write(redline, "/Volumes/shared/CommDev/Research/Research/EllenEsch/redline/redline.shp", append = FALSE)
+sf::st_write(redline, paste0(shared_drive, "/EllenEsch/redline/redline.shp"), append = FALSE)
 
 
 ## transit routes ---------------
@@ -55,7 +46,7 @@ unzip(zipfile = temp, exdir = temp2)
 list.files(temp2)
 ctuoutline <-
   sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  select(CTU_NAME) %>%
+  dplyr::dplyr::select(CTU_NAME) %>%
   st_transform(4326)
 
 files <- list.files(temp2, full.names = T)
@@ -63,4 +54,4 @@ files
 file.remove(files)
 
 usethis::use_data(ctuoutline, overwrite = TRUE)
-#make sure to restart R after processing ctus...it's causing it to fail for some reason.
+message("make sure to restart R after processing ctus...it's causing it to fail for some reason.")

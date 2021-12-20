@@ -27,10 +27,13 @@ These are the files that must be in the data folder:
 - metc_region.rda
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F)
+knitr::opts_chunk$set(echo = F, message = F, warning = F,
+                      cache = TRUE,
+                      cache.path = "cache/")
 library(tidyverse)
 library(tigris)
 library(sf)
+source("packages_global.R")
 
 ```
 
@@ -58,7 +61,7 @@ Google Earth Engine needs some assets created.
 # #   geom_sf(data = df,
 # #           fill = "transparent")
 # 
-# sf::st_write(df, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+# sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
 # 
 
 
@@ -75,9 +78,9 @@ For some good reasons we are going to use data from 2020 for the tree canopy cov
 
 
 ```{r calibrate_trees}
-calibrate_trees <- read_csv("../data-raw/UMNTreeAcres_metcgrid_year2020.csv") %>%
+calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcres_metcgrid_year2020.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2020.csv") %>%
               rename(sentinel = `1`),
             by = 'id')
 
@@ -250,6 +253,7 @@ river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>%
   # # st_simplify(dTolerance = 100) %>%
   # # st_buffer(300) %>%
   # st_union() %>% st_buffer(0) 
+fs::file_delete("water_lakes_rivers.gpkg")
 
 # find crosswalks
 find_crosswalks <- function(x) {
@@ -366,7 +370,7 @@ mn_bgs_2 <- mn_bgs_1 %>%
 
 
 - process GEE code to link canopy with geography
-  - GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+  - GEE data is in repo "~/MetCoucil/GrowingShade_CanopyCoverage"
   - https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
 
 ```{r gee}
@@ -390,7 +394,7 @@ tract_ndvi <- read_csv("../data-raw/meanNDVI_tracts_year2020.csv",
   select(-`system:index`, -.geo, -Year)
 
 # canopy coverage
-canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
+canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_tracts_year2020.csv",
                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
   left_join(sf::st_drop_geometry(mn_tracts_2), by = c("GEOID10" = "GEOID")) %>%
   transmute(GEOID10 = GEOID10, 
@@ -399,7 +403,7 @@ canopy <- read_csv("../data-raw/TreeAcres_tracts_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
 
 ## ctu canopy ----
-canopy_ctu <- read_csv("../data-raw/TreeAcres_ctus_year2020.csv",
+canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2020.csv",
                    col_types = cols(.default = "d", CTU_NAME = "c")) %>%
   left_join(ctu_land, by = c("CTU_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = CTU_NAME, 
@@ -408,14 +412,14 @@ canopy_ctu <- read_csv("../data-raw/TreeAcres_ctus_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) 
 
 ## nhood canopy ----
-canopy_nhood <- read_csv("../data-raw/TreeAcres_neighborhoods_year2020.csv",
+canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2020.csv",
                    col_types = cols(.default = "d", GEO_NAME = "c")) %>%
   left_join(nhood_land, by = c("GEO_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = GEO_NAME, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) %>%
-  full_join(read_csv("../data-raw/UMNTreeAcres_neighborhoods_year2020_scale1.csv")) %>%
+  full_join(read_csv("../data-raw/TreeAcres/TreeUMNTreeAcres_neighborhoods_year2020_scale1.csv")) %>%
   mutate(umn_canopy = `1`/landacres)
 canopy_nhood %>% arrange(canopy_percent)
 # # tree raster
@@ -504,7 +508,7 @@ ctu_list <- ctu_geo %>%
 nhood_list %>% arrange(avgcanopy, canopy_percent)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
-sf::st_write(ctu_list, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
+sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 
 
 ```
@@ -1061,7 +1065,7 @@ mn_tracts <- mn_tracts_1 %>%
 usethis::use_data(mn_tracts, overwrite = TRUE)
 
 
-sf::st_write(mn_tracts, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_tracts.shp", append = FALSE)
+sf::st_write(mn_tracts, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_tracts.shp", append = FALSE)
 
 
 
@@ -1393,7 +1397,7 @@ inc_fig <-eva_data_main %>%
 
 fig_equity <- plot_grid(race_fig, inc_fig, labels = "AUTO")#, age, cost)
 fig_equity
-ggsave("/Users/escheh/Desktop/equity.png",fig_equity,  width = 10, height = 4.5, units = "in", device = "png")
+ggsave("~/Desktop/equity.png",fig_equity,  width = 10, height = 4.5, units = "in", device = "png")
 
 ```
 
