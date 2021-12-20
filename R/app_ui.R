@@ -81,7 +81,7 @@ app_ui <- function(request) {
               mod_map_selections_ui("map_selections_ui_1"),
               HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
               # hr(),
-              br(),
+              # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
               # hr(),
               br(),
