@@ -23,13 +23,13 @@ mod_switch_tabs_server <- function(id){
     
     observeEvent(input$jumpToP2, {
       updateTabsetPanel(session, "nav",
-                        selected = ns("narrative"))
+                        dplyr::selected = ns("narrative"))
     })
     
     # observeEvent(input$switchbutton, {
     #   updateTabsetPanel(session = session,
     #                     inputId = "narrative",
-    #                     selected = "narrative")
+    #                     dplyr::selected = "narrative")
     # })
  
   })

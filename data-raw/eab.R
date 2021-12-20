@@ -1,6 +1,5 @@
 # EAB
-library(tidyverse)
-library(sf)
+source("data-raw/packages_global.R")
 
 ### land cover -------
 temp <- tempfile()
@@ -15,7 +14,7 @@ list.files(temp2)
 eab <-
   sf::read_sf(paste0(temp2, pattern = "/eab_trees.shp")) %>%
   # filter()
-  st_transform(4326) 
+  st_transform(4326)
 
 
 usethis::use_data(eab, overwrite = TRUE)
@@ -23,8 +22,7 @@ usethis::use_data(eab, overwrite = TRUE)
 # fs::file_delete("biota_marschner_presettle_veg.gpkg")
 # save(historic_veg, file = "historic_veg.rda")
 
-# library(leaflet)
-# 
+#
 # leaflet() %>%
 # addCircles(
 #   # Markers(
@@ -36,9 +34,12 @@ usethis::use_data(eab, overwrite = TRUE)
 #   weight = 2,
 #   color = "red", #councilR::colors$transitRed,
 #   fillColor = "red"# councilR::colors$transitRed,
-# ) 
+# )
 
 
 eab %>%
-  sf::st_intersection(filter(mn_tracts, #crop_tract_ctus, 
-                      GEOID == "27123037601")) %>% nrow()
+  sf::st_intersection(filter(
+    mn_tracts, # crop_tract_ctus,
+    GEOID == "27123037601"
+  )) %>%
+  nrow()

@@ -11,13 +11,11 @@ options(
 golem::detach_all_attached()
 # rm(list=ls(all.names = TRUE))
 
-# planting.shade::
-render_guides()
-
-
-
 # Document and reload your package
 golem::document_and_reload()
+
+# planting.shade::render_guides()
+
 
 # Run the application
 run_app()
