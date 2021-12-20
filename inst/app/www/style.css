@@ -222,7 +222,7 @@ h6 {
 }
 
 body {
-    font-size: 13pt;
+    font-size: 12pt;
     line-height: 1.6;
     font-weight: 100;
     font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
@@ -236,7 +236,7 @@ body {
 p {
     margin: 0 auto !important;
     /*0 10px;*/
-    font-size: 13pt;
+    font-size: 12pt;
     max-width: 1200px;
     width: auto;
 }
