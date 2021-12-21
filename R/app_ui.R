@@ -77,13 +77,16 @@ app_ui <- function(request) {
               # a("Sinha 2021",
               #   href = ns("#B"), #"#tab-6122-2",
               #   .noWS = "outside"),
+              # hr(style="margin-top: 2px; margin-bottom: 2px "),
               hr(),
+              
               mod_map_selections_ui("map_selections_ui_1"),
               # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
-              hr(),
+              hr(style="margin-top: 2px; margin-bottom: 2px "),
+              
               # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
-              hr(),
+              # hr(style="margin-top: 2px; margin-bottom: 2px "),
               br(),
               mod_report_ui("report_ui_1") # ,
               # mod_plot_tract_ui("plot_tract_ui_1")

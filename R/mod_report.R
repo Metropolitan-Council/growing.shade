@@ -11,10 +11,7 @@ mod_report_ui <- function(id) {
   ns <- NS(id)
   tagList(
     shinyWidgets::useShinydashboard(),
-    fluidRow(
-      column(width = 6, uiOutput(ns("get_the_report"))),
-      column(width = 6, uiOutput(ns("get_the_data")))
-    ),
+
     (uiOutput(ns("geoarea"))),
     br(),
     fluidRow(shinydashboard::box(
@@ -45,7 +42,16 @@ mod_report_ui <- function(id) {
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("other_para"))
-    ))
+    )),
+    fluidRow(shinydashboard::box(
+      title = "Download",
+      width = 12, collapsed = F,
+      status = "danger", solidHeader = F, collapsible = TRUE,
+      
+      # HTML("An extended version of this report can be downloaded below. The raw data is available for download.<br>"),
+      column(width = 6, uiOutput(ns("get_the_report"))),
+      column(width = 6, uiOutput(ns("get_the_data")))
+    )),
   )
 }
 
