@@ -92,7 +92,5 @@ method.
 <!-- - Fall (15 September 2020 - 30 October 2020): fall NDVI is greater than 0.4 (remove early senescing crops) -->
 <!-- <br> -->
 <!-- https://browser.creodias.eu/#lat=45.15999&lng=-92.79540&zoom=15&time=2020-07-05&preset=3_NDVI&datasource=Sentinel-2%20L1C -->
-<br>
-<hr>
 
-<br>
+<br> <br>

@@ -55,7 +55,7 @@ app_ui <- function(request) {
               style = "height: 90vh; overflow-y: auto;",
 
               # width = 2,
-              h2("Welcome to the Growing Shade tool"),
+              h2("Welcome to the Growing Shade mapping tool"),
               br(),
               p(
                 "Please refer to the ", a("text user guide",
@@ -79,11 +79,11 @@ app_ui <- function(request) {
               #   .noWS = "outside"),
               hr(),
               mod_map_selections_ui("map_selections_ui_1"),
-              HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
-              # hr(),
+              # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
+              hr(),
               # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
-              # hr(),
+              hr(),
               br(),
               mod_report_ui("report_ui_1") # ,
               # mod_plot_tract_ui("plot_tract_ui_1")
