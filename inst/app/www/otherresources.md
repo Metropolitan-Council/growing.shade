@@ -1,20 +1,21 @@
  
 ================
 
-Managing the tree canopy is a complex and important subject. Growing
-Shade is a unique tool offering users the ability to customize
-prioritization and see detailed maps of tree canopy gaps. It is under
-active development, so please check back or contact us for more details.
-However there are other external resources tools which may be useful,
-and it should be noted that there are still many unanswered questions.
-The list below has been compiled as a starting point.
+Growing Shade is a unique tool that highlights stories and offers users
+the ability to consider how they prioritize the important work of
+growing, preserving, and maintaining the tree canopy.
 
-<br> Additionally, our experience and research tells us that data cannot
-substitute for engagement with prioritized stakeholders to understand
+<br> There are additional tools and resources that may be useful for
+this work. Please consider the list below as a starting point. Finally,
+when planning and prioritizing urban forestry work, tools and data
+cannot substitute for stakeholder engagement to understand
 community-specific concerns or opportunities. The on-the-ground
-knowledge of residents and the expertise of practitioners are valuable
-sources of information necessary to enhance and refine the shared
-understanding of this data.
+knowledge of residents and the expertise of local practitioners are
+valuable sources of information.
+
+<!-- Managing the tree canopy is a complex and important subject. Growing Shade is a unique tool offering users the ability to customize prioritization and see detailed maps of tree canopy gaps. It is under active development, so please check back or contact us for more details. However there are other external resources tools which may be useful, and it should be noted that there are still many unanswered questions. The list below has been compiled as a starting point. -->
+<!-- <br> -->
+<!-- Additionally, our experience and research tells us that data cannot substitute for engagement with prioritized stakeholders to understand community-specific concerns or opportunities. The on-the-ground knowledge of residents and the expertise of practitioners are valuable sources of information necessary to enhance and refine the shared understanding of this data. -->
 
 <br> **Tools**
 
@@ -27,6 +28,18 @@ plant trees and maintain tree canopy?*
     County, MN Tree Canopy Tree Planting Priority Areas</a>
 -   <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City
     of Saint Paul Urban Tree Canopy Assessment 2011</a>
+
+<br> **Tree Planting**
+
+*What trees are predicted to do well in future climate conditions?*
+
+-   <a href = "https://forestadaptation.org/sites/default/files/2021-03/TwinCitiesMN_TreeSpeciesVulnerability.pdf" target = "_blank">Climate
+    Change Vulnerability of Urban Trees: Twin Cities, Minnesota</a>
+
+*What the best way to plant a tree?*
+
+-   <a href = "https://www.youtube.com/watch?v=yQ0Xo7cfMqs" target = "_blank">Tree
+    Trust video</a>
 
 <br> **Information, Guides and Toolkits**
 
@@ -58,6 +71,16 @@ Twin Cities?*
 -   <a href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf" target = "_blank">US
     Forest Service Report: Urban Nature for Human Health and Well-being
     2018</a>
+
+<br> **Connect and Learn**
+
+*Where can I connect with others working to grow our tree canopy in the
+Twin Cities or across Minnesota?*
+
+-   <a href = "https://www.mnstac.org/" target = "_blank">Minnesota
+    Shade Tree Advisory Committee</a>
+-   <a href = "https://trees.umn.edu/minnesota-shade-tree-short-course" target = "_blank">Minnesota
+    Shade Tree Short Course</a>
 
 <br> **What’s Next**
 
