@@ -40,7 +40,7 @@ app_ui <- function(request) {
         "HOME",
         # id = "B",
         br(), br(),
-        (mod_storymap_ui("storymap_ui_1"))
+        fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
         "Mapping tool",
