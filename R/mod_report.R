@@ -155,10 +155,6 @@ mod_report_server <- function(id,
     })
 
 
-    param_test <- reactive({
-      req(geo_selections$selected_area)
-    })
-
     param_fancytract <- reactive({
       req(geo_selections$selected_geo == "tracts")
       fancyname <-
