@@ -404,33 +404,6 @@ mod_report_server <- function(id,
         summarise(RAW = mean(raw_value, na.rm = T),
                   SE = sd(raw_value, na.rm = T)/sqrt(n())) 
       
-      # step1 <- eva_data_main %>%
-      #   filter(name %in%
-      #            if(map_selections$preset == "Environmental justice") {
-      #              metadata[metadata$ej == 1, ]$name
-      #            } else if(map_selections$preset == "Climate change") {
-      #              metadata[metadata$cc == 1, ]$name
-      #            } else if(map_selections$preset == "Public health") {
-      #              metadata[metadata$ph == 1, ]$name
-      #            } else if(map_selections$preset == "Conservation") {
-      #              metadata[metadata$cons == 1, ]$name
-      #            } else if(map_selections$preset == "Custom") {
-      #              c(map_selections$allInputs$value)}) %>%
-      #   mutate(flag = if_else(tract_string %in%
-      #                           if (geo_selections$selected_geo == "ctus") {
-      #                             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                           } else if (geo_selections$selected_geo == "nhood") {
-      #                             c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
-      #                           } else {c(param_area())}, "selected", NA_character_)) %>%
-      #   filter(flag == "selected") %>%
-      #   add_column(order = 2) %>%
-      #   # filter(!is.na(raw_value)) %>%
-      #   # bind_rows(ps)  %>%
-      #   add_column(grouping = "Selected area") %>%
-      #   group_by(grouping, name, order) %>%
-      #   summarise(RAW = mean(raw_value, na.rm = T),
-      #             SE = sd(raw_value, na.rm = T)/sqrt(n())) 
-      
       x <- step1 %>%
         
         full_join(metadata %>%
@@ -612,7 +585,8 @@ mod_report_server <- function(id,
         tempReport <- file.path(tempdir(), "report_new.Rmd")
         file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
         # Set up parameters to pass to Rmd document
-        params <- list(param_geo = geo_selections$selected_geo,
+        params <- list(
+                       param_geo = geo_selections$selected_geo,
                        param_area = param_area(),
                        param_equitypara = tree_text(),
                        param_treeplot = tree_report_plot(),
