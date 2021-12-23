@@ -41,6 +41,7 @@ fancyname <- if (params$param_geo == "tracts") {
 
 ```
 
+
 **This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
 # Report for `r fancyname`
@@ -87,7 +88,6 @@ In most areas in our region, a goal of 30% tree canopy coverage (as detected by 
 
 ```{r treeplot, fig.align="center", out.width= "80%", fig.asp = .4}
 params$param_treeplot
-
 ```
 
 ### Methodology note
@@ -145,6 +145,9 @@ canopyplot<- eva_data_main %>%
 
 `r params$param_ranktext`
 
+```{r priorityplot, fig.align="center", out.width= "80%", fig.asp = .4}
+params$param_rankplot
+```
 
 
 ## Equity
