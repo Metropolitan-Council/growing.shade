@@ -149,6 +149,11 @@ canopyplot<- eva_data_main %>%
 params$param_rankplot
 ```
 
+```{r}
+
+params$param_prioritytable
+
+```
 
 ## Equity
 

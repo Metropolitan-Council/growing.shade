@@ -377,11 +377,8 @@ mod_report_server <- function(id,
     
     # priority section -----------
     
-    output$priority_table <- renderTable(striped = TRUE, {
-      # report_priority_table()
-      # req(geo_selections$selected_area)
+    report_priority_table <- reactive({
       req(TEST() != "")
-      
       
       step1 <- param_dl_data() %>%
         filter(name %in%
@@ -438,6 +435,12 @@ mod_report_server <- function(id,
       
       return(x)
     })
+    
+    output$priority_table <- renderTable(striped = TRUE, {
+      req(TEST() != "")
+      report_priority_table()
+    })
+    
     
     output$equity_para <- renderUI({
       ns <- session$ns
@@ -591,9 +594,9 @@ mod_report_server <- function(id,
                        param_equitypara = tree_text(),
                        param_treeplot = tree_report_plot(),
                        param_ranktext = rank_text(),
-                       param_rankplot = report_rank_plot()#,
-                       # param_prioritytable = report_priority_table(),
-                       
+                       param_rankplot = report_rank_plot(),
+                       param_prioritytable = report_priority_table()
+
                        
         )
         # Knit the document, passing in the `params` list, and eval it in a
