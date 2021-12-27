@@ -448,7 +448,7 @@ mod_report_server <- function(id,
       para <- HTML(paste0( 
         "Research shows that trees are unevenly distributed across communities. ", 
         # In particular, 
-        "Areas with high BIPOC or low-income populations have less tree canopy. ",
+        "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
         # "(",
         # a("MacDonald 2021",
         #   href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715",
