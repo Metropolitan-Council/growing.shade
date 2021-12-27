@@ -10,6 +10,7 @@ params:
   param_ranktext: NA
   param_rankplot: NA
   param_prioritytable: NA
+  param_equityplot: NA
 urlcolor: blue
 ---
 
@@ -172,6 +173,12 @@ equity_words <- HTML(paste0("In the plot below, ",
 ```
 
 `r equity_words`
+
+
+```{r equityplot, fig.align="center", out.width= "80%", fig.asp = 1}
+params$param_equityplot
+```
+
 
 ## Threats
 

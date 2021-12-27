@@ -486,7 +486,7 @@ mod_report_server <- function(id,
       return(para)
     })
     
-    output$equity_plot <- renderPlot({
+    report_equity_plot <- reactive({
       req(TEST() != "")
       # race_equity <- param_equity() %>%
       #   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
@@ -538,6 +538,10 @@ mod_report_server <- function(id,
       return(fig_equity)
     })
     
+    output$equity_plot <- renderPlot({
+      req(TEST() != "")
+      report_equity_plot()
+    })
     
     
     output$other_para <- renderUI({
@@ -595,7 +599,8 @@ mod_report_server <- function(id,
                        param_treeplot = tree_report_plot(),
                        param_ranktext = rank_text(),
                        param_rankplot = report_rank_plot(),
-                       param_prioritytable = report_priority_table()
+                       param_prioritytable = report_priority_table(),
+                       param_equityplot = report_equity_plot()
 
                        
         )
