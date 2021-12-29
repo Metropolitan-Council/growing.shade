@@ -10,6 +10,11 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
+    
+    shinydisconnect::disconnectMessage(
+      text = HTML('Your session timed out. Please refresh the application.'),
+      refresh = "Refresh now"
+    ),
 
     # List the first level UI elements here
 
