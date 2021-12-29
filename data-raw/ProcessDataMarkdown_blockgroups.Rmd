@@ -979,15 +979,15 @@ bg_growingshade_data <- bg_acs %>%
   mutate(ndvi2 = ndvi,
          canopy_percent2 = canopy_percent) %>%
   rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
-  add_column(avg_temp = NA_real_,
-             env_cancer = NA_real_,
-             green_roof = NA_real_,
-             holc_pred = NA_real_,
-             luse_green = NA_real_,
-             phhi_qntl1 = NA_real_,
-             prim_flood = NA_real_,
-             pwk_nowork = NA_real_,
-             tr_ej = NA_real_) %>%
+  add_column(avg_temp = 1,
+             env_cancer = 1,
+             green_roof = 1,
+             holc_pred = 1,
+             luse_green = 1,
+             phhi_qntl1 = 1,
+             prim_flood = 1,
+             pwk_nowork = 1,
+             tr_ej = 1) %>%
   dplyr::select(-tr10)
 
 
