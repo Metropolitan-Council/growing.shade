@@ -980,7 +980,9 @@ bg_growingshade_data <- bg_acs %>%
              phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
              prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
              pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) #%>%
+             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
+  
+  filter(str_detect(tract_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
   # dplyr::select(-tr10)
 
 
