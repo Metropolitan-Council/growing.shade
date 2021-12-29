@@ -10,15 +10,116 @@ params:
   param_ranktext: NA
   param_rankplot: NA
   param_prioritytable: NA
+  param_equityplot: NA
+  param_otherparea: NA
 urlcolor: blue
+always_allow_html: true
+
+
 ---
 
-<style type="text/css">
-.caption {
+
+
+```{css, echo=FALSE, include = F, eval =F}
+caption {
     font-size: .9em;
     font-color: #A9A9A9
 }
-</style>
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-weight: 300;
+    color: #005daa; 
+    font-family: "Arial Narrow", Arial, sans-serif;
+    max-width: 1200px;
+    width: auto;
+}
+
+ol,
+ul,
+li {
+    margin: 0 auto;
+    max-width: 1200px;
+    width: auto;
+}
+
+h1 {
+    font-size: 36pt;
+    line-height: 1.2;
+    letter-spacing: -.1rem;
+}
+
+h2 {
+    font-size: 22pt;
+    line-height: 1.25;
+    letter-spacing: -.1rem;
+}
+
+h3 {
+    font-size: 20pt;
+    line-height: 1.3;
+    letter-spacing: -.1rem;
+}
+
+h4 {
+    font-size: 18pt;
+    line-height: 1.35;
+    letter-spacing: -.08rem;
+}
+
+h5 {
+    font-size: 16pt;
+    line-height: 1.3;
+    letter-spacing: -.05rem;
+}
+
+h6 {
+    font-size: 14pt;
+    line-height: 1.6;
+    letter-spacing: 0;
+}
+
+body {
+    font-size: 12pt;
+    line-height: 1.6;
+    font-weight: 100;
+    font-family: Roman, Helvetica, Tahoma, Geneva, Arial, sans-serif;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+p {
+    font-size: 12pt;
+    max-width: 1200px;
+    width: auto;
+}
+
+b,
+strong {
+    font-family: Medium !important;
+    font-weight: 100 !important;
+}
+
+a {
+    font-family: Bold-Condensed;
+    color: #005daa;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+    color: #0070e0;
+}
+```
+
 
 
 ```{r assignments, echo=F, message=F, warning=F, results='hide'}
@@ -41,7 +142,6 @@ fancyname <- if (params$param_geo == "tracts") {
 
 ```
 
-**This is a work in progress. When the in-application report is finalized, it will also be finalized here. Thanks for your patience!**
 
 # Report for `r fancyname`
 
@@ -85,9 +185,8 @@ Trees connect to regional issues and priorities. Public health, environmental ju
 In most areas in our region, a goal of 30% tree canopy coverage (as detected by our methods) is suitable. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
 
-```{r treeplot, fig.align="center", out.width= "80%", fig.asp = .4}
+```{r treeplot, fig.align="center", out.width= "70%", fig.asp = .4}
 params$param_treeplot
-
 ```
 
 ### Methodology note
@@ -145,12 +244,96 @@ canopyplot<- eva_data_main %>%
 
 `r params$param_ranktext`
 
+```{r priorityplot, fig.align="center", out.width= "80%", fig.asp = .4}
+params$param_rankplot
+```
 
+<br>
+
+```{r priority-table, results='markup', tidy = F}
+knitr::kable(params$param_prioritytable,
+             booktabs = TRUE,
+             caption = "Average values for the selected area as compared to the region-wide average. Variables shown are those used in prioritization layer. Values for all potential variables can be obtained by downloading the raw data from the Growing Shade Mapping Tool.") %>%
+  # kableExtra::kable_styling(full_width = F) %>%
+    kableExtra::kable_classic("striped", full_width = F, html_font = "Cambria")# %>%
+  # kableExtra::footnote(general = "Average values for the selected area as compared to the region-wide average. Variables shown are those used in prioritization layer. Values for all potential variables can be obtained by downloading the raw data from the Growing Shade Mapping Tool.",
+           # general_title = "")
+```
 
 ## Equity
 
+Research shows that trees are unevenly distributed across communities. In particular, areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy (<a href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715" target="_blank">MacDonald 2021</a>) as do historically redlined areas (<a href = "https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today" target = "_blank">NPR 2020</a>, <a href = "https://www.nature.com/articles/s42949-021-00022-0" target = "_blank">Locke et al. 2021</a>, <a href = "https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub" target = "_blank">Namin et al. 2020</a>). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (<a href = "https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf" target = "_blank">Sinha 2021</a>). 
+
+```{r}
+equity_words <- HTML(paste0("In the plot below, ",
+        if (params$param_geo == "tracts") {
+          paste0(fancyname, " is ")
+        } else {paste0("tracts within ", 
+                       params$param_area,
+                       " are ")},
+        "in green, and the regional trend is in blue."))
+```
+
+`r equity_words`
+
+
+```{r equityplot, fig.align="center", out.width= "70%", fig.asp = .8}
+params$param_equityplot
+```
+
+
 ## Threats
 
-## What's next and other resources
+`r params$param_otherparea`
+
+## Other resources
+
+Growing Shade is a unique tool that highlights stories and offers users the ability to consider how they prioritize the important work of growing, preserving, and maintaining the tree canopy. 
+
+There are additional tools and resources that may be useful for this work.  Please consider the list below as a starting point.
+Finally, when planning and prioritizing urban forestry work, tools and data cannot substitute for stakeholder engagement to understand community-specific concerns or opportunities. The on-the-ground knowledge of residents and the expertise of local practitioners are valuable sources of information.
+
+- **Tools**
+  - *What additional tools and assessments exist to help prioritize where to plant trees and maintain tree canopy?*
+    - <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American Forests Tree Equity Score project</a> 
+    - <a href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting" target = "_blank">Hennepin County, MN Tree Canopy Tree Planting Priority Areas</a>
+    - <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City of Saint Paul Urban Tree Canopy Assessment 2011</a>
+- **Planting Trees and Native Vegetation**
+  - *What trees are predicted to do well in future climate conditions?*
+    - <a href = "https://forestadaptation.org/sites/default/files/2021-03/TwinCitiesMN_TreeSpeciesVulnerability.pdf" target = "_blank">Climate Change Vulnerability of Urban Trees: Twin Cities, Minnesota</a>
+  - *What the best way to plant a tree?*
+    - <a href = "https://www.youtube.com/watch?v=yQ0Xo7cfMqs" target = "_blank">Tree Trust video</a>
+  - *Where can I learn about native plants (trees, grasses, wildflowers): the benefits, purchasing and planting?*
+    - <a href = "https://mnnps.org/links/" target = "_blank">Minnesota Native Plant Society</a>
+    - <a href = "https://extension.umn.edu/find-plants/native-plants" target = "_blank">University of Minnesota Extension</a>
+- **Information, Guides and Toolkits** 
+  - *Where can I lean more about the benefits provided by urban forests and learn how to build them?*
+    - <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant Cities Lab</a>
+- **Climate Change** 
+  - *Where can I find more information about climate change impacts in the Twin Cities?*
+    - <a href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf%22 %EF%BF%BDHYPERLINK %22https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx"                 target = "_blank">Climate Vulnerability Assessment by Metropolitan Council for the Twin Cities</a>
+    - <a href = "https://metrocouncil.maps.arcgis.com/apps/webappviewer/index.html?id=fd0956de60c547ea9dea736f35b3b57e"
+            target = "_blank">Extreme Heat Map Tool </a> by Metropolitan Council
+    - <a href = "https://metrocouncil.maps.arcgis.com/apps/MapJournal/index.html?appid=7d9cdd3929e9439bb5b25aa1186d5783"
+            target = "_blank">Extreme Heat Story Map </a> by Metropolitan Council
+- **Human Health**
+  - *Where can I learn about the impacts of tree on human health?*
+    - <a href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf" target = "_blank">US Forest Service Report: Urban Nature for Human Health and Well-being 2018</a>
+- **Connect and Learn**
+  - *Where can I connect with others working to grow our tree canopy in the Twin Cities or across Minnesota?*
+    - <a href = "https://www.mnstac.org/" target = "_blank">Minnesota Shade Tree Advisory Committee</a>
+    - <a href = "https://trees.umn.edu/minnesota-shade-tree-short-course" target = "_blank">Minnesota Shade Tree Short Course</a>
+  - *How can my city receive recognition or a certification for our urban forestry work?*
+    - <a href = "https://www.arborday.org/programs/treeCityUSA/index.cfm" target = "_blank">Tree City USA</a>
+    - <a href = "https://greenstep.pca.state.mn.us/bp-detail/81726" target = "_blank">GreenStep Cities program</a>
+- **What’s Next** 
+  - *What new projects are underway that could support and inform urban forests in the Twin Cities?*
+    - <a href = "https://mspurbanlter.umn.edu/overview" target = "_blank">Urban LTER (Long-term Ecological Research) in the Twin Cities</a>
+    
+<br><br>
+
+
+
+
 
 
