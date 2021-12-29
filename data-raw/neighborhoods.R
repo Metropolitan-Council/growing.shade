@@ -44,11 +44,11 @@ swp_centroid <- function(x, ...) {
       long = unlist(map(.$geometry, 2))
     ) %>%
     sf::st_drop_geometry()
-  
+
   geos <- x %>%
     dplyr::select(!!!quos(...), geometry) %>%
     st_transform(4326)
-  
+
   combo <- full_join(geos, points) %>%
     arrange(!!!(quos(...)))
   return(combo)
