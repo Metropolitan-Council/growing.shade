@@ -935,18 +935,18 @@ bg_acs <- acs %>%
 library("RSocrata")
 #metadata https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh
 
-health <- read.socrata(
-  "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=countyfips in('27003', '27019', '27037', '27053', '27123', '27139', '27163')",
+bg_health <- read.socrata(
+  "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
   app_token = "D1kEEJEDVBpDppDIdDmwNXeVT",
   email     = "ellen.esch@metc.state.mn.us",
   password  ="TQfY5%Q3xY") %>%
   rename(GEOID10 = locationname)
 
-health
-names(health)
-levels(as.factor(health$measure))
+bg_health
+names(bg_health)
+levels(as.factor(bg_health$measure))
 
-health2 <- health %>%
+bg_health2 <- bg_health %>%
   filter(measure %in% c("Current asthma among adults aged >=18 years",
                         "Chronic obstructive pulmonary disease among adults aged >=18 years",
                         "Mental health not good for >=14 days among adults aged >=18 years",
@@ -964,7 +964,7 @@ health2 <- health %>%
 ###################
 
 bg_growingshade_data <- bg_acs %>%
-  filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
+  # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
   mutate(tr10 = substr(bg10, 1, 11)) %>% #this is the tract id
   # full_join(equity_data_raw_bg) %>%
 
@@ -975,19 +975,19 @@ bg_growingshade_data <- bg_acs %>%
   # full_join(acs_data_raw)
   full_join(bg_canopy) %>%
   full_join(bg_ndvi) %>%
-  full_join(health2) %>%
+  left_join(bg_health2) %>%
   mutate(ndvi2 = ndvi,
          canopy_percent2 = canopy_percent) %>%
   rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
-  add_column(avg_temp = 1,
-             env_cancer = 1,
-             green_roof = 1,
-             holc_pred = 1,
-             luse_green = 1,
-             phhi_qntl1 = 1,
-             prim_flood = 1,
-             pwk_nowork = 1,
-             tr_ej = 1) %>%
+  add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
   dplyr::select(-tr10)
 
 
@@ -1111,7 +1111,7 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 #   dplyr::count() %>%
 #   dplyr::ungroup() %>%
 #   full_join(md1) %>%
-#   mutate(niceinterp = 
+#   mutate(niceinterp =
 #                case_when(interpret_high_value == "high_opportunity" ~ "Higher",
 #                          TRUE ~ "Lower"))
 # 
