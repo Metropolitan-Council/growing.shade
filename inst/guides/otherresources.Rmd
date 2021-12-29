@@ -1,5 +1,5 @@
 ---
-title: "&nbsp;"
+title: "Other resources"
 output: 
   github_document:
     html_preview: false

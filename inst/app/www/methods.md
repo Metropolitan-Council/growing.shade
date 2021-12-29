@@ -1,4 +1,4 @@
- 
+Methods
 ================
 
 Growing Shade developed out of a collaboration between the
