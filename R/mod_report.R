@@ -363,7 +363,7 @@ mod_report_server <- function(id,
               param_fancytract(), " has a priority score of ",
               round((param_selectedtractvalues()$MEAN), 2),
               " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ",
-              (param_selectedtractvalues()$RANK), " (out of 704 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
+              (param_selectedtractvalues()$RANK), " (out of 2085 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
               tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>"
             )
           } else {
@@ -414,7 +414,7 @@ mod_report_server <- function(id,
       plot <- # if (map_selections$priority_layer == "Off") {print("nothing to see here")
         # } else {
         ggplot() +
-        scale_x_continuous(limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
+        scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
         geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme( # axis.text.y = element_blank(),
@@ -425,10 +425,10 @@ mod_report_server <- function(id,
           panel.grid.minor.x = element_blank()
         ) +
         geom_segment(aes(
-          x = 1, xend = 700, y = segment_line$y,
+          x = 1, xend = 2085, y = segment_line$y,
           yend = segment_line$y
         )) +
-        labs(x = "Rank of aggregated priority score\n(out of 704 tracts across the region)")
+        labs(x = "Rank of aggregated priority score\n(out of 2085 tracts across the region)")
       # }
       return(plot)
     })
