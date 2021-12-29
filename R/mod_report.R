@@ -169,12 +169,12 @@ mod_report_server <- function(id,
       ns <- session$ns
       tagList(
         HTML(paste0(
-          "<h3>Growing Shade report for ",
+          "<h2><section style='font-size:20pt'>Growing Shade report for ",
           if (geo_selections$selected_geo == "tracts") {
             param_fancytract()
           } else {
             param_area()
-          }, "</h3>"
+          }, "</h2></section>"
         ))
       )
     })

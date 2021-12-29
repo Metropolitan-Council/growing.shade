@@ -13,7 +13,7 @@ mod_map_selections_ui <- function(id) {
   ns <- NS(id)
   tagList(
     radioButtons(ns("preset"),
-      HTML("<h3>Prioritization layer</h3><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Select a priority layer to understand the overlap.</section></p>"),
+      HTML("<h2><section style='font-size:20pt'>Prioritization layer</h2></section><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Select a priority layer to understand the overlap.</section></p>"),
       choices = c(
         "Climate change",
         "Conservation",

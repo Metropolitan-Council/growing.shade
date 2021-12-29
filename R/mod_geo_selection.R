@@ -17,7 +17,7 @@ mod_geo_selection_ui <- function(id) {
     (radioButtons(
       ns("geo"),
       # h4("Report area"),
-      label = HTML("<h3>Custom report</h3><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
+      label = HTML("<h2><section style='font-size:20pt'>Custom report</h2></section><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
         "A Census tract (selected from the map)" = "tracts",
         "Cities and townships (use dropdown below)" = "ctus",
@@ -32,7 +32,7 @@ mod_geo_selection_ui <- function(id) {
       ns = ns,
       condition = "input.geo == 'ctus'",
       shinyWidgets::pickerInput(ns("cityInput"),
-        label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
+        label = shiny::HTML(paste0("<h3><span style='font-size:14pt'>City or township</span></h3>")),
         choices = ctu_list$GEO_NAME,
         options = list(
           title = "Pick a city or township", size = 10,

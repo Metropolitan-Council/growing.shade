@@ -61,7 +61,8 @@ app_ui <- function(request) {
               style = "height: 90vh; overflow-y: auto;",
 
               # width = 2,
-              h2("Welcome to the Growing Shade mapping tool"),
+              HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
+              # h1("Welcome to the Growing Shade mapping tool"),
               br(),
               p(
                 "Please refer to the ", a("text user guide",
