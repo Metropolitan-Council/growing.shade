@@ -23,7 +23,7 @@ mod_map_utils_server <- function(input, output, session,
 
   # we need to make this data for a bar plot, or something like that
   make_plot_data2 <- reactive({
-    p <- eva_data_main %>%
+    p <- bg_growingshade_main %>%
       filter(name %in% map_selections$allInputs$value)
     return(p)
   })
@@ -31,7 +31,7 @@ mod_map_utils_server <- function(input, output, session,
 
   # we need to make this data for the popup
   make_ccp <- reactive({
-    p <- eva_data_main %>%
+    p <- bg_growingshade_main %>%
       filter(variable == "canopy_percent")
     return(p)
   })
@@ -39,23 +39,23 @@ mod_map_utils_server <- function(input, output, session,
   # but we want to get a single averaged value for every tract to put on the map
   make_map_data2 <- reactive({
     step1 <- if (map_selections$preset == "Climate change") {
-      eva_data_main %>%
+      bg_growingshade_main %>%
         filter(name %in% metadata$name[metadata$cc == 1])
     } else if (map_selections$preset == "Conservation") {
-      eva_data_main %>%
+      bg_growingshade_main %>%
         filter(name %in% metadata$name[metadata$cons == 1])
     } else if (map_selections$preset == "Environmental justice") {
-      eva_data_main %>%
+      bg_growingshade_main %>%
         filter(name %in% metadata$name[metadata$ej == 1])
     } else if (map_selections$preset == "Public health") {
-      eva_data_main %>%
+      bg_growingshade_main %>%
         filter(name %in% metadata$name[metadata$ph == 1])
     } else if (map_selections$preset == "Custom") {
-      eva_data_main %>%
+      bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value)
     }
 
-    # step1 <- eva_data_main %>%
+    # step1 <- bg_growingshade_main %>%
     #   if (map_selections$preset == "Climate change") {
     #     filter(name %in% metadata$name[metadata$cc == 1])
     #     } else if (map_selections$preset == "Conservation") {
@@ -72,16 +72,16 @@ mod_map_utils_server <- function(input, output, session,
       group_by(tract_string) %>%
       summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
       mutate(RANK = min_rank(desc(MEAN))) %>%
-      left_join(mn_tracts, by = c("tract_string" = "GEOID")) %>%
+      left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
       st_as_sf() # %>%
     # st_transform(4326)
 
     # #80
     # profvis::profvis(
-    #   data.table::data.table(eva_data_main)[, .(MEAN = mean(weights_scaled, na.rm = T)), tract_string] %>%
+    #   data.table::data.table(bg_growingshade_main)[, .(MEAN = mean(weights_scaled, na.rm = T)), tract_string] %>%
     #     mutate(RANK = min_rank(desc(MEAN))) %>%
     #     # .[, RANK:=min_rank(desc(MEAN))] %>%
-    #     left_join(mn_tracts, by = c("tract_string" = "GEOID")) #%>%
+    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) #%>%
     #     # st_as_sf() %>%
     #     # st_transform(4326)
     # )
