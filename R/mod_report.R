@@ -147,20 +147,6 @@ mod_report_server <- function(id,
     })
     
     
-    # observe({
-    #   print(paste0("param area ", (param_area())))
-    # })
-    # 
-    # observe({
-    #   print(paste0("param dl data: ", nrow(param_dl_data())))
-    # })
-    # 
-    # observe({
-    #   print(paste0("NAMES dl data: ", names(param_dl_data())))
-    # })
-    # 
-    
-    
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
@@ -447,33 +433,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       para <- HTML(paste0( 
         "Research shows that trees are unevenly distributed across communities. ", 
-        # In particular, 
         "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
-        # "(",
-        # a("MacDonald 2021",
-        #   href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715",
-        #   .noWS = "outside",
-        #   target = "_blank"),
-        #   ") as do historically redlined areas (", 
-        # a("NPR news story, ",
-        #   href = "https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today",
-        #   .noWS = "outside",
-        #   target = "_blank"), 
-        # a("Locke et al. 2021, ",
-        #   href = "https://www.nature.com/articles/s42949-021-00022-0",
-        #   .noWS = "outside",
-        #   target = "_blank"), 
-        # a("Namin et al. 2020",
-        #   href = "https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub",
-        #   .noWS = "outside",
-        #   target = "_blank"), 
-        # "). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (",
-        # a("Sinha 2021",
-        #   href = "https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf",
-        #   .noWS = "outside",
-        #   target = "_blank"), 
-        #   ").<br><br>",
-        # "This is true in the Twin Cities. 
         "In the plot below, ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_fancytract(), " is ")
@@ -655,10 +615,7 @@ mod_report_server <- function(id,
       filename = function() {paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".xlsx")},
       content = function(file) {writexl::write_xlsx(
         list(
-          "Metadata" = tibble() %>% #metadata %>%
-            # select(-type, -n, -niceinterp, -nicer_interp, -interpret_high_value) %>%
-            # rename(`Variable description` = name) %>%
-            # filter(!is.na(`Variable description`)) %>%
+          "Metadata" = tibble() %>% 
             rbind(c("", "", ""),
               c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""),
               c("This data is obviously not finished. If you are seeing this warning, please do not use!", "", ""),
@@ -677,30 +634,6 @@ mod_report_server <- function(id,
                    `Public Health variable` = ph, 
                    `Conservation variable` = cons,
                    `Number of tracts with data` = n)
-          # "Raw Data" = (param_dl_data() %>%
-          #                 filter(!is.na(name)) %>%
-          #                 select(tract_string, name, raw_value, weights_scaled, overall_rank) %>%
-          #                 rename(GEOID = tract_string,
-          #                        `Variable description` = name,
-          #                        `Raw value` = raw_value,
-          #                        `Scaled and centered score`= weights_scaled,
-          #                        `Rank of score` = overall_rank)) # "Counties" = (eva_data_main)
-          # #i'll probably want something like this
-          # eva_data_main %>%
-          #   filter(name %in% test) %>%
-          #   # filter(name %in% map_selections$allInputs) %>%
-          #   ungroup() %>%
-          #   select(tract_string, name, weights_scaled, raw_value) %>%
-          #   mutate(flag = if_else (tract_string %in% c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == "Lake Elmo", ]$tract_id), "selected", NA_character_)) %>%
-          #   mutate(across(c(raw_value), ~ifelse(str_detect(name, c("%")), . * 100, .))) %>%
-          #   mutate(across(where(is.numeric), round, 2)) %>%
-          #   # arrange(tract_string, name) %>%
-          #   rename(`Tract id` = tract_string,
-          #          Variable = name,
-          #          `Standardized value` = weights_scaled,
-          #          `Raw value` = raw_value) %>%
-          #   pivot_wider(names_from = Variable, values_from = c( `Raw value`, `Standardized value`),
-          #               names_sep = ("; "))
           
         ),
         path = file)}
