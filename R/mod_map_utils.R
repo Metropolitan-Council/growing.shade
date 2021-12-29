@@ -53,6 +53,9 @@ mod_map_utils_server <- function(input, output, session,
     } else if (map_selections$preset == "Custom") {
       bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value)
+      
+      # bg_growingshade_main %>%
+      #   filter(name %in% c("% tree canopy coverage in 2020"))
     }
 
     # step1 <- bg_growingshade_main %>%

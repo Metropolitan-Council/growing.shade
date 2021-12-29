@@ -987,8 +987,8 @@ bg_growingshade_data <- bg_acs %>%
              phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
              prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
              pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
-  dplyr::select(-tr10)
+             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) #%>%
+  # dplyr::select(-tr10)
 
 
 sort(names(eva_data_raw))
@@ -1014,35 +1014,36 @@ sort(names(bg_growingshade_data))
 #ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
 #ph (public health preset)
 eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
-                          "ppov185",	"% people with income <185% of the poverty threshold", "people", "high_opportunity", 0, 1, 0, 0,
+                          "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
                           "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
-                          "pbipoc", "% people of color", "people", "high_opportunity", 0, 1, 0, 0,
-                          "p_0017", "% people age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
-                          "p_65up", "% people age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
-                          "avg_temp", "Land surface temp on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
+                          "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
+                          "p_0017", "age, % age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
+                          "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
+                          "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
                           # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
-                          "env_cancer", "Lifetime cancer risk from air toxics", "people", "high_opportunity", 0, 1, 1,  0,
+                          "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Average greenness (2020 NDVI)", "tree", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Average greenness (2020 NDVI) - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
-                          "tr_ej", "Area of Environmental Justice Concern", "people", "high_opportunity", 0, 1, 0, 0,
-                          "holc_pred", "Share of tract's land acreage redlined", "people", "high_opportunity", 0, 1, 0, 0,
-                          "canopy_percent", "% tree canopy coverage in 2020", "tree", "low_opportunity", 1, 0, 1, 0,
-                          "canopy_percent2", "% tree canopy coverage in 2020 - for conservation", "tree", "high_opportunity", 0, 0, 0, 1,
-                          "mdhhincnow", "Median household income, 2015-2019 period (in 2019 dollars)", "people", "low_opportunity", 0, 0, 0, 0,
-                          "sens_age", "% people 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0,
+                          "ndvi", "Greenness (2020 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                          "ndvi2", "Greenness (2020 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
+                          "holc_pred", "% of tract's land acreage redlined", "environment", "high_opportunity", 0, 1, 0, 0,
+                          "canopy_percent", "Tree canopy in 2020 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
+                          "canopy_percent2", "Tree canopy in 2020 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, #, 2015-2019 period (in 2019 dollars)
+                          "sens_age", "age, % 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0,
                           "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pblacknh", "% residents identifying as Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pasiannh", "% residents identifying as Asian", "people", "high_opportunity", 0, 0, 0, 0,
-                          "phisppop", "% residents identifying as Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pamindnh", "% residents identifying as Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pwk_nowork", "% of residents age 16-64 who did not work in past 12 months", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pownhome", "% of residents who own their home", "people", "high_opportunity", 0,0,0,0,
-                          "MHLTH", "Mental health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
-                          "PHLTH", "Physical health not good for >=14 days among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
-                          "COPD", "Chronic obstructive pulmonary disease among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0,
-                          "CASTHMA", "Current asthma among adults aged >=18 years (%)", "people", "high_opportunity", 0,0,0,0
+                          "pblacknh", "race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pothmultnh", "race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pasiannh", "race, % Asian", "people", "high_opportunity", 0, 0, 0, 0,
+                          "phisppop", "race, % Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pamindnh", "race, % Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pwk_nowork", "% of unemployed residents", "dollar", "high_opportunity", 0, 0, 0, 0, # age 16-64 who did not work in past 12 months
+                          "pownhome", "% of residents who own their home", "dollar", "high_opportunity", 0,0,0,0,
+                          "MHLTH", "Mental health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                          "PHLTH", "Physical health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                          "COPD", "Chronic obstructive pulmonary disease among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                          "CASTHMA", "Asthma among adults (%)", "health", "high_opportunity", 0,0,0,0
                           )
 
 ###################
@@ -1052,7 +1053,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
 
 # #long data
 bg_growingshade_main <- bg_growingshade_data %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -tract_string) %>% #end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(tract_string, tr10)) %>% #end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(MEAN = mean(raw_value, na.rm = T),
          SD = sd(raw_value, na.rm = T),
@@ -1089,7 +1090,8 @@ bg_growingshade_main <- bg_growingshade_data %>%
   # 
   #clean
   dplyr::select(-MEAN, -SD, -MIN, -MAX)  %>%
-  full_join(wide_ctu_crosswalk %>% rename(tract_string = GEOID))
+  full_join(wide_ctu_crosswalk %>% rename(tr10 = GEOID)) %>%
+  filter(!is.na(name))
 
 ########
 # save data
@@ -1101,21 +1103,21 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 #otherwise use this
 # write_csv(eva_data_main, "./eva_data_main.csv")
 
-# # ########
-# # # create metadata
-# # #########
-# md1 <- eva_data_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
-#                                                           MEANSCALED = mean(weights_scaled, na.rm = T))
-# metadata <- eva_data_main %>%
-#   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
-#   dplyr::count() %>%
-#   dplyr::ungroup() %>%
-#   full_join(md1) %>%
-#   mutate(niceinterp =
-#                case_when(interpret_high_value == "high_opportunity" ~ "Higher",
-#                          TRUE ~ "Lower"))
-# 
-# usethis::use_data(metadata, overwrite = TRUE)
+# ########
+# # create metadata
+# #########
+md1 <- bg_growingshade_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
+                                                          MEANSCALED = mean(weights_scaled, na.rm = T))
+metadata <- bg_growingshade_main %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
+  dplyr::count() %>%
+  dplyr::ungroup() %>%
+  full_join(md1) %>%
+  mutate(niceinterp =
+               case_when(interpret_high_value == "high_opportunity" ~ "Higher",
+                         TRUE ~ "Lower"))
+
+usethis::use_data(metadata, overwrite = TRUE)
 
 ```
 
