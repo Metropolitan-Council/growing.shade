@@ -13,7 +13,8 @@ app_ui <- function(request) {
     
     shinydisconnect::disconnectMessage(
       text = HTML('Your session timed out. Please refresh the application.'),
-      refresh = "Refresh now"
+      refresh = "Refresh now",
+      top = "center"
     ),
 
     # List the first level UI elements here
