@@ -628,7 +628,7 @@ mod_report_server <- function(id,
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document
         # from the code in this app).
-        testcss <- file.path("style.css")
+        # testcss <- file.path("style.css")
         rmarkdown::render(tempReport, output_file = file,
                           params = params,
                           envir = new.env(parent = globalenv()),
@@ -640,8 +640,8 @@ mod_report_server <- function(id,
                                                 # theme = "cosmo",
                                                 toc_depth = 3,
                                                 fig_caption = TRUE,
-                                                css = testcss
-                                                # css = tempCss
+                                                # css = testcss
+                                                css = tempCss
                                                 
                                                 
                           )
