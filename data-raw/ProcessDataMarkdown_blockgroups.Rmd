@@ -8,6 +8,22 @@ always_allow_html: true
 urlcolor: blue
 ---
 
+# block group issues
+
+the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
+
+would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals. 
+
+very slow when showing block groups across entire state
+
+--
+options:
+focus on statistical areas; some of this won't be super useful either since ag land
+focus on areas where population density is above some threshold
+
+# intro
+
+
 The Growing Shade Project couples remote sensing data and demographic data to create insights about the intersection between the natural environment and people in real-time. 
 
 Because there are several steps which must be done in order, this document lays those steps out logically. 
@@ -146,95 +162,6 @@ Since we're going to be making a map which shows census tracts, ctus, or neighbo
 - make a crosswalk of which tracts belong in each ctu/neighborhood
 - get the tree canopy coverage of each tract
 - get the count of EAB 
-
-```{r find_centroid}
-
-# find centroid of geographies
-find_centroid <- function(x, ...) {
-  points <- x %>%
-    mutate(zoom = case_when(Shape_Area < 1e6 ~ 15,
-                            Shape_Area < 1e8 ~ 13,
-                            Shape_Area < 1e9 ~ 12,
-                            TRUE ~ 11)) %>%
-    st_transform(26915) %>%
-    st_centroid() %>%
-    st_transform(4326) %>%
-    dplyr::select(!!!quos(...), geometry, zoom) %>%
-    mutate(lat = unlist(map(.$geometry,1)),
-           long = unlist(map(.$geometry,2))) %>%
-    sf::st_drop_geometry()
-  geos <- x %>%
-    dplyr::select(!!!quos(...), city, geometry) %>%
-    st_transform(4326)
-  combo <- full_join(geos, points) %>%
-    arrange(!!!(quos(...))) 
-  return(combo)
-}
-
-########
-# geos
-######
-# tracts------
-mn_tracts_1 <- tigris::tracts(state = "MN",
-                            county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
-  sf::st_transform(4326) %>%
-  mutate(GEO_NAME = GEOID)# %>%
-  # mutate(Shape_Area = as.numeric(st_area(.)))
-
-
-wi_bgs <- tigris::block_groups(state = "WI", county = c("Pierce", "Polk", "St. Croix"))
-mn_bgs_1 <- tigris::block_groups(state = "MN") %>%
-  bind_rows(wi_bgs) %>%
-  sf::st_transform(4326) %>%
-  mutate(GEO_NAME = GEOID)# %>%
-  # mutate(Shape_Area = as.numeric(st_area(.)))
-sf::st_write(mn_bgs_1, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_bgs_1.shp", append = FALSE)
-
-
-### neighborhoods -----------
-#st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
-#minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
-#brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
-
-minneap <- read_sf("../data-raw/minneapolis communities/Minneapolis_Communities.shp") %>%
-  rename(GEO_NAME = CommName) %>%
-  mutate(Shape_Area = as.numeric(st_area(.))) %>%
-  mutate(city = "Minneapolis")
-
-stpaul <- read_sf("../data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
-  mutate(Shape_Area = as.numeric(st_area(.))) %>%
-  rename(GEO_NAME = name2) %>%
-  mutate(city = "St. Paul")
-
-nhood_geo <- bind_rows(minneap, stpaul) %>%
-  find_centroid(., GEO_NAME)
-
-
-#### ctus -----------
-temp <- tempfile()
-temp2 <- tempfile()
-download.file(
-  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
-  destfile = temp
-)
-unzip(zipfile = temp, exdir = temp2)
-list.files(temp2)
-
-ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  dplyr::select(CTU_NAME, Shape_Area) %>%
-  add_column(city = "doesn't matter") %>%
-  find_centroid(., CTU_NAME) %>%
-  dplyr::select(-city) %>%
-  rename(GEO_NAME = CTU_NAME) 
-
-files <- list.files(temp2, full.names = T)
-file.remove(files)
-
-
-metc_region <- mn_tracts_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
-usethis::use_data(metc_region, overwrite = TRUE)
-
-```
 
 Make crosswalk linking tracts to ctus and neighborhoods
 
@@ -742,14 +669,91 @@ usethis::use_data(metadata, overwrite = TRUE)
 # Demographics but at block level
 
 ```{r geography_bg}
+# find centroid of geographies
+find_centroid <- function(x, ...) {
+  points <- x %>%
+    mutate(zoom = case_when(Shape_Area < 1e6 ~ 15,
+                            Shape_Area < 1e8 ~ 13,
+                            Shape_Area < 1e9 ~ 12,
+                            TRUE ~ 11)) %>%
+    st_transform(26915) %>%
+    st_centroid() %>%
+    st_transform(4326) %>%
+    dplyr::select(!!!quos(...), geometry, zoom) %>%
+    mutate(lat = unlist(map(.$geometry,1)),
+           long = unlist(map(.$geometry,2))) %>%
+    sf::st_drop_geometry()
+  geos <- x %>%
+    dplyr::select(!!!quos(...), city, geometry) %>%
+    st_transform(4326)
+  combo <- full_join(geos, points) %>%
+    arrange(!!!(quos(...))) 
+  return(combo)
+}
+
+########
+# geos
+######
+# # tracts------
+# mn_tracts_1 <- tigris::tracts(state = "MN",
+#                             county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"))%>%
+#   sf::st_transform(4326) %>%
+#   mutate(GEO_NAME = GEOID)# %>%
+#   # mutate(Shape_Area = as.numeric(st_area(.)))
+
 wi_bgs <- tigris::block_groups(state = "WI", county = c("Pierce", "Polk", "St. Croix"))
 mn_bgs_1 <- tigris::block_groups(state = "MN") %>%
   bind_rows(wi_bgs) %>%
   sf::st_transform(4326) %>%
   mutate(GEO_NAME = GEOID)# %>%
   # mutate(Shape_Area = as.numeric(st_area(.)))
-sf::st_write(mn_bgs_1, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_bgs_1.shp", append = FALSE)
+# sf::st_write(mn_bgs_1, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_bgs_1.shp", append = FALSE)
 
+### neighborhoods -----------
+#st paul here: https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b
+#minneap here: https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85
+#brooklyn park here: but no dl: https://gis.brooklynpark.org/neighborhoodinfo/
+
+minneap <- read_sf("../data-raw/minneapolis communities/Minneapolis_Communities.shp") %>%
+  rename(GEO_NAME = CommName) %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  mutate(city = "Minneapolis")
+
+stpaul <- read_sf("../data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
+  mutate(Shape_Area = as.numeric(st_area(.))) %>%
+  rename(GEO_NAME = name2) %>%
+  mutate(city = "St. Paul")
+
+nhood_geo <- bind_rows(minneap, stpaul) %>%
+  find_centroid(., GEO_NAME)
+
+#### ctus -----------
+temp <- tempfile()
+temp2 <- tempfile()
+download.file(
+  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+
+ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
+  dplyr::select(CTU_NAME, Shape_Area) %>%
+  add_column(city = "doesn't matter") %>%
+  find_centroid(., CTU_NAME) %>%
+  dplyr::select(-city) %>%
+  rename(GEO_NAME = CTU_NAME) 
+
+files <- list.files(temp2, full.names = T)
+file.remove(files)
+
+
+metc_region <- mn_tracts_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
+usethis::use_data(metc_region, overwrite = TRUE)
+
+```
+
+```{r}
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
 river_lake_all <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) 
@@ -797,17 +801,6 @@ bg_canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
-
-# test to see that we have tree canopy percent for all of MN and WI collar counties; this is a pretty big map to load fyi
-# test <- mn_bgs_1 %>% full_join(bg_canopy, by = c("GEOID" = "GEOID10"))
-# pal <- colorNumeric(
-#   palette = "Greens",
-#   domain = test$canopy_percent)
-# leaflet() %>%
-#   addTiles() %>%
-#   addPolygons(data = test %>% st_transform(4326),
-#               color = ~pal(canopy_percent),
-#               smoothFactor = 0.2, fillOpacity = 1)
 ```
 
 
