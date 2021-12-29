@@ -15,6 +15,7 @@ params:
 urlcolor: blue
 always_allow_html: true
 
+
 ---
 
 
@@ -303,7 +304,7 @@ Finally, when planning and prioritizing urban forestry work, tools and data cann
   - *What the best way to plant a tree?*
     - <a href = "https://www.youtube.com/watch?v=yQ0Xo7cfMqs" target = "_blank">Tree Trust video</a>
   - *Where can I learn about native plants (trees, grasses, wildflowers): the benefits, purchasing and planting?*
-    - <a href = "https://mnnps.org/links/" target = "_blank">Minnesota Native Plant Society</a>Minnesota Native Plant Society
+    - <a href = "https://mnnps.org/links/" target = "_blank">Minnesota Native Plant Society</a>
     - <a href = "https://extension.umn.edu/find-plants/native-plants" target = "_blank">University of Minnesota Extension</a>
 - **Information, Guides and Toolkits** 
   - *Where can I lean more about the benefits provided by urban forests and learn how to build them?*
