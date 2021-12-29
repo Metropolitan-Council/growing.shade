@@ -94,7 +94,8 @@ mod_map_overview_server <- function(input, output, session,
           pathOptions(pane = "Road outlines")
         ),
         group = "Road outlines"
-      ) %>% # Satellite") %>%
+      ) %>%
+      # Satellite") %>%
       addProviderTiles("Stamen.TonerLabels",
         options = c(
           providerTileOptions(maxZoom = 18),

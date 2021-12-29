@@ -43,7 +43,8 @@ fs::file_delete("biota_marschner_presettle_veg.gpkg")
 # Supplement_1/data/input/fullpaleon_conversion_v0.4.csv
 
 spp_cleaner <- read_csv("./data-raw/fullpaleon_conversion_v0.4.csv",
-                        show_col_types = FALSE) %>%
+  show_col_types = FALSE
+) %>%
   filter(Domain %in% "Upper Midwest") %>%
   mutate(
     spp_code = tolower(`Level 1`),
