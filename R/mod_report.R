@@ -652,26 +652,39 @@ mod_report_server <- function(id,
 
     
     output$dl_data <- downloadHandler(
-      filename = function() {paste0("GrowingShadeReport_", param_area(), "_", Sys.Date(), ".xlsx")},
+      filename = function() {paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".xlsx")},
       content = function(file) {writexl::write_xlsx(
         list(
-          "Metadata" = #tibble() %>% #metadata %>%
+          "Metadata" = tibble() %>% #metadata %>%
             # select(-type, -n, -niceinterp, -nicer_interp, -interpret_high_value) %>%
             # rename(`Variable description` = name) %>%
             # filter(!is.na(`Variable description`)) %>%
-            rbind(#c(""),
+            rbind(c("", "", ""),
               c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""),
-              c("This data is obviously not finished. If you are seeing this warning, please do not use!.", "", ""),
+              c("This data is obviously not finished. If you are seeing this warning, please do not use!", "", ""),
               c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")),
-          "Summarized Data" = param_selectedtractvalues(),
-          "Raw Data" = (param_dl_data() %>%
-                          filter(!is.na(name)) %>%
-                          select(tract_string, name, raw_value, weights_scaled, overall_rank) %>%
-                          rename(GEOID = tract_string,
-                                 `Variable description` = name,
-                                 `Raw value` = raw_value,
-                                 `Scaled and centered score`= weights_scaled,
-                                 `Rank of score` = overall_rank)) # "Counties" = (eva_data_main)
+          "Selected Area" = param_selectedtractvalues(),
+          "Region Averages" = metadata %>%
+            filter(!is.na(name)) %>%
+            mutate(nicer_interp = case_when(nicer_interp != "" ~ nicer_interp,
+                                            niceinterp == "Lower" ~ "Lower values = higher priority",
+                                            niceinterp == "Higher" ~ "Higher values = higher priority")) %>%
+            select(name, variable, nicer_interp, MEANRAW, cc, ej, ph, cons, n) %>%
+            rename(`Value interpretation` = nicer_interp, 
+                   `Tract average` = MEANRAW,
+                   `Climate Change variable` = cc,
+                   `Environmental Justice variable` = ej,
+                   `Public Health variable` = ph, 
+                   `Conservation variable` = cons,
+                   `Number of tracts with data` = n)
+          # "Raw Data" = (param_dl_data() %>%
+          #                 filter(!is.na(name)) %>%
+          #                 select(tract_string, name, raw_value, weights_scaled, overall_rank) %>%
+          #                 rename(GEOID = tract_string,
+          #                        `Variable description` = name,
+          #                        `Raw value` = raw_value,
+          #                        `Scaled and centered score`= weights_scaled,
+          #                        `Rank of score` = overall_rank)) # "Counties" = (eva_data_main)
           # #i'll probably want something like this
           # eva_data_main %>%
           #   filter(name %in% test) %>%
