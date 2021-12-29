@@ -1,4 +1,4 @@
- 
+Other resources
 ================
 
 Growing Shade is a unique tool that highlights stories and offers users
