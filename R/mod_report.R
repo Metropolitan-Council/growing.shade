@@ -544,7 +544,7 @@ mod_report_server <- function(id,
     })
     
     
-    output$other_para <- renderUI({
+    report_other_para <- reactive({
       ns <- session$ns
       req(TEST() != "")
       tagList(
@@ -564,6 +564,11 @@ mod_report_server <- function(id,
         )
         )
       )
+    })
+    
+    output$other_para <- renderUI({
+      req(TEST() != "")
+      report_other_para()
     })
     
     
@@ -587,7 +592,7 @@ mod_report_server <- function(id,
     
     
     output$dl_report <- downloadHandler(
-      filename = paste0("GrowingShade_", Sys.Date(), ".html"),
+      filename = paste0("GrowingShade_", param_area(),"_", Sys.Date(), ".html"), # ".docx"), # ".html"),
       content = function(file) {
         tempReport <- file.path(tempdir(), "report_new.Rmd")
         file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
@@ -600,7 +605,8 @@ mod_report_server <- function(id,
                        param_ranktext = rank_text(),
                        param_rankplot = report_rank_plot(),
                        param_prioritytable = report_priority_table(),
-                       param_equityplot = report_equity_plot()
+                       param_equityplot = report_equity_plot(),
+                       param_otherparea = report_other_para()
 
                        
         )
@@ -612,12 +618,20 @@ mod_report_server <- function(id,
                           envir = new.env(parent = globalenv()),
                           # output_format = "pdf_document", #"html_document",
                           output_format = "html_document",
+                          # output_format = "word_document", #word/pdf not yet accessible:https://www.rstudio.com/blog/knitr-fig-alt/
                           output_options = list(html_preview = FALSE,
                                                 toc = TRUE, 
                                                 # theme = "cosmo",
                                                 toc_depth = 3,
                                                 fig_caption = TRUE
+                                                # , css = planting.shade::
+                                                # , css = system.file("./inst/app/www/style.css")
+                                                # , css = system.file("inst/app/www/style.css")
+                                                # , css = system.file("inst/app/www/style.css")
+                                                # , theme = cerulean
+                                                # , css = system.file("/inst/app/www/style.css")
                                                 # theme = NULL,
+                                                # ,css = tags$link(rel = "stylesheet", href = "style.css", type = "text/css")#app/www
                                                 # css = system.file("app/www/style.css", package = 'planting.shade')
                                                 
                           ),
@@ -625,6 +639,7 @@ mod_report_server <- function(id,
       }
     )
     
+
     
     output$dl_data <- downloadHandler(
       filename = function() {paste0("GrowingShadeReport_", param_area(), "_", Sys.Date(), ".xlsx")},
