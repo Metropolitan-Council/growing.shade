@@ -32,7 +32,7 @@ mn_tracts_1 <- tigris::tracts(
 # # ndvi
 # tract_ndvi <- read_csv("./data-raw/meanNDVI_tracts_year2020.csv",
 #                        col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-  dplyr::select(-`system:index`, -.geo, -Year)
+dplyr::select(-`system:index`, -.geo, -Year)
 # # filter(tract_ndvi, ndvi == "No data")
 #
 # # canopy coverage
@@ -70,8 +70,10 @@ mn_tracts_1 <- tigris::tracts(
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
 river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>%
-  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) %>% # these rivers are boundaries
-  st_buffer(200) %>% # add 10m buffer
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) %>%
+  # these rivers are boundaries
+  st_buffer(200) %>%
+  # add 10m buffer
   # st_simplify(dTolerance = 100) %>%
   # st_buffer(300) %>%
   st_union() %>%
@@ -111,8 +113,10 @@ tree_summary <- function(x) {
   x %>%
     st_transform(26915) %>%
     st_buffer(0) %>%
-    st_buffer(-200) %>% # give it a bit of a buffer
-    st_erase(river_lake_buffer) %>% # erase remaining rivers
+    st_buffer(-200) %>%
+    # give it a bit of a buffer
+    st_erase(river_lake_buffer) %>%
+    # erase remaining rivers
     st_intersection(mn_tracts_1 %>%
       dplyr::select(GEOID) %>%
       st_transform(26915)) %>%
@@ -188,8 +192,10 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 ctu_crosswalk <- ctu_list %>%
   dplyr::select(GEO_NAME) %>%
   st_transform(26915) %>%
-  st_buffer(-200) %>% # go up to -80 because carver
-  st_erase(river_lake_buffer) %>% # erase remaining rivers
+  st_buffer(-200) %>%
+  # go up to -80 because carver
+  st_erase(river_lake_buffer) %>%
+  # erase remaining rivers
   st_intersection(mn_tracts_1 %>%
     dplyr::select(GEOID) %>%
     rename(tract_id = GEOID) %>%
@@ -225,7 +231,8 @@ nhood_crosswalk <- nhood_list %>%
   dplyr::select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-200) %>%
-  st_erase(river_lake_buffer) %>% # erase remaining rivers
+  st_erase(river_lake_buffer) %>%
+  # erase remaining rivers
   st_intersection(mn_tracts_1 %>%
     dplyr::select(GEOID) %>%
     rename(tract_id = GEOID) %>%
@@ -315,7 +322,8 @@ equity_data_raw <- equity %>%
     pbipoc = 1 - pwhitenh,
     holc_pred = if_else(is.na(holc_pred), 0, holc_pred),
     sens_age = p_0017 + p_65up
-  ) %>% # "mutate" reformats any variables that need it
+  ) %>%
+  # "mutate" reformats any variables that need it
   dplyr::select(
     -luse_notgreen, # and then I want to remove the variable I don't need anymore
     -pwhitenh
@@ -350,7 +358,8 @@ health2 <- health %>%
     "Physical health not good for >=14 days among adults aged >=18 years"
   )) %>%
   dplyr::select(GEOID10, measureid, data_value) %>%
-  mutate(data_value = as.numeric(data_value) / 100) %>% # change to fraction
+  mutate(data_value = as.numeric(data_value) / 100) %>%
+  # change to fraction
   pivot_wider(names_from = measureid, values_from = data_value) %>%
   rename(tr10 = GEOID10)
 
@@ -417,7 +426,8 @@ eva_data_codes %>% filter(ph == 1)
 
 # #long data
 eva_data_main <- eva_data_raw %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -tract_string) %>% # end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -tract_string) %>%
+  # end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(
     MEAN = mean(raw_value, na.rm = T),
