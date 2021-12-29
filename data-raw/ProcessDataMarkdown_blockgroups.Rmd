@@ -165,89 +165,6 @@ Since we're going to be making a map which shows census tracts, ctus, or neighbo
 
 Make crosswalk linking tracts to ctus and neighborhoods
 
-```{r makecrosswalks}
-# fxns to make easy -----
-st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
-
-# river layer to erase Mississippi and Minnesota rivers-------
-temp <- tempfile()
-download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
-river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
-  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) #%>% #these rivers are boundaries
-  # st_buffer(200) %>% #add 10m buffer
-  # # st_simplify(dTolerance = 100) %>%
-  # # st_buffer(300) %>%
-  # st_union() %>% st_buffer(0) 
-fs::file_delete("water_lakes_rivers.gpkg")
-
-# find crosswalks
-find_crosswalks <- function(x) {
-  crosswalk <- x %>%
-  st_transform(26915) %>%
-  st_buffer(-150) %>% #buffer the perimeter of the geography
-  st_erase(river_lake_buffer %>%
-             st_buffer(200) %>% #buffer out rivers
-             st_union() %>% 
-             st_buffer(0)) %>% 
-  st_intersection(mn_tracts_1 %>% 
-                    dplyr::select(GEOID) %>%
-                    rename(tract_id = GEOID) %>%
-                    st_transform(26915)) %>%
-  st_drop_geometry()
-    
-  return(crosswalk)
-}
-
-ctu_crosswalk <- find_crosswalks(ctu_geo)
-nhood_crosswalk <- find_crosswalks(nhood_geo)
-
-# test <- "Hilltop"
-# test <- "Landfall"
-# test <- "South St. Paul"
-# mn_tracts_1 %>%
-#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf() +
-#   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = NA, color = "blue")
-# 
-# test <- "The Greater East Side"
-# mn_tracts_1 %>%
-#   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf() +
-#   geom_sf(data = filter(nhood_geo, GEO_NAME ==test), fill = NA, color = "blue")
-
-
-
-usethis::use_data(ctu_crosswalk, overwrite = TRUE)
-usethis::use_data(nhood_crosswalk, overwrite = TRUE)
-
-wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
-  group_by(tract_id) %>%
-  count() %>%
-  left_join(ctu_crosswalk) %>%
-  add_column(cities = 999) %>%
-  dplyr::select(tract_id, GEO_NAME, cities, n) %>%
-  # spread(cities, GEO_NAME)
-  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>%
-  unnest_wider(`999`) 
-
-wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
-  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`, `...5`, `...6`, `...7`, sep = ", ")) %>%
-  dplyr::select(tract_id, jurisdiction) %>%
-  mutate(jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", "")) %>%
-  rename(GEOID = tract_id)
-usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
-
-```
 
 - get aland for nhood and city
 ```{r getaland}
@@ -544,7 +461,8 @@ wi_bgs <- tigris::block_groups(state = "WI", county = c("Pierce", "Polk", "St. C
 mn_bgs_1 <- tigris::block_groups(state = "MN") %>%
   bind_rows(wi_bgs) %>%
   sf::st_transform(4326) %>%
-  mutate(GEO_NAME = GEOID)# %>%
+  mutate(GEO_NAME = GEOID) %>%
+  filter(str_detect(GEO_NAME, "27003|27019|27037|27053|27123|27139|27163"))
   # mutate(Shape_Area = as.numeric(st_area(.)))
 # sf::st_write(mn_bgs_1, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/mn_bgs_1.shp", append = FALSE)
 
@@ -587,10 +505,101 @@ files <- list.files(temp2, full.names = T)
 file.remove(files)
 
 
-metc_region <- mn_tracts_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
+metc_region <- mn_bgs_1 %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
 usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
+
+
+
+
+```{r makecrosswalks}
+# fxns to make easy -----
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+# river layer to erase Mississippi and Minnesota rivers-------
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) %>% 
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) #%>% #these rivers are boundaries
+  # st_buffer(200) %>% #add 10m buffer
+  # # st_simplify(dTolerance = 100) %>%
+  # # st_buffer(300) %>%
+  # st_union() %>% st_buffer(0) 
+fs::file_delete("water_lakes_rivers.gpkg")
+
+# find crosswalks
+find_crosswalks <- function(x) {
+  crosswalk <- x %>%
+  st_transform(26915) %>%
+  st_buffer(-150) %>% #buffer the perimeter of the geography
+  st_erase(river_lake_buffer %>%
+             st_buffer(200) %>% #buffer out rivers
+             st_union() %>% 
+             st_buffer(0)) %>% 
+  st_intersection(mn_bgs_1 %>% 
+                    dplyr::select(GEOID) %>%
+                    rename(tract_id = GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry()
+    
+  return(crosswalk)
+}
+
+ctu_crosswalk <- find_crosswalks(ctu_geo)
+nhood_crosswalk <- find_crosswalks(nhood_geo)
+
+# test <- "Hilltop"
+# test <- "Lake Elmo"
+# test <- "Landfall"
+# test <- "South St. Paul"
+# mn_bgs_1 %>%
+#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+#              by = c("GEOID" = "tract_id")) %>%
+#   ggplot()+
+#   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
+#   geom_sf(fill = NA, lwd = 2) 
+# 
+# test <- "The Greater East Side"
+# mn_bgs_1 %>%
+#   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
+#              by = c("GEOID" = "tract_id")) %>%
+#   ggplot()+
+#   geom_sf(data = filter(nhood_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
+#   geom_sf(fill = NA, lwd = 2)
+
+
+
+usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+
+wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
+  group_by(tract_id) %>%
+  count() %>%
+  left_join(ctu_crosswalk) %>%
+  add_column(cities = 999) %>%
+  dplyr::select(tract_id, GEO_NAME, cities, n) %>%
+  # spread(cities, GEO_NAME)
+  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>%
+  unnest_wider(`999`) 
+
+wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
+  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`, `...5`, 
+                              # `...6`, `...7`,
+                              sep = ", ")) %>%
+  dplyr::select(tract_id, jurisdiction) %>%
+  mutate(jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", ""),
+         jurisdiction = str_replace(jurisdiction, ", NA", "")) %>%
+  rename(GEOID = tract_id)
+usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
+
+```
+
 
 ```{r}
 temp <- tempfile()
@@ -621,12 +630,6 @@ mn_bgs_2 <- mn_bgs_1 %>%
              st_buffer(0)) %>%
   mutate(ALAND = as.numeric(st_area(.)))
 
-#confirm that some areas have no tree cover
-# test <- mn_bgs_2 %>% 
-#   filter(GEOID == "270759901000")
-# leaflet() %>%
-#   addTiles() %>%
-#   addPolygons(data = test %>% st_transform(4326))
 ```
 
 
