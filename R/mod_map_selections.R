@@ -53,9 +53,9 @@ mod_map_selections_ui <- function(id) {
       shinyWidgets::pickerInput(ns("placeInput"),
         label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Environment & Climate</span></h4>")),
         choices = dplyr::filter(metadata, type == "environment") %>% .$name,
-        # choicesOpt = list(
-        #   subtext = paste0(dplyr::filter(metadata, type == "environment") %>% .$nicer_interp)
-        # ),
+        choicesOpt = list(
+          subtext = paste0(dplyr::filter(metadata, type == "environment") %>% .$nicer_interp)
+        ),
         # choicesOpt = list(
         #   subtext = paste0(filter(metadata, type == "environment") %>% .$niceinterp,
         #                    " values have higher priority scores")),
