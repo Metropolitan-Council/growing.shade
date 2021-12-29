@@ -29,7 +29,7 @@ plant trees and maintain tree canopy?*
 -   <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City
     of Saint Paul Urban Tree Canopy Assessment 2011</a>
 
-<br> **Tree Planting**
+<br> **Planting Trees and Native Vegetation**
 
 *What trees are predicted to do well in future climate conditions?*
 
@@ -40,6 +40,14 @@ plant trees and maintain tree canopy?*
 
 -   <a href = "https://www.youtube.com/watch?v=yQ0Xo7cfMqs" target = "_blank">Tree
     Trust video</a>
+
+*Where can I learn about native plants (trees, grasses, wildflowers):
+the benefits, purchasing and planting?*
+
+-   <a href = "https://mnnps.org/links/" target = "_blank">Minnesota
+    Native Plant Society</a>Minnesota Native Plant Society
+-   <a href = "https://extension.umn.edu/find-plants/native-plants" target = "_blank">University
+    of Minnesota Extension</a>
 
 <br> **Information, Guides and Toolkits**
 
@@ -81,6 +89,14 @@ Twin Cities or across Minnesota?*
     Shade Tree Advisory Committee</a>
 -   <a href = "https://trees.umn.edu/minnesota-shade-tree-short-course" target = "_blank">Minnesota
     Shade Tree Short Course</a>
+
+*How can my city receive recognition or a certification for our urban
+forestry work?*
+
+-   <a href = "https://www.arborday.org/programs/treeCityUSA/index.cfm" target = "_blank">Tree
+    City USA</a>
+-   <a href = "https://greenstep.pca.state.mn.us/bp-detail/81726" target = "_blank">GreenStep
+    Cities program</a>
 
 <br> **What’s Next**
 
