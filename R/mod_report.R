@@ -141,7 +141,7 @@ mod_report_server <- function(id,
     param_dl_data <- reactive({
       req(TEST() != "")
 
-      output <- eva_data_main %>%
+      output <- bg_growingshade_main %>%
         mutate(flag = if_else(tract_string %in%
           if (geo_selections$selected_geo == "ctus") {
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)

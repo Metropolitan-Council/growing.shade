@@ -358,7 +358,7 @@ mod_map_overview_server <- function(input, output, session,
             } else if (geo_selections$selected_geo == "nhood") {
               nhood_list
             } else if (geo_selections$selected_geo == "tracts") {
-              mn_tracts
+              mn_bgs
             },
             # data = if_else(geo_selections$selected_geo == 'ctus', ctu_list, nhood_list
             #                  ),
@@ -437,7 +437,7 @@ mod_map_overview_server <- function(input, output, session,
         leafletProxy("map") %>%
           clearGroup("outline") %>%
           addPolygons(
-            data = mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
+            data = mn_bgs %>% filter(GEO_NAME == input$map_shape_click$id),
             stroke = TRUE,
             color = "blue",
             fill = NA,
