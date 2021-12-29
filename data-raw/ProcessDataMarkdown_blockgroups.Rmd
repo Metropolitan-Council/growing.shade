@@ -1113,9 +1113,13 @@ metadata <- bg_growingshade_main %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
   full_join(md1) %>%
-  mutate(niceinterp =
+  mutate(niceinterp = 
                case_when(interpret_high_value == "high_opportunity" ~ "Higher",
-                         TRUE ~ "Lower"))
+                         TRUE ~ "Lower"),
+         nicer_interp = case_when(niceinterp == "Lower" ~ "Lower values = higher priority", 
+                                  variable == "ndvi2" ~ "Higher values = higher priority",
+                                  variable == "canopy_percent2" ~ "Higher values = higher priority",
+                                  TRUE ~ ""))
 
 usethis::use_data(metadata, overwrite = TRUE)
 
