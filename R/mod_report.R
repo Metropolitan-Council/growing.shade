@@ -595,7 +595,22 @@ mod_report_server <- function(id,
       filename = paste0("GrowingShade_", param_area(),"_", Sys.Date(), ".html"), # ".docx"), # ".html"),
       content = function(file) {
         tempReport <- file.path(tempdir(), "report_new.Rmd")
+        tempCss <- file.path(tempdir(), "style.css")
+        tempbdcn <- file.path(tempdir(), "helveticaneueltstd-bdcn-webfont.woff")
+        tempcn <- file.path(tempdir(), "helveticaneueltstd-cn-webfont.woff")
+        templt <- file.path(tempdir(), "helveticaneueltstd-lt-webfont.woff")
+        tempmd <- file.path(tempdir(), "helveticaneueltstd-md-webfont.woff")
+        tempmdcn <- file.path(tempdir(), "helveticaneueltstd-mdcn-webfont.woff")
+        temproman <- file.path(tempdir(), "helveticaneueltstd-roman-webfont.woff")
         file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
+        file.copy("inst/app/www/style.css", tempCss, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-bdcn-webfont.woff", tempbdcn, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-cn-webfont.woff", tempcn, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-lt-webfont.woff", templt, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-md-webfont.woff", tempmd, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-mdcn-webfont.woff", tempmdcn, overwrite = TRUE)
+        file.copy("inst/app/www/helveticaneueltstd-roman-webfont.woff", temproman, overwrite = TRUE)
+        
         # Set up parameters to pass to Rmd document
         params <- list(
                        param_geo = geo_selections$selected_geo,
@@ -613,6 +628,7 @@ mod_report_server <- function(id,
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document
         # from the code in this app).
+        testcss <- file.path("style.css")
         rmarkdown::render(tempReport, output_file = file,
                           params = params,
                           envir = new.env(parent = globalenv()),
@@ -623,18 +639,12 @@ mod_report_server <- function(id,
                                                 toc = TRUE, 
                                                 # theme = "cosmo",
                                                 toc_depth = 3,
-                                                fig_caption = TRUE
-                                                # , css = planting.shade::
-                                                # , css = system.file("./inst/app/www/style.css")
-                                                # , css = system.file("inst/app/www/style.css")
-                                                # , css = system.file("inst/app/www/style.css")
-                                                # , theme = cerulean
-                                                # , css = system.file("/inst/app/www/style.css")
-                                                # theme = NULL,
-                                                # ,css = tags$link(rel = "stylesheet", href = "style.css", type = "text/css")#app/www
-                                                # css = system.file("app/www/style.css", package = 'planting.shade')
+                                                fig_caption = TRUE,
+                                                css = testcss
+                                                # css = tempCss
                                                 
-                          ),
+                                                
+                          )
         )
       }
     )

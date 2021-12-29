@@ -14,12 +14,9 @@ params:
   param_otherparea: NA
 urlcolor: blue
 always_allow_html: true
-theme: cerulean
 
 ---
 
-
-`r getwd()`
 
 
 ```{css, echo=FALSE, include = F, eval =F}
@@ -121,6 +118,7 @@ a:hover, a:focus {
     color: #0070e0;
 }
 ```
+
 
 
 ```{r assignments, echo=F, message=F, warning=F, results='hide'}
