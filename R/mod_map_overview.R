@@ -304,7 +304,7 @@ mod_map_overview_server <- function(input, output, session,
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
-              "Tract ID: ", map_util$map_data2$tract_string,
+              "Geographic ID: ", map_util$map_data2$tract_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
               "<br>Priority score: ", (map_util$map_data2$MEAN),
               "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
