@@ -763,6 +763,31 @@ bg_acs <- acs %>%
 ```
 
 
+```{r equityconsiderations_bg}
+##########
+# equity considerations data in some cases
+#########
+equity_bg <- read_csv("/Volumes/shared/CommDev/Research/Research/EquityConsiderationsData/2_OutputData/CSV/Release_20210225/EquityConsiderationsBlockGroups.csv",
+                   col_types = cols( .default = "?", BG10 = "c")) %>%
+  janitor::clean_names() 
+equity_data_raw_bg <- equity_bg %>%
+  select(bg10,
+         prim_flood,
+         avg_temp,
+         phhi_qntl1,
+         green_roof,
+         env_cancer,
+         luse_green,
+         tr_ej,
+         holc_pred,
+         pwk_nowork
+         ) %>%
+  rowwise() %>%
+  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)#,
+         )
+
+```
+
 ```{r health_bgs}
 ##########
 # CDC health data
@@ -811,21 +836,22 @@ bg_growingshade_data <- bg_acs %>%
 #   filter(str_detect(cty, "55"))
 # levels(as.factor(a$cty))
   # full_join(acs_data_raw)
+  full_join(equity_data_raw_bg) %>%
   full_join(bg_canopy) %>%
   full_join(bg_ndvi) %>%
   left_join(bg_health2) %>%
   mutate(ndvi2 = ndvi,
          canopy_percent2 = canopy_percent) %>%
   rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
-  add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
+  # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
+             # tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
   
   filter(str_detect(tract_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
   # dplyr::select(-tr10)
@@ -972,7 +998,7 @@ usethis::use_data(metadata, overwrite = TRUE)
 ```{r}
 
 #some agricultural communities have high greenness and temperature, but low tree canopy
-eva_data_main %>%
+bg_growingshade_main %>%
   filter(variable %in% c("avg_temp", "canopy_percent")) %>%
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
@@ -981,7 +1007,7 @@ eva_data_main %>%
 
 
 # ndvi and temp are in the same model; so of course this is a nice relationship
-eva_data_main %>%
+bg_growingshade_main %>%
   filter(variable %in% c("avg_temp", "ndvi")) %>%
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
@@ -1076,154 +1102,6 @@ mn_bgs <- mn_bgs_1 %>%
 
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
-
-
-# library(leaflet)
-# factpal <- colorFactor(palette = c(
-#                        "ej" = "purple", #black
-#                        "cons" = "#b1d3fc", #hispanic
-#                        "cc" = "green",#"#996633", #indg
-#                        "ph" = "#E69F00"),
-#                        c("ej", "cons", "cc", "ph"))#,
-                       
-                       
-# leaflet() %>%
-#   addPolygons(data = test,
-#               fillColor = ~factpal(test[[20]]),
-#               fillOpacity = .5,
-#               weight = .5,
-#               color = "#666666",
-#               popup = ~paste0("Geography ID: ", test$GEOID,
-#                                          "<br>", ": ", test$highest_priority
-#                          )) %>%
-#   addLegend(title = "highest",
-#                          position = "bottomleft",
-#                          # group = "Census data",
-#                          # layerId = "Census data",
-#                          pal = factpal,
-#                          values = test[[20]]
-#                        )
-
-
-# %>%
-  # full_join(ctu_crosswalk)
-
-```
-
-
-can i improve distribution maps?
-
-```{r}
-mn_tracts %>%
-st_drop_geometry() %>%
-  ggplot() +
-  geom_jitter(aes(x = canopy_percent, y = 1))
-
-ggplot()+
-  geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "All Cities"),
-              alpha = .4,
-              data = ctu_list) +
-  geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "All Cities"),
-              data = filter(ctu_list, 
-                            GEO_NAME == "St. Paul"),
-              pch = 21, col = "black", fill = "red", size = 3) +
-  
-  
-  # geom_jitter(width = 0, height = .2,
-  #             aes(x = canopy_percent, y = 'Tracts'), 
-  #             alpha = .4,
-  #             data = st_drop_geometry(mn_tracts)) +
-    geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = 'aa_St.Paul_tracts'), 
-              data = filter(st_drop_geometry(mn_tracts),
-              jurisdiction == "St. Paul"),
-              pch = 21, col = "black", fill = "red", size = 3) +
-  
-  # geom_jitter(width = 0, 
-  #             aes(x = canopy_percent, y = "Nhood"),
-  #             alpha = .5,
-  #             data = nhood_list) +
-  # geom_jitter(width = 0, 
-  #             aes(x = canopy_percent, y = "Nhood"),
-  #             data = filter(nhood_list, 
-  #                           city == "St. Paul"),
-  #             col = councilR::colors$cdGreen, size = 3) +
-  
-
-  councilR::council_theme() +
-          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(x = "Tree canopy cover",
-       y = "Geography",
-       title = "St. Paul")
-
-ggplot()+
-  geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "All Cities"),
-              alpha = .4,
-              data = ctu_list) +
-  geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = "All Cities"),
-              data = filter(ctu_list, 
-                            GEO_NAME == "Birchwood Village"),
-              pch = 21, col = "black", fill = "red", size = 3) +
-  
-  
-  # geom_jitter(width = 0, height = .2,
-  #             aes(x = canopy_percent, y = 'Tracts'), 
-  #             alpha = .4,
-  #             data = st_drop_geometry(mn_tracts)) +
-    geom_jitter(width = 0, height = .2,
-              aes(x = canopy_percent, y = 'aa_Birchwood Village_tracts'), 
-              data = filter(st_drop_geometry(mn_tracts),
-              str_detect(jurisdiction, "Birchwood Village")),
-              pch = 21, col = "black", fill = "red", size = 3) +
-  
-  # geom_jitter(width = 0, 
-  #             aes(x = canopy_percent, y = "Nhood"),
-  #             alpha = .5,
-  #             data = nhood_list) +
-  # geom_jitter(width = 0, 
-  #             aes(x = canopy_percent, y = "Nhood"),
-  #             data = filter(nhood_list, 
-  #                           city == "St. Paul"),
-  #             col = councilR::colors$cdGreen, size = 3) +
-  
-
-  councilR::council_theme() +
-          scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(x = "Tree canopy cover",
-       y = "Geography",
-       title = "Birchwood Village")
-
-```
-
-
-can i improve priortization?
-
-```{r}
-mn_tracts %>% 
-  st_drop_geometry() %>%
-  filter((jurisdiction == "St. Paul")) %>%
-  pivot_longer(names_to = "preset", values_to = "rank", c(`Public health`:`Climate change`)) %>%
-  ggplot() + 
-  scale_x_continuous( limits = c(1, 704), labels = c(1, 250, 500, 704), breaks = c(1, 250, 500, 704)) +
-      ylim(0, 1) +
-  # scale_y_continuous(limits = c(0,1), expand = c(3,3))+
-      geom_segment(aes(x = rank, xend = rank, y = 0, yend = .8)) +
-      # geom_vline(aes(xintercept = rank)) +
-      geom_segment(aes(x = 1, xend = 700, y = 0, yend = 0)) +
-  facet_wrap(~preset, ncol = 1) +
-  expand_limits(x = 2, y = 20) +
-  labs(title = "St. Paul") +
-  theme_minimal() +
-  theme(axis.text.y = element_blank(),
-            axis.title.y = element_blank(),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.y = element_blank(),
-            panel.grid.major.x = element_blank(),
-            panel.grid.minor.x = element_blank())
 ```
 
 
