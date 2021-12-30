@@ -12,7 +12,7 @@ app_server <- function(input, output, session) {
 
   # callModule(mod_intro_server, "intro_ui_1")
   mod_storymap_server("storymap_ui_1")
-
+  mod_faq_server("faq_ui_1")
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
   map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1",
