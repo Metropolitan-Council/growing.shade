@@ -87,21 +87,23 @@ mod_report_server <- function(id,
       fancyname <-
         paste0(
           if (substr(param_area(), 3, 5) == "053") {
-            "Hennepin County block group "
+            "Hennepin County tract "
           } else if (substr(param_area(), 3, 5) == "003") {
-            "Anoka County block group "
+            "Anoka County tract "
           } else if (substr(param_area(), 3, 5) == "019") {
-            "Carver County block group "
+            "Carver County tract "
           } else if (substr(param_area(), 3, 5) == "037") {
-            "Dakota County block group "
+            "Dakota County tract "
           } else if (substr(param_area(), 3, 5) == "123") {
-            "Ramsey County block group "
+            "Ramsey County tract "
           } else if (substr(param_area(), 3, 5) == "139") {
-            "Scott County block group "
+            "Scott County tract "
           } else if (substr(param_area(), 3, 5) == "163") {
-            "Washington County block group "
+            "Washington County tract "
           },
-          as.numeric(substr(param_area(), 6, 11)) / 100
+          as.numeric(substr(param_area(), 6, 11)) / 100,
+          ", block group ",
+          as.numeric(substr(param_area(), 12, 12))
         )
       return(fancyname)
     })
