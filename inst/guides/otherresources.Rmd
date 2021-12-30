@@ -22,6 +22,8 @@ Additionally, when planning and prioritizing urban forestry work, tools and data
     - <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American Forests Tree Equity Score project</a> 
     - <a href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting" target = "_blank">Hennepin County, MN Tree Canopy Tree Planting Priority Areas</a>
     - <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City of Saint Paul Urban Tree Canopy Assessment 2011</a>
+  - *Where can I lean more about the benefits provided by urban forests and learn how to build them?*
+    - <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant Cities Lab</a>
 - **Planting Trees and Native Vegetation**
   - *What trees are predicted to do well in future climate conditions?*
     - <a href = "https://forestadaptation.org/sites/default/files/2021-03/TwinCitiesMN_TreeSpeciesVulnerability.pdf" target = "_blank">Climate Change Vulnerability of Urban Trees: Twin Cities, Minnesota</a>
@@ -30,9 +32,6 @@ Additionally, when planning and prioritizing urban forestry work, tools and data
   - *Where can I learn about native plants (trees, grasses, wildflowers): the benefits, purchasing and planting?*
     - <a href = "https://mnnps.org/links/" target = "_blank">Minnesota Native Plant Society</a>
     - <a href = "https://extension.umn.edu/find-plants/native-plants" target = "_blank">University of Minnesota Extension</a>
-- **Information, Guides and Toolkits** 
-  - *Where can I lean more about the benefits provided by urban forests and learn how to build them?*
-    - <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant Cities Lab</a>
 - **Climate Change** 
   - *Where can I find more information about climate change impacts in the Twin Cities?*
     - <a href = "https://www.fs.usda.gov/sites/default/files/fs_media/fs_document/urbannatureforhumanhealthandwellbeing_508_01_30_18.pdf%22 %EF%BF%BDHYPERLINK %22https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx"                 target = "_blank">Climate Vulnerability Assessment by Metropolitan Council for the Twin Cities</a>

@@ -22,6 +22,10 @@ valuable sources of information.
             County, MN Tree Canopy Tree Planting Priority Areas</a>
         -   <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City
             of Saint Paul Urban Tree Canopy Assessment 2011</a>
+    -   *Where can I lean more about the benefits provided by urban
+        forests and learn how to build them?*
+        -   <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant
+            Cities Lab</a>
 -   **Planting Trees and Native Vegetation**
     -   *What trees are predicted to do well in future climate
         conditions?*
@@ -37,11 +41,6 @@ valuable sources of information.
             Native Plant Society</a>
         -   <a href = "https://extension.umn.edu/find-plants/native-plants" target = "_blank">University
             of Minnesota Extension</a>
--   **Information, Guides and Toolkits**
-    -   *Where can I lean more about the benefits provided by urban
-        forests and learn how to build them?*
-        -   <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant
-            Cities Lab</a>
 -   **Climate Change**
     -   *Where can I find more information about climate change impacts
         in the Twin Cities?*

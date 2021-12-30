@@ -100,7 +100,7 @@ app_ui <- function(request) {
         )
       ),
       tabPanel(
-        "external Resources",
+        "Resources",
         mod_other_resources_ui("other_resources_ui_1")
       ),
       tabPanel(
