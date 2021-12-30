@@ -19,7 +19,7 @@ mod_geo_selection_ui <- function(id) {
       # h4("Report area"),
       label = HTML("<h2><section style='font-size:20pt'>Custom report</h2></section><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
-        "A Census tract (selected from the map)" = "tracts",
+        "A Census block group (selected from the map)" = "tracts",
         "Cities and townships (use dropdown below)" = "ctus",
         "Neighborhoods (use dropdown below)" = "nhood"
       ), # multiple = F,

@@ -22,6 +22,7 @@ mod_map_selections_ui <- function(id) {
         "Custom"
       ), inline = T,
       selected = "Environmental justice"
+      # selected = "Custom"
     ) %>%
       shinyhelper::helper(
         type = "markdown", content = "PresetHelp", size = "l"
