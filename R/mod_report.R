@@ -87,19 +87,19 @@ mod_report_server <- function(id,
       fancyname <-
         paste0(
           if (substr(param_area(), 3, 5) == "053") {
-            "Hennepin County tract "
+            "Hennepin County block group "
           } else if (substr(param_area(), 3, 5) == "003") {
-            "Anoka County tract "
+            "Anoka County block group "
           } else if (substr(param_area(), 3, 5) == "019") {
-            "Carver County tract "
+            "Carver County block group "
           } else if (substr(param_area(), 3, 5) == "037") {
-            "Dakota County tract "
+            "Dakota County block group "
           } else if (substr(param_area(), 3, 5) == "123") {
-            "Ramsey County tract "
+            "Ramsey County block group "
           } else if (substr(param_area(), 3, 5) == "139") {
-            "Scott County tract "
+            "Scott County block group "
           } else if (substr(param_area(), 3, 5) == "163") {
-            "Washington County tract "
+            "Washington County block group "
           },
           as.numeric(substr(param_area(), 6, 11)) / 100
         )
@@ -186,7 +186,7 @@ mod_report_server <- function(id,
           if (geo_selections$selected_geo == "tracts") {
             paste0(
               param_fancytract(), " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
-              "% in 2020. Compared to other tracts across the region, the tree canopy in ", param_fancytract(), " is ",
+              "% in 2020. Compared to other block groups across the region, the tree canopy in ", param_fancytract(), " is ",
               if (param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {
                 "above"
               } else if (param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {
@@ -195,7 +195,7 @@ mod_report_server <- function(id,
                 "about equal to"
               },
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%).<br><br> ",
-              "The distribution of tree canopy coverage across all of the region's tracts is shown below; the selected tract is highlighted in green."
+              "The distribution of tree canopy coverage across all of the region's block groups is shown below; the selected block group is highlighted in green."
             )
           } else {
             paste0(
@@ -222,11 +222,11 @@ mod_report_server <- function(id,
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%). ",
               "Within ", param_area(), ", there are ",
               param_areasummary()$ntracts,
-              " Census tracts with tree canopy cover ranging from ",
+              " Census block groups with tree canopy cover ranging from ",
               param_areasummary()$min,
               "% to ",
               param_areasummary()$max,
-              "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census tracts have different areas and may overlap with other geographies, thus the exisiting tree canopy cover in the selected area may not be the mean of the tract canopy covers."
+              "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census block groups have different areas and may overlap with other geographies, thus the exisiting tree canopy cover in the selected area may not be the mean of the block group canopy covers."
             )
           }
         )
@@ -258,8 +258,8 @@ mod_report_server <- function(id,
             })) %>%
           bind_rows(filter(param_equity(), flag == "selected") %>%
             mutate(
-              t2 = "tracts",
-              type = paste0(" Tracts\nwithin ", param_area())
+              t2 = "block groups",
+              type = paste0(" Block groups\nwithin ", param_area())
             )) %>%
           rename(raw_value = canopy_percent)
       } else {
@@ -363,17 +363,17 @@ mod_report_server <- function(id,
               param_fancytract(), " has a priority score of ",
               round((param_selectedtractvalues()$MEAN), 2),
               " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ",
-              (param_selectedtractvalues()$RANK), " (out of 2085 total tracts across the region). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
+              (param_selectedtractvalues()$RANK), " (out of 2085 total block groups across the region). A plot of the block group rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
               tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>"
             )
           } else {
             paste0(
-              "tracts within ",
+              "block groups within ",
               param_area(),
               " have overall priority scores ranging from ",
               round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
               " and a region-wide ranking from ",
-              min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the tract rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
+              min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the block group rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
               tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>"
             )
           }
@@ -428,7 +428,7 @@ mod_report_server <- function(id,
           x = 1, xend = 2085, y = segment_line$y,
           yend = segment_line$y
         )) +
-        labs(x = "Rank of aggregated priority score\n(out of 2085 tracts across the region)")
+        labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)")
       # }
       return(plot)
     })
@@ -525,7 +525,7 @@ mod_report_server <- function(id,
           paste0(param_fancytract(), " is ")
         } else {
           paste0(
-            "tracts within ",
+            "block groups within ",
             param_area(),
             " are "
           )
@@ -730,12 +730,12 @@ mod_report_server <- function(id,
               select(name, variable, nicer_interp, MEANRAW, cc, ej, ph, cons, n) %>%
               rename(
                 `Value interpretation` = nicer_interp,
-                `Tract average` = MEANRAW,
+                `Block group average` = MEANRAW,
                 `Climate Change variable` = cc,
                 `Environmental Justice variable` = ej,
                 `Public Health variable` = ph,
                 `Conservation variable` = cons,
-                `Number of tracts with data` = n
+                `Number of block groups with data` = n
               )
           ),
           path = file
