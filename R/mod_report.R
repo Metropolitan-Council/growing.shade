@@ -41,6 +41,13 @@ mod_report_ui <- function(id) {
       uiOutput(ns("get_equity_plot"))
     )),
     fluidRow(shinydashboard::box(
+      title = "Temperature: ",
+      width = 12, collapsed = F,
+      status = "danger", solidHeader = F, collapsible = TRUE,
+      uiOutput(ns("heat_para")),
+      uiOutput(ns("get_temp_plot"))
+    )),
+    fluidRow(shinydashboard::box(
       title = "Threats: ",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
@@ -160,7 +167,7 @@ mod_report_server <- function(id,
 
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
-        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow")) %>%
+        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi")) %>%
         select(tract_string, variable, raw_value, flag) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
@@ -535,6 +542,15 @@ mod_report_server <- function(id,
       ))
       return(para)
     })
+    
+    
+    output$heat_para <- renderUI({
+      ns <- session$ns
+      req(TEST() != "")
+      para <- HTML(
+        "Greenspace can decrease surface and air temperatures. Trees are an important component of greenspace, but greenspace also includes grasses, prairies, wetlands, agricultural crops, and other areas which have plants. A plot showing the relationship between greenness (measured with NDVI, read the 'methods' for more information) and land surface temperature on a hot summer day across the region is shown below. Block groups within the selected area are shown in green, and the regional trend is in blue.")
+      return(para)
+    })
 
     report_equity_plot <- reactive({
       req(TEST() != "")
@@ -597,6 +613,32 @@ mod_report_server <- function(id,
       report_equity_plot()
     })
 
+    
+    report_temp_plot <- reactive({
+      req(TEST() != "")
+      
+      df <- param_equity() %>%
+        select(flag, avg_temp, ndvi) 
+      
+        ggplot(aes(x = ndvi, y = avg_temp), data = df) +
+        geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
+        # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
+          geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA, col = councilR::colors$councilBlue) +
+        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        councilR::council_theme() +
+        theme(panel.grid.minor = element_blank(),
+              panel.grid.major = element_blank()) +
+        # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+        # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+        labs(x = "NDVI", y = "Land surface temperature\n(degrees F)")
+      
+      
+    })
+    
+    output$temp_plot <- renderPlot({
+      req(TEST() != "")
+      report_temp_plot()
+    })
 
     report_other_para <- reactive({
       ns <- session$ns
@@ -678,6 +720,7 @@ mod_report_server <- function(id,
           param_rankplot = report_rank_plot(),
           param_prioritytable = report_priority_table(),
           param_equityplot = report_equity_plot(),
+          param_tempplot = report_temp_plot(),
           param_otherparea = report_other_para()
         )
         # Knit the document, passing in the `params` list, and eval it in a
@@ -695,7 +738,7 @@ mod_report_server <- function(id,
             html_preview = FALSE,
             toc = TRUE,
             # theme = "cosmo",
-            toc_depth = 3,
+            toc_depth = 2,
             fig_caption = TRUE,
             # css = testcss
             css = tempCss
@@ -747,25 +790,6 @@ mod_report_server <- function(id,
 
     ####### put things into reactive uis ----------
 
-    output$tree_title <- renderUI({
-      req(TEST() != "")
-      h4("Tree canopy: ")
-    })
-
-    output$priority_title <- renderUI({
-      req(TEST() != "")
-      h4("Priortization: ")
-    })
-
-    output$equity_title <- renderUI({
-      req(TEST() != "")
-      h4("Equity: ")
-    })
-
-    output$other_title <- renderUI({
-      req(TEST() != "")
-      h4("Threats: ")
-    })
 
 
     output$get_tree_plot <- renderUI({
@@ -784,6 +808,11 @@ mod_report_server <- function(id,
     output$get_equity_plot <- renderUI({
       req(TEST() != "")
       plotOutput(ns("equity_plot"), "400px", width = "80%")
+    })
+    
+    output$get_temp_plot <- renderUI({
+      req(TEST() != "")
+      plotOutput(ns("temp_plot"), "200px", width = "80%")
     })
 
 

@@ -1012,7 +1012,8 @@ bg_growingshade_main %>%
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
   ggplot(aes(x = ndvi, y = avg_temp)) +
-  geom_point(alpha = .6) 
+  geom_point(alpha = .6) +
+  geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA)
 
 ```
 
