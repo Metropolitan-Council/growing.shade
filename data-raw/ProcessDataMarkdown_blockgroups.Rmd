@@ -882,6 +882,32 @@ usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
 
+# Export data for storymaps
+
+```{r}
+race_exp <- bg_growingshade_main %>%
+  filter(variable == "pbipoc") %>%
+  mutate(raw_value = raw_value * 100) %>%
+  left_join(mn_bgs_1 %>% rename(tract_string = GEOID)) %>%
+  dplyr::select(tract_string, raw_value, geometry) %>%
+  rename(pbipoc = raw_value) %>%
+  st_as_sf()
+
+sf::st_write(race_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/race.shp", append = FALSE)
+
+
+canopy_exp <- bg_growingshade_main %>%
+  filter(variable == "canopy_percent") %>%
+  mutate(raw_value = raw_value * 100) %>%
+  left_join(mn_bgs_1 %>% rename(tract_string = GEOID)) %>%
+  dplyr::select(tract_string, raw_value, geometry) %>%
+  rename(canopy_percent = raw_value) %>%
+  st_as_sf()
+
+sf::st_write(canopy_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/canopy.shp", append = FALSE)
+
+
+```
 
 
 ```{r treetrust-fig}

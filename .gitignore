@@ -36,3 +36,17 @@ biota_original_pls_bearing_trees.gpkg
 water_lakes_rivers.gpkg
 
 data-raw/shared_drive.R
+storymap-info/shapefiles/race.dbf
+storymap-info/shapefiles/race.prj
+storymap-info/shapefiles/race.shp
+storymap-info/shapefiles/race.shx
+storymap-info/shapefiles/race.zip
+storymap-info/shapefiles/test.dbf
+storymap-info/shapefiles/test.prj
+storymap-info/shapefiles/test.shp
+storymap-info/shapefiles/test.shx
+storymap-info/shapefiles/canopy.dbf
+storymap-info/shapefiles/canopy.prj
+storymap-info/shapefiles/canopy.shp
+storymap-info/shapefiles/canopy.shx
+storymap-info/shapefiles/canopy.zip
