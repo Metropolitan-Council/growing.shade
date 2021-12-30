@@ -304,7 +304,7 @@ mod_map_overview_server <- function(input, output, session,
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
-              "Tract ID: ", map_util$map_data2$tract_string,
+              "Geographic ID: ", map_util$map_data2$tract_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
               "<br>Priority score: ", (map_util$map_data2$MEAN),
               "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
@@ -358,7 +358,7 @@ mod_map_overview_server <- function(input, output, session,
             } else if (geo_selections$selected_geo == "nhood") {
               nhood_list
             } else if (geo_selections$selected_geo == "tracts") {
-              mn_tracts
+              mn_bgs
             },
             # data = if_else(geo_selections$selected_geo == 'ctus', ctu_list, nhood_list
             #                  ),
@@ -437,7 +437,7 @@ mod_map_overview_server <- function(input, output, session,
         leafletProxy("map") %>%
           clearGroup("outline") %>%
           addPolygons(
-            data = mn_tracts %>% filter(GEO_NAME == input$map_shape_click$id),
+            data = mn_bgs %>% filter(GEO_NAME == input$map_shape_click$id),
             stroke = TRUE,
             color = "blue",
             fill = NA,
