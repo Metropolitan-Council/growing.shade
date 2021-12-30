@@ -300,7 +300,7 @@ mod_report_server <- function(id,
             position = position_jitter(seed = 1, width = 0, height = .3),
             fill = councilR::colors$cdGreen,
             size = 4, col = "black", pch = 21,
-            data = filter(canopyplot, flag == "selected", t2 == "tracts"),
+            data = filter(canopyplot, flag == "selected", t2 == "block groups"),
             na.rm = T
           )
       } else {
