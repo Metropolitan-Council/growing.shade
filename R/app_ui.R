@@ -76,15 +76,6 @@ app_ui <- function(request) {
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."
               ),
-              # br(),
-              # p("Fellow residents share the importance of greening within our region, while also detailing various approaches to achieve shared outcomes in the NARRATIVE tab. There is also more information about why we built this tool."),
-              # # actionLink("link_to_tabpanel_b", "NARRATIVE tab"),
-              # # p(" (link). The NARRATIVE tab also gives more information about why we built this tool. Please visit it!"),
-
-              # a("Sinha 2021",
-              #   href = ns("#B"), #"#tab-6122-2",
-              #   .noWS = "outside"),
-              # hr(style="margin-top: 2px; margin-bottom: 2px "),
               hr(),
               mod_map_selections_ui("map_selections_ui_1"),
               # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
@@ -110,7 +101,7 @@ app_ui <- function(request) {
       ),
       tabPanel(
         "other Resources",
-        mod_other_resources_ui("other_resources_ui_1") # mod_notes_ui("notes_ui_1")
+        mod_other_resources_ui("other_resources_ui_1")
       ),
       tabPanel(
         "methods",
