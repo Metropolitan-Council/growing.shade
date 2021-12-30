@@ -1,5 +1,5 @@
 ---
-title: "Other resources"
+title: "External resources"
 output: 
   github_document:
     html_preview: false
