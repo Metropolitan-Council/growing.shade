@@ -45,7 +45,7 @@ app_ui <- function(request) {
       tabPanel(
         "HOME",
         # id = "B",
-        br(), br(),
+        br(),# br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
