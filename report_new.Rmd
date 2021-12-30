@@ -12,6 +12,7 @@ params:
   param_prioritytable: NA
   param_equityplot: NA
   param_otherparea: NA
+  param_tempplot: NA
 urlcolor: blue
 always_allow_html: true
 
@@ -188,6 +189,20 @@ equity_words <- HTML(paste0("In the plot below, ",
 params$param_equityplot
 ```
 
+
+## Temperature
+
+Greenspace can decrease surface and air temperatures. Trees are an important component of greenspace, but greenspace also includes grasses, prairies, wetlands, agricultural crops, and other areas which have plants. A plot showing the relationship between greenness (measured with NDVI) and land surface temperature on a hot summer day across the region is shown below. Block groups within the selected area are shown in green, and the regional trend is in blue.
+
+```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .4}
+params$param_tempplot
+```
+
+
+
+### Methodology note
+
+The normalized difference vegetation index (NDVI) ranges from -1 to 1. Areas with bare ground, or brown vegetation have NDVI values closer to zero. Areas with lots of greenness have values closer to one. The calculation for land surface temperature *does* rely on information about NDVI, so these two variables are not fully independent from each other. Land surface temperature is calculated using other data as well. The NDVI data shown here comes from the Sentinel-2 satellite (resolution of 10 x 10 meters) and is from year 2021. Land surface temperature shown here comes from data collected by the Landsat-8 satellite (resolution of 30 x 30 meters) and is from year 2016.
 
 ## Threats
 
