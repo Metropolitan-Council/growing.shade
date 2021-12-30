@@ -117,7 +117,7 @@ mod_report_server <- function(id,
       } else if (geo_selections$selected_geo == "nhood") {
         sf::st_drop_geometry(nhood_list[nhood_list$GEO_NAME == param_area(), ])
       } else if (geo_selections$selected_geo == "tracts") {
-        sf::st_drop_geometry(mn_tracts[mn_tracts$GEOID == param_area(), ])
+        sf::st_drop_geometry(mn_bgs[mn_bgs$GEOID == param_area(), ])
       }
       return(output)
     })
@@ -407,7 +407,6 @@ mod_report_server <- function(id,
       }
 
       test <- param_selectedtractvalues() %>%
-        # mn_tracts %>% filter(GEO_NAME == "27037060716") %>%#
         st_drop_geometry() %>%
         select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
         pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME) %>%
