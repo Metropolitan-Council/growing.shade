@@ -8,6 +8,12 @@ user guide</a> or the
 user guide</a> for help using the tool. Short answers to frequently
 asked questions can be found below.
 
+**How are the priority layers created?** Priority scores are calculated
+using equally-weighted variables.
+
+**How did you choose the variables for the priority layers?** Presets
+are developed to provide starting points for various stakeholder groups.
+
 **Why do different tools show different canopy coverage percents?**
 Something about methods; all have pros/cons. What we chose to prioritize
 here. Accuracy note.
