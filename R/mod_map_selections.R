@@ -36,7 +36,7 @@ mod_map_selections_ui <- function(id) {
       ), inline = T,
       selected = "Environmental justice"
       # selected = "Custom"
-    # )#,
+    ),
     # shinyBS::bsModal(ns("testmodal"), title = "Test Modal", trigger = "Climate change",
     #                  h5("Data Guidelines"),
     #                  tags$ol(
@@ -48,11 +48,11 @@ mod_map_selections_ui <- function(id) {
     # radioTooltip(ns("preset"), choice = "Custom", title = "Select this option to customize the prioritization variables.", placement = "bottom", trigger = "hover"),
     # radioTooltip(ns("preset"), choice = "Climate change", title = "Trees can mitigate some consequences of climate change by cooling land surface temperatures and reducing flooding. Use this preset to identify areas most at risk from climate change.", placement = "bottom", trigger = "hover"),
     # radioTooltip(ns("preset"), choice = "Public health", title = "Trees improve air quality and cool land surface temperatures leading to better health outcomes, particularly for sensitive populations. Identify areas where trees could most improve health outcomes.", placement = "bottom", trigger = "hover"),
-    )  %>%
-      shinyhelper::helper(
-        type = "markdown", content = "PresetHelp", size = "l"
-        # )
-      ),
+    # )  %>%
+    #   shinyhelper::helper(
+    #     type = "markdown", content = "PresetHelp", size = "m"
+    #     # )
+    #   ),
     conditionalPanel(
       ns = ns,
       condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
