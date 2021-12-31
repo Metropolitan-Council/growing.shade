@@ -12,6 +12,12 @@ output:
 
 Please refer to the <a href="www/Growing Shade User Guide (November 2021).pdf" target="_blank">text user guide</a> or the <a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video user guide</a> for help using the tool. Short answers to frequently asked questions can be found below. 
 
+**How are the priority layers created?**
+Priority scores are calculated using equally-weighted variables.
+
+**How did you choose the variables for the priority layers?**
+Presets are developed to provide starting points for various stakeholder groups. 
+
 **Why do different tools show different canopy coverage percents?**
 Something about methods; all have pros/cons. What we chose to prioritize here. Accuracy note. 
 
