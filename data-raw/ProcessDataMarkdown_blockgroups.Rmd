@@ -950,22 +950,32 @@ usfs <- readxl::read_xlsx("../data-raw/evalidator fsusda.xlsx",
   filter(sps %not_in% c("Total", "Other",
                         "Other softwoods", "Non stocked",
                         "Cottonwood / Willow", "Eastern redcedar", "Balsam poplar", "White spruce", "Black spruce", "Balsam fir"))%>%
-  mutate(age2 = factor(age, levels=c("0-20 years",
-                                    "21-40 years",
-                                    "41-60 years",
-                                    "61-80 years",
-                                    "81-100 years",
-                                    "100+ years")),
-         label = case_when(age2 == "100+ years" ~ sps,
+    mutate(age2 = case_when(age == "0-20 years" ~ "0-20",
+                          age == "21-40 years" ~ "21-40",
+                          age == "41-60 years" ~ "41-60",
+                          age == "61-80 years" ~ "61-80",
+                          age == "81-100 years" ~ "81-100",
+                          age == "100+ years" ~ "100+",
+                          TRUE ~ NA_character_)) %>%
+  # group_by(sps) %>%
+  mutate(age2 = factor(age2, levels=c("0-20",
+                                    "21-40",
+                                    "41-60",
+                                    "61-80",
+                                    "81-100",
+                                    "100+")),
+         label = case_when(age2 == "100+" ~ sps,
                            TRUE ~ NA_character_),
-                  sps = fct_reorder(sps, desc(carbon))) 
+                  sps = fct_reorder(sps, desc(carbon))
+         ) 
+
 
 usfs_fig <- usfs %>%
-  group_by(sps)  %>%
+  # group_by(sps)  %>%
   ggplot(aes(x = age2, y = carbon, color = sps, group = sps, shape = sps)) +
 geom_line(lwd =1) +
   geom_point(aes(fill = sps),  size = 3) +
-  theme_minimal() +
+  cowplot::theme_cowplot() +
   scale_color_brewer(palette = "Paired") +
   scale_fill_brewer(palette = "Paired") +
   # ggrepel::geom_label_repel(aes(label = label),
@@ -973,12 +983,12 @@ geom_line(lwd =1) +
   #                 na.rm = TRUE
   #                 )
   ggrepel::geom_label_repel(
-    aes("100+ years", carbon, label = label), col = "black", nudge_x = .5, direction = "y", hjust = "left",  ylim = c(-Inf, Inf),  xlim = c(NA, Inf)
+    aes("100+", carbon, label = label), col = "black", nudge_x = .5, direction = "y", hjust = "left",  ylim = c(-Inf, Inf),  xlim = c(NA, Inf)
   ) +
   scale_x_discrete(expand = expansion(mult = c(.05, 0.6))) +
   scale_shape_manual(values = rep((21:25), 3)) +
-  guides(fill = F, col = F, shape = F) +
-  labs(x = "Stand age", y = "Average\ncarbon\nstorage\n(US tons\nper acre)",
+  guides(fill = "none", col = "none", shape = "none") +
+  labs(x = "Stand age (years)", y = "Average\ncarbon\nstorage\n(US tons\nper acre)",
        caption = "US Forest Service EVALIDator v1.8.0.01") +
     theme(panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank(),
@@ -989,7 +999,7 @@ geom_line(lwd =1) +
         # axis.ticks.x = element_line("grey")
         )
 
-ggsave("./usfs_fig", usfs_fig,  width = 8, height = 5, units = "in", device = "png")
+ggsave("./usfs_fig.jpg", usfs_fig,  width = 8, height = 5, units = "in", device = "jpg")
 
 ```
 
