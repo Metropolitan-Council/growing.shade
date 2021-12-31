@@ -17,7 +17,7 @@ mod_geo_selection_ui <- function(id) {
     (radioButtons(
       ns("geo"),
       # h4("Report area"),
-      label = HTML("<h2><section style='font-size:20pt'>Custom report</h2></section><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
+      label = HTML("<h2><section style='font-size:20pt'>Custom report</h2></section><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to read and download the report.</strong></section></p>"),
       choices = c(
         "Cities and townships" = "ctus",
         "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",

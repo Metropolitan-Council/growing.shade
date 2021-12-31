@@ -52,6 +52,7 @@ library(sf)
 source("packages_global.R")
 
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+`%not_in%` <- Negate(`%in%`)
 
 ```
 
@@ -929,6 +930,75 @@ tribble(~`Benefits`, ~`Total ($)`, ~`SE ($)`, ~`$/tree`, ~`SE ($/tree)`, ~`$/cap
 
 
 ```
+
+# carbon by tree stands from USForest Service EVALIDATOR
+
+adapted from: https://extension.umn.edu/managing-woodlands/carbon-minnesota-trees-and-woodlands#manage-for-carbon-storage-2244060
+
+access on web at: https://apps.fs.usda.gov/Evalidator/rest/Evalidator/fullreport?reptype=State&lat=0&lon=0&radius=0&snum=Aboveground and belowground carbon in live trees (at least 1 inch d.b.h./d.r.c), in short tons, on forest land&sdenom=Area of forest land, in acres&wc=272019&pselected=None&rselected=Forest Type MnDNR&cselected=Stand age 20 yr classes (0 to 100 plus)&ptime=Current&rtime=Current&ctime=Current&wf=&wnum=&wnumdenom=&FIAorRPA=FIADEF&outputFormat=HTML&estOnly=Y&schemaName=FS_FIADB.
+
+
+```{r}
+usfs <- readxl::read_xlsx("../data-raw/evalidator fsusda.xlsx", 
+                          skip = 1,
+                          na = "-") %>%
+  dplyr::select(-Total) %>%
+  pivot_longer(names_to = "age",
+               values_to = "carbon", 
+               -`Forest Type MnDNR`) %>%
+  rename("sps" = "Forest Type MnDNR") %>%
+  filter(sps %not_in% c("Total", "Other",
+                        "Other softwoods", "Non stocked",
+                        "Cottonwood / Willow", "Eastern redcedar", "Balsam poplar", "White spruce", "Black spruce", "Balsam fir"))%>%
+  mutate(age2 = factor(age, levels=c("0-20 years",
+                                    "21-40 years",
+                                    "41-60 years",
+                                    "61-80 years",
+                                    "81-100 years",
+                                    "100+ years")),
+         label = case_when(age2 == "100+ years" ~ sps,
+                           TRUE ~ NA_character_),
+                  sps = fct_reorder(sps, desc(carbon))) 
+
+usfs_fig <- usfs %>%
+  group_by(sps)  %>%
+  ggplot(aes(x = age2, y = carbon, color = sps, group = sps, shape = sps)) +
+geom_line(lwd =1) +
+  geom_point(aes(fill = sps),  size = 3) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Paired") +
+  scale_fill_brewer(palette = "Paired") +
+  # ggrepel::geom_label_repel(aes(label = label),
+  #                 nudge_x = 1,
+  #                 na.rm = TRUE
+  #                 )
+  ggrepel::geom_label_repel(
+    aes("100+ years", carbon, label = label), col = "black", nudge_x = .5, direction = "y", hjust = "left",  ylim = c(-Inf, Inf),  xlim = c(NA, Inf)
+  ) +
+  scale_x_discrete(expand = expansion(mult = c(.05, 0.6))) +
+  scale_shape_manual(values = rep((21:25), 3)) +
+  guides(fill = F, col = F, shape = F) +
+  labs(x = "Stand age", y = "Average\ncarbon\nstorage\n(US tons\nper acre)",
+       caption = "US Forest Service EVALIDator v1.8.0.01") +
+    theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_text(angle=0,
+                                    vjust = .5),
+        plot.margin = margin(7,7,7,7),
+        legend.position = "none"#,
+        # axis.ticks.x = element_line("grey")
+        )
+
+ggsave("./usfs_fig", usfs_fig,  width = 8, height = 5, units = "in", device = "png")
+
+```
+
+
+
+
+
+
+
 
 
 

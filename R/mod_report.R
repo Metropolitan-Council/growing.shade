@@ -54,6 +54,7 @@ mod_report_ui <- function(id) {
       title = "Download data",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
+      uiOutput(ns("download_para")),
       fluidRow(
         column(width = 6, uiOutput(ns("get_the_report"))),
         column(width = 6, uiOutput(ns("get_the_data")))
@@ -548,6 +549,14 @@ mod_report_server <- function(id,
       return(para)
     })
     
+    
+    output$download_para <- renderUI({
+      ns <- session$ns
+      req(TEST() != "")
+      para <- HTML(
+        "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded.<br>")
+      return(para)
+    })
     
     output$heat_para <- renderUI({
       ns <- session$ns
