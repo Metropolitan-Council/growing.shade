@@ -421,7 +421,7 @@ mod_report_server <- function(id,
 
       test <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
-        select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
+        dplyr::select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
         pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME) %>%
         bind_rows(test2)
 

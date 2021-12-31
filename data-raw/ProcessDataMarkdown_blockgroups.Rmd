@@ -870,6 +870,7 @@ mn_bgs <- mn_bgs_1 %>%
               pivot_wider(names_from = preset, values_from = rank)
             %>% rename(GEOID = tract_string)) %>%
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
+  select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
   st_as_sf() %>%
       st_transform(4326)
 
@@ -906,6 +907,28 @@ canopy_exp <- bg_growingshade_main %>%
   st_as_sf()
 
 sf::st_write(canopy_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/canopy.shp", append = FALSE)
+
+
+income_exp <- bg_growingshade_main %>%
+  filter(variable == "mdhhincnow") %>%
+  mutate(raw_value = raw_value * 100) %>%
+  left_join(mn_bgs_1 %>% rename(tract_string = GEOID)) %>%
+  dplyr::select(tract_string, raw_value, geometry) %>%
+  rename(mdhhincnow = raw_value) %>%
+  st_as_sf()
+
+sf::st_write(income_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/income.shp", append = FALSE)
+
+
+copd_exp <- bg_growingshade_main %>%
+  filter(variable == "COPD") %>%
+  mutate(raw_value = raw_value * 100) %>%
+  left_join(mn_bgs_1 %>% rename(tract_string = GEOID)) %>%
+  dplyr::select(tract_string, raw_value, geometry) %>%
+  rename(COPD = raw_value) %>%
+  st_as_sf()
+
+sf::st_write(copd_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/copd.shp", append = FALSE)
 
 
 ```

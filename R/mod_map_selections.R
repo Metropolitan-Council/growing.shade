@@ -24,7 +24,7 @@ mod_map_selections_ui <- function(id) {
         "Climate change", 
         "Conservation",
         "Environmental justice",
-        "Publich health",
+        "Public health",
         "Custom"
       ),
       choiceValues = c(
