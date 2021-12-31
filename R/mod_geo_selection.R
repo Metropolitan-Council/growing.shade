@@ -19,9 +19,9 @@ mod_geo_selection_ui <- function(id) {
       # h4("Report area"),
       label = HTML("<h2><section style='font-size:20pt'>Custom report</h2></section><p><section style='font-weight: normal;' >Make a selection to create a custom report which will generate below. <strong>Scoll down to keep reading.</strong></section></p>"),
       choices = c(
-        "Cities and townships (use dropdown below)" = "ctus",
-        "Neighborhoods (use dropdown below)" = "nhood",
-        "A Census block group (selected from the map)" = "tracts"
+        "Cities and townships" = "ctus",
+        "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
+        "A Census block group" = "tracts"
       ), # multiple = F,
       selected = "ctus"
     )),
@@ -32,7 +32,7 @@ mod_geo_selection_ui <- function(id) {
       ns = ns,
       condition = "input.geo == 'ctus'",
       shinyWidgets::pickerInput(ns("cityInput"),
-        label = shiny::HTML(paste0("<h3><span style='font-size:14pt'>City or township</span></h3>")),
+        label = shiny::HTML(paste0("<h3><span style='font-size:14pt'>Pick a city or township</span></h3>")),
         choices = ctu_list$GEO_NAME,
         options = list(
           title = "Pick a city or township", size = 10,
@@ -58,6 +58,11 @@ mod_geo_selection_ui <- function(id) {
         multiple = F,
         selected = "Payne-Phalen"
       )
+    ),
+    conditionalPanel(
+      ns = ns,
+      condition = "input.geo == 'tracts'",
+      HTML("Please click on an area within the map at right.")
     )
   )
 }
