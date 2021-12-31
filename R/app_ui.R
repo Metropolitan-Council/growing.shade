@@ -76,7 +76,7 @@ app_ui <- function(request) {
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."
               ),
-              hr(),
+              hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
               # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
