@@ -37,7 +37,7 @@ output:
 #     ifelse(x=="1", "included", "")
 # }
 # 
-# load("./data/metadata.rda")
+# # load("./data/metadata.rda")
 # plotthis <- metadata %>%
 #   select(name, cc, ej, ph, cons) %>%
 #   filter(cc == 1 | ej == 1 | ph == 1 | cons == 1) %>%
@@ -47,18 +47,21 @@ output:
 #          `Public health` = ph,
 #          Conservation = cons) %>%
 #    # mutate(across(where(is.numeric), ~na_if(., 0))) %>%
-#    mutate(across(where(is.numeric), helperFunction)) 
+#    mutate(across(where(is.numeric), helperFunction))
 # 
 # 
-# kableExtra::kbl(plotthis,
+# exp_table <- kableExtra::kbl(plotthis,
 #                booktabs = T) %>%
 #   kableExtra::kable_styling(#latex_options = "striped",
 #                             full_width = F) %>%
 #   kableExtra::column_spec(1, width = "20em") %>%
 #   kableExtra::column_spec(2, width = "5em") %>%
 #   kableExtra::column_spec(3, width = "5em") %>%
-#   kableExtra::column_spec(4, width = "5em") %>%
-#   kableExtra::save_kable("inst/app/www/presets.png", zoom = 1.5)
+#   kableExtra::column_spec(4, width = "5em") 
+
+# writexl::write_xlsx(plotthis, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/presets.xlsx")
+# exp_table %>%
+#   kableExtra::save_kable("./inst/app/www/presets.png", zoom = 1.5)
 # <img src='www/presets.png' width='100%' alt='a diagram variables included in the presets.'/img>
 
 ```
