@@ -8,28 +8,38 @@ user guide</a> or the
 user guide</a> for help using the tool. Short answers to frequently
 asked questions can be found below.
 
-**How are the priority layers created?** Priority scores are calculated
+***How are the priority layers created?*** <span
+style="line-height: .1;"><br></span> Priority scores are calculated
 using equally-weighted variables.
 
-**How did you choose the variables for the priority layers?** Presets
-are developed to provide starting points for various stakeholder groups.
+***How did you choose the variables for the priority layers?*** <span
+style="line-height: .1;"><br></span> Presets are developed to provide
+starting points for various stakeholder groups.
 
-**How can I isolate individual variables?** Custom priority layer, then
-select a single variable.
+***How can I isolate individual variables?*** <span
+style="line-height: .1;"><br></span> Custom priority layer, then select
+a single variable.
 
-**Why do different tools show different canopy coverage percents?**
-Something about methods; all have pros/cons. What we chose to prioritize
-here. Accuracy note.
+***I’m interested in understanding how the tree canopy intersects with a
+specific racial or ethnic group rather than all communities of color.***
+<span style="line-height: .1;"><br></span> Download raw data, etc.
 
-**Why do different tools show different priority areas?** Something
-about Tree Equity Score, how to customize in this tool.
+***Why do different tools show different canopy coverage percents?***
+<span style="line-height: .1;"><br></span> Something about methods; all
+have pros/cons. What we chose to prioritize here. Accu racy note.
 
-**Can I see the patterns for a single variable?** For instance
-age/health; show how to map a single layer in the customization tool.
+***Why do different tools show different priority areas?*** <span
+style="line-height: .1;"><br></span> Something about Tree Equity Score,
+how to customize in this tool.
 
-**Why doesn’t the tool show trees where there are trees? Why does the
-tool show trees where there are not trees?** Accuracy and confidence of
-ML model. Comparison of accuracy from other tools/methods. Our choice to
+***Can I see the patterns for a single variable?*** <span
+style="line-height: .1;"><br></span> For instance age/health; show how
+to map a single layer in the customization tool.
+
+***Why doesn’t the tool show trees where there are trees? Why does the
+tool show trees where there are not trees?*** <span
+style="line-height: .1;"><br></span> Accuracy and confidence of ML
+model. Comparison of accuracy from other tools/methods. Our choice to
 prioritize temporal accuracy, esp in light of EAB.
 
 <br> <br><br><br><br>
