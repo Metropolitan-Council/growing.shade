@@ -18,6 +18,7 @@ There are additional tools and resources that may be useful for this work.  Plea
 
 - **Tools**
   - *What additional tools and assessments exist to help prioritize where to plant trees and maintain tree canopy?*
+    - <a href = "https://www.itreetools.org/tools/which-tool-should-i-use" target = "_blank">iTree tools</a> to quantify the benefits and values of trees, including tools for individuals such as homeowners concerned with individual or small amounts of trees
     - <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American Forests Tree Equity Score project</a> 
     - <a href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting" target = "_blank">Hennepin County, MN Tree Canopy Tree Planting Priority Areas</a>
     - <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City of Saint Paul Urban Tree Canopy Assessment 2011</a>
