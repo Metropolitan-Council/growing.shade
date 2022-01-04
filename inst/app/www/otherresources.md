@@ -16,6 +16,10 @@ valuable sources of information.
 -   **Tools**
     -   *What additional tools and assessments exist to help prioritize
         where to plant trees and maintain tree canopy?*
+        -   <a href = "https://www.itreetools.org/tools/which-tool-should-i-use" target = "_blank">iTree
+            tools</a> to quantify the benefits and values of trees,
+            including tools for individuals such as homeowners concerned
+            with individual or small amounts of trees
         -   <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American
             Forests Tree Equity Score project</a>
         -   <a href = "https://gis-hennepin.opendata.arcgis.com/pages/tree-planting" target = "_blank">Hennepin
