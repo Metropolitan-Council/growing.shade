@@ -267,6 +267,7 @@ mod_report_server <- function(id,
 
     report_tree_plot <- reactive({
       req(TEST() != "")
+      set.seed(12345)
       if (geo_selections$selected_geo != "tracts") {
         canopyplot <-
           (as_tibble(if (geo_selections$selected_geo == "ctus") {
@@ -295,11 +296,11 @@ mod_report_server <- function(id,
 
       if (geo_selections$selected_geo != "tracts") {
         plot <- ggplot() +
-          geom_boxplot(
-            data = canopyplot, aes(x = raw_value, y = type),
-            outlier.shape = NA,
-            na.rm = T
-          ) +
+          # geom_boxplot(
+          #   data = canopyplot, aes(x = raw_value, y = type),
+          #   outlier.shape = NA,
+          #   na.rm = T
+          # ) +
           councilR::council_theme() +
           theme(
             panel.grid.minor = element_blank(),
@@ -309,9 +310,22 @@ mod_report_server <- function(id,
                                         colour = "grey30")
           ) +
           ggtitle(paste0(param_area(), " tree canopy")) +
-          geom_point(
-            size = 1.3, alpha = .3,
-            position = position_jitter(seed = 1, width = 0, height = .3),
+          # geom_point(
+          #   size = 1.3, alpha = .3,
+          #   position = position_jitter(seed = 1, width = 0, height = .3),
+          #   col = "grey40",
+          #   aes(x = raw_value, y = type),
+          #   data = filter(canopyplot, is.na(flag)),
+          #   na.rm = T
+          # ) +
+          ggbeeswarm::geom_beeswarm(
+            size = 3, alpha = .3,
+            # position = position_jitter(seed = 1, width = 0, height = .3),
+            # groupOnX = FALSE, varwidth = F, 
+            cex = 3, 
+            # method = "compactswarm",
+            corral = "wrap", corral.width = 0.4,
+            # priority = "density",
             col = "grey40",
             aes(x = raw_value, y = type),
             data = filter(canopyplot, is.na(flag)),
@@ -325,13 +339,36 @@ mod_report_server <- function(id,
             size = 4, col = "black", pch = 21,
             data = filter(canopyplot, flag == "selected", is.na(t2))
           ) +
-          geom_jitter(aes(x = raw_value, y = type),
-            position = position_jitter(seed = 1, width = 0, height = .3),
-            fill = councilR::colors$cdGreen,
-            size = 4, col = "black", pch = 21,
-            data = filter(canopyplot, flag == "selected", t2 == "block groups"),
-            na.rm = T
-          )
+          # geom_jitter(aes(x = raw_value, y = type),
+          #   position = position_jitter(seed = 1, width = 0, height = .3),
+          #   fill = councilR::colors$cdGreen,
+          #   size = 4, col = "black", pch = 21,
+          #   data = filter(canopyplot, flag == "selected", t2 == "block groups"),
+          #   na.rm = T
+          # )
+          # ggbeeswarm::geom_beeswarm(aes(x = raw_value, y = type),
+          #             # position = position_jitter(seed = 1, width = 0, height = .3),
+          #             # groupOnX = FALSE, varwidth = F, 
+          #             cex = 3, #priority = "density",
+          #             # method = "compactswarm",
+          #             corral = "wrap", corral.width = 0.6,
+          #             fill = councilR::colors$cdGreen,
+          #             size = 3, col = "black", pch = 21,alpha = .8,
+          #             data = filter(canopyplot, flag == "selected", t2 == "block groups"),
+          #             na.rm = T
+          # )
+        ggbeeswarm::geom_quasirandom(aes(x = raw_value, y = type),
+                                  # position = position_jitter(seed = 1, width = 0, height = .3),
+                                  groupOnX = F, varwidth = T,
+                                  cex = 3, #priority = "density",
+                                  # method = "compactswarm",
+                                  # corral = "wrap", corral.width = 0.6,
+                                  fill = councilR::colors$cdGreen,
+                                  # size = 3, 
+                                  col = "black", pch = 21,alpha = .8,
+                                  data = filter(canopyplot, flag == "selected", t2 == "block groups"),
+                                  na.rm = T
+        )
       } else {
         plot <- ggplot() +
           ggdist::stat_halfeye(
@@ -340,11 +377,11 @@ mod_report_server <- function(id,
             point_colour = NA,
             na.rm = T
           ) +
-          geom_boxplot(
-            data = canopyplot, aes(x = raw_value, y = 1),
-            width = .75, outlier.shape = NA,
-            na.rm = T
-          ) +
+          # geom_boxplot(
+          #   data = canopyplot, aes(x = raw_value, y = 1),
+          #   width = .75, outlier.shape = NA,
+          #   na.rm = T
+          # ) +
           councilR::council_theme() +
           theme(
             panel.grid.minor = element_blank(),
