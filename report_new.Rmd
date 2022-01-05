@@ -92,6 +92,8 @@ Trees connect to regional issues and priorities. Public health, environmental ju
 
 In most areas in our region, a goal of 30% tree canopy coverage (as detected by our methods) is suitable. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
+Census block groups have different areas and may overlap with other geographies, thus the existing tree canopy cover in the selected area may not be the mean of the block group canopy covers.
+
 
 ```{r treeplot, fig.align="center", out.width= "70%", fig.asp = .4}
 params$param_treeplot
