@@ -10,7 +10,7 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
-    
+
     shinydisconnect::disconnectMessage(
       text = HTML('Your session timed out. Please refresh the application.'),
       refresh = "Refresh now",
@@ -50,6 +50,18 @@ app_ui <- function(request) {
       ),
       tabPanel(
         "Mapping tool",
+        tags$footer(
+          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/">Growing Shade Project</a>. Last updated on 2022-01-04.'),
+          align = "right",
+          style = "
+              position:absolute;
+              bottom:0;
+              width:100%;
+              height:30px;   /* Height of the footer */
+              color: black;
+              padding: 30px;
+              background-color: transparent;
+              z-index: 1000;"),
         # id = "demo",
         div(
           style = "width:100% !important;
