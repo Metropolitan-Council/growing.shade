@@ -22,8 +22,9 @@ mod_report_ui <- function(id) {
       uiOutput(ns("tree_para")),
       # uiOutput(ns("get_tree_plot"))
       fluidRow(align = "center",
-               imageOutput(ns("tree_plot"), height = "100%", width = "100%") %>%
-                 shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"))
+               imageOutput(ns("tree_plot"), height = "100%", width = "100%") #%>%
+                 # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
+               )
     )),
     fluidRow(shinydashboard::box(
       title = "Priortization",
@@ -304,13 +305,15 @@ mod_report_server <- function(id,
           # ) +
           councilR::council_theme() +
           theme(
+            plot.title = element_text(size = 16),
+            
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
             axis.text.y = element_text(size = 12),
             plot.caption = element_text(size = rel(1),
                                         colour = "grey30")
           ) +
-          ggtitle(paste0(param_area(), " tree canopy")) +
+          # ggtitle(paste0(param_area(), " tree canopy")) +
           # geom_point(
           #   size = 1.3, alpha = .3,
           #   position = position_jitter(seed = 1, width = 0, height = .3),
@@ -325,7 +328,7 @@ mod_report_server <- function(id,
             # groupOnX = FALSE, varwidth = F, 
             cex = 3, 
             # method = "compactswarm",
-            corral = "wrap", corral.width = 0.4,
+            corral = "wrap", corral.width = 0.5,
             # priority = "density",
             col = "grey40",
             aes(x = raw_value, y = type),
@@ -372,12 +375,12 @@ mod_report_server <- function(id,
         )
       } else {
         plot <- ggplot() +
-          ggdist::stat_halfeye(
-            data = canopyplot, aes(x = raw_value, y = 1),
-            adjust = .5, width = .6, .width = 0, justification = -.6,
-            point_colour = NA,
-            na.rm = T
-          ) +
+          # ggdist::stat_halfeye(
+          #   data = canopyplot, aes(x = raw_value, y = 1),
+          #   adjust = .5, width = .6, .width = 0, justification = -.6,
+          #   point_colour = NA,
+          #   na.rm = T
+          # ) +
           # geom_boxplot(
           #   data = canopyplot, aes(x = raw_value, y = 1),
           #   width = .75, outlier.shape = NA,
@@ -387,14 +390,25 @@ mod_report_server <- function(id,
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
-            axis.text.y = element_text(size = 12),
+            plot.title = element_text(size = 16),
+            axis.text.y = element_blank(), #element_text(size = 12),
             plot.caption = element_text(size = rel(1),
                                         colour = "grey30")
           ) +
-          ggtitle(paste0(param_fancytract(), " tree canopy")) +
-          geom_point(
-            size = 1.3, alpha = .3,
-            position = position_jitter(seed = 1, width = 0, height = .3),
+          # ggtitle((param_fancytract())) +
+          # geom_point(
+          #   size = 1.3, alpha = .3,
+          #   position = position_jitter(seed = 1, width = 0, height = .3),
+          #   col = "grey40",
+          #   aes(x = raw_value, y = 1),
+          #   data = filter(canopyplot, is.na(flag)),
+          #   na.rm = T
+          # ) +
+          ggbeeswarm::geom_quasirandom(
+            groupOnX = F, varwidth = T,
+            cex = 1,# size = 1.3, 
+            alpha = .3,
+            # position = position_jitter(seed = 1, width = 0, height = .3),
             col = "grey40",
             aes(x = raw_value, y = 1),
             data = filter(canopyplot, is.na(flag)),

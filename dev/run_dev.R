@@ -27,6 +27,22 @@ run_app()
 
 # # ggplot(mpg,aes(hwy, class)) + geom_quasirandom(groupOnX=FALSE, varwidth = TRUE)
 library(tidyverse); library(ggbeeswarm)
+
+ggplot() +
+  ggbeeswarm::geom_quasirandom(aes(x = raw_value, y = type),
+                             # position = position_jitter(seed = 1, width = 0, height = .3),
+                             groupOnX = F, varwidth = T,
+                             cex = 2, #priority = "density",
+                             # method = "compactswarm",
+                             # corral = "wrap", corral.width = 0.6,
+                             fill = councilR::colors$cdGreen,
+                             # size = 3, 
+                             col = "black", pch = 21,alpha = .8,
+                             data = bg_growingshade_main %>% filter(variable == "canopy_percent"),
+                             na.rm = T
+)
+
+
 ctu_list %>%
   ggplot() +
   geom_beeswarm(aes(y = canopy_percent, x = 1),
@@ -77,36 +93,4 @@ ctu_list %>%
       head(400),
     na.rm = T
   )
-
-  
-  library(ggbeeswarm)
-  set.seed(12345)
-   n<-100
-   dat<-rnorm(n*2)
-   labs<-rep(c('a','b'),n)
-   ggplot(mapping=aes(labs, dat)) + geom_quasirandom()
-   labs2<-factor(rep(1:2,each=n))
-   ggplot(mapping=aes(dat,labs,color=labs2)) + geom_quasirandom(groupOnX=F, cex = 3)
-   
-   
-   library(gridExtra) 
-   dat <- list(
-     'Normal'=rnorm(50),
-     'Dense normal'= rnorm(500),
-     'Bimodal'=c(rnorm(100), rnorm(100,5)), 'Trimodal'=c(rnorm(100), rnorm(100,5),rnorm(100,-3))
-   )
-   
-     labs<-rep(names(dat),sapply(dat,length)) 
-     labs<-factor(labs,levels=unique(labs)) 
-     dat<-unlist(dat)
-     
-     p1<-ggplot(mapping=aes(labs, dat)) +
-       geom_quasirandom(alpha=.2) +
-       ggtitle('quasirandom') + labs(x='') + theme(axis.text.x = element_text(angle = 45 ))
-p1     
-
-p6<-ggplot(mapping=aes(labs, dat)) + geom_beeswarm(alpha=.2,size=.75) + ggtitle('geom_beeswarm') + labs(x='') +
-  theme(axis.text.x = element_text(angle = 45))
-
-                                                                                                                      p6                                                                                                                      
-                                                                                                                      
+                                                                                                                 
