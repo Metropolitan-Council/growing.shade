@@ -56,11 +56,12 @@ app_ui <- function(request) {
           style = "
               position:absolute;
               bottom:0;
-              width:100%;
-              height:30px;   /* Height of the footer */
+              right:0;
+              width:50%;
+              height:20px;   /* Height of the footer */
               color: black;
-              padding: 30px;
-              background-color: transparent;
+              padding: 10px;
+              background-color: white;
               z-index: 1000;"),
         # id = "demo",
         div(
@@ -103,10 +104,10 @@ app_ui <- function(request) {
             mainPanel(
               width = 6,
               # div(class="outer3",
-              div(
+              fluidRow(div(
                 style = "top:25em !important;", # style = 'width:100% !important; top:25em !important; ',
                 mod_map_overview_ui("map_overview_ui_1")
-              ),
+              )),
             )
           )
         )
