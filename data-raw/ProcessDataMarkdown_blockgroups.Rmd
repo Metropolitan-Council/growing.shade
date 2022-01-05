@@ -865,14 +865,14 @@ mn_bgs <- mn_bgs_1 %>%
   full_join(priority_summary) %>%
   full_join(priority_summary_1%>%
               group_by(preset) %>% 
-              mutate(rank = rank(-score)) %>%
-              dplyr::select(-score) %>%
-              pivot_wider(names_from = preset, values_from = rank)
+              # mutate(rank = rank(-score)) %>%
+              # dplyr::select(-score) %>%
+              pivot_wider(names_from = preset, values_from = score)#rank)
             %>% rename(GEOID = tract_string)) %>%
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
-  select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
-  st_as_sf() %>%
-      st_transform(4326)
+  dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
+  sf::st_as_sf() %>%
+      sf::st_transform(4326)
 
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
