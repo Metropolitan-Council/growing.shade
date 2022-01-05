@@ -47,12 +47,16 @@ mod_map_overview_server <- function(input, output, session,
   # })
   #### main map ---------
   output$map <- renderLeaflet({ #  map --------
-    leaflet(options = leafletOptions(minZoom = 8, maxZoom = 17)) %>%
+    leaflet(options = leafletOptions(minZoom = 8, maxZoom = 17,
+                                     attributionControl = FALSE)) %>%
       setView(
         lat = 44.963,
         lng = -93.32,
         zoom = 10
       ) %>%
+      
+      #add attribution
+      # addTiles(urlTemplate = "", attribution = HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/">Growing Shade Project</a>. Last updated on 2022-01-04.')) %>%
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Map", zIndex = 100) %>%
@@ -81,6 +85,7 @@ mod_map_overview_server <- function(input, output, session,
 
       # add tree tiles
       addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}",
+               attribution = NULL,
         options = c(
           tileOptions(opacity = .5),
           pathOptions(pane = "Trees")
