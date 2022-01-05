@@ -623,7 +623,7 @@ mod_report_server <- function(id,
       #   filter(variable %in% c("canopy_percent", "pbipoc", "mdhhincnow")) %>%
       #   select(tract_string, variable, raw_value) %>%
       #   pivot_wider(names_from = variable,values_from = raw_value) %>%
-      #   pivot_longer(names_to = "names", values_to = "raw_value", -c(tract_string, canopy_percent)) 
+      #   pivot_longer(names_to = "names", values_to = "raw_value", -c(tract_string, canopy_percent))
       # 
       #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
       #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
@@ -634,14 +634,17 @@ mod_report_server <- function(id,
       #     strip.placement = "outside",
       #     axis.title.y = element_text(angle=0,
       #                                 vjust = .5),
-      #     plot.margin = margin(7,7,7,7)
+      #     plot.margin = margin(7,7,7,7),
+      #     axis.line = element_line(),
+      #     axis.ticks = element_line()
       # 
       #   ) +
-      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(.0,0)) +
       #   scale_x_continuous(#breaks = as_labeller(pbipoc = seq(0, 1, .25), mdhhincnow = seq(0, 250000, 75000)),
       #                        # as.vector(c(seq(0,1, .25), seq(0, 250000, 75000))),#(c(seq(0, 1, .25), seq(0, 250000, 75000))),#
       #                      breaks = breaks_fun,
-      #                      limits = c(0, NA)
+      #                      limits = c(0, NA),
+      #                      expand = c(0,0)
       #                      # labels = labs_fun
       #                      ) +
       #   labs(x = "", y = "Tree canopy\n (%)") +
@@ -665,15 +668,20 @@ mod_report_server <- function(id,
           strip.placement = "outside",
           axis.title.y = element_text(angle=0,
                                       vjust = .5),
-          plot.margin = margin(7,7,7,7)
+          plot.margin = margin(7,7,7,7),
+          axis.line = element_line(),
+          axis.ticks = element_line(),
+          axis.text.y = element_text(vjust = .5, hjust = 1)
         ) +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-                           expand = c(.05, .05)) +
+                           expand = expansion(mult = c(0, .05)),
+                           breaks = c(0, .15, .30, .45)) +
         # scale_x_continuous(breaks = breaks_fun, 
         #                    limits = c(0, NA),
         #                    labels = labs_fun
         #                    ) +
-        scale_x_continuous(labels = scales::comma) +
+        scale_x_continuous(labels = scales::comma, 
+                           expand = expansion(mult = c(0, .1))) +
         labs(x = "", y = "Tree\ncanopy\n (%)") +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
