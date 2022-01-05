@@ -35,7 +35,8 @@ mod_report_ui <- function(id) {
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
-      uiOutput(ns("get_equity_plot"))
+      # uiOutput(ns("get_equity_plot")),
+      imageOutput(ns("equity_plot"), height = "100%", width = "100%")
     )),
     fluidRow(shinydashboard::box(
       title = "Temperature",
@@ -569,34 +570,6 @@ mod_report_server <- function(id,
 
     report_equity_plot <- reactive({
       req(TEST() != "")
-      # race_equity <- param_equity() %>%
-      #   ggplot(aes(x = pbipoc, y = canopy_percent)) +
-      #   geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) +
-      #   geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = param_equity(), na.rm = T) +
-      #   geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) +
-      #   councilR::council_theme() +
-      #   theme(panel.grid.minor = element_blank(),
-      #         panel.grid.major = element_blank()) +
-      #   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-      #   labs(x = "BIPOC population\n(%)", y = "Tree canopy\n (%)")
-      #
-      # inc_equity <- param_equity()%>%
-      #   ggplot(aes(x = mdhhincnow/1000, y = (canopy_percent))) +
-      #   geom_point(col = "grey40", alpha = .3, data = filter(param_equity(), is.na(flag)), na.rm = T) +
-      #   geom_smooth(method = "lm",  formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
-      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-      #   scale_x_continuous(labels = scales::dollar_format(accuracy = 1)) +
-      #   geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(param_equity(), flag == "selected"), na.rm = T) +
-      #   councilR::council_theme() +
-      #   theme(panel.grid.minor = element_blank(),
-      #         panel.grid.major = element_blank()) +
-      #   labs(x = "Median household income\n($, thousands)", y = "Tree canopy\n (%)")# +
-      #   # theme(axis.title.y = element_blank(),
-      #   #       axis.text.y = element_blank())
-      # fig_equity <- cowplot::plot_grid(race_equity, inc_equity, nrow = 2, labels = "AUTO")
-      # return(fig_equity)
-
       df <- param_equity() %>%
         select(flag, canopy_percent, mdhhincnow, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(flag, canopy_percent)) %>%
@@ -662,6 +635,7 @@ mod_report_server <- function(id,
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth(#method = "lm", 
                     # formula = "y ~ x", 
+          method = 'gam', formula = y ~ s(x, bs = "cs"),
                     fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
@@ -674,7 +648,8 @@ mod_report_server <- function(id,
           plot.margin = margin(7,7,7,7),
           axis.line = element_line(),
           axis.ticks = element_line(),
-          axis.text.y = element_text(vjust = .5, hjust = 1)
+          axis.text.y = element_text(vjust = .5, hjust = 1),
+          plot.caption = element_text(size = 10)
         ) +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                            expand = expansion(mult = c(0, .05)),
@@ -686,7 +661,9 @@ mod_report_server <- function(id,
         scale_x_continuous(labels = scales::comma, 
                            expand = expansion(mult = c(0, .1))) +
         labs(x = "", y = "Tree\ncanopy\n (%)",
-             caption = expression(italic("Source: Analysis of Sentinel-2 satellite imagery (2020) and ACS 5-year estimates (2015-2019)"))) +
+             caption = #expression(italic(
+               "Source: Analysis of Sentinel-2 satellite imagery (2020)\nand ACS 5-year estimates (2015-2019)"#))
+             ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
           labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
@@ -717,10 +694,35 @@ mod_report_server <- function(id,
       return(fig_equity)
     })
 
-    output$equity_plot <- renderPlot({
+    # output$equity_plot <- renderPlot({
+    #   req(TEST() != "")
+    #   report_equity_plot()
+    # })
+    
+    output$equity_plot <- renderImage({
       req(TEST() != "")
-      report_equity_plot()
-    })
+      
+      # A temp file to save the output.
+      # This file will be removed later by renderImage
+      outfile <- tempfile(fileext = '.png')
+      
+      # Generate the PNG
+      png(outfile, 
+          width = 400*8, 
+          height = 450*8,
+          res = 72*8)
+      print(report_equity_plot())
+      dev.off()
+      
+      # Return a list containing the filename
+      list(src = outfile,
+           contentType = 'image/png',
+           width = 400,
+           height = 450,
+           alt = "Figure showing the trends between tree canopy and median household income and the percent of population identifying as a person of color.")
+    }, deleteFile = TRUE)
+    
+
 
     
     report_temp_plot <- reactive({
@@ -917,10 +919,10 @@ mod_report_server <- function(id,
     })
 
 
-    output$get_equity_plot <- renderUI({
-      req(TEST() != "")
-      plotOutput(ns("equity_plot"), "400px", width = "80%")
-    })
+    # output$get_equity_plot <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("equity_plot"), height = "400px", width = "80%")
+    # })
     
     output$get_temp_plot <- renderUI({
       req(TEST() != "")
