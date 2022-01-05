@@ -31,7 +31,7 @@ mod_report_ui <- function(id) {
       tableOutput(ns("priority_table"))
     )),
     fluidRow(shinydashboard::box(
-      title = "Equity",
+      title = "Race and income disparities",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
