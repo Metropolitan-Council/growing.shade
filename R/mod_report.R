@@ -263,7 +263,7 @@ mod_report_server <- function(id,
 
     output$tree_para <- renderUI({
       req(TEST() != "")
-      HTML(tree_text())
+      (tree_text())
       # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
     })
 
