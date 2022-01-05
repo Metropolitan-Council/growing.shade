@@ -24,6 +24,8 @@ There are additional tools and resources that may be useful for this work.  Plea
     - <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City of Saint Paul Urban Tree Canopy Assessment 2011</a>
   - *Where can I lean more about the benefits provided by urban forests and learn how to build them?*
     - <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant Cities Lab</a>
+  - *Where can I learn more about the impact of emerald ash borer?*
+    - <a href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9" target = "_blank">Minnesota Department of Agriculture's Emerald Ash Borer Map</a>
 - **Planting Trees and Native Vegetation**
   - *What trees are predicted to do well in future climate conditions?*
     - <a href = "https://forestadaptation.org/sites/default/files/2021-03/TwinCitiesMN_TreeSpeciesVulnerability.pdf" target = "_blank">Climate Change Vulnerability of Urban Trees: Twin Cities, Minnesota</a>

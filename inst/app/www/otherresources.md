@@ -30,6 +30,9 @@ valuable sources of information.
         forests and learn how to build them?*
         -   <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant
             Cities Lab</a>
+    -   *Where can I learn more about the impact of emerald ash borer?*
+        -   <a href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9" target = "_blank">Minnesota
+            Department of Agriculture’s Emerald Ash Borer Map</a>
 -   **Planting Trees and Native Vegetation**
     -   *What trees are predicted to do well in future climate
         conditions?*
