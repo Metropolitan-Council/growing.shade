@@ -39,14 +39,16 @@ mod_report_ui <- function(id) {
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
       # uiOutput(ns("get_equity_plot")),
-      imageOutput(ns("equity_plot"), height = "100%", width = "100%")
+      fluidRow(align = "center",
+               imageOutput(ns("equity_plot"), height = "100%", width = "100%"))
     )),
     fluidRow(shinydashboard::box(
       title = "Temperature",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("heat_para")),
-      imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+      fluidRow(align = "center",
+               imageOutput(ns("temp_plot"), height = "100%", width = "100%"))
       # uiOutput(ns("get_temp_plot"))
     )),
     # fluidRow(shinydashboard::box(
@@ -469,7 +471,7 @@ mod_report_server <- function(id,
           yend = segment_line$y
         )) +
         labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
-             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year estimates (2015-2019),\nand CDC PLACES data (2020)")
+             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year estimates (2015-2019), and CDC PLACES data (2020)")
       # }
       return(plot)
     })
