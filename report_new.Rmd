@@ -152,7 +152,7 @@ canopyplot<- eva_data_main %>%
 
 `r params$param_ranktext`
 
-```{r priorityplot, fig.align="center", out.width= "80%", fig.asp = .4}
+```{r priorityplot, fig.align="center", out.width= "80%", fig.asp = .5}
 params$param_rankplot
 ```
 
@@ -185,7 +185,7 @@ equity_words <- HTML(paste0("In the plot below, ",
 `r equity_words`
 
 
-```{r equityplot, fig.align="center", out.width= "70%", fig.asp = .8}
+```{r equityplot, fig.align="center", out.width= "70%", fig.asp = .9}
 params$param_equityplot
 ```
 
@@ -194,7 +194,7 @@ params$param_equityplot
 
 Greenspace can decrease surface and air temperatures. Trees are an important component of greenspace, but greenspace also includes grasses, prairies, wetlands, agricultural crops, and other areas which have plants. A plot showing the relationship between greenness (measured with NDVI) and land surface temperature on a hot summer day across the region is shown below. Block groups within the selected area are shown in green, and the regional trend is in blue.
 
-```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .4}
+```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .5}
 params$param_tempplot
 ```
 
