@@ -46,6 +46,7 @@ Suggests:
     testthat (>= 2.3.2)
 Remotes:
     github::Metropolitan-Council/councilR
+    github::eclarke/ggbeeswarm
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

@@ -80,6 +80,7 @@ mod_report_ui <- function(id) {
 #' @import tidyr
 #' @import tibble
 #' @import stringr
+#' @import ggbeeswarm
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
