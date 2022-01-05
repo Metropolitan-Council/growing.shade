@@ -998,7 +998,8 @@ usfs_fig <- usfs %>%
   ggplot(aes(x = age2, y = carbon, color = sps, group = sps, shape = sps)) +
 geom_line(lwd =1) +
   geom_point(aes(fill = sps),  size = 3) +
-  cowplot::theme_cowplot() +
+  # cowplot::theme_cowplot() +
+  councilR::council_theme() +
   scale_color_brewer(palette = "Paired") +
   scale_fill_brewer(palette = "Paired") +
   # ggrepel::geom_label_repel(aes(label = label),
