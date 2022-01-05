@@ -223,7 +223,7 @@ mod_report_server <- function(id,
                 "about equal to"
               },
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%).<br><br> ",
-              "The distribution of tree canopy coverage across all of the region's block groups is shown below; the selected block group is highlighted in green."
+              "The plot below shows how tree canopy cover in the selected block group (shown in green) compares to other block groups across the region. In most areas, a goal of 30% tree canopy coverage (as detected by our methods) is suitable."
             )
           } else {
             paste0(
@@ -254,7 +254,7 @@ mod_report_server <- function(id,
               param_areasummary()$min,
               "% to ",
               param_areasummary()$max,
-              "%. <br><br>The distribution of tree canopy is shown below. The selected area is highlighted in green. Census block groups have different areas and may overlap with other geographies, thus the exisiting tree canopy cover in the selected area may not be the mean of the block group canopy covers."
+              "%. <br><br>The plot below shows how tree canopy cover in the selected area (shown in green) compares to other areas across the region. Within the selected area, tree canopy cover varies across census block groups. In most areas, a goal of 30% tree canopy coverage (as detected by our methods) is suitable."
             )
           }
         )
@@ -263,7 +263,8 @@ mod_report_server <- function(id,
 
     output$tree_para <- renderUI({
       req(TEST() != "")
-      HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
+      HTML(tree_text())
+      # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
     })
 
 
