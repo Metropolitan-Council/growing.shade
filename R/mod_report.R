@@ -599,8 +599,57 @@ mod_report_server <- function(id,
       df <- param_equity() %>%
         select(flag, canopy_percent, mdhhincnow, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(flag, canopy_percent)) %>%
-        mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value / 1000))
+        mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value))
 
+      # breaks_fun <- function(x) {
+      #   if (max(x) < 101) {
+      #   # if(name(x))
+      #     seq(0, 1, .25)
+      #   } else {
+      #     seq(0, 250000, 75000)
+      #     # seq(0, 250000, 100000)
+      #   }
+      # }
+      # labs_fun <- function(x) {
+      #   if (max(x) < 101) {
+      #     c("0%", "25%", "50%", "75%", "100%")
+      #   } else {
+      #     c("$0", "$75,000", "$150,000", "$225,000")
+      #     # c("$0", "$100,000", "200,000")
+      #   }
+      # }
+      # df<-bg_growingshade_main %>%
+      #   filter(variable %in% c("canopy_percent", "pbipoc", "mdhhincnow")) %>%
+      #   select(tract_string, variable, raw_value) %>%
+      #   pivot_wider(names_from = variable,values_from = raw_value) %>%
+      #   pivot_longer(names_to = "names", values_to = "raw_value", -c(tract_string, canopy_percent)) 
+      # 
+      #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
+      #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
+      #   councilR::council_theme() +
+      #   theme(
+      #     panel.grid.minor = element_blank(),
+      #     panel.grid.major = element_blank(),
+      #     strip.placement = "outside",
+      #     axis.title.y = element_text(angle=0,
+      #                                 vjust = .5),
+      #     plot.margin = margin(7,7,7,7)
+      # 
+      #   ) +
+      #   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+      #   scale_x_continuous(#breaks = as_labeller(pbipoc = seq(0, 1, .25), mdhhincnow = seq(0, 250000, 75000)),
+      #                        # as.vector(c(seq(0,1, .25), seq(0, 250000, 75000))),#(c(seq(0, 1, .25), seq(0, 250000, 75000))),#
+      #                      breaks = breaks_fun,
+      #                      limits = c(0, NA)
+      #                      # labels = labs_fun
+      #                      ) +
+      #   labs(x = "", y = "Tree canopy\n (%)") +
+      #   facet_wrap(~names,
+      #              scales = "free_x", nrow = 2, strip.position = "bottom",
+      #              labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
+      #   )
+        
+      
       fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
@@ -610,13 +659,21 @@ mod_report_server <- function(id,
         theme(
           panel.grid.minor = element_blank(),
           panel.grid.major = element_blank(),
-          strip.placement = "outside"
+          strip.placement = "outside",
+          axis.title.y = element_text(angle=0,
+                                      vjust = .5),
+          plot.margin = margin(7,7,7,7)
         ) +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-        labs(x = "", y = "Tree canopy\n (%)") +
+        # scale_x_continuous(breaks = breaks_fun, 
+        #                    limits = c(0, NA),
+        #                    labels = labs_fun
+        #                    ) +
+        scale_x_continuous(labels = scales::comma) +
+        labs(x = "", y = "Tree\ncanopy\n (%)") +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
-          labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household income\n($, thousands)"))
+          labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
         )
 
       return(fig_equity)
@@ -641,10 +698,13 @@ mod_report_server <- function(id,
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         theme(panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank()) +
+              panel.grid.major = element_blank(),
+              axis.title.y = element_text(angle=0,
+                                          vjust = .5),
+              plot.margin = margin(7,7,7,7)) +
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-        labs(x = "NDVI", y = "Land surface temperature\n(degrees F)")
+        labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)")
       
       
     })
