@@ -655,7 +655,10 @@ mod_report_server <- function(id,
         
       
       fig_equity <-
-        ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
+        # plotly::ggplotly(
+          
+          
+          ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth(#method = "lm", 
                     # formula = "y ~ x", 
@@ -682,11 +685,34 @@ mod_report_server <- function(id,
         #                    ) +
         scale_x_continuous(labels = scales::comma, 
                            expand = expansion(mult = c(0, .1))) +
-        labs(x = "", y = "Tree\ncanopy\n (%)") +
+        labs(x = "", y = "Tree\ncanopy\n (%)",
+             caption = expression(italic("Source: Analysis of Sentinel-2 satellite imagery (2020) and ACS 5-year estimates (2015-2019)"))) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
           labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
         )
+        
+        
+        # ,tooltip = "none"
+        # 
+        # ) %>%
+        # plotly::config((modeBarButtonsToRemove = list(
+        #   "zoom2d",
+        #   "pan2d",
+        #   "zoomIn2d",
+        #   "zoomOut2d",
+        #   "autoScale2d",
+        #   "resetScale2d",
+        #   "hoverClosestCartesian",
+        #   "hoverCompareCartesian",
+        #   "sendDataToCloud",
+        #   "toggleHover",
+        #   "resetViews",
+        #   "toggleSpikelines",
+        #   "resetViewMapbox"
+        # ),
+        # displaylogo = FALSE
+        # )
 
       return(fig_equity)
     })
