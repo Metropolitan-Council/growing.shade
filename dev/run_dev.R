@@ -25,3 +25,88 @@ run_app()
 #   )
 # })
 
+# # ggplot(mpg,aes(hwy, class)) + geom_quasirandom(groupOnX=FALSE, varwidth = TRUE)
+library(tidyverse); library(ggbeeswarm)
+ctu_list %>%
+  ggplot() +
+  geom_beeswarm(aes(y = canopy_percent, x = 1),
+                # cex = 2.5, 
+                corral = "gutter", corral.width = 0.1
+                # priority = "random",
+                # method = "center"
+                ) +
+  coord_flip()
+  ggbeeswarm::geom_beeswarm(
+    size = 3, alpha = .3,
+    # position = position_jitter(seed = 1, width = 0, height = .3),
+    groupOnX = T, varwidth = T,
+    cex = 3.5, #priority = "density",
+    col = "grey40",
+    aes(x = canopy_percent, y = 1),
+    na.rm = T
+  ) +
+  ggbeeswarm::geom_beeswarm(
+    size = 1.3, alpha = .3,
+    # position = position_jitter(seed = 1, width = 0, height = .3),
+    # groupOnX = T,
+    cex = 3.5, #priority = "density",
+    col = "grey40",
+    aes(x = canopy_percent, y = 2),
+    na.rm = T
+  )
+
+  ggplot() +
+    ggbeeswarm::geom_beeswarm(
+      size = 3, alpha = .3,
+      # position = position_jitter(seed = 1, width = 0, height = .3),
+      # groupOnX = F, varwidth = F,
+      cex = 3.5, priority = "density",
+      col = "grey40",
+      aes(y = canopy_percent, x = 1), data = ctu_list,
+      na.rm = T
+    ) +
+  ggbeeswarm::geom_beeswarm(
+    size = 1.3, alpha = .3,
+    # position = position_jitter(seed = 1, width = 0, height = .3),
+    # groupOnX = FALSE, 
+    corral = "wrap", corral.width = 0.4, varwidth = F,
+    cex = 3.5, priority = "density",
+    col = "grey40",
+    aes(y = raw_value, x = 2),
+    data = bg_growingshade_main %>% filter(variable == "canopy_percent") %>%
+      head(400),
+    na.rm = T
+  )
+
+  
+  library(ggbeeswarm)
+  set.seed(12345)
+   n<-100
+   dat<-rnorm(n*2)
+   labs<-rep(c('a','b'),n)
+   ggplot(mapping=aes(labs, dat)) + geom_quasirandom()
+   labs2<-factor(rep(1:2,each=n))
+   ggplot(mapping=aes(dat,labs,color=labs2)) + geom_quasirandom(groupOnX=F, cex = 3)
+   
+   
+   library(gridExtra) 
+   dat <- list(
+     'Normal'=rnorm(50),
+     'Dense normal'= rnorm(500),
+     'Bimodal'=c(rnorm(100), rnorm(100,5)), 'Trimodal'=c(rnorm(100), rnorm(100,5),rnorm(100,-3))
+   )
+   
+     labs<-rep(names(dat),sapply(dat,length)) 
+     labs<-factor(labs,levels=unique(labs)) 
+     dat<-unlist(dat)
+     
+     p1<-ggplot(mapping=aes(labs, dat)) +
+       geom_quasirandom(alpha=.2) +
+       ggtitle('quasirandom') + labs(x='') + theme(axis.text.x = element_text(angle = 45 ))
+p1     
+
+p6<-ggplot(mapping=aes(labs, dat)) + geom_beeswarm(alpha=.2,size=.75) + ggtitle('geom_beeswarm') + labs(x='') +
+  theme(axis.text.x = element_text(angle = 45))
+
+                                                                                                                      p6                                                                                                                      
+                                                                                                                      
