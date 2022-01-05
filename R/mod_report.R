@@ -19,7 +19,10 @@ mod_report_ui <- function(id) {
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("tree_para")),
-      uiOutput(ns("get_tree_plot"))
+      # uiOutput(ns("get_tree_plot"))
+      fluidRow(align = "center",
+               imageOutput(ns("tree_plot"), height = "100%", width = "100%") %>%
+                 shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m"))
     )),
     fluidRow(shinydashboard::box(
       title = "Priortization",
@@ -261,7 +264,7 @@ mod_report_server <- function(id,
     })
 
 
-    tree_report_plot <- reactive({
+    report_tree_plot <- reactive({
       req(TEST() != "")
       if (geo_selections$selected_geo != "tracts") {
         canopyplot <-
@@ -314,7 +317,7 @@ mod_report_server <- function(id,
             na.rm = T
           ) +
           labs(y = "", x = "Tree canopy cover (%)",
-               caption = "Source: Analysis of Sentinel-2 satellite imagery (2020)") +
+               caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)") +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
             fill = councilR::colors$cdGreen,
@@ -368,12 +371,36 @@ mod_report_server <- function(id,
       return(plot)
     })
 
-    output$tree_plot <- renderPlot(
-      {
-        req(TEST() != "")
-        tree_report_plot()
-      } # , res = 150)
-    )
+    # output$tree_plot <- renderPlot(
+    #   {
+    #     req(TEST() != "")
+    #     report_tree_plot()
+    #   } # , res = 150)
+    # )
+    
+    output$tree_plot <- renderImage({
+      req(TEST() != "")
+      
+      # A temp file to save the output.
+      # This file will be removed later by renderImage
+      outfile <- tempfile(fileext = '.png')
+      
+      # Generate the PNG
+      png(outfile, 
+          width = 500*4, 
+          height = 200*4,
+          res = 72*4)
+      print(report_tree_plot())
+      dev.off()
+      
+      # Return a list containing the filename
+      list(src = outfile,
+           contentType = 'image/png',
+           width = 500,
+           height = 200,
+           alt = "Figure showing the distribution of tree canopy across the region and within the selected geography.")
+    }, deleteFile = TRUE)
+    
     # ranking section ------------
 
     rank_text <- reactive({
@@ -792,7 +819,7 @@ mod_report_server <- function(id,
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
         labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)",
-             caption = "Source: Analysis of Sentinel-2 satellite imagery (2020) and Landsat 8 satellite imagery (2016)") +
+             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020) and Landsat 8 satellite imagery (2016)") +
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
@@ -912,7 +939,7 @@ mod_report_server <- function(id,
           param_geo = geo_selections$selected_geo,
           param_area = param_area(),
           param_equitypara = tree_text(),
-          param_treeplot = tree_report_plot(),
+          param_treeplot = report_tree_plot(),
           param_ranktext = rank_text(),
           param_rankplot = report_rank_plot(),
           param_prioritytable = report_priority_table(),
@@ -989,11 +1016,11 @@ mod_report_server <- function(id,
 
 
 
-    output$get_tree_plot <- renderUI({
-      req(TEST() != "")
-      plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
-        shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
-    })
+    # output$get_tree_plot <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
+    #     shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
+    # })
 
     # output$get_rank_plot <- renderUI({
     #   req(TEST() != "")
