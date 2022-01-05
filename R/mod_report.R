@@ -26,7 +26,10 @@ mod_report_ui <- function(id) {
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("rank_para")),
-      uiOutput(ns("get_rank_plot")),
+      # uiOutput(ns("get_rank_plot")),
+      fluidRow(align = "center",
+      imageOutput(ns("rank_plot"), height = "100%", width = "100%") %>%
+            shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")),
       br(),
       tableOutput(ns("priority_table"))
     )),
@@ -43,7 +46,8 @@ mod_report_ui <- function(id) {
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("heat_para")),
-      uiOutput(ns("get_temp_plot"))
+      imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+      # uiOutput(ns("get_temp_plot"))
     )),
     # fluidRow(shinydashboard::box(
     #   title = "Threats",
@@ -294,7 +298,9 @@ mod_report_server <- function(id,
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
-            axis.text.y = element_text(size = 12)
+            axis.text.y = element_text(size = 12),
+            plot.caption = element_text(size = rel(.8),
+                                        colour = "grey30")
           ) +
           ggtitle(paste0(param_area(), " tree canopy")) +
           geom_point(
@@ -305,7 +311,8 @@ mod_report_server <- function(id,
             data = filter(canopyplot, is.na(flag)),
             na.rm = T
           ) +
-          labs(y = "", x = "Tree canopy cover (%)") +
+          labs(y = "", x = "Tree canopy cover (%)",
+               caption = "Source: Analysis of Sentinel-2 satellite imagery (2020)") +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
             fill = councilR::colors$cdGreen,
@@ -432,26 +439,68 @@ mod_report_server <- function(id,
         scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
         geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
-        theme( # axis.text.y = element_blank(),
-          axis.title.y = element_blank(),
-          panel.grid.major.y = element_blank(),
-          panel.grid.minor.y = element_blank(),
-          panel.grid.major.x = element_blank(),
-          panel.grid.minor.x = element_blank()
+        # theme( # axis.text.y = element_blank(),
+        #   axis.title.y = element_blank(),
+        #   panel.grid.major.y = element_blank(),
+        #   panel.grid.minor.y = element_blank(),
+        #   panel.grid.major.x = element_blank(),
+        #   panel.grid.minor.x = element_blank(),
+        #   # plot.margin = margin(7,7,7,7),
+        #   plot.caption = element_text(size = rel(.8),
+        #                               colour = "grey30")
+        # ) +
+        theme(
+          # axis.text.y = element_blank(),
+            axis.title.y = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          strip.placement = "outside",
+          # axis.title.y = element_text(angle=0,
+          #                             vjust = .5),
+          # plot.margin = margin(7,7,7,7),
+          # axis.line = element_line(),
+          axis.ticks.x = element_blank(), #element_line(),
+          # axis.text.y = element_text(vjust = .5, hjust = 1),
+          plot.caption = element_text(size = rel(.8),
+                                      colour = "grey30")
         ) +
         geom_segment(aes(
           x = 1, xend = 2085, y = segment_line$y,
           yend = segment_line$y
         )) +
-        labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)")
+        labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
+             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year estimates (2015-2019),\nand CDC PLACES data (2020)")
       # }
       return(plot)
     })
 
-    output$rank_plot <- renderPlot({
+    # output$rank_plot <- renderPlot({
+    #   req(TEST() != "")
+    #   report_rank_plot()
+    # })
+    
+    output$rank_plot <- renderImage({
       req(TEST() != "")
-      report_rank_plot()
-    })
+      
+      # A temp file to save the output.
+      # This file will be removed later by renderImage
+      outfile <- tempfile(fileext = '.png')
+      
+      # Generate the PNG
+      png(outfile, 
+          width = 500*4, 
+          height = 300*4,
+          res = 72*4)
+      print(report_rank_plot())
+      dev.off()
+      
+      # Return a list containing the filename
+      list(src = outfile,
+           contentType = 'image/png',
+           width = 500,
+           height = 300,
+           alt = "Figure showing the priority ranking (climate change, conservation, environmental justice, public health) for all block groups within the selected geography.")
+    }, deleteFile = TRUE)
 
     # priority section -----------
 
@@ -649,7 +698,8 @@ mod_report_server <- function(id,
           axis.line = element_line(),
           axis.ticks = element_line(),
           axis.text.y = element_text(vjust = .5, hjust = 1),
-          plot.caption = element_text(size = 10)
+          plot.caption = element_text(size = rel(.8),
+                                      colour = "grey30")
         ) +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1),
                            expand = expansion(mult = c(0, .05)),
@@ -662,7 +712,7 @@ mod_report_server <- function(id,
                            expand = expansion(mult = c(0, .1))) +
         labs(x = "", y = "Tree\ncanopy\n (%)",
              caption = #expression(italic(
-               "Source: Analysis of Sentinel-2 satellite imagery (2020)\nand ACS 5-year estimates (2015-2019)"#))
+               "Source: Analysis of Sentinel-2 satellite imagery (2020) and ACS 5-year estimates (2015-2019)"#))
              ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
@@ -737,22 +787,53 @@ mod_report_server <- function(id,
           geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
-        theme(panel.grid.minor = element_blank(),
-              panel.grid.major = element_blank(),
-              axis.title.y = element_text(angle=0,
-                                          vjust = .5),
-              plot.margin = margin(7,7,7,7)) +
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-        labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)")
-      
-      
+        labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)",
+             caption = "Source: Analysis of Sentinel-2 satellite imagery (2020) and Landsat 8 satellite imagery (2016)") +
+          theme(
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
+            strip.placement = "outside",
+            axis.title.y = element_text(angle=0,
+                                        vjust = .5),
+            plot.margin = margin(7,7,7,7),
+            axis.line = element_line(),
+            axis.ticks = element_line(),
+            axis.text.y = element_text(vjust = .5, hjust = 1),
+            plot.caption = element_text(size = rel(.8),
+                                        colour = "grey30")
+            ) +
+          scale_y_continuous(expand = expansion(mult = c(0, .05))) +
+          scale_x_continuous(expand = expansion(mult = c(0, .05))) 
     })
     
-    output$temp_plot <- renderPlot({
+    # output$temp_plot <- renderPlot({
+    #   req(TEST() != "")
+    #   report_temp_plot()
+    # })
+    output$temp_plot <- renderImage({
       req(TEST() != "")
-      report_temp_plot()
-    })
+      
+      # A temp file to save the output.
+      # This file will be removed later by renderImage
+      outfile <- tempfile(fileext = '.png')
+      
+      # Generate the PNG
+      png(outfile, 
+          width = 400*4, 
+          height = 200*4,
+          res = 72*4)
+      print(report_temp_plot())
+      dev.off()
+      
+      # Return a list containing the filename
+      list(src = outfile,
+           contentType = 'image/png',
+           width = 400,
+           height = 200,
+           alt = "Figure showing the trends between NDVI and land surface temperature.")
+    }, deleteFile = TRUE)
 
     report_other_para <- reactive({
       ns <- session$ns
@@ -912,11 +993,11 @@ mod_report_server <- function(id,
         shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
     })
 
-    output$get_rank_plot <- renderUI({
-      req(TEST() != "")
-      plotOutput(ns("rank_plot"), "300px", width = "100%") %>%
-        shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
-    })
+    # output$get_rank_plot <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("rank_plot"), "300px", width = "100%") %>%
+    #     shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
+    # })
 
 
     # output$get_equity_plot <- renderUI({
@@ -924,16 +1005,16 @@ mod_report_server <- function(id,
     #   plotOutput(ns("equity_plot"), height = "400px", width = "80%")
     # })
     
-    output$get_temp_plot <- renderUI({
-      req(TEST() != "")
-      plotOutput(ns("temp_plot"), "200px", width = "80%")
-    })
+    # output$get_temp_plot <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("temp_plot"), "200px", width = "80%")
+    # })
 
 
-    output$get_other_plot <- renderUI({
-      req(TEST() != "")
-      plotOutput(ns("other_plot"), "300px", width = "80%")
-    })
+    # output$get_other_plot <- renderUI({
+    #   req(TEST() != "")
+    #   plotOutput(ns("other_plot"), "300px", width = "80%")
+    # })
 
 
     output$get_the_report <- renderUI({
