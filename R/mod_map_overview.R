@@ -10,13 +10,13 @@
 mod_map_overview_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    tags$style(type = "text/css", "#map {width; 100% !important; height: calc(100vh - 80px) !important;}"),
+    tags$style(type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
     # useWaiter(),
     # useWaitress(color = "blue"),
 
     leafletOutput(ns("map"),
       # width="100%", height="100%"
-      height = "90vh"
+      height = "88vh"
     ) # ,
 
     # wellPanel(textOutput(ns("selected_tract")))
