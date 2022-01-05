@@ -10,6 +10,7 @@
 mod_report_ui <- function(id) {
   ns <- NS(id)
   tagList(
+    # shinyjs::useShinyjs(),
     shinyWidgets::useShinydashboard(),
     # ,
     (uiOutput(ns("geoarea"))),
@@ -693,7 +694,7 @@ mod_report_server <- function(id,
       #   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(.0,0)) +
       #   scale_x_continuous(#breaks = as_labeller(pbipoc = seq(0, 1, .25), mdhhincnow = seq(0, 250000, 75000)),
       #                        # as.vector(c(seq(0,1, .25), seq(0, 250000, 75000))),#(c(seq(0, 1, .25), seq(0, 250000, 75000))),#
-      #                      breaks = breaks_fun,
+      #                      # breaks = breaks_fun,
       #                      limits = c(0, NA),
       #                      expand = c(0,0)
       #                      # labels = labs_fun
@@ -703,7 +704,7 @@ mod_report_server <- function(id,
       #              scales = "free_x", nrow = 2, strip.position = "bottom",
       #              labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
       #   )
-        
+      #   
       
       fig_equity <-
         # plotly::ggplotly(
@@ -1056,6 +1057,20 @@ mod_report_server <- function(id,
       req(TEST() != "")
       downloadButton(ns("dl_data"), label = "Raw data")
     })
+    
+    
+    
+    # ######## make figs expand on click
+    # shinyjs::onclick(('tree_plot'), #print("test"),
+    #                  showModal(modalDialog(
+    #   # title = "Tree canopy",
+    #   # "Here is some information",
+    #   # renderDataTable(data)
+    #   renderPlot(report_tree_plot(), height = 400, width = 600),
+    #   footer = modalButton("Close"),
+    #   size = "l"
+    #   # imageOutput(tree_plot())
+    # )))
   })
 }
 
