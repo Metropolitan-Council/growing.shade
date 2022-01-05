@@ -733,7 +733,7 @@ mod_report_server <- function(id,
             target = "_blank"
           ),
           "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-          "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'other resources' tab at top.<br><br>"
+          "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'resources' tab at top.<br><br>"
           # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
         ))
       )
