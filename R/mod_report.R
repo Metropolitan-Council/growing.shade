@@ -467,14 +467,15 @@ mod_report_server <- function(id,
         paste0(
           "Using the ",
           tolower(map_selections$preset),
-          " preset, ",
+          " layer, ",
           if (geo_selections$selected_geo == "tracts") {
             paste0(
-              param_fancytract(), " has a priority score of ",
+              param_fancytract(), " has a score of ",
               round((param_selectedtractvalues()$MEAN), 2),
-              " with a region-wide ranking of ",
-              (param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br>"
+              # " with a region-wide ranking of ",
+              # (param_selectedtractvalues()$RANK), 
+              " (where 10 indicates highest priority). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
+              tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
           } else {
             paste0(
@@ -482,9 +483,10 @@ mod_report_server <- function(id,
               param_area(),
               " have priority scores ranging from ",
               round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2) ,
-              " and a region-wide ranking from ",
-              min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br>"
+              # " and a region-wide ranking from ",
+              # min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), 
+              "  (where 10 indicates highest priority). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
+              tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
           }
         )
