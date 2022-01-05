@@ -31,7 +31,7 @@ mod_report_ui <- function(id) {
       tableOutput(ns("priority_table"))
     )),
     fluidRow(shinydashboard::box(
-      title = "Race and income disparities",
+      title = "Race & income disparities",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
@@ -44,12 +44,12 @@ mod_report_ui <- function(id) {
       uiOutput(ns("heat_para")),
       uiOutput(ns("get_temp_plot"))
     )),
-    fluidRow(shinydashboard::box(
-      title = "Threats",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("other_para"))
-    )),
+    # fluidRow(shinydashboard::box(
+    #   title = "Threats",
+    #   width = 12, collapsed = F,
+    #   status = "danger", solidHeader = F, collapsible = TRUE,
+    #   uiOutput(ns("other_para"))
+    # )),
     fluidRow(shinydashboard::box(
       title = "Download data",
       width = 12, collapsed = F,
@@ -532,9 +532,10 @@ mod_report_server <- function(id,
       ns <- session$ns
       req(TEST() != "")
       para <- HTML(paste0(
-        "Research shows that trees are unevenly distributed across communities. ",
-        "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
-        "In the plot below, ",
+        # "Research shows that trees are unevenly distributed across communities. ",
+        # "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
+        # "In the plot below, ",
+        "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as a person of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends for our region are shown below; ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_fancytract(), " is ")
         } else {
@@ -544,7 +545,7 @@ mod_report_server <- function(id,
             " are "
           )
         },
-        "in green, and the regional trend is in blue."
+        "in green, and the regional trend is in blue.<br>"
       ))
       return(para)
     })
@@ -653,7 +654,9 @@ mod_report_server <- function(id,
       fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
-        geom_smooth(method = "lm", formula = "y ~ x", fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
+        geom_smooth(#method = "lm", 
+                    # formula = "y ~ x", 
+                    fill = NA, col = councilR::colors$councilBlue, na.rm = T) +
         geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         theme(
@@ -664,7 +667,8 @@ mod_report_server <- function(id,
                                       vjust = .5),
           plot.margin = margin(7,7,7,7)
         ) +
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                           expand = c(.05, .05)) +
         # scale_x_continuous(breaks = breaks_fun, 
         #                    limits = c(0, NA),
         #                    labels = labs_fun
