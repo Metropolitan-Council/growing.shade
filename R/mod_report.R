@@ -305,7 +305,7 @@ mod_report_server <- function(id,
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
             axis.text.y = element_text(size = 12),
-            plot.caption = element_text(size = rel(.8),
+            plot.caption = element_text(size = rel(1),
                                         colour = "grey30")
           ) +
           ggtitle(paste0(param_area(), " tree canopy")) +
@@ -349,7 +349,9 @@ mod_report_server <- function(id,
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
-            axis.text.y = element_blank()
+            axis.text.y = element_text(size = 12),
+            plot.caption = element_text(size = rel(1),
+                                        colour = "grey30")
           ) +
           ggtitle(paste0(param_fancytract(), " tree canopy")) +
           geom_point(
@@ -360,7 +362,8 @@ mod_report_server <- function(id,
             data = filter(canopyplot, is.na(flag)),
             na.rm = T
           ) +
-          labs(y = "", x = "Tree canopy cover (%)") +
+          labs(y = "", x = "Tree canopy cover (%)",
+               caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)") +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = 1),
             fill = councilR::colors$cdGreen,
@@ -388,9 +391,9 @@ mod_report_server <- function(id,
       
       # Generate the PNG
       png(outfile, 
-          width = 500*4, 
-          height = 200*4,
-          res = 72*4)
+          width = 500*2, 
+          height = 300*2,
+          res = 72*2)
       print(report_tree_plot())
       dev.off()
       
@@ -398,7 +401,7 @@ mod_report_server <- function(id,
       list(src = outfile,
            contentType = 'image/png',
            width = 500,
-           height = 200,
+           height = 300,
            alt = "Figure showing the distribution of tree canopy across the region and within the selected geography.")
     }, deleteFile = TRUE)
     
@@ -476,7 +479,7 @@ mod_report_server <- function(id,
         #   panel.grid.major.x = element_blank(),
         #   panel.grid.minor.x = element_blank(),
         #   # plot.margin = margin(7,7,7,7),
-        #   plot.caption = element_text(size = rel(.8),
+        #   plot.caption = element_text(size = rel(1),
         #                               colour = "grey30")
         # ) +
         theme(
@@ -491,7 +494,7 @@ mod_report_server <- function(id,
           # axis.line = element_line(),
           axis.ticks.x = element_blank(), #element_line(),
           # axis.text.y = element_text(vjust = .5, hjust = 1),
-          plot.caption = element_text(size = rel(.8),
+          plot.caption = element_text(size = rel(1),
                                       colour = "grey30")
         ) +
         geom_segment(aes(
@@ -499,7 +502,7 @@ mod_report_server <- function(id,
           yend = segment_line$y
         )) +
         labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
-             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year estimates (2015-2019), and CDC PLACES data (2020)")
+             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
       # }
       return(plot)
     })
@@ -518,9 +521,9 @@ mod_report_server <- function(id,
       
       # Generate the PNG
       png(outfile, 
-          width = 500*4, 
-          height = 300*4,
-          res = 72*4)
+          width = 500*2, 
+          height = 300*2,
+          res = 72*2)
       print(report_rank_plot())
       dev.off()
       
@@ -728,7 +731,7 @@ mod_report_server <- function(id,
           axis.line = element_line(),
           axis.ticks = element_line(),
           axis.text.y = element_text(vjust = .5, hjust = 1),
-          plot.caption = element_text(size = rel(.8),
+          plot.caption = element_text(size = rel(1),
                                       colour = "grey30")
         ) +
         scale_y_continuous(labels = scales::percent_format(accuracy = 1),
@@ -742,7 +745,7 @@ mod_report_server <- function(id,
                            expand = expansion(mult = c(0, .1))) +
         labs(x = "", y = "Tree\ncanopy\n (%)",
              caption = #expression(italic(
-               "Source: Analysis of Sentinel-2 satellite imagery (2020) and ACS 5-year estimates (2015-2019)"#))
+               "Source: Analysis of Sentinel-2 satellite imagery (2020)\nand ACS 5-year estimates (2015-2019)"#))
              ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
@@ -788,9 +791,9 @@ mod_report_server <- function(id,
       
       # Generate the PNG
       png(outfile, 
-          width = 400*8, 
-          height = 450*8,
-          res = 72*8)
+          width = 400*4, 
+          height = 450*4,
+          res = 72*4)
       print(report_equity_plot())
       dev.off()
       
@@ -820,7 +823,7 @@ mod_report_server <- function(id,
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
         labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)",
-             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020) and Landsat 8 satellite imagery (2016)") +
+             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)\nand Landsat 8 satellite imagery (2016)") +
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major = element_blank(),
@@ -831,7 +834,7 @@ mod_report_server <- function(id,
             axis.line = element_line(),
             axis.ticks = element_line(),
             axis.text.y = element_text(vjust = .5, hjust = 1),
-            plot.caption = element_text(size = rel(.8),
+            plot.caption = element_text(size = rel(1),
                                         colour = "grey30")
             ) +
           scale_y_continuous(expand = expansion(mult = c(0, .05))) +
@@ -851,9 +854,9 @@ mod_report_server <- function(id,
       
       # Generate the PNG
       png(outfile, 
-          width = 400*4, 
-          height = 200*4,
-          res = 72*4)
+          width = 400*2, 
+          height = 300*2,
+          res = 72*2)
       print(report_temp_plot())
       dev.off()
       
@@ -861,7 +864,7 @@ mod_report_server <- function(id,
       list(src = outfile,
            contentType = 'image/png',
            width = 400,
-           height = 200,
+           height = 300,
            alt = "Figure showing the trends between NDVI and land surface temperature.")
     }, deleteFile = TRUE)
 
