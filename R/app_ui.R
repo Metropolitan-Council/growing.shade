@@ -55,13 +55,13 @@ app_ui <- function(request) {
           align = "right",
           style = "
               position:absolute;
-              bottom:0;
+              bottom:1em;
               right:0;
               width:50%;
               height:20px;   /* Height of the footer */
               color: black;
-              padding: 10px;
-              background-color: white;
+              padding: 0px;
+              background-color: transparent;
               z-index: 1000;"),
         # id = "demo",
         div(
