@@ -33,8 +33,9 @@ mod_report_ui <- function(id) {
       uiOutput(ns("rank_para")),
       # uiOutput(ns("get_rank_plot")),
       fluidRow(align = "center",
-      imageOutput(ns("rank_plot"), height = "100%", width = "100%") %>%
-            shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")),
+      imageOutput(ns("rank_plot"), height = "100%", width = "100%") #%>%
+            # shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
+      ),
       br(),
       tableOutput(ns("priority_table"))
     )),
@@ -471,19 +472,19 @@ mod_report_server <- function(id,
             paste0(
               param_fancytract(), " has a priority score of ",
               round((param_selectedtractvalues()$MEAN), 2),
-              " (out of 10, where 10 indicates the highest priority) with a region-wide ranking of ",
-              (param_selectedtractvalues()$RANK), " (out of 2085 total block groups across the region). A plot of the block group rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>"
+              " with a region-wide ranking of ",
+              (param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
+              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br><br>"
             )
           } else {
             paste0(
               "block groups within ",
               param_area(),
-              " have overall priority scores ranging from ",
-              round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
+              " have priority scores ranging from ",
+              round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2) ,
               " and a region-wide ranking from ",
-              min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (where a higher rank (closer to 1) indicates higher priorities). A plot of the block group rankings for all presets is shown below. A table containing the raw values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") is also shown below. In the table, the average values for the selected area are compared to the region-wide averages.<br><br>"
+              min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
+              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br><br>"
             )
           }
         )
@@ -519,44 +520,61 @@ mod_report_server <- function(id,
         pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME) %>%
         bind_rows(test2)
 
-      plot <- # if (map_selections$priority_layer == "Off") {print("nothing to see here")
-        # } else {
+      # #line plot
+      # plot <-
+      #   ggplot() +
+      #   scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
+      #   geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
+      #   councilR::council_theme() +
+      #   theme(
+      #       axis.title.y = element_blank(),
+      #     panel.grid.minor = element_blank(),
+      #     panel.grid.major = element_blank(),
+      #     strip.placement = "outside",
+      #     axis.ticks.x = element_blank(), #element_line(),
+      #     plot.caption = element_text(size = rel(1),
+      #                                 colour = "grey30")
+      #   ) +
+      #   geom_segment(aes(
+      #     x = 1, xend = 2085, y = segment_line$y,
+      #     yend = segment_line$y
+      #   )) +
+      #   labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
+      #        caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
+      
+      # #swarm plot
+      plot <-
         ggplot() +
-        scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
-        geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
+        # scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
+        # geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
-        # theme( # axis.text.y = element_blank(),
-        #   axis.title.y = element_blank(),
-        #   panel.grid.major.y = element_blank(),
-        #   panel.grid.minor.y = element_blank(),
-        #   panel.grid.major.x = element_blank(),
-        #   panel.grid.minor.x = element_blank(),
-        #   # plot.margin = margin(7,7,7,7),
-        #   plot.caption = element_text(size = rel(1),
-        #                               colour = "grey30")
-        # ) +
         theme(
-          # axis.text.y = element_blank(),
-            axis.title.y = element_blank(),
+          axis.title.y = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.grid.major = element_blank(),
+          panel.grid.major.x = element_blank(),
           strip.placement = "outside",
-          # axis.title.y = element_text(angle=0,
-          #                             vjust = .5),
-          # plot.margin = margin(7,7,7,7),
-          # axis.line = element_line(),
           axis.ticks.x = element_blank(), #element_line(),
-          # axis.text.y = element_text(vjust = .5, hjust = 1),
           plot.caption = element_text(size = rel(1),
                                       colour = "grey30")
         ) +
-        geom_segment(aes(
-          x = 1, xend = 2085, y = segment_line$y,
-          yend = segment_line$y
-        )) +
+        geom_point(aes(x = rank, y = priority),
+                                     # position = position_jitter(seed = 1, width = 0, height = .3),
+                                     # groupOnX = F, varwidth = T,
+                                     # cex = 3, #priority = "density",
+                                     # method = "compactswarm",
+                                     # corral = "wrap", corral.width = 0.6,
+                                     fill = councilR::colors$cdGreen,
+                                     size = 3,
+                                     col = "black", pch = 21,alpha = .8,
+                                     data = test,
+                                     na.rm = T
+        ) +
+        # geom_segment(aes(
+        #   x = 1, xend = 2085, y = segment_line$y,
+        #   yend = segment_line$y
+        # )) +
         labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
              caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
-      # }
       return(plot)
     })
 
