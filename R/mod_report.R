@@ -474,7 +474,7 @@ mod_report_server <- function(id,
               round((param_selectedtractvalues()$MEAN), 2),
               " with a region-wide ranking of ",
               (param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br><br>"
+              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br>"
             )
           } else {
             paste0(
@@ -484,7 +484,7 @@ mod_report_server <- function(id,
               round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2) ,
               " and a region-wide ranking from ",
               min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK), " (see plot below). High priority scores (closer to 10) have higher ranks (closer to 1). A table compares the values of the variables used in the selected preset (",
-              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br><br>"
+              tolower(map_selections$preset), ") between the selected area and region-wide averages.<br>"
             )
           }
         )
@@ -504,15 +504,16 @@ mod_report_server <- function(id,
         tibble()
       } else {
         param_selectedtractvalues() %>%
-          rename(rank = RANK) %>%
+          rename(rank = MEAN) %>%
+          # rename(rank = RANK) %>%
           mutate(priority = " Custom")
       }
 
-      segment_line <- if (map_selections$preset != "Custom") {
-        tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change"))
-      } else {
-        tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change", " Custom"))
-      }
+      # segment_line <- if (map_selections$preset != "Custom") {
+      #   tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change"))
+      # } else {
+      #   tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change", " Custom"))
+      # }
 
       test <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
@@ -542,7 +543,7 @@ mod_report_server <- function(id,
       #   labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
       #        caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
       
-      # #swarm plot
+      # #swarm (maybe just regular) plot with priority scores
       plot <-
         ggplot() +
         # scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
@@ -557,7 +558,9 @@ mod_report_server <- function(id,
           plot.caption = element_text(size = rel(1),
                                       colour = "grey30")
         ) +
-        geom_point(aes(x = rank, y = priority),
+        scale_x_continuous(limits = c(0,10),
+                           breaks = c(0, 2.5, 5, 7.5, 10))+
+        geom_point(aes(x = rank, y = forcats::fct_rev(priority)),
                                      # position = position_jitter(seed = 1, width = 0, height = .3),
                                      # groupOnX = F, varwidth = T,
                                      # cex = 3, #priority = "density",
@@ -573,7 +576,7 @@ mod_report_server <- function(id,
         #   x = 1, xend = 2085, y = segment_line$y,
         #   yend = segment_line$y
         # )) +
-        labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
+        labs(x = "Block group priority scores\n(where 10 indicates highest priority)",
              caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
       return(plot)
     })
