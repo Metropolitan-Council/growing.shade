@@ -117,13 +117,15 @@ app_ui <- function(request) {
         mod_other_resources_ui("other_resources_ui_1")
       ),
       
-      tabPanel(
-        "methods",
-        mod_methods_ui("methods_ui_1")
-      ),
+
       tabPanel(
         "FAQ",
         mod_faq_ui("faq_ui_1")
+        ),
+      
+      tabPanel(
+        "methods",
+        mod_methods_ui("methods_ui_1")
       )
     )
   )
