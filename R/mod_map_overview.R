@@ -7,12 +7,13 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @import waiter
 mod_map_overview_ui <- function(id) {
   ns <- NS(id)
   tagList(
     tags$style(type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
-    # useWaiter(),
-    # useWaitress(color = "blue"),
+    useWaiter(),
+    # waiter::useWaitress(color = "blue"),
 
     leafletOutput(ns("map"),
       # width="100%", height="100%"
@@ -35,9 +36,10 @@ mod_map_overview_server <- function(input, output, session,
   ns <- session$ns
 
 
-  # w <- Waiter$new(ns("map"),
-  #                 html = spin_loader(),#spin_fading_circles(),
-  #                 color = "rgba(255,255,255,.5)")#, transparent(alpha = .5))
+  waitertest <- Waiter$new(ns("map"),
+                  html = waiter::spin_loader(),#spin_fading_circles(),
+                  color = "rgba(255,255,255,.5)"
+                  )#, transparent(alpha = .5))
 
 
   #### question ----
@@ -273,7 +275,7 @@ mod_map_overview_server <- function(input, output, session,
   })
 
   observeEvent(
-    ignoreInit = FALSE, # TRUE,
+    ignoreInit = TRUE, # TRUE,
     toListen_mainleaflet(),
     {
       if (is.null(map_util$map_data2)) {
@@ -284,6 +286,7 @@ mod_map_overview_server <- function(input, output, session,
         #     clearControls()
       } else {
         print("rendering polygons")
+        waitertest$show()
         leafletProxy("map") %>%
           clearGroup("Priority score") %>%
           addPolygons(
@@ -319,7 +322,6 @@ mod_map_overview_server <- function(input, output, session,
             layerId = ~tract_string
           ) %>%
           # maybe want to add this: https://stackoverflow.com/questions/42245302/shiny-leaflet-highlight-polygon
-
           addLegend(
             # labFormat = labelFormat2(),#labelFormat(prefix = "(", suffix = ")", digits = 5),
             title = "Priority scores<br>(10 = highest priority)", # (higher scores show<br>where trees may have<br>larger benefits)",
@@ -339,6 +341,7 @@ mod_map_overview_server <- function(input, output, session,
               imperial = T, metric = F
             )
           )
+        waitertest$hide()
       }
     }
   )

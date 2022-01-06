@@ -16,6 +16,7 @@ app_ui <- function(request) {
       refresh = "Refresh now",
       top = "center"
     ),
+    
 
     # List the first level UI elements here
 
@@ -34,14 +35,6 @@ app_ui <- function(request) {
         "body {padding-top: 75px;}"
       ),
 
-      # tabPanel(
-      #   "HOME",
-      #   br(),
-      #   br(),
-      #   mod_intro_ui("intro_ui_1"),
-      #   br()
-      # ),
-
       tabPanel(
         "HOME",
         # id = "B",
@@ -51,7 +44,7 @@ app_ui <- function(request) {
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-04.'),
+          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-06. '),
           align = "right",
           style = "
               position:absolute;
@@ -70,6 +63,8 @@ app_ui <- function(request) {
                     max-width: 4000px !important; min-width:100% !important",
           sidebarLayout(
             sidebarPanel(
+              # waiter::useWaitress(),
+              
               width = 6,
               style = "height: 90vh; overflow-y: auto;",
 

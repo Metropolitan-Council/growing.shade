@@ -613,6 +613,14 @@ equity_data_raw_bg <- equity_bg %>%
 
 ```
 
+
+# cdc data
+- Enter in the console: `usethis::edit_r_environ()`
+- When the `.Renviron` file comes up in the editor, type: `CDC_KEY="KEY GOES HERE, INSIDE QUOTES"`
+- Save and close the `.Renviron` file.
+- Hit Ctrl+Shift+F10 to restart R.
+
+
 ```{r health_bgs}
 ##########
 # CDC health data
@@ -625,9 +633,9 @@ library("RSocrata")
 
 bg_health <- read.socrata(
   "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
-  app_token = "D1kEEJEDVBpDppDIdDmwNXeVT",
+  app_token = CDC_TOKEN,
   email     = "ellen.esch@metc.state.mn.us",
-  password  ="TQfY5%Q3xY") %>%
+  password  = CDC_KEY) %>%
   rename(GEOID10 = locationname)
 
 bg_health

@@ -9,7 +9,8 @@ app_server <- function(input, output, session) {
   shinyhelper::observe_helpers(help_dir = "inst/app/www")
   # options(shiny.usecairo = T)
 
-
+  # waitress <- waiter::Waitress$new("nav", theme = "overlay", min = 0, max = 10)
+  
   mod_storymap_server("storymap_ui_1")
   mod_faq_server("faq_ui_1")
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
