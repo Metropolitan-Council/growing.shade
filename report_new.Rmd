@@ -11,7 +11,6 @@ params:
   param_rankplot: NA
   param_prioritytable: NA
   param_equityplot: NA
-  param_otherparea: NA
   param_tempplot: NA
   param_equitytext: NA
   para_heattext: NA
@@ -41,14 +40,15 @@ library(tidyr)
 knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 
 fancyname <- if (params$param_geo == "tracts") {
-  paste0(if (substr(params$param_area, 3, 5) == "053") {"Hennepin County tract "
-        } else if (substr(params$param_area, 3, 5) == "003") {"Anoka County tract "
-        } else if (substr(params$param_area, 3, 5) == "019") {"Carver County tract "
-        } else if (substr(params$param_area, 3, 5) == "037") {"Dakota County tract "
-        } else if (substr(params$param_area, 3, 5) == "123") {"Ramsey County tract "
-        } else if (substr(params$param_area, 3, 5) == "139") {"Scott County tract "
-        } else if (substr(params$param_area, 3, 5) == "163") {"Washington County tract "}, 
-        as.numeric(substr(params$param_area, 6, 11))/100)} else {params$param_area}
+    if (substr(params$param_area, 3, 5) == "053") {paste0("Hennepin County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "003") {paste0("Anoka County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "019") {paste0("Carver County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "037") {paste0("Dakota County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "123") {paste0("Ramsey County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "139") {paste0("Scott County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+        } else if (substr(params$param_area, 3, 5) == "163") {paste0("Washington County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
+          } } else {params$param_area}
+
 
 ```
 
@@ -60,7 +60,7 @@ fancyname <- if (params$param_geo == "tracts") {
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
 if(params$param_geo == "tracts") {
   metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
-    geom_sf(data = filter(mn_tracts, GEOID == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
+    geom_sf(data = filter(mn_bgs, GEOID == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()
   } else if (params$param_geo == "ctus") {
      metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
