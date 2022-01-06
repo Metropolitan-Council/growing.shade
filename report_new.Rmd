@@ -152,7 +152,9 @@ params$param_equityplot
 
 `r params$para_heattext`
 
-![Some image](`r paste0(params$param_tempplot)`)
+<center>
+![Some image](`r paste0(params$param_tempplot)`){width=70%}
+</center>
 
 ```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .5}
 
