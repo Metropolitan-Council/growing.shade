@@ -21,12 +21,12 @@ mod_map_utils_server <- function(input, output, session,
                                  geo_selections) {
   ns <- session$ns
 
-  # we need to make this data for a bar plot, or something like that
-  make_plot_data2 <- reactive({
-    p <- bg_growingshade_main %>%
-      filter(name %in% map_selections$allInputs$value)
-    return(p)
-  })
+  # # we need to make this data for a bar plot, or something like that
+  # make_plot_data2 <- reactive({
+  #   p <- bg_growingshade_main %>%
+  #     filter(name %in% map_selections$allInputs$value)
+  #   return(p)
+  # })
 
 
   # we need to make this data for the popup
@@ -98,9 +98,9 @@ mod_map_utils_server <- function(input, output, session,
 
   vals <- reactiveValues()
 
-  observe({
-    vals$plot_data2 <- make_plot_data2()
-  })
+  # observe({
+  #   vals$plot_data2 <- make_plot_data2()
+  # })
 
   observe({
     vals$map_data2 <- make_map_data2()
