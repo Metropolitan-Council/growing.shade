@@ -90,22 +90,23 @@ Trees connect to regional issues and priorities. Public health, environmental ju
 
 `r params$param_equitypara`
 
-In most areas in our region, a goal of 30% tree canopy coverage (as detected by our methods) is suitable. Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
+Note that native tallgrass prairie occurs throughout our region - lower tree coverage in areas dominated by tallgrass prairie should not be penalized.
 
-Census block groups have different areas and may overlap with other geographies, thus the existing tree canopy cover in the selected area may not be the mean of the block group canopy covers.
 
 
 ```{r treeplot, fig.align="center", out.width= "70%", fig.asp = .4}
 params$param_treeplot
+# Census block groups have different areas and may overlap with other geographies, thus the existing tree canopy cover in the selected area may not be the mean of the block group canopy covers.
+
 ```
 
 ### Methodology note
 
-The method used to detect tree canopy varies across tools. The 30% goal of canopy coverage and values about current canopy coverage in Growing Shade may not align with goals or values presented in other tools. In Growing Shade, we prioritize using current data. We feel that current data is particularly important as our region continues to feel the impact of emerald ash borer on the tree canopy. 
+The method used to detect tree canopy varies across tools. The 30% goal of canopy coverage and values about current canopy coverage in Growing Shade may not align with goals or values presented in other tools. In Growing Shade, we prioritize using current data. Current data is particularly important as our region continues to feel the impact of emerald ash borer on the tree canopy. 
 
-To get current (near real-time) data, Growing Shade leverages metrics of greenness (normalized difference vegetation index, NDVI) and seasonal patterns in plant growth (phenology) to detect trees from Sentinel-2 satellite data. Sentinel collects data approximately every 10 days, and our method does not need to rely on older data (for instance, lidar data for our region is from 2011 and out-of-date). While Sentinel's temporal resolution is excellent, the satellite data has a spatial resolution of 10 meters squared. This is often a bigger area than tree canopies. 
+To get current (near real-time) data, Growing Shade leverages metrics of greenness (normalized difference vegetation index, NDVI) and seasonal patterns in plant growth (phenology) to detect trees from Sentinel-2 satellite data. Sentinel collects data approximately every 10 days, and our method does not need to rely on older data (for instance, LiDAR data for our region is from 2011 and out-of-date). While Sentinel's temporal resolution is excellent, the satellite data has a spatial resolution of 10 meters squared. This is often a bigger area than tree canopies. 
 
-When comparing tree canopy coverage from Sentinel with a more spatially accurate (but less temporally accurate) 1 meter squared landcover data set, we found that Sentinel tree cover has high correlation with 1 meter landcover, but Sentinel detects about twice as much tree canopy. Essentially, this means that we are detecting areas with at least 50% tree canopy coverage. We re-scaled our data using this relationship to improve the clarity of messaging. However, another way to view the data is a goal of 30% canopy is actually a goal of 60% land area covered by at least 50% tree canopy. 
+When comparing tree canopy coverage from Sentinel with a more spatially accurate (but less temporally accurate) 1 meter squared landcover data set, we found that Sentinel tree cover has high correlation with 1 meter landcover, but Sentinel detects about twice as much tree canopy. Essentially, this means that we are detecting areas with at least 50% tree canopy coverage. We re-scaled our data using this relationship to improve the clarity of messaging. Thus, another way to view the goal of 30% canopy cover is to have 60% of land area covered by at least 50% tree canopy. 
 
 ```{r canopystatus, include = F, eval = F, fig.width=7, fig.height = 3, echo=F, message=F, warning=F, fig.cap = "\\label{fig:canopystatus}The distribution of tree canopy coverage across tracts. This plot shows the distribution of the tree canopy across the region’s 704 Census tracts. The selected tract, or tracts which make up a selected city or neighborhood are highlighted in green. <br>On the top is a density plot. The more occurrences of a value, the taller this plot gets. The density plot is showing that most Census tracts have a tree canopy coverage of 20-35%.<br>On the bottom is a box plot, where each grey circle shows the tree cover in one Census tract. The line in the middle of the box shows the median value: half of the tracts fall below the median, and half of them lie above the median. The median is also known as the 50th percentile. The top and bottom edges of the box show the 75th percentile (the value below which 75% of the geographic areas fall) and the 25th percentile (the value below which 25% of the geographic areas fall). Tracts located above and below the vertical lines extending from the box are particularly extreme values."}
 
@@ -206,9 +207,12 @@ params$param_tempplot
 
 The normalized difference vegetation index (NDVI) ranges from -1 to 1. Areas with bare ground, or brown vegetation have NDVI values closer to zero. Areas with lots of greenness have values closer to one. The calculation for land surface temperature *does* rely on information about NDVI, so these two variables are not fully independent from each other. Land surface temperature is calculated using other data as well. The NDVI data shown here comes from the Sentinel-2 satellite (resolution of 10 x 10 meters) and is from year 2021. Land surface temperature shown here comes from data collected by the Landsat-8 satellite (resolution of 30 x 30 meters) and is from year 2016.
 
+```{r old_threats, include = F, eval = F}
 ## Threats
 
-`r params$param_otherparea`
+# `r params$param_otherparea`
+
+```
 
 ## Other resources
 

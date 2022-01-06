@@ -694,7 +694,7 @@ mod_report_server <- function(id,
         # "Research shows that trees are unevenly distributed across communities. ",
         # "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
         # "In the plot below, ",
-        "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as a person of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends for our region are shown below; ",
+        "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends for our region are shown below; ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_fancytract(), " is ")
         } else {
