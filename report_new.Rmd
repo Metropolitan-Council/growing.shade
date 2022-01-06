@@ -152,8 +152,44 @@ params$param_equityplot
 
 `r params$para_heattext`
 
+![Some image](`r paste0(params$param_tempplot)`)
+
 ```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .5}
-params$param_tempplot
+
+# params$param_tempplot
+
+
+# <center><img src='www/ndivfig.png' style='max-width:80%; max-height:400px' alt=' summary of greenhouse gas mitigation strategies including compact land use planning, energy efficient technology, conservation and sustainable behavior, clean energy supply, and sequestering carbon.'/img></center>
+
+
+# NDVI .77 =minnehaha/hidden falls park;  https://www.google.com/maps/@44.9083306,-93.194874,3a,90y,314.57h,93.43t/data=!3m8!1e1!3m6!1sAF1QipNbybtAen_ewnzAt-wDAfVWJJ7MV95h2HJfv-rF!2e10!3e11!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipNbybtAen_ewnzAt-wDAfVWJJ7MV95h2HJfv-rF%3Dw203-h100-k-no-pi-0-ya138.57913-ro-0-fo100!7i8704!8i4352
+
+# NDVI = .67; summit ave w/ prior; https://www.google.com/maps/@44.9413624,-93.1831969,3a,75y,66.54h,99.45t/data=!3m10!1e1!3m8!1sJNm6kjokIM8RTR-mVuFp9A!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fpanoid%3DJNm6kjokIM8RTR-mVuFp9A%26cb_client%3Dmaps_sv.tactile.gps%26w%3D203%26h%3D100%26yaw%3D50.330505%26pitch%3D0%26thumbfov%3D100!7i16384!8i8192!9m2!1b1!2i21
+
+#NDVI = .42; wheelock entering phalen park: https://www.google.com/maps/@44.984721,-93.0666344,3a,90y,73.59h,101.6t/data=!3m9!1e1!3m7!1sfM_KmqUJNW7P8A_x0LHCUw!2e0!7i13312!8i6656!9m2!1b1!2i14
+
+#NDVI = .17; university and lexington lightrail stop: https://www.google.com/maps/@44.9558413,-93.1471069,3a,75y,258.4h,91.27t/data=!3m9!1e1!3m7!1s0B4cR94lKaxQc_GIJI464Q!2e0!7i16384!8i8192!9m2!1b1!2i14
+
+# labs <- c("<img src='./inst/app/www/NDVI_.17.png' width='100' /><br>Low greenness",
+#           "<img src='./inst/app/www/NDVI_.42.png' width='100' />",
+#           "<img src='./inst/app/www/NDVI_.67.png' width='100' />")
+# 
+# bg_growingshade_main %>%
+#   filter(variable %in% c("ndvi", "avg_temp")) %>%
+#   select(tract_string, variable, raw_value) %>%
+#   pivot_wider(names_from = variable, values_from = raw_value) %>%
+#   ggplot(aes(x = ndvi, y = avg_temp)) +
+#   geom_point() +
+#   scale_x_continuous(
+#     name = NULL,
+#     breaks = c(.17, .42, .67),
+#     labels = labs,
+#     position = "bottom") +
+#   theme(axis.text.x.bottom = ggtext::element_markdown(size = 15))+
+#   labs(x = "TEST")
+
+# remotes::install_github("wilkelab/ggtext")
+
 ```
 
 
