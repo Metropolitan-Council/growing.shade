@@ -947,7 +947,7 @@ mod_report_server <- function(id,
         # Generate the PNG
         png(outfile,
             width = 400*2,
-            height = 300*2,
+            height = 350*2,
             res = 72*2)
         print(plot)
         dev.off()
@@ -992,7 +992,7 @@ mod_report_server <- function(id,
       list(src = report_temp_plot(),
                     contentType = 'image/png',
                     width = 400,
-                    height = 300,
+                    height = 350,
                     alt = "Figure showing the trends between NDVI and land surface temperature.")
     }, deleteFile = FALSE)
     
@@ -1066,15 +1066,6 @@ mod_report_server <- function(id,
         file.copy("inst/app/www/helveticaneueltstd-mdcn-webfont.woff", tempmdcn, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-roman-webfont.woff", temproman, overwrite = TRUE)
         
-        # temp17 <- file.path(tempdir(), "NDVI_.17.png")
-        # file.copy("inst/app/www/NDVI_.17.png", temp17, overwrite = TRUE)
-        # temp42 <- file.path(tempdir(), "NDVI_.42.png")
-        # file.copy("./inst/app/www/NDVI_.42.png", temp42, overwrite = TRUE)
-        # temp67 <- file.path(tempdir(), "NDVI_.67.png")
-        # file.copy("./inst/app/www/NDVI_.67.png", temp67, overwrite = TRUE)
-        
-        # imgOne <- file.path(tempdir(), report_temp_plot())
-        # file.copy(report_temp_plot(), imgOne, overwrite = TRUE)
         imgOne <- file.path(tempdir(), "test.png")
         file.copy(report_temp_plot(), imgOne, overwrite = TRUE)
 
