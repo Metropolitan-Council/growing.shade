@@ -722,7 +722,7 @@ mod_report_server <- function(id,
       ns <- session$ns
       req(TEST() != "")
       para <- HTML(paste0(
-        "Trees and other green space help cool temperatures. Adding green space can reduce hundreds of heat-related deaths (<a href='https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha et al. 2021</a>) The impact of green space on temperature is shown below. ",
+        "Trees and other green space help cool temperatures. Temperature differences between moderate and high amounts of green space can be up to 10 degrees. Adding green space can reduce hundreds of heat-related deaths (<a href='https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha et al. 2021</a>). The impact of green space on temperature is shown below. ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_fancytract(), " is ")
         } else {
