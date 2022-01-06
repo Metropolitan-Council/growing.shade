@@ -60,9 +60,36 @@ mod_map_utils_server <- function(input, output, session,
     step2 <- step1 %>%
       group_by(tract_string) %>%
       summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-      mutate(RANK = min_rank(desc(MEAN))) %>%
+      # mutate(RANK = min_rank(desc(MEAN))) %>%
       left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
       st_as_sf()
+
+    return(step2)
+    
+    
+    # faststep <- if (map_selections$preset == "Climate change") {
+    #   mn_bgs %>%
+    #     rename(MEAN = `Climate change`)
+    # } else if (map_selections$preset == "Conservation") {
+    #   mn_bgs %>%
+    #     rename(MEAN = `Conservation`)
+    # } else if (map_selections$preset == "Environmental justice") {
+    #   mn_bgs %>%
+    #     mutate(MEAN = `Environmental justice`) %>%
+    #     st_as_sf()
+    # } else if (map_selections$preset == "Public health") {
+    #   mn_bgs %>%
+    #     rename(MEAN = `Public health`)
+    # } else if (map_selections$preset == "Custom") {
+    #   bg_growingshade_main %>%
+    #     filter(name %in% map_selections$allInputs$value) %>%
+    #     group_by(tract_string) %>%
+    #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
+    #     mutate(RANK = min_rank(desc(MEAN))) %>%
+    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
+    #     st_as_sf()
+    # }
+    # return(faststep)
 
     # #80
     # profvis::profvis(
@@ -75,7 +102,6 @@ mod_map_utils_server <- function(input, output, session,
     # )
 
 
-    return(step2)
   })  #%>%
     # bindCache(map_selections$preset,
     #           map_selections$allInputs$value)
