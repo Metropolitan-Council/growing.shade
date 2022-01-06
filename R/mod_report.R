@@ -1119,14 +1119,14 @@ mod_report_server <- function(id,
       content = function(file) {
         writexl::write_xlsx(
           list(
-            "Metadata" = tibble() %>%
-              rbind(
-                c("", "", ""),
-                c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.", "", ""),
-                c("This data is obviously not finished. If you are seeing this warning, please do not use!", "", ""),
-                c("The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.", "", "")
-              ),
-            "Selected Area" = param_selectedtractvalues(),
+            # "Metadata" = tibble(
+            #   Metadata = 
+            #     c("Please use caution if using Excel formatting. You may need to divide cells by 100 for Excel to recognize percents correctly.",
+            #       "This data is obviously not finished. If you are seeing this warning, please do not use!",
+            #       "",
+            #       "The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.")
+            #   ),
+
             "Region Averages" = metadata %>%
               filter(!is.na(name)) %>%
               mutate(nicer_interp = case_when(
@@ -1134,16 +1134,35 @@ mod_report_server <- function(id,
                 niceinterp == "Lower" ~ "Lower values = higher priority",
                 niceinterp == "Higher" ~ "Higher values = higher priority"
               )) %>%
-              select(name, variable, nicer_interp, MEANRAW, cc, ej, ph, cons, n) %>%
+              select(variable, name, nicer_interp, MEANRAW, cc, ej, ph, cons, n) %>%
               rename(
+                `Variable` = variable,
+                `Variable description` = name,
                 `Value interpretation` = nicer_interp,
-                `Block group average` = MEANRAW,
+                `Average values` = MEANRAW,
                 `Climate Change variable` = cc,
                 `Environmental Justice variable` = ej,
                 `Public Health variable` = ph,
                 `Conservation variable` = cons,
                 `Number of block groups with data` = n
-              )
+              ),
+            
+            "Selected Area" = param_selectedtractvalues() %>%
+              select(GEO_NAME, jurisdiction, canopy_percent, MEAN,
+                     "Public health",	Conservation,	"Environmental justice",	"Climate change") %>%
+              rename(GEO_ID = GEO_NAME,
+                     `Selected priority score` = MEAN,
+                     `Climate change priority score` = `Climate change`,
+                     `Conservation priority score` = `Conservation`,
+                     `Environmental justice priority score` = `Environmental justice`,
+                     `Public health priority score` = `Public health`,
+                     
+                     `Percent tree cover` = canopy_percent),
+            
+            "Entire Region" = bg_growingshade_main %>% 
+              select(tract_string, variable, raw_value) %>% 
+              pivot_wider(names_from = variable, values_from = raw_value) %>%
+              rename(GEO_ID = tract_string)
           ),
           path = file
         )
