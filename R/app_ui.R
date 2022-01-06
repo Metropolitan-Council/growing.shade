@@ -74,7 +74,7 @@ app_ui <- function(request) {
               br(),
               p(
                 "Please refer to the ", a("text user guide",
-                  href = "www/Growing Shade User Guide (November 2021).pdf",
+                  href = "www/Growing Shade User Guide (January 2022).pdf",
                   .noWS = "outside",
                   target = "_blank"
                 ),
