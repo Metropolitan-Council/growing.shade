@@ -28,8 +28,8 @@ downloaded from within the “mapping tool” tab if you wish explore
 relationships not shown in the report.
 
 **Q. Why do different canopy tools show different priority areas?**
-<span style="line-height: .1;"><br></span> A. There several tools, like
-the
+<span style="line-height: .1;"><br></span> A. There are several tools,
+like the
 <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American
 Forests’ Tree Equity Score</a>, that are worth exploring. The Growing
 Shade Project was created to specifically address to the unique
