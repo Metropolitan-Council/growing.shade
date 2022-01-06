@@ -98,7 +98,7 @@ mod_map_utils_server <- function(input, output, session,
         filter(name %in% map_selections$allInputs$value) %>%
         group_by(tract_string) %>%
         summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-        mutate(RANK = min_rank(desc(MEAN))) %>%
+        # mutate(RANK = min_rank(desc(MEAN))) %>%
         left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
         st_as_sf()
     }
