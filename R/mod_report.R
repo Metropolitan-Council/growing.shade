@@ -83,6 +83,7 @@ mod_report_ui <- function(id) {
 #' @import tibble
 #' @import stringr
 #' @import ggbeeswarm
+#' @import ggtext
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
