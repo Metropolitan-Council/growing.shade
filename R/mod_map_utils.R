@@ -29,12 +29,12 @@ mod_map_utils_server <- function(input, output, session,
   # })
 
 
-  # we need to make this data for the popup
-  make_ccp <- reactive({
-    p <- bg_growingshade_main %>%
-      filter(variable == "canopy_percent")
-    return(p)
-  })
+  # # we need to make this data for the popup
+  # make_ccp <- reactive({
+  #   p <- bg_growingshade_main %>%
+  #     filter(variable == "canopy_percent")
+  #   return(p)
+  # })  
 
   # but we want to get a single averaged value for every tract to put on the map
   make_map_data2 <- reactive({
@@ -91,7 +91,9 @@ mod_map_utils_server <- function(input, output, session,
 
 
     return(step2)
-  })
+  })  #%>%
+    # bindCache(map_selections$preset,
+    #           map_selections$allInputs$value)
 
 
   #------- reactive things
@@ -106,9 +108,9 @@ mod_map_utils_server <- function(input, output, session,
     vals$map_data2 <- make_map_data2()
   })
 
-  observe({
-    vals$canopycov <- make_ccp()
-  })
+  # observe({
+  #   vals$canopycov <- make_ccp()
+  # })
 
   return(vals)
 }
