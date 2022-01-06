@@ -689,7 +689,7 @@ mod_report_server <- function(id,
         # "Research shows that trees are unevenly distributed across communities. ",
         # "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
         # "In the plot below, ",
-        "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends for our region are shown below; ",
+        "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends in our region are shown below; ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_fancytract(), " is ")
         } else {
@@ -716,13 +716,31 @@ mod_report_server <- function(id,
         "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded.<br>")
       return(para)
     })
+
     
-    output$heat_para <- renderUI({
+    heat_text <- reactive({
       ns <- session$ns
       req(TEST() != "")
-      para <- HTML(
-        "Greenspace can decrease surface and air temperatures. Trees are an important component of greenspace, but greenspace also includes grasses, prairies, wetlands, agricultural crops, and other areas which have plants. A plot showing the relationship between greenness (measured with NDVI, read the 'methods' for more information) and land surface temperature on a hot summer day across the region is shown below. Block groups within the selected area are shown in green, and the regional trend is in blue.")
+      para <- HTML(paste0(
+        "Trees and other green space help cool temperatures. Adding green space can reduce hundreds of heat-related deaths (<a href='https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha et al. 2021</a>) The impact of green space on temperature is shown below. ",
+        if (geo_selections$selected_geo == "tracts") {
+          paste0(param_fancytract(), " is ")
+        } else {
+          paste0(
+            "Block groups within ",
+            param_area(),
+            " are "
+          )
+        },
+        "in green and the regional trend is in blue.<br><br>"
+      ))
       return(para)
+    })
+    
+    
+    output$heat_para <- renderUI({
+      req(TEST() != "")
+      heat_text()
     })
 
     report_equity_plot <- reactive({
@@ -897,7 +915,7 @@ mod_report_server <- function(id,
         councilR::council_theme() +
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-        labs(x = "NDVI", y = "Land surface\ntemperature\n(°F)",
+        labs(x = "Green space", y = "Summer\nland surface\ntemperature\n(°F)",
              caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)\nand Landsat 8 satellite imagery (2016)") +
           theme(
             panel.grid.minor = element_blank(),
@@ -1025,7 +1043,9 @@ mod_report_server <- function(id,
           param_equitytext = equity_text(),
           param_equityplot = report_equity_plot(),
           param_tempplot = report_temp_plot(),
-          param_otherparea = report_other_para()
+          param_otherparea = report_other_para(),
+          
+          para_heattext = heat_text()
         )
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document
