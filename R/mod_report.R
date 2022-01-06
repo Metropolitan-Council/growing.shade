@@ -110,31 +110,6 @@ mod_report_server <- function(id,
       return(output)
     })
 
-    param_fancytract <- reactive({
-      req(geo_selections$selected_geo == "tracts")
-      fancyname <-
-        paste0(
-          if (substr(param_area(), 3, 5) == "053") {
-            "Hennepin County tract "
-          } else if (substr(param_area(), 3, 5) == "003") {
-            "Anoka County tract "
-          } else if (substr(param_area(), 3, 5) == "019") {
-            "Carver County tract "
-          } else if (substr(param_area(), 3, 5) == "037") {
-            "Dakota County tract "
-          } else if (substr(param_area(), 3, 5) == "123") {
-            "Ramsey County tract "
-          } else if (substr(param_area(), 3, 5) == "139") {
-            "Scott County tract "
-          } else if (substr(param_area(), 3, 5) == "163") {
-            "Washington County tract "
-          },
-          as.numeric(substr(param_area(), 6, 11)) / 100,
-          ", block group ",
-          as.numeric(substr(param_area(), 12, 12))
-        )
-      return(fancyname)
-    })
 
     # the min, max, ntracts, eab, treeacres, landacres, canopypercent, avgcanopy for the selected geography
     param_areasummary <- reactive({
@@ -198,7 +173,8 @@ mod_report_server <- function(id,
         HTML(paste0(
           "<h2><section style='font-size:20pt'>Growing Shade report for ",
           if (geo_selections$selected_geo == "tracts") {
-            param_fancytract()
+            # param_fancytract()
+            param_areasummary()$fancyname
           } else {
             param_area()
           }, "</h2></section>"
@@ -212,8 +188,8 @@ mod_report_server <- function(id,
         paste0(
           if (geo_selections$selected_geo == "tracts") {
             paste0(
-              param_fancytract(), " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
-              "% in 2020. Compared to other block groups across the region, the tree canopy in ", param_fancytract(), " is ",
+              param_areasummary()$fancyname, " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
+              "% in 2020. Compared to other block groups across the region, the tree canopy in the selected block group is ",
               if (param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {
                 "above"
               } else if (param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {
@@ -468,7 +444,7 @@ mod_report_server <- function(id,
           " layer, ",
           if (geo_selections$selected_geo == "tracts") {
             paste0(
-              param_fancytract(), " has a score of ",
+              param_areasummary()$fancyname, " has a score of ",
               round((param_selectedtractvalues()$MEAN), 2),
               # " with a region-wide ranking of ",
               # (param_selectedtractvalues()$RANK), 
@@ -692,7 +668,7 @@ mod_report_server <- function(id,
         # "In the plot below, ",
         "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends in our region are shown below; ",
         if (geo_selections$selected_geo == "tracts") {
-          paste0(param_fancytract(), " is ")
+          paste0(param_areasummary()$fancyname, " is ")
         } else {
           paste0(
             "block groups within ",
@@ -725,7 +701,7 @@ mod_report_server <- function(id,
       para <- HTML(paste0(
         "Trees and other green space help cool temperatures. Temperature differences between moderate and high amounts of green space can be up to 10 degrees. Adding green space can reduce hundreds of heat-related deaths (<a href='https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha et al. 2021</a>). The impact of green space on temperature is shown below. ",
         if (geo_selections$selected_geo == "tracts") {
-          paste0(param_fancytract(), " is ")
+          paste0(param_areasummary()$fancyname, " is ")
         } else {
           paste0(
             "Block groups within ",
@@ -997,35 +973,35 @@ mod_report_server <- function(id,
                     alt = "Figure showing the trends between NDVI and land surface temperature.")
     }, deleteFile = FALSE)
     
-    report_other_para <- reactive({
-      ns <- session$ns
-      req(TEST() != "")
-      tagList(
-        HTML(paste0(
-          # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
-          "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ",
-          param_areasummary()$EAB, " trees in ",
-          if (geo_selections$selected_geo == "tracts") {
-            param_fancytract()
-          } else {
-            param_area()
-          }, " (",
-          a("Minnesota DNR",
-            href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
-            .noWS = "outside",
-            target = "_blank"
-          ),
-          "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-          "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'resources' tab at top.<br><br>"
-          # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
-        ))
-      )
-    })
+    # report_other_para <- reactive({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   tagList(
+    #     HTML(paste0(
+    #       # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
+    #       "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ",
+    #       param_areasummary()$EAB, " trees in ",
+    #       if (geo_selections$selected_geo == "tracts") {
+    #         param_fancytract()
+    #       } else {
+    #         param_area()
+    #       }, " (",
+    #       a("Minnesota DNR",
+    #         href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
+    #         .noWS = "outside",
+    #         target = "_blank"
+    #       ),
+    #       "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
+    #       "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'resources' tab at top.<br><br>"
+    #       # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
+    #     ))
+    #   )
+    # })
 
-    output$other_para <- renderUI({
-      req(TEST() != "")
-      report_other_para()
-    })
+    # output$other_para <- renderUI({
+    #   req(TEST() != "")
+    #   report_other_para()
+    # })
 
 
     # output$other_plot <- renderPlot({
@@ -1082,7 +1058,7 @@ mod_report_server <- function(id,
           param_equitytext = equity_text(),
           param_equityplot = report_equity_plot(),
           param_tempplot = imgOne, #report_temp_plot(),
-          param_otherparea = report_other_para(),
+          # param_otherparea = report_other_para(),
           
           para_heattext = heat_text()
         )
