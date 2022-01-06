@@ -899,6 +899,9 @@ mod_report_server <- function(id,
     }, deleteFile = TRUE)
     
 
+    ndvilabs <- c("<img src='inst/app/www/NDVI_.17.png' height='75' /><br>Low<br>green space", 
+              "<img src='inst/app/www/NDVI_.42.png' height='75' /><br>Moderate<br>green space",
+              "<img src='inst/app/www/NDVI_.67.png' height='75' /><br>High<br>green space")
 
     
     report_temp_plot <- reactive({
@@ -907,7 +910,7 @@ mod_report_server <- function(id,
       df <- param_equity() %>%
         select(flag, avg_temp, ndvi) 
       
-        ggplot(aes(x = ndvi, y = avg_temp), data = df) +
+        plot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
           geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA, col = councilR::colors$councilBlue) +
@@ -915,7 +918,7 @@ mod_report_server <- function(id,
         councilR::council_theme() +
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-        labs(x = "Green space", y = "Summer\nland surface\ntemperature\n(°F)",
+        labs(x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
              caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)\nand Landsat 8 satellite imagery (2016)") +
           theme(
             panel.grid.minor = element_blank(),
@@ -923,44 +926,76 @@ mod_report_server <- function(id,
             strip.placement = "outside",
             axis.title.y = element_text(angle=0,
                                         vjust = .5),
-            plot.margin = margin(7,7,7,7),
+            plot.margin = margin(7,7,14,7),
             axis.line = element_line(),
             axis.ticks = element_line(),
             axis.text.y = element_text(vjust = .5, hjust = 1),
             plot.caption = element_text(size = rel(1),
-                                        colour = "grey30")
+                                        colour = "grey30"),
+            axis.text.x.bottom = ggtext::element_markdown(size = 15)
             ) +
           scale_y_continuous(expand = expansion(mult = c(0, .05))) +
-          scale_x_continuous(expand = expansion(mult = c(0, .05))) 
+          scale_x_continuous(
+            name = NULL,
+            breaks = c(.17, .42, .67),
+            labels = ndvilabs,
+            position = "bottom") 
+        # return(plot)
+        
+        outfile <- tempfile(fileext = '.png')
+        
+        # Generate the PNG
+        png(outfile,
+            width = 400*2,
+            height = 300*2,
+            res = 72*2)
+        print(plot)
+        dev.off()
+        
+    #     fig <- list(src = outfile,
+    #          contentType = 'image/png',
+    #          width = 400,
+    #          height = 300,
+    #          alt = "Figure showing the trends between NDVI and land surface temperature.")
+    #     
+    # return(fig)
+        return(outfile)
+    
     })
     
-    # output$temp_plot <- renderPlot({
+    # output$temp_plot <- renderImage({
     #   req(TEST() != "")
-    #   report_temp_plot()
-    # })
+    # 
+    #   # A temp file to save the output.
+    #   # This file will be removed later by renderImage
+    #   outfile <- tempfile(fileext = '.png')
+    # 
+    #   # Generate the PNG
+    #   png(outfile,
+    #       width = 400*2,
+    #       height = 300*2,
+    #       res = 72*2)
+    #   print(report_temp_plot())
+    #   dev.off()
+    # 
+    #   # Return a list containing the filename
+    #   list(src = outfile,
+    #        contentType = 'image/png',
+    #        width = 400,
+    #        height = 300,
+    #        alt = "Figure showing the trends between NDVI and land surface temperature.")
+    # }, deleteFile = TRUE)
+    
     output$temp_plot <- renderImage({
       req(TEST() != "")
-      
-      # A temp file to save the output.
-      # This file will be removed later by renderImage
-      outfile <- tempfile(fileext = '.png')
-      
-      # Generate the PNG
-      png(outfile, 
-          width = 400*2, 
-          height = 300*2,
-          res = 72*2)
-      print(report_temp_plot())
-      dev.off()
-      
-      # Return a list containing the filename
-      list(src = outfile,
-           contentType = 'image/png',
-           width = 400,
-           height = 300,
-           alt = "Figure showing the trends between NDVI and land surface temperature.")
-    }, deleteFile = TRUE)
-
+      # report_temp_plot()
+      list(src = report_temp_plot(),
+                    contentType = 'image/png',
+                    width = 400,
+                    height = 300,
+                    alt = "Figure showing the trends between NDVI and land surface temperature.")
+    }, deleteFile = FALSE)
+    
     report_other_para <- reactive({
       ns <- session$ns
       req(TEST() != "")
@@ -1030,6 +1065,18 @@ mod_report_server <- function(id,
         file.copy("inst/app/www/helveticaneueltstd-md-webfont.woff", tempmd, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-mdcn-webfont.woff", tempmdcn, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-roman-webfont.woff", temproman, overwrite = TRUE)
+        
+        # temp17 <- file.path(tempdir(), "NDVI_.17.png")
+        # file.copy("inst/app/www/NDVI_.17.png", temp17, overwrite = TRUE)
+        # temp42 <- file.path(tempdir(), "NDVI_.42.png")
+        # file.copy("./inst/app/www/NDVI_.42.png", temp42, overwrite = TRUE)
+        # temp67 <- file.path(tempdir(), "NDVI_.67.png")
+        # file.copy("./inst/app/www/NDVI_.67.png", temp67, overwrite = TRUE)
+        
+        # imgOne <- file.path(tempdir(), report_temp_plot())
+        # file.copy(report_temp_plot(), imgOne, overwrite = TRUE)
+        imgOne <- file.path(tempdir(), "test.png")
+        file.copy(report_temp_plot(), imgOne, overwrite = TRUE)
 
         # Set up parameters to pass to Rmd document
         params <- list(
@@ -1042,7 +1089,7 @@ mod_report_server <- function(id,
           param_prioritytable = report_priority_table(),
           param_equitytext = equity_text(),
           param_equityplot = report_equity_plot(),
-          param_tempplot = report_temp_plot(),
+          param_tempplot = imgOne, #report_temp_plot(),
           param_otherparea = report_other_para(),
           
           para_heattext = heat_text()
