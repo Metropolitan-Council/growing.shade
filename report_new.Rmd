@@ -158,12 +158,6 @@ params$param_equityplot
 
 ```{r tempplot, fig.align="center", out.width= "70%", fig.asp = .5}
 
-# params$param_tempplot
-
-
-# <center><img src='www/ndivfig.png' style='max-width:80%; max-height:400px' alt=' summary of greenhouse gas mitigation strategies including compact land use planning, energy efficient technology, conservation and sustainable behavior, clean energy supply, and sequestering carbon.'/img></center>
-
-
 # NDVI .77 =minnehaha/hidden falls park;  https://www.google.com/maps/@44.9083306,-93.194874,3a,90y,314.57h,93.43t/data=!3m8!1e1!3m6!1sAF1QipNbybtAen_ewnzAt-wDAfVWJJ7MV95h2HJfv-rF!2e10!3e11!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipNbybtAen_ewnzAt-wDAfVWJJ7MV95h2HJfv-rF%3Dw203-h100-k-no-pi-0-ya138.57913-ro-0-fo100!7i8704!8i4352
 
 # NDVI = .67; summit ave w/ prior; https://www.google.com/maps/@44.9413624,-93.1831969,3a,75y,66.54h,99.45t/data=!3m10!1e1!3m8!1sJNm6kjokIM8RTR-mVuFp9A!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fpanoid%3DJNm6kjokIM8RTR-mVuFp9A%26cb_client%3Dmaps_sv.tactile.gps%26w%3D203%26h%3D100%26yaw%3D50.330505%26pitch%3D0%26thumbfov%3D100!7i16384!8i8192!9m2!1b1!2i21
@@ -207,7 +201,7 @@ params$param_equityplot
 
 ```
 
-## Other resources
+# Other resources
 
 Growing Shade is a unique tool that highlights stories and allows users to create custom reports to inform tree canopy enhancement and preservation for the Twin Cities region. 
 
@@ -255,7 +249,7 @@ There are additional tools and resources that may be useful for this work.  Plea
     
     
 
-## FAQ
+# FAQ
 
 Please refer to the <a href="www/Growing Shade User Guide (November 2021).pdf" target="_blank">text user guide</a> or the <a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video user guide</a> for help using the tool. Short answers to frequently asked questions can be found below. 
 <br>
