@@ -663,9 +663,6 @@ mod_report_server <- function(id,
       ns <- session$ns
       req(TEST() != "")
       para <- HTML(paste0(
-        # "Research shows that trees are unevenly distributed across communities. ",
-        # "Areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy. ",
-        # "In the plot below, ",
         "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends in our region are shown below; ",
         if (geo_selections$selected_geo == "tracts") {
           paste0(param_areasummary()$fancyname, " is ")
@@ -780,9 +777,6 @@ mod_report_server <- function(id,
       #   
       
       fig_equity <-
-        # plotly::ggplotly(
-          
-          
           ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth(#method = "lm", 
@@ -822,27 +816,6 @@ mod_report_server <- function(id,
           labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
         )
         
-        
-        # ,tooltip = "none"
-        # 
-        # ) %>%
-        # plotly::config((modeBarButtonsToRemove = list(
-        #   "zoom2d",
-        #   "pan2d",
-        #   "zoomIn2d",
-        #   "zoomOut2d",
-        #   "autoScale2d",
-        #   "resetScale2d",
-        #   "hoverClosestCartesian",
-        #   "hoverCompareCartesian",
-        #   "sendDataToCloud",
-        #   "toggleHover",
-        #   "resetViews",
-        #   "toggleSpikelines",
-        #   "resetViewMapbox"
-        # ),
-        # displaylogo = FALSE
-        # )
 
       return(fig_equity)
     })
@@ -893,8 +866,6 @@ mod_report_server <- function(id,
           geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
-        # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-        # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
         labs(x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
              caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)\nand Landsat 8 satellite imagery (2016)") +
           theme(
@@ -940,32 +911,8 @@ mod_report_server <- function(id,
     
     })
     
-    # output$temp_plot <- renderImage({
-    #   req(TEST() != "")
-    # 
-    #   # A temp file to save the output.
-    #   # This file will be removed later by renderImage
-    #   outfile <- tempfile(fileext = '.png')
-    # 
-    #   # Generate the PNG
-    #   png(outfile,
-    #       width = 400*2,
-    #       height = 300*2,
-    #       res = 72*2)
-    #   print(report_temp_plot())
-    #   dev.off()
-    # 
-    #   # Return a list containing the filename
-    #   list(src = outfile,
-    #        contentType = 'image/png',
-    #        width = 400,
-    #        height = 300,
-    #        alt = "Figure showing the trends between NDVI and land surface temperature.")
-    # }, deleteFile = TRUE)
-    
     output$temp_plot <- renderImage({
       req(TEST() != "")
-      # report_temp_plot()
       list(src = report_temp_plot(),
                     contentType = 'image/png',
                     width = 400,
