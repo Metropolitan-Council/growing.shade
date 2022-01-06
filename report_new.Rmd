@@ -80,12 +80,11 @@ if(params$param_geo == "tracts") {
 ```
 
 
-This report was generated from the Growing Shade interactive tool produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. 
+This report was generated from the Growing Shade interactive resource produced by the Metropolitan Council in collaboration with The Nature Conservancy and Tree Trust. 
 
-Trees help communities thrive. Community-wide benefits of trees include cooler temperatures, improved air quality, cleaner stormwater, improved mental health, and enhanced biodiversity. Enhancing tree canopy cover is an actionable step to create healthy places for people to live and a resilient future. The Growing Shade Project provides data and resources to inform tree planting and canopy maintenance for the greater Twin Cities region.
+Trees help communities thrive. Community-wide benefits from trees include cooler temperatures, improved air quality, cleaner stormwater, improved mental health, and enhanced biodiversity. Enhancing tree canopy cover is an actionable step to create healthy and resilient places. The Growing Shade Project provides data and resources to inform tree planting and canopy preservation for the Twin Cities region.
 
-Trees connect to regional issues and priorities. Public health, environmental justice, climate change, and natural resource conservation all intersect with the tree canopy. Understanding the tree canopy within this larger context is important for prioritization and planning efforts.
-
+Trees connect to regional issues and priorities. Public health, environmental justice, climate change, and natural resource conservation all intersect with the tree canopy. Tree planting efforts and ongoing maintenance will benefit from new perspectives, rigorous science, and thoughtful synthesis. Growing Shade was developed for planners and foresters but is available to anyone who wants this information. Stakeholder engagement remains essential to understand community-specific concerns and opportunities for enhancing, preserving, and maintaining the tree canopy.
 
 
 ## Tree canopy
@@ -111,7 +110,7 @@ params$param_treeplot
 ```
 
 
-## Priortization
+## Prioritization
 
 `r params$param_ranktext`
 
@@ -249,40 +248,33 @@ There are additional tools and resources that may be useful for this work.  Plea
     
     
 
-# FAQ
+# Methods
 
-Please refer to the <a href="www/Growing Shade User Guide (November 2021).pdf" target="_blank">text user guide</a> or the <a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video user guide</a> for help using the tool. Short answers to frequently asked questions can be found below. 
+Growing Shade developed out of a collaboration between the <a href="https://metrocouncil.org/" target="_blank">Metropolitan Council</a>, <a href="https://www.nature.org/en-us/about-us/where-we-work/united-states/minnesota/" target="_blank">The Nature Conservancy</a>, and <a href="https://treetrust.org/" target="_blank">Tree Trust</a>. We thank members of the advisory group for initial consultations and thank all individuals who provided feedback during the development phase of this project. 
+
+Methods and data sources for the analyses presented within the Growing Shade are detailed below. Please <a href = "mailto:ellen.esch@metc.state.mn.us?subject=growing%shade%20tool&cc=eric.wojchik@metc.state.mn.us;mjohnston-mcintosh@TNC.ORG">contact us</a> if you have questions or feedback. 
+
+
+<h2><span style='font-size:16pt'>Prioritization layer</span></h2>
+
+Priority variables were sourced from several locations including:
+
+- Demographic and socioeconomic information comes from the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American Community Survey 5-Year Summary File</a> published by the Metropolitan Council. Census block group data is used. 
+- Health information comes from the <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES dataset</a> published by the Center of Disease Control and Prevention. PLACES data is reported by census tract.
+- Tree canopy and green space information is obtained from the <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Copernicus Sentinel-2 satellite mission</a>
+- Climate data including temperatures and flood risk was processed using the <a href = 'https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx' target = '_blank'>Climate Vulnerability Assessment</a> published by the Metropolitan Council.
+
 <br>
+Priority variables were standardized and scaled so that the z-score was normally distributed on a 0-10 scale (by multiplying the normal distribution of the z-score for each variable by 10). 
 
-**Q. How are the priority layers created?**
-<span style='line-height: .1;'><br></span>
-A. Priority scores are calculated using equally-weighted variables.
+Based on user-defined selection of priority variables, standardized scores are averaged to create a single, integrated priority value. 
 
-**Q. How did you choose the variables for the priority layers?**
-<span style='line-height: .1;'><br></span>
-A. Presets are developed to provide starting points for various stakeholder groups. 
 
-**Q. How can I isolate individual variables? Can I visualize the patterns for a single variable?**
-<span style='line-height: .1;'><br></span>
-A. Click on the "Custom" priority layer, then select a single variable. 
+<h2><span style='font-size:16pt'>Tree canopy</span></h2>
 
-**Q. I'm interested in understanding how the tree canopy intersects with a specific racial or ethnic group rather than all communities of color.**
-<span style='line-height: .1;'><br></span>
-A. Raw data can be downloaded from within the "mapping tool" tab if you wish explore relationships not shown in the report.
+Growing Shade uses and shows a tree canopy layer from 2020. A machine learning method was created in <a href = 'https://earthengine.google.com/' target = "_blank">Google Earth Engine</a> and used to detect tree cover from other land cover types using <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Sentinel-2 satellite imagery</a>. Any areas identified as <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-water-lakes-rivers' target = "_blank">open water</a> or <a href = 'https://developers.google.com/earth-engine/datasets/catalog/USDA_NASS_CDL?hl=en' target = '_blank'>cultivated cropland</a> were removed. 
 
-**Q. Why do different canopy tools show different priority areas?**
-<span style='line-height: .1;'><br></span>
-A. There several tools, like the <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American Forests’ Tree Equity Score</a>, that are worth exploring. The Growing Shade Project was created to specifically address to the unique challenges and opportunities of our region, reflecting priorities that may not be so readily detailed in a national, more generalized tool. Growing Shade responds to the specific climate change, conservation, environmental justice, and public health issues in our region. Also, users can customize our tool to address their individualized needs, which can be highly specific (for instance, a user may want to focus on planting trees in areas to enhance health benefits in children).  
-
-**Q. Why do different canopy tools show different canopy coverage percents? How did you decide on a goal of 30% tree canopy coverage?**
-<span style='line-height: .1;'><br></span>
-A. We created this tool to respond to the stakeholder need of providing up-to-date, actionable data. Therefore, we focus on satellite data to provide current data that can be used in decision-making. Current data is necessary to manage impacts from invasive species like emerald ash borer or respond to emerging climate hazards.
-
-To get current (near real-time) data, Growing Shade leverages Sentinel-2 satellite data. While Sentinel-2 data has excellent temporal resolution, the spatial resolution is 10 meters squared. This is often a bigger area than the canopy from a single tree. When comparing tree canopy detected from Sentinel-2 data with a more spatially accurate (but less temporally accurate) <a href = "https://gisdata.mn.gov/dataset/base-landcover-twincities" target = "_blank">1 meter squared landcover data set</a>, there was high correlation but Sentinel-2 data detects about twice as much tree canopy as the 1 meter squared landcover data. Essentially, this means that the methods in Growing Shade detect areas with at least 50% tree canopy coverage. We re-scaled our data using this relationship to improve the clarity of messaging. Thus, another way to view the goal of 30% canopy cover is to have 60% of land area covered by at least 50% tree canopy. More information is given in the "methods" tab. 
-
-**Q. Why doesn't the tool show trees where there are trees? Why does the tool show trees where there are not trees?**
-<span style='line-height: .1;'><br></span>
-A. Calibration revealed that the tree layer mapped in Growing Shade identifies areas which have at least 50% tree canopy cover. The tree canopy has been identified from satellite imagery using a machine learning method rather than collecting on-the-ground data. More information is given in the "methods" tab. 
+Next, the tree canopy as identified with Sentinel-2 data was calibrated to the tree canopy identified in 2015 using LiDAR data from 2011 (<a href="https://gisdata.mn.gov/dataset/base-landcover-twincities" target="_blank">Twin Cities Metropolitan area 1-meter land cover classification</a>). With 1000 equal-area regions across the 7-county area, a scaling factor of 0.53 was used to bring the Sentinel data in line with on-the-ground tree canopy. This scaling factor is appropriate for our methods of using 10 m x 10 m resolution data, which is often much larger than tree canopies. This scaling factor makes our data align very closely with other reports while still leveraging the scalability and temporal accuracy of our method. 
 
 
 <br><br>

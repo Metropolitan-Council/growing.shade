@@ -27,7 +27,7 @@ mod_report_ui <- function(id) {
                )
     )),
     fluidRow(shinydashboard::box(
-      title = "Priortization",
+      title = "Prioritization",
       width = 12, collapsed = F,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("rank_para")),
