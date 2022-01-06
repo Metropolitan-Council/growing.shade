@@ -135,7 +135,6 @@ mod_report_server <- function(id,
       return(fancyname)
     })
 
-
     # the min, max, ntracts, eab, treeacres, landacres, canopypercent, avgcanopy for the selected geography
     param_areasummary <- reactive({
       req(TEST() != "")
@@ -184,7 +183,6 @@ mod_report_server <- function(id,
       return(output)
     })
 
-
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
         filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi")) %>%
@@ -192,7 +190,6 @@ mod_report_server <- function(id,
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
     })
-
 
     output$geoarea <- renderUI({
       ns <- session$ns
@@ -493,7 +490,6 @@ mod_report_server <- function(id,
       ))
     })
 
-
     output$rank_para <- renderUI({
       ns <- session$ns
       req(TEST() != "")
@@ -686,8 +682,7 @@ mod_report_server <- function(id,
       report_priority_table()
     })
 
-
-    output$equity_para <- renderUI({
+    equity_text <- reactive({
       ns <- session$ns
       req(TEST() != "")
       para <- HTML(paste0(
@@ -704,11 +699,15 @@ mod_report_server <- function(id,
             " are "
           )
         },
-        "in green, and the regional trend is in blue.<br>"
+        "in green and the regional trend is in blue.<br><br>"
       ))
       return(para)
     })
     
+    output$equity_para <- renderUI({
+      req(TEST() != "")
+      (equity_text())
+    })
     
     output$download_para <- renderUI({
       ns <- session$ns
@@ -1023,6 +1022,7 @@ mod_report_server <- function(id,
           param_ranktext = rank_text(),
           param_rankplot = report_rank_plot(),
           param_prioritytable = report_priority_table(),
+          param_equitytext = equity_text(),
           param_equityplot = report_equity_plot(),
           param_tempplot = report_temp_plot(),
           param_otherparea = report_other_para()
