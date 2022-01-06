@@ -298,7 +298,7 @@ mod_map_overview_server <- function(input, output, session,
             weight = 0.5, # 0.25,
             fillOpacity = 0.5,
             smoothFactor = 0.2,
-            label = ~ (paste0("Priority score: ", (map_util$map_data2$MEAN))),
+            label = ~ (paste0("Priority score: ", round(map_util$map_data2$MEAN, 3))),
             highlightOptions = highlightOptions(
               stroke = TRUE,
               color = "white",
