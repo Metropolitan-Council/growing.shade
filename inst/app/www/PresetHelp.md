@@ -3,9 +3,8 @@
 Priority layer help
 </h1>
 <p align="left">
-Presets for the priority layers are developed to provide starting points
-for various stakeholder groups. Priority scores are calculated using
-equally-weighted variables.
+Presets for the priority layer provide a starting points for users.
+Priority scores are calculated using equally-weighted variables.
 </p>
 <h2 style="font-size:18pt">
 Climate change
@@ -13,7 +12,7 @@ Climate change
 <p align="left">
 Trees can mitigate some consequences of climate change by cooling land
 surface temperatures and reducing flooding. Use this preset to identify
-areas most at risk from climate change.
+areas most at risk from climate change hazards.
 </p>
 <h2 style="font-size:18pt">
 Conservation
@@ -21,8 +20,8 @@ Conservation
 <p align="left">
 Above and beyond enhancing the tree canopy, reducing tree canopy loss
 will be critical to meet carbon emission reduction goals and conserve
-biodiversity across taxa. This preset identifies areas with the region’s
-highest stock of existing trees.
+biodiversity across the region. This preset identifies areas with the
+region’s highest stock of existing trees.
 </p>
 <h2 style="font-size:18pt">
 Environmental justice
@@ -30,7 +29,7 @@ Environmental justice
 <p align="left">
 The natural and built environments intersect with income, race, and
 ethnicity. This preset identifies areas and people facing
-disproportionately negative consequences of environmental decisions.
+disproportionately negative consequences of land use decisions.
 </p>
 <h2 style="font-size:18pt">
 Public health
