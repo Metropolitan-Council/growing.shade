@@ -3,7 +3,7 @@ External resources
 
 Growing Shade is a unique tool that highlights stories and allows users
 to create custom reports to inform tree canopy enhancement and
-preservation for the greater Twin Cities region.
+preservation for the Twin Cities region.
 
 There are additional tools and resources that may be useful for this
 work. Please consider the list below as a starting point. Additionally,
