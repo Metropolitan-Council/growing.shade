@@ -27,25 +27,6 @@ color.** <span style="line-height: .1;"><br></span> A. Raw data can be
 downloaded from within the “mapping tool” tab if you wish explore
 relationships not shown in the report.
 
-**Q. Why do different canopy tools show different canopy coverage
-percents?** <span style="line-height: .1;"><br></span> A. We created
-this tool to respond to the stakeholder need of providing up-to-date,
-actionable data. Therefore, we focus on satellite data to provide
-current data that can be used in decision-making. Current data is
-necessary to manage impacts from invasive species like emerald ash borer
-or respond to emerging climate hazards.
-
-The trade-off for using the most current data is that the spatial
-resolution is lower. Imagery obtained from the Sentinel-2 satellite has
-a spatial resolution of 10 meters x 10 meters, which can be larger than
-the canopy from a single tree. The tree canopy as identified with
-Sentinel-2 data has been calibrated to account for this lower spatial
-resolution. If users prefer higher spatial resolution and do not require
-temporally updated data, the
-<a href = "https://gisdata.mn.gov/dataset/base-landcover-twincities" target = "_blank">Twin
-Cities Metropolitan area 1-meter land cover classification</a> may be
-useful. More information is given with the “methods” tab.
-
 **Q. Why do different canopy tools show different priority areas?**
 <span style="line-height: .1;"><br></span> A. There several tools, like
 the
@@ -60,12 +41,37 @@ users can customize our tool to address their individualized needs,
 which can be highly specific (for instance, a user may want to focus on
 planting trees in areas to enhance health benefits in children).
 
+**Q. Why do different canopy tools show different canopy coverage
+percents? How did you decide on a goal of 30% tree canopy coverage?**
+<span style="line-height: .1;"><br></span> A. We created this tool to
+respond to the stakeholder need of providing up-to-date, actionable
+data. Therefore, we focus on satellite data to provide current data that
+can be used in decision-making. Current data is necessary to manage
+impacts from invasive species like emerald ash borer or respond to
+emerging climate hazards.
+
+To get current (near real-time) data, Growing Shade leverages Sentinel-2
+satellite data. While Sentinel-2 data has excellent temporal resolution,
+the spatial resolution is 10 meters squared. This is often a bigger area
+than the canopy from a single tree. When comparing tree canopy detected
+from Sentinel-2 data with a more spatially accurate (but less temporally
+accurate)
+<a href = "https://gisdata.mn.gov/dataset/base-landcover-twincities" target = "_blank">1
+meter squared landcover data set</a>, there was high correlation but
+Sentinel-2 data detects about twice as much tree canopy as the 1 meter
+squared landcover data. Essentially, this means that the methods in
+Growing Shade detect areas with at least 50% tree canopy coverage. We
+re-scaled our data using this relationship to improve the clarity of
+messaging. Thus, another way to view the goal of 30% canopy cover is to
+have 60% of land area covered by at least 50% tree canopy. More
+information is given in the “methods” tab.
+
 **Q. Why doesn’t the tool show trees where there are trees? Why does the
 tool show trees where there are not trees?** <span
 style="line-height: .1;"><br></span> A. Calibration revealed that the
 tree layer mapped in Growing Shade identifies areas which have at least
 50% tree canopy cover. The tree canopy has been identified from
 satellite imagery using a machine learning method rather than collecting
-on-the-ground data. More information is given with the “methods” tab.
+on-the-ground data. More information is given in the “methods” tab.
 
 <br> <br><br><br><br>
