@@ -138,9 +138,10 @@ mod_map_selections_ui <- function(id) {
 #' map_selections Server Function
 #'
 #' @noRd
-mod_map_selections_server <- function(input, output, session,
+mod_map_selections_server <- function(input, output, session#,
                                       # preset_selections,
-                                      current_tab) {
+                                      # current_tab
+                                      ) {
   ns <- session$ns
 
   input_values <- reactiveValues() # start with an empty reactiveValues object.

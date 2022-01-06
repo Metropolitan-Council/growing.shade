@@ -14,8 +14,8 @@ app_server <- function(input, output, session) {
   mod_faq_server("faq_ui_1")
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
-  map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1",
-    current_tab = input$nav
+  map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1"#,
+    # current_tab = input$nav
   )
 
   geo_selections <- mod_geo_selection_server("geo_selection_ui_1")
