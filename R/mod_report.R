@@ -915,7 +915,7 @@ mod_report_server <- function(id,
         geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
         # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
           geom_smooth(method = 'lm', formula = 'y ~ x + I(x^2)', fill = NA, col = councilR::colors$councilBlue) +
-        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         # scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
         # scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
