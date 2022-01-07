@@ -2,7 +2,7 @@ FAQ
 ================
 
 Please refer to the
-<a href="www/Growing Shade User Guide (November 2021).pdf" target="_blank">text
+<a href="www/Growing Shade User Guide (January 2022).pdf" target="_blank">text
 user guide</a> or the
 <a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video
 user guide</a> for help using the tool. Short answers to frequently
