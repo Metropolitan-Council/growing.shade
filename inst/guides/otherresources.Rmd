@@ -26,6 +26,12 @@ There are additional tools and resources that may be useful for this work.  Plea
     - <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant Cities Lab</a>
   - *Where can I learn more about the impact of emerald ash borer?*
     - <a href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9" target = "_blank">Minnesota Department of Agriculture's Emerald Ash Borer Map</a>
+- **Community Engagement**
+  - *Why is community engagement essential? What are the impacts of tree planting on communities?*
+    - <a href = "https://create.umn.edu/toolkit/" target = "_blank">The CREATE Initiative: Sharing in the Benefits of a Greening City</a>
+  - *What does genuine community engagement look like?*
+    - <a href = "https://www.health.state.mn.us/communities/practice/resources/phqitoolbox/docs/AuthenticPrinciplesCommEng.pdf" target = "_blank">Principles of Authentic Communication (MN Dept of Health)</a>
+    - <a href = "https://wholecommunities.org/whole-measures/" target = "_blank">Center for Whole Communities: Whole Measures</a>
 - **Planting Trees and Native Vegetation**
   - *What trees are predicted to do well in future climate conditions?*
     - <a href = "https://forestadaptation.org/sites/default/files/2021-03/TwinCitiesMN_TreeSpeciesVulnerability.pdf" target = "_blank">Climate Change Vulnerability of Urban Trees: Twin Cities, Minnesota</a>
@@ -48,6 +54,7 @@ There are additional tools and resources that may be useful for this work.  Plea
   - *Where can I connect with others working to grow our tree canopy in the Twin Cities or across Minnesota?*
     - <a href = "https://www.mnstac.org/" target = "_blank">Minnesota Shade Tree Advisory Committee</a>
     - <a href = "https://trees.umn.edu/minnesota-shade-tree-short-course" target = "_blank">Minnesota Shade Tree Short Course</a>
+    - <a href = "https://www.nrs.fs.fed.us/stew-map/" target = "_blank">Stewardship Mapping and Assessment Project (STEW-MAP)</a>: a research tool, community organizing approach, and partnership mapping platform to engage and connect stewards of the local environment
   - *How can my city receive recognition or a certification for our urban forestry work?*
     - <a href = "https://www.arborday.org/programs/treeCityUSA/index.cfm" target = "_blank">Tree City USA</a>
     - <a href = "https://greenstep.pca.state.mn.us/bp-detail/81726" target = "_blank">GreenStep Cities program</a>

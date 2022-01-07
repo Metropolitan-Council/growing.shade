@@ -33,6 +33,17 @@ valuable sources of information.
     -   *Where can I learn more about the impact of emerald ash borer?*
         -   <a href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9" target = "_blank">Minnesota
             Department of Agriculture’s Emerald Ash Borer Map</a>
+-   **Community Engagement**
+    -   *Why is community engagement essential? What are the impacts of
+        tree planting on communities?*
+        -   <a href = "https://create.umn.edu/toolkit/" target = "_blank">The
+            CREATE Initiative: Sharing in the Benefits of a Greening
+            City</a>
+    -   *What does genuine community engagement look like?*
+        -   <a href = "https://www.health.state.mn.us/communities/practice/resources/phqitoolbox/docs/AuthenticPrinciplesCommEng.pdf" target = "_blank">Principles
+            of Authentic Communication (MN Dept of Health)</a>
+        -   <a href = "https://wholecommunities.org/whole-measures/" target = "_blank">Center
+            for Whole Communities: Whole Measures</a>
 -   **Planting Trees and Native Vegetation**
     -   *What trees are predicted to do well in future climate
         conditions?*
@@ -72,6 +83,11 @@ valuable sources of information.
             Shade Tree Advisory Committee</a>
         -   <a href = "https://trees.umn.edu/minnesota-shade-tree-short-course" target = "_blank">Minnesota
             Shade Tree Short Course</a>
+        -   <a href = "https://www.nrs.fs.fed.us/stew-map/" target = "_blank">Stewardship
+            Mapping and Assessment Project (STEW-MAP)</a>: a research
+            tool, community organizing approach, and partnership mapping
+            platform to engage and connect stewards of the local
+            environment
     -   *How can my city receive recognition or a certification for our
         urban forestry work?*
         -   <a href = "https://www.arborday.org/programs/treeCityUSA/index.cfm" target = "_blank">Tree
