@@ -10,12 +10,13 @@ app_server <- function(input, output, session) {
   # options(shiny.usecairo = T)
 
   # waitress <- waiter::Waitress$new("nav", theme = "overlay", min = 0, max = 10)
-  
+
   mod_storymap_server("storymap_ui_1")
   mod_faq_server("faq_ui_1")
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
-  map_selections <- callModule(mod_map_selections_server, "map_selections_ui_1"#,
+  map_selections <- callModule(
+    mod_map_selections_server, "map_selections_ui_1" # ,
     # current_tab = input$nav
   )
 
@@ -27,7 +28,7 @@ app_server <- function(input, output, session) {
   # observe({
   #   print(paste0("selected ctu/neighborhood from dropdown: ", (geo_selections$selected_area)))
   # })
-  # 
+  #
   # observe({
   #   print(paste0("preset used: ", map_selections$preset))
   # }) # to check that selections are working
@@ -49,7 +50,7 @@ app_server <- function(input, output, session) {
     map_util = map_util,
     current_tab = input$nav
   )
-# 
+  #
   observe({
     print(paste0("selected tract: ", (tract_selections$selected_tract)))
   }) # to check that selections are working

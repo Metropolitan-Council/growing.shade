@@ -34,65 +34,73 @@ mod_map_utils_server <- function(input, output, session,
   #   p <- bg_growingshade_main %>%
   #     filter(variable == "canopy_percent")
   #   return(p)
-  # })  
+  # })
 
   # but we want to get a single averaged value for every tract to put on the map
   make_map_data2 <- reactive({
-  #   step1 <- if (map_selections$preset == "Climate change") {
-  #     bg_growingshade_main %>%
-  #       filter(name %in% metadata$name[metadata$cc == 1])
-  #   } else if (map_selections$preset == "Conservation") {
-  #     bg_growingshade_main %>%
-  #       filter(name %in% metadata$name[metadata$cons == 1])
-  #   } else if (map_selections$preset == "Environmental justice") {
-  #     bg_growingshade_main %>%
-  #       filter(name %in% metadata$name[metadata$ej == 1])
-  #   } else if (map_selections$preset == "Public health") {
-  #     bg_growingshade_main %>%
-  #       filter(name %in% metadata$name[metadata$ph == 1])
-  #   } else if (map_selections$preset == "Custom") {
-  #     bg_growingshade_main %>%
-  #       filter(name %in% map_selections$allInputs$value)
-  # 
-  #   }
-  # 
-  # 
-  #   step2 <- step1 %>%
-  #     group_by(tract_string) %>%
-  #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-  #     # mutate(RANK = min_rank(desc(MEAN))) %>%
-  #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
-  #     st_as_sf()
-  # 
-  #   return(step2)
-  #   
-  #   bg_growingshade_main %>%
-  #     filter(name %in% metadata$name[metadata$ph == 1]) %>%
-  #     group_by(tract_string) %>%
-  #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-  #     # mutate(RANK = min_rank(desc(MEAN))) %>%
-  #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>% 
-  #     sf::st_as_sf() %>% str()
-  # 
-  #   mn_bgs %>%
-  #         rename(MEAN = `Climate change`) %>% as_tibble() %>% sf::st_as_sf() %>% str()
-    
+    #   step1 <- if (map_selections$preset == "Climate change") {
+    #     bg_growingshade_main %>%
+    #       filter(name %in% metadata$name[metadata$cc == 1])
+    #   } else if (map_selections$preset == "Conservation") {
+    #     bg_growingshade_main %>%
+    #       filter(name %in% metadata$name[metadata$cons == 1])
+    #   } else if (map_selections$preset == "Environmental justice") {
+    #     bg_growingshade_main %>%
+    #       filter(name %in% metadata$name[metadata$ej == 1])
+    #   } else if (map_selections$preset == "Public health") {
+    #     bg_growingshade_main %>%
+    #       filter(name %in% metadata$name[metadata$ph == 1])
+    #   } else if (map_selections$preset == "Custom") {
+    #     bg_growingshade_main %>%
+    #       filter(name %in% map_selections$allInputs$value)
+    #
+    #   }
+    #
+    #
+    #   step2 <- step1 %>%
+    #     group_by(tract_string) %>%
+    #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
+    #     # mutate(RANK = min_rank(desc(MEAN))) %>%
+    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
+    #     st_as_sf()
+    #
+    #   return(step2)
+    #
+    #   bg_growingshade_main %>%
+    #     filter(name %in% metadata$name[metadata$ph == 1]) %>%
+    #     group_by(tract_string) %>%
+    #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
+    #     # mutate(RANK = min_rank(desc(MEAN))) %>%
+    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
+    #     sf::st_as_sf() %>% str()
+    #
+    #   mn_bgs %>%
+    #         rename(MEAN = `Climate change`) %>% as_tibble() %>% sf::st_as_sf() %>% str()
+
     faststep <- if (map_selections$preset == "Climate change") {
       mn_bgs %>%
-        mutate(tract_string = GEOID, 
-               MEAN = `Climate change`)
+        mutate(
+          tract_string = GEOID,
+          MEAN = `Climate change`
+        )
     } else if (map_selections$preset == "Conservation") {
       mn_bgs %>%
-        mutate(tract_string = GEOID,
-               MEAN = `Conservation`)
+        mutate(
+          tract_string = GEOID,
+          MEAN = `Conservation`
+        )
     } else if (map_selections$preset == "Environmental justice") {
       mn_bgs %>%
-        mutate(tract_string = GEOID,
-               MEAN = `Environmental justice`) 
+        mutate(
+          tract_string = GEOID,
+          MEAN = `Environmental justice`
+        )
     } else if (map_selections$preset == "Public health") {
       mn_bgs %>%
-        mutate(tract_string = GEOID, 
-               MEAN = `Public health`)
+        mutate(
+          tract_string = GEOID,
+          MEAN = `Public health`
+        )
     } else if (map_selections$preset == "Custom") {
       bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value) %>%
@@ -113,11 +121,9 @@ mod_map_utils_server <- function(input, output, session,
     #     # st_as_sf() %>%
     #     # st_transform(4326)
     # )
-
-
-  })  #%>%
-    # bindCache(map_selections$preset,
-    #           map_selections$allInputs$value)
+  }) # %>%
+  # bindCache(map_selections$preset,
+  #           map_selections$allInputs$value)
 
 
   #------- reactive things
