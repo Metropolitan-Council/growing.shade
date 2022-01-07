@@ -10,13 +10,12 @@ app_ui <- function(request) {
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
-
     shinydisconnect::disconnectMessage(
-      text = HTML('Your session timed out. Please refresh the application.'),
+      text = HTML("Your session timed out. Please refresh the application."),
       refresh = "Refresh now",
       top = "center"
     ),
-    
+
 
     # List the first level UI elements here
 
@@ -34,11 +33,10 @@ app_ui <- function(request) {
                        }",
         "body {padding-top: 75px;}"
       ),
-
       tabPanel(
         "HOME",
         # id = "B",
-        br(),# br(),
+        br(), # br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
@@ -55,7 +53,8 @@ app_ui <- function(request) {
               color: black;
               padding: 0px;
               background-color: transparent;
-              z-index: 1000;"),
+              z-index: 1000;"
+        ),
         # id = "demo",
         div(
           style = "width:100% !important;
@@ -64,7 +63,6 @@ app_ui <- function(request) {
           sidebarLayout(
             sidebarPanel(
               # waiter::useWaitress(),
-              
               width = 6,
               style = "height: 90vh; overflow-y: auto;",
 
@@ -111,13 +109,10 @@ app_ui <- function(request) {
         "Resources",
         mod_other_resources_ui("other_resources_ui_1")
       ),
-      
-
       tabPanel(
         "FAQ",
         mod_faq_ui("faq_ui_1")
-        ),
-      
+      ),
       tabPanel(
         "methods",
         mod_methods_ui("methods_ui_1")

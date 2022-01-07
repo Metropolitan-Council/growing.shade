@@ -4,10 +4,10 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
-#' @importFrom shiny NS tagList 
-mod_faq_ui <- function(id){
+#' @importFrom shiny NS tagList
+mod_faq_ui <- function(id) {
   ns <- NS(id)
   tagList(
     br(), br(),
@@ -16,22 +16,20 @@ mod_faq_ui <- function(id){
       includeMarkdown(system.file("inst/app/www/faq.md", package = "planting.shade"))
     ),
     br()
- 
   )
 }
-    
+
 #' faq Server Functions
 #'
-#' @noRd 
-mod_faq_server <- function(id){
-  moduleServer( id, function(input, output, session){
+#' @noRd
+mod_faq_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
- 
   })
 }
-    
+
 ## To be copied in the UI
 # mod_faq_ui("faq_ui_1")
-    
+
 ## To be copied in the server
 # mod_faq_server("faq_ui_1")

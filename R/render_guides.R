@@ -22,19 +22,19 @@ render_guides <- function(.output_dir = "inst/app/www",
       )
     )
   )
-  
-  
+
+
   rmarkdown::render("./inst/guides/faq.Rmd",
-                    output_format = "github_document", # -----
-                    output_file = "faq.md",
-                    output_dir = .output_dir,
-                    params = list(
-                      actor_id = "esch",
-                      data_date = Sys.Date(),
-                      sha = system("git rev-parse --short HEAD",
-                                   intern = TRUE
-                      )
-                    )
+    output_format = "github_document", # -----
+    output_file = "faq.md",
+    output_dir = .output_dir,
+    params = list(
+      actor_id = "esch",
+      data_date = Sys.Date(),
+      sha = system("git rev-parse --short HEAD",
+        intern = TRUE
+      )
+    )
   )
 
   rmarkdown::render("./inst/guides/PresetHelp.Rmd", # "inst/app/www/PresetHelp.Rmd",

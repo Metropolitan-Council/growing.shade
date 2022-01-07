@@ -72,7 +72,7 @@ rvtl <- shiny::reactiveValuesToList
 # actually tooltips do not meet accessibility guidelines
 # #  thanks to: https://github.com/ebailey78/shinyBS/pull/70
 # radioTooltip <- function(id, choice, title, placement = "bottom", trigger = "hover", options = NULL){
-#   
+#
 #   options = shinyBS:::buildTooltipOrPopoverOptionsList(title, placement, trigger, options)
 #   options = paste0("{'", paste(names(options), options, sep = "': '", collapse = "', '"), "'}")
 #   bsTag <- shiny::tags$script(shiny::HTML(paste0("
@@ -90,7 +90,5 @@ rvtl <- shiny::reactiveValuesToList
 #   ")))
 #   htmltools::attachDependencies(bsTag, shinyBS:::shinyBSDep)
 # }
-# 
+#
 # #consider https://forum.bootstrapstudio.io/t/how-to-change-the-background-color-of-bootstrap-tooltips/7064
-
-

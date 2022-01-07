@@ -13,7 +13,7 @@ mod_map_selections_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # fluidRow(
-      radioButtons(ns("preset"),
+    radioButtons(ns("preset"),
       HTML("<h2><section style='font-size:20pt'>Priority layer</h2></section><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Use a preset or create a custom layer to understand the overlap. </section></p>"),
       choiceNames = list(
         # HTML("<a>Climate change</a>"),
@@ -21,7 +21,7 @@ mod_map_selections_ui <- function(id) {
         # HTML("<a>Environmental justice</a>"),
         # HTML("<a>Public health</a>"),
         # HTML("<a>Custom</a>")
-        "Climate change", 
+        "Climate change",
         "Conservation",
         "Environmental justice",
         "Public health",
@@ -36,19 +36,19 @@ mod_map_selections_ui <- function(id) {
       ), inline = T,
       selected = "Environmental justice"
       # selected = "Custom"
-    # ),
-    # shinyBS::bsModal(ns("testmodal"), title = "Test Modal", trigger = "Climate change",
-    #                  h5("Data Guidelines"),
-    #                  tags$ol(
-    #                    tags$li("Must have Resp_ID as the first column, occasion_ID as second and dependent variable as the third"),
-    #                    tags$li("Must have no missing value in any fields")
-    #                  ), easyClose = TRUE, footer = NULL),
-    # radioTooltip(ns("preset"), choice = "Environmental justice", title = "The natural and built environments intersect with income, race, and ethnicity. This preset identifies areas and people facing disproportionately negative consequences of environmental decisions.", placement = "bottom", trigger = "hover"),
-    # radioTooltip(ns("preset"), choice = "Conservation", title = "Reducing tree canopy loss will be critical to meet carbon emission reduction goals and conserve biodiversity across taxa. This preset identifies areas with the region’s highest stock of existing trees.", placement = "bottom", trigger = "hover"),
-    # radioTooltip(ns("preset"), choice = "Custom", title = "Select this option to customize the prioritization variables.", placement = "bottom", trigger = "hover"),
-    # radioTooltip(ns("preset"), choice = "Climate change", title = "Trees can mitigate some consequences of climate change by cooling land surface temperatures and reducing flooding. Use this preset to identify areas most at risk from climate change.", placement = "bottom", trigger = "hover"),
-    # radioTooltip(ns("preset"), choice = "Public health", title = "Trees improve air quality and cool land surface temperatures leading to better health outcomes, particularly for sensitive populations. Identify areas where trees could most improve health outcomes.", placement = "bottom", trigger = "hover"),
-    )  %>%
+      # ),
+      # shinyBS::bsModal(ns("testmodal"), title = "Test Modal", trigger = "Climate change",
+      #                  h5("Data Guidelines"),
+      #                  tags$ol(
+      #                    tags$li("Must have Resp_ID as the first column, occasion_ID as second and dependent variable as the third"),
+      #                    tags$li("Must have no missing value in any fields")
+      #                  ), easyClose = TRUE, footer = NULL),
+      # radioTooltip(ns("preset"), choice = "Environmental justice", title = "The natural and built environments intersect with income, race, and ethnicity. This preset identifies areas and people facing disproportionately negative consequences of environmental decisions.", placement = "bottom", trigger = "hover"),
+      # radioTooltip(ns("preset"), choice = "Conservation", title = "Reducing tree canopy loss will be critical to meet carbon emission reduction goals and conserve biodiversity across taxa. This preset identifies areas with the region’s highest stock of existing trees.", placement = "bottom", trigger = "hover"),
+      # radioTooltip(ns("preset"), choice = "Custom", title = "Select this option to customize the prioritization variables.", placement = "bottom", trigger = "hover"),
+      # radioTooltip(ns("preset"), choice = "Climate change", title = "Trees can mitigate some consequences of climate change by cooling land surface temperatures and reducing flooding. Use this preset to identify areas most at risk from climate change.", placement = "bottom", trigger = "hover"),
+      # radioTooltip(ns("preset"), choice = "Public health", title = "Trees improve air quality and cool land surface temperatures leading to better health outcomes, particularly for sensitive populations. Identify areas where trees could most improve health outcomes.", placement = "bottom", trigger = "hover"),
+    ) %>%
       shinyhelper::helper(
         type = "markdown", content = "PresetHelp", size = "m"
         # )
@@ -138,10 +138,10 @@ mod_map_selections_ui <- function(id) {
 #' map_selections Server Function
 #'
 #' @noRd
-mod_map_selections_server <- function(input, output, session#,
+mod_map_selections_server <- function(input, output, session # ,
                                       # preset_selections,
                                       # current_tab
-                                      ) {
+) {
   ns <- session$ns
 
   input_values <- reactiveValues() # start with an empty reactiveValues object.
