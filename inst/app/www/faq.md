@@ -44,8 +44,8 @@ planting trees in areas to enhance health benefits in children).
 Growing Shade’s priority scores range from 0 (lowest priority) to 10
 (highest priority). Distance between priority scores can be interpreted
 on a continuous, linear scale. For instance, the difference between
-priority scores of 8 and 10 is the same as the difference between
-priority scores of 4 and 6 (both have a difference of 2).
+priority scores of 4 and 5 is the same as the difference between
+priority scores of 5 and 6 (both have a difference of 1).
 
 **Q. Why do different canopy tools show different canopy coverage
 percents? How did you decide on a goal of 30% tree canopy coverage?**
