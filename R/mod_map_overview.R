@@ -309,7 +309,7 @@ mod_map_overview_server <- function(input, output, session,
             ),
             fillColor = ~ colorNumeric(
               n = 5,
-              palette = "Oranges",
+              palette = "YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
@@ -331,7 +331,7 @@ mod_map_overview_server <- function(input, output, session,
             layerId = "score",
             pal = colorNumeric(
               n = 5,
-              palette = "Oranges",
+              palette = "YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
             ),
             values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
