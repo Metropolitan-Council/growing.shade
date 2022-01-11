@@ -315,9 +315,9 @@ mod_map_overview_server <- function(input, output, session,
             popup = ~ paste0(
               "Geographic ID: ", map_util$map_data2$tract_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
-              "<br>Priority score: ", (map_util$map_data2$MEAN),
+              "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
               # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
-              "<br>Current tree canopy cover: ", round(bg_growingshade_main$raw_value[bg_growingshade_main$variable == "canopy_percent"] * 100, 1), "%"
+              "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
             options = pathOptions(pane = "Priority score"),
             layerId = ~tract_string
