@@ -557,7 +557,8 @@ mod_report_server <- function(id,
         ) +
         scale_x_continuous(
           limits = c(0, 10),
-          breaks = c(0, 2.5, 5, 7.5, 10)
+          breaks = c(0, 2.5, 5, 7.5, 10),
+          labels = c("0 (lowest\npriority)", 2.5, 5, 7.5, "10 (highest\npriority)")
         ) +
         geom_point(aes(x = rank, y = forcats::fct_rev(priority)),
           # position = position_jitter(seed = 1, width = 0, height = .3),
