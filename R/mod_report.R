@@ -326,7 +326,7 @@ mod_report_server <- function(id,
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
             fill = councilR::colors$cdGreen,
-            size = 4, col = "black", pch = 21,
+            size = 4, col = "black", pch = 21, stroke = 1, 
             data = filter(canopyplot, flag == "selected", is.na(t2))
           ) +
           # geom_jitter(aes(x = raw_value, y = type),
@@ -353,7 +353,7 @@ mod_report_server <- function(id,
             cex = 3, # priority = "density",
             # method = "compactswarm",
             # corral = "wrap", corral.width = 0.6,
-            fill = councilR::colors$cdGreen,
+            fill = councilR::colors$cdGreen, stroke = 1,
             # size = 3,
             col = "black", pch = 21, alpha = .8,
             data = filter(canopyplot, flag == "selected", t2 == "block groups"),
@@ -409,7 +409,7 @@ mod_report_server <- function(id,
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = 1),
             fill = councilR::colors$cdGreen,
-            size = 5, col = "black", pch = 21,
+            size = 5, col = "black", pch = 21, stroke = 1, 
             data = filter(canopyplot, flag == "selected"),
             na.rm = T
           )
@@ -565,7 +565,7 @@ mod_report_server <- function(id,
           # cex = 3, #priority = "density",
           # method = "compactswarm",
           # corral = "wrap", corral.width = 0.6,
-          fill = councilR::colors$cdGreen,
+          fill = councilR::colors$cdGreen, stroke = 1,
           size = 3,
           col = "black", pch = 21, alpha = .8,
           data = test,
@@ -817,7 +817,7 @@ mod_report_server <- function(id,
           method = "gam", formula = y ~ s(x, bs = "cs"),
           fill = NA, col = councilR::colors$councilBlue, na.rm = T
         ) +
-        geom_point(fill = councilR::colors$cdGreen, size = 5, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, size = 4, stroke = 1, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         theme(
           panel.grid.minor = element_blank(),
@@ -915,7 +915,7 @@ mod_report_server <- function(id,
         geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
         # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
-        geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, stroke = 1, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
