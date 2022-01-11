@@ -811,7 +811,7 @@ mod_report_server <- function(id,
 
       fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
-        geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
+        geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth( # method = "lm",
           # formula = "y ~ x",
           method = "gam", formula = y ~ s(x, bs = "cs"),
@@ -912,7 +912,7 @@ mod_report_server <- function(id,
         select(flag, avg_temp, ndvi)
 
       plot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
-        geom_point(col = "grey40", alpha = .3, data = filter(df, is.na(flag)), na.rm = T) +
+        geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
         # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
