@@ -523,7 +523,7 @@ mod_report_server <- function(id,
       #   geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
       #   councilR::council_theme() +
       #   theme(
-      #       axis.title.y = element_blank(),
+      #       axis.title.y = element_blank(), 
       #     panel.grid.minor = element_blank(),
       #     panel.grid.major = element_blank(),
       #     strip.placement = "outside",
