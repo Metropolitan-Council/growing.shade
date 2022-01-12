@@ -461,7 +461,7 @@ mod_report_server <- function(id,
         paste0(
           "Using the ",
           tolower(map_selections$preset),
-          " layer, ",
+          " layer, ", #test
           if (geo_selections$selected_geo == "tracts") {
             paste0(
               param_areasummary()$fancyname, " has a score of ",
