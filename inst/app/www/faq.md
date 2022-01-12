@@ -32,14 +32,14 @@ relationships not shown in the report.
 like the
 <a href = "https://www.americanforests.org/our-work/tree-equity-score/" target = "_blank">American
 Forests’ Tree Equity Score</a>, that are worth exploring. The Growing
-Shade Project was created to specifically address to the unique
-challenges and opportunities of our region, reflecting priorities that
-may not be so readily detailed in a national, more generalized tool.
-Growing Shade responds to the specific climate change, conservation,
-environmental justice, and public health issues in our region. Also,
-users can customize our tool to address their individualized needs,
-which can be highly specific (for instance, a user may want to focus on
-planting trees in areas to enhance health benefits in children).
+Shade Project was created to specifically address the unique challenges
+and opportunities of our region, reflecting priorities that may not be
+so readily detailed in a national, more generalized tool. Growing Shade
+responds to the specific climate change, conservation, environmental
+justice, and public health issues in our region. Also, users can
+customize our tool to address their individualized needs, which can be
+highly specific (for instance, a user may want to focus on planting
+trees in areas to enhance health benefits in children).
 
 Growing Shade’s priority scores range from 0 (lowest priority) to 10
 (highest priority). Distance between priority scores can be interpreted
