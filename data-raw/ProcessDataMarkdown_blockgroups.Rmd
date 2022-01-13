@@ -503,7 +503,12 @@ ctu_list <- ctu_geo %>%
 
 #should check credit river / credit river twp.
 nhood_list %>% arrange(avgcanopy, canopy_percent)
+ctu_list <- ctu_list %>% st_make_valid() %>% st_simplify(dTolerance = 100)
+ggplot() +
+  geom_sf(data = ctu_list) +
+  geom_sf(data = ctu_list2, col = "blue", fill = NA)
 usethis::use_data(ctu_list, overwrite = TRUE)
+# usethis::use_data(ctu_list2, overwrite = TRUE)
 
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 
