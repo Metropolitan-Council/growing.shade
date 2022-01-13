@@ -281,11 +281,6 @@ mod_report_server <- function(id,
 
       if (geo_selections$selected_geo != "tracts") {
         plot <- ggplot() +
-          # geom_boxplot(
-          #   data = canopyplot, aes(x = raw_value, y = type),
-          #   outlier.shape = NA,
-          #   na.rm = T
-          # ) +
           councilR::council_theme() +
           theme(
             plot.title = element_text(size = 16),
@@ -297,23 +292,10 @@ mod_report_server <- function(id,
               colour = "grey30"
             )
           ) +
-          # ggtitle(paste0(param_area(), " tree canopy")) +
-          # geom_point(
-          #   size = 1.3, alpha = .3,
-          #   position = position_jitter(seed = 1, width = 0, height = .3),
-          #   col = "grey40",
-          #   aes(x = raw_value, y = type),
-          #   data = filter(canopyplot, is.na(flag)),
-          #   na.rm = T
-          # ) +
           ggbeeswarm::geom_beeswarm(
             size = 3, alpha = .3,
-            # position = position_jitter(seed = 1, width = 0, height = .3),
-            # groupOnX = FALSE, varwidth = F,
             cex = 3,
-            # method = "compactswarm",
             corral = "wrap", corral.width = 0.5,
-            # priority = "density",
             col = "grey40",
             aes(x = raw_value, y = type),
             data = filter(canopyplot, is.na(flag)),
@@ -329,30 +311,10 @@ mod_report_server <- function(id,
             size = 4, col = "black", pch = 21, stroke = 1, 
             data = filter(canopyplot, flag == "selected", is.na(t2))
           ) +
-          # geom_jitter(aes(x = raw_value, y = type),
-          #   position = position_jitter(seed = 1, width = 0, height = .3),
-          #   fill = councilR::colors$cdGreen,
-          #   size = 4, col = "black", pch = 21,
-          #   data = filter(canopyplot, flag == "selected", t2 == "block groups"),
-          #   na.rm = T
-          # )
-          # ggbeeswarm::geom_beeswarm(aes(x = raw_value, y = type),
-          #             # position = position_jitter(seed = 1, width = 0, height = .3),
-          #             # groupOnX = FALSE, varwidth = F,
-          #             cex = 3, #priority = "density",
-          #             # method = "compactswarm",
-          #             corral = "wrap", corral.width = 0.6,
-          #             fill = councilR::colors$cdGreen,
-          #             size = 3, col = "black", pch = 21,alpha = .8,
-          #             data = filter(canopyplot, flag == "selected", t2 == "block groups"),
-          #             na.rm = T
-          # )
           ggbeeswarm::geom_quasirandom(aes(x = raw_value, y = type),
             # position = position_jitter(seed = 1, width = 0, height = .3),
             groupOnX = F, varwidth = T,
             cex = 3, # priority = "density",
-            # method = "compactswarm",
-            # corral = "wrap", corral.width = 0.6,
             fill = councilR::colors$cdGreen, stroke = 1,
             # size = 3,
             col = "black", pch = 21, alpha = .8,
@@ -361,17 +323,6 @@ mod_report_server <- function(id,
           )
       } else {
         plot <- ggplot() +
-          # ggdist::stat_halfeye(
-          #   data = canopyplot, aes(x = raw_value, y = 1),
-          #   adjust = .5, width = .6, .width = 0, justification = -.6,
-          #   point_colour = NA,
-          #   na.rm = T
-          # ) +
-          # geom_boxplot(
-          #   data = canopyplot, aes(x = raw_value, y = 1),
-          #   width = .75, outlier.shape = NA,
-          #   na.rm = T
-          # ) +
           councilR::council_theme() +
           theme(
             panel.grid.minor = element_blank(),
@@ -383,20 +334,10 @@ mod_report_server <- function(id,
               colour = "grey30"
             )
           ) +
-          # ggtitle((param_fancytract())) +
-          # geom_point(
-          #   size = 1.3, alpha = .3,
-          #   position = position_jitter(seed = 1, width = 0, height = .3),
-          #   col = "grey40",
-          #   aes(x = raw_value, y = 1),
-          #   data = filter(canopyplot, is.na(flag)),
-          #   na.rm = T
-          # ) +
           ggbeeswarm::geom_quasirandom(
             groupOnX = F, varwidth = T,
             cex = 1, # size = 1.3,
             alpha = .3,
-            # position = position_jitter(seed = 1, width = 0, height = .3),
             col = "grey40",
             aes(x = raw_value, y = 1),
             data = filter(canopyplot, is.na(flag)),
@@ -466,8 +407,6 @@ mod_report_server <- function(id,
             paste0(
               param_areasummary()$fancyname, " has a score of ",
               round((param_selectedtractvalues()$MEAN), 2),
-              # " with a region-wide ranking of ",
-              # (param_selectedtractvalues()$RANK),
               " (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
@@ -477,8 +416,6 @@ mod_report_server <- function(id,
               param_area(),
               " have priority scores ranging from ",
               round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
-              # " and a region-wide ranking from ",
-              # min(param_selectedtractvalues()$RANK), " to ", max(param_selectedtractvalues()$RANK),
               "  (where 10 indicates highest priority). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
@@ -500,16 +437,9 @@ mod_report_server <- function(id,
         tibble()
       } else {
         param_selectedtractvalues() %>%
-          rename(rank = MEAN) %>%
-          # rename(rank = RANK) %>%
+          rename(score = MEAN) %>%
           mutate(priority = " Custom")
       }
-
-      # segment_line <- if (map_selections$preset != "Custom") {
-      #   tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change"))
-      # } else {
-      #   tibble(y = c("Public health", "Environmental justice", "Conservation", "Climate change", " Custom"))
-      # }
 
       test <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
@@ -519,8 +449,6 @@ mod_report_server <- function(id,
 
       plot <-
         ggplot() +
-        # scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
-        # geom_errorbarh(data = test, aes(xmax = score, xmin = score, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme(
           axis.title.y = element_blank(),
@@ -538,26 +466,6 @@ mod_report_server <- function(id,
           breaks = c(0, 2.5, 5, 7.5, 10),
           labels = c("0 (lowest\npriority)", 2.5, 5, 7.5, "10 (highest\npriority)")
         ) +
-        # geom_point(aes(x = score, y = forcats::fct_rev(priority)),
-        #   # position = position_jitter(seed = 1, width = 0, height = .3),
-        #   # groupOnX = F, varwidth = T,
-        #   # cex = 3, #priority = "density",
-        #   # method = "compactswarm",
-        #   # corral = "wrap", corral.width = 0.6,
-        #   fill = councilR::colors$cdGreen, stroke = 1,
-        #   size = 3,
-        #   col = "black", pch = 21, alpha = .8,
-        #   data = test,
-        #   na.rm = T
-        # ) +
-        # ggbeeswarm::geom_quasirandom(aes(x = score, y = forcats::fct_rev(priority)),
-        #                              groupOnX = F, varwidth = T,
-        #                              cex = 3, 
-        #                              fill = councilR::colors$cdGreen, stroke = 1,
-        #                              col = "black", pch = 21, alpha = .8,
-        #                              data = test,
-        #                              na.rm = T
-        # ) +
       ggbeeswarm::geom_beeswarm(aes(x = score, y = forcats::fct_rev(priority)),
                                    # groupOnX = F, varwidth = T,
                                    cex = if (nrow(param_selectedtractvalues()) > 100) {2} else {3}, 
@@ -576,21 +484,6 @@ mod_report_server <- function(id,
         )
       return(plot)
     })
-
-    
-    # ggplot() +ggbeeswarm::geom_beeswarm(aes(x = Petal.Length, y = (Species)),
-    #                                     # groupOnX = F, varwidth = T,
-    #                                     cex = 2, size = 2,
-    #                                     fill = councilR::colors$cdGreen, stroke = 1,
-    #                                     col = "black", pch = 21, alpha = .8,
-    #                                     data = iris,
-    #                                     method = "compactswarm",
-    #                                     na.rm = T
-    # )
-    # output$rank_plot <- renderPlot({
-    #   req(TEST() != "")
-    #   report_rank_plot()
-    # })
 
     output$rank_plot <- renderImage(
       {
