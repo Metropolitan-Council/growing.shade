@@ -495,6 +495,7 @@ mod_report_server <- function(id,
 
     report_rank_plot <- reactive({
       req(TEST() != "")
+      set.seed(12345)
       test2 <- if (map_selections$preset != "Custom") {
         tibble()
       } else {
@@ -513,36 +514,13 @@ mod_report_server <- function(id,
       test <- param_selectedtractvalues() %>%
         st_drop_geometry() %>%
         dplyr::select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
-        pivot_longer(names_to = "priority", values_to = "rank", -GEO_NAME) %>%
+        pivot_longer(names_to = "priority", values_to = "score", -GEO_NAME) %>%
         bind_rows(test2)
 
-      # #line plot
-      # plot <-
-      #   ggplot() +
-      #   scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
-      #   geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
-      #   councilR::council_theme() +
-      #   theme(
-      #       axis.title.y = element_blank(),  
-      #     panel.grid.minor = element_blank(),
-      #     panel.grid.major = element_blank(),
-      #     strip.placement = "outside",
-      #     axis.ticks.x = element_blank(), #element_line(),
-      #     plot.caption = element_text(size = rel(1),
-      #                                 colour = "grey30")
-      #   ) +
-      #   geom_segment(aes(
-      #     x = 1, xend = 2085, y = segment_line$y,
-      #     yend = segment_line$y
-      #   )) +
-      #   labs(x = "Rank of aggregated priority score\n(out of 2085 block groups across the region)",
-      #        caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)")
-
-      # #swarm (maybe just regular) plot with priority scores
       plot <-
         ggplot() +
         # scale_x_continuous(limits = c(1, 2085), labels = c(1, 500, 1000, 1500, 2085), breaks = c(1, 500, 1000, 1500, 2085)) +
-        # geom_errorbarh(data = test, aes(xmax = rank, xmin = rank, y = forcats::fct_rev(priority)), height = .5) +
+        # geom_errorbarh(data = test, aes(xmax = score, xmin = score, y = forcats::fct_rev(priority)), height = .5) +
         councilR::council_theme() +
         theme(
           axis.title.y = element_blank(),
@@ -560,22 +538,38 @@ mod_report_server <- function(id,
           breaks = c(0, 2.5, 5, 7.5, 10),
           labels = c("0 (lowest\npriority)", 2.5, 5, 7.5, "10 (highest\npriority)")
         ) +
-        geom_point(aes(x = rank, y = forcats::fct_rev(priority)),
-          # position = position_jitter(seed = 1, width = 0, height = .3),
-          # groupOnX = F, varwidth = T,
-          # cex = 3, #priority = "density",
-          # method = "compactswarm",
-          # corral = "wrap", corral.width = 0.6,
-          fill = councilR::colors$cdGreen, stroke = 1,
-          size = 3,
-          col = "black", pch = 21, alpha = .8,
-          data = test,
-          na.rm = T
-        ) +
-        # geom_segment(aes(
-        #   x = 1, xend = 2085, y = segment_line$y,
-        #   yend = segment_line$y
-        # )) +
+        # geom_point(aes(x = score, y = forcats::fct_rev(priority)),
+        #   # position = position_jitter(seed = 1, width = 0, height = .3),
+        #   # groupOnX = F, varwidth = T,
+        #   # cex = 3, #priority = "density",
+        #   # method = "compactswarm",
+        #   # corral = "wrap", corral.width = 0.6,
+        #   fill = councilR::colors$cdGreen, stroke = 1,
+        #   size = 3,
+        #   col = "black", pch = 21, alpha = .8,
+        #   data = test,
+        #   na.rm = T
+        # ) +
+        # ggbeeswarm::geom_quasirandom(aes(x = score, y = forcats::fct_rev(priority)),
+        #                              groupOnX = F, varwidth = T,
+        #                              cex = 3, 
+        #                              fill = councilR::colors$cdGreen, stroke = 1,
+        #                              col = "black", pch = 21, alpha = .8,
+        #                              data = test,
+        #                              na.rm = T
+        # ) +
+      ggbeeswarm::geom_beeswarm(aes(x = score, y = forcats::fct_rev(priority)),
+                                   # groupOnX = F, varwidth = T,
+                                   cex = if (nrow(param_selectedtractvalues()) > 100) {2} else {3}, 
+                                size = if (nrow(param_selectedtractvalues()) > 100) {2} else {3},
+                                corral = "wrap", corral.width = 0.7,
+                                   fill = councilR::colors$cdGreen, 
+                                stroke = if(nrow(param_selectedtractvalues()) > 100) {0} else {1},
+                                   col = "black", pch = 21, alpha = .8,
+                                   data = test,
+                                method = "compactswarm",
+                                   na.rm = T
+      ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
           caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)"
@@ -583,6 +577,16 @@ mod_report_server <- function(id,
       return(plot)
     })
 
+    
+    # ggplot() +ggbeeswarm::geom_beeswarm(aes(x = Petal.Length, y = (Species)),
+    #                                     # groupOnX = F, varwidth = T,
+    #                                     cex = 2, size = 2,
+    #                                     fill = councilR::colors$cdGreen, stroke = 1,
+    #                                     col = "black", pch = 21, alpha = .8,
+    #                                     data = iris,
+    #                                     method = "compactswarm",
+    #                                     na.rm = T
+    # )
     # output$rank_plot <- renderPlot({
     #   req(TEST() != "")
     #   report_rank_plot()
