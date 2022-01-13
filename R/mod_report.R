@@ -831,11 +831,8 @@ mod_report_server <- function(id,
 
       plot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
         geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
-        # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, 
-                   # stroke = 1, 
-                   # size = 4, 
                    stroke = if(selected_length() > 100) {.5} else {1},
                    size = if (selected_length() > 100) {2} else {4},
                    

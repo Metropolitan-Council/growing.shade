@@ -71,7 +71,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "Road outlines", zIndex = 151) %>%
       addMapPane(name = "geooutline2", zIndex = 152) %>%
       addMapPane("redline", zIndex = 160) %>%
-      addMapPane("trans", zIndex = 200) %>%
+      # addMapPane("trans", zIndex = 200) %>%
       addMapPane("EAB", zIndex = 201) %>%
       addMapPane("outline", zIndex = 250) %>%
       addMapPane("labels", zIndex = 251) %>%
@@ -124,17 +124,17 @@ mod_map_overview_server <- function(input, output, session,
         options = pathOptions(pane = "Map")
       ) %>%
       #### regional specific other data layers
-      addCircles(
-        data = trans_stops,
-        group = "Active transit stops",
-        radius = 20,
-        fill = T,
-        stroke = TRUE,
-        weight = 2,
-        color = "black",
-        fillColor = "black",
-        options = pathOptions(pane = "trans")
-      ) %>%
+      # addCircles(
+      #   data = trans_stops,
+      #   group = "Active transit stops",
+      #   radius = 20,
+      #   fill = T,
+      #   stroke = TRUE,
+      #   weight = 2,
+      #   color = "black",
+      #   fillColor = "black",
+      #   options = pathOptions(pane = "trans")
+      # ) %>%
       addCircles(
         data = eab,
         group = "Emerald ash borer",
@@ -229,7 +229,7 @@ mod_map_overview_server <- function(input, output, session,
           "Priority score",
           "Trees",
           # "Water",
-          "Active transit stops",
+          # "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
           "Emerald ash borer",
@@ -238,7 +238,7 @@ mod_map_overview_server <- function(input, output, session,
         options = layersControlOptions(collapsed = T)
       ) %>%
       hideGroup(c(
-        "Active transit stops",
+        # "Active transit stops",
         "Emerald ash borer",
         "Historically redlined areas",
         "Road outlines"
