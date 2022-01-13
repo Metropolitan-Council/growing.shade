@@ -908,7 +908,47 @@ usethis::use_data(metc_region, overwrite = TRUE)
 
 ```{r}
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
-# ctu_list <- ctu_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
+ctu_list <- ctu_list %>% 
+  st_transform(26915) %>%
+  sf::st_simplify(dTolerance = 50, preserveTopology = T) %>%
+  sf::st_transform(4326)
+usethis::use_data(ctu_list, overwrite = TRUE)
+
+nhood_list <- nhood_list %>% 
+  st_transform(26915) %>%
+  sf::st_simplify(dTolerance = 50, preserveTopology = T) %>%
+  sf::st_transform(4326)
+usethis::use_data(nhood_list, overwrite = TRUE)
+
+redline <- redline %>% 
+  # st_transform(26915) %>%
+  sf::st_simplify(dTolerance = 50, preserveTopology = T) %>%
+  sf::st_transform(4326)
+usethis::use_data(redline, overwrite = TRUE)
+
+
+mn_bgs <- mn_bgs %>% 
+  # st_transform(26915) %>%
+  sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
+  sf::st_transform(4326)
+usethis::use_data(mn_bgs, overwrite = TRUE)
+
+
+leaflet::leaflet() %>%
+  leaflet::addPolygons(data = mn_bgs) %>%
+  leaflet::addPolygons(data = mn_bgs5, color = "red")
+object.size(mn_bgs) / 1e5
+object.size(mn_bgs5) / 1e5
+
+bg_growingshade_main <- bg_growingshade_main %>%
+  select(tract_string, name, weights_scaled, raw_value)
+usethis::use_data(bg_growingshade_main, overwrite = TRUE)
+
+eab <- eab %>% select(geometry)
+usethis::use_data(eab, overwrite = TRUE)
+
+object.size(eab2) / 1e5
+object.size(eab) / 1e5
 # # ggplot() +
 # #   geom_sf(data = ctu_list) +
 # #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
