@@ -147,6 +147,11 @@ mod_report_server <- function(id,
       )
       return(output)
     })
+    
+    selected_length <- reactive({
+      req(TEST() != "")
+      nrow(param_selectedtractvalues())
+    })
 
     # all data with flag for selected areas
     param_dl_data <- reactive({
@@ -293,9 +298,11 @@ mod_report_server <- function(id,
             )
           ) +
           ggbeeswarm::geom_beeswarm(
-            size = 3, alpha = .3,
+            size = 2.5, #if(geo_selections$selected_geo == "ctus") {2.5} else {3}, 
+            alpha = .3,
             cex = 3,
-            corral = "wrap", corral.width = 0.5,
+            # corral = "wrap", corral.width = 0.5,
+            method = "compactswarm",
             col = "grey40",
             aes(x = raw_value, y = type),
             data = filter(canopyplot, is.na(flag)),
@@ -311,16 +318,19 @@ mod_report_server <- function(id,
             size = 4, col = "black", pch = 21, stroke = 1, 
             data = filter(canopyplot, flag == "selected", is.na(t2))
           ) +
-          ggbeeswarm::geom_quasirandom(aes(x = raw_value, y = type),
-            # position = position_jitter(seed = 1, width = 0, height = .3),
-            groupOnX = F, varwidth = T,
-            cex = 3, # priority = "density",
-            fill = councilR::colors$cdGreen, stroke = 1,
-            # size = 3,
-            col = "black", pch = 21, alpha = .8,
-            data = filter(canopyplot, flag == "selected", t2 == "block groups"),
-            na.rm = T
-          )
+
+          ggbeeswarm::geom_beeswarm(aes(x = raw_value, y = type),
+                                    cex = if (selected_length() > 100) {2} else {3}, 
+                                    stroke = if(selected_length() > 100) {0} else {1},
+                                    size = if (selected_length() > 100) {2} else {3},
+                                    corral = "wrap", corral.width = 0.7,
+                                    fill = councilR::colors$cdGreen, 
+                                    col = "black", pch = 21, alpha = .8,
+                                    data = filter(canopyplot, flag == "selected", t2 == "block groups"),
+                                    method = "compactswarm",
+                                    na.rm = T
+          ) 
+        
       } else {
         plot <- ggplot() +
           councilR::council_theme() +
@@ -343,6 +353,7 @@ mod_report_server <- function(id,
             data = filter(canopyplot, is.na(flag)),
             na.rm = T
           ) +
+
           labs(
             y = "", x = "Tree canopy cover (%)",
             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)"
@@ -468,11 +479,11 @@ mod_report_server <- function(id,
         ) +
       ggbeeswarm::geom_beeswarm(aes(x = score, y = forcats::fct_rev(priority)),
                                    # groupOnX = F, varwidth = T,
-                                   cex = if (nrow(param_selectedtractvalues()) > 100) {2} else {3}, 
-                                size = if (nrow(param_selectedtractvalues()) > 100) {2} else {3},
+                                   cex = if (selected_length() > 100) {2} else {3}, 
+                                stroke = if(selected_length() > 100) {0} else {1},
+                                size = if (selected_length() > 100) {2} else {3},
                                 corral = "wrap", corral.width = 0.7,
                                    fill = councilR::colors$cdGreen, 
-                                stroke = if(nrow(param_selectedtractvalues()) > 100) {0} else {1},
                                    col = "black", pch = 21, alpha = .8,
                                    data = test,
                                 method = "compactswarm",
@@ -484,6 +495,7 @@ mod_report_server <- function(id,
         )
       return(plot)
     })
+
 
     output$rank_plot <- renderImage(
       {
@@ -715,7 +727,15 @@ mod_report_server <- function(id,
           method = "gam", formula = y ~ s(x, bs = "cs"),
           fill = NA, col = councilR::colors$councilBlue, na.rm = T
         ) +
-        geom_point(fill = councilR::colors$cdGreen, size = 4, stroke = 1, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, 
+                   # size = 4, 
+                   # stroke = 1, 
+                   stroke = if(selected_length() > 100) {.5} else {1},
+                   size = if (selected_length() > 100) {2} else {4},
+                   col = "black", 
+                   pch = 21, 
+                   data = filter(df, flag == "selected"), 
+                   na.rm = T) +
         councilR::council_theme() +
         theme(
           panel.grid.minor = element_blank(),
@@ -813,7 +833,13 @@ mod_report_server <- function(id,
         geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
         # geom_smooth(method = "lm", formula = 'y ~ x', fill = NA, col = councilR::colors$councilBlue, data = df, na.rm = T) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
-        geom_point(fill = councilR::colors$cdGreen, stroke = 1, size = 4, col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+        geom_point(fill = councilR::colors$cdGreen, 
+                   # stroke = 1, 
+                   # size = 4, 
+                   stroke = if(selected_length() > 100) {.5} else {1},
+                   size = if (selected_length() > 100) {2} else {4},
+                   
+                   col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
         councilR::council_theme() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
