@@ -897,6 +897,9 @@ usethis::use_data(mn_bgs, overwrite = TRUE)
 mncounties <- tigris::counties(state = "MN") %>%
   filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
 metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
+metc_region <- metc_region %>% st_simplify(dTolerance = 400)
+# ggplot()+#geom_sf(data = metc_region) +
+#   geom_sf(data = metc_region2, col = "blue", fill = NA)
 usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
