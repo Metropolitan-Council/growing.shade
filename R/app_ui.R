@@ -42,7 +42,7 @@ app_ui <- function(request) {
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-11. '),
+          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-13. '),
           align = "right",
           style = "
               position:absolute;
