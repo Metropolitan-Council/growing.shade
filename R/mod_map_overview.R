@@ -59,7 +59,6 @@ mod_map_overview_server <- function(input, output, session,
         zoom = 10
       ) %>%
       # add attribution
-      # addTiles(urlTemplate = "", attribution = HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/">Growing Shade Project</a>. Last updated on 2022-01-04.')) %>%
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
       addMapPane(name = "Stamen Toner", zIndex = 100) %>%
       addMapPane(name = "Map", zIndex = 100) %>%
