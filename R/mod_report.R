@@ -468,7 +468,7 @@ mod_report_server <- function(id,
               round((param_selectedtractvalues()$MEAN), 2),
               # " with a region-wide ranking of ",
               # (param_selectedtractvalues()$RANK),
-              " (where 10 indicates highest priority). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
+              " (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
           } else {
