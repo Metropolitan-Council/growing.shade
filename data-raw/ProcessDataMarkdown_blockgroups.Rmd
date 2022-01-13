@@ -487,7 +487,6 @@ nhood_list <- nhood_geo %>%
 
   # group_by(city) %>% mutate(tree = sum(treeacres), land = sum(landacres), avgcanopy = tree/land * calib_coeff,
                             # umncanopy = sum(`1`/land))
-
 usethis::use_data(nhood_list, overwrite = TRUE)
 
 
@@ -503,10 +502,7 @@ ctu_list <- ctu_geo %>%
 
 #should check credit river / credit river twp.
 nhood_list %>% arrange(avgcanopy, canopy_percent)
-ctu_list <- ctu_list %>% st_make_valid() %>% st_simplify(dTolerance = 100)
-ggplot() +
-  geom_sf(data = ctu_list) +
-  geom_sf(data = ctu_list2, col = "blue", fill = NA)
+
 usethis::use_data(ctu_list, overwrite = TRUE)
 # usethis::use_data(ctu_list2, overwrite = TRUE)
 
@@ -638,9 +634,9 @@ library("RSocrata")
 
 bg_health <- read.socrata(
   "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
-  app_token = CDC_TOKEN,
+  app_token = "D1kEEJEDVBpDppDIdDmwNXeVT", #CDC_TOKEN,
   email     = "ellen.esch@metc.state.mn.us",
-  password  = CDC_KEY) %>%
+  password  = "TQfY5%Q3xY") %>% #CDC_KEY) %>%
   rename(GEOID10 = locationname)
 
 bg_health
@@ -901,11 +897,21 @@ usethis::use_data(mn_bgs, overwrite = TRUE)
 
 mncounties <- tigris::counties(state = "MN") %>%
   filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
-metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry))
-metc_region <- metc_region %>% st_simplify(dTolerance = 400)
-# ggplot()+#geom_sf(data = metc_region) +
-#   geom_sf(data = metc_region2, col = "blue", fill = NA)
+metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
+  st_simplify(dTolerance = 400)
 usethis::use_data(metc_region, overwrite = TRUE)
+
+```
+
+
+# Simplify data for speed
+
+```{r}
+# nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
+# ctu_list <- ctu_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
+# # ggplot() +
+# #   geom_sf(data = ctu_list) +
+# #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
 
 ```
 
