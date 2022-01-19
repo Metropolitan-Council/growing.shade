@@ -5,8 +5,48 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
+  
+  navbar_js <- "@media (max-width: 840px) {
+    .navbar-header {
+        float: none;
+    }
+    .navbar-left,.navbar-right {
+        float: none !important;
+    }
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-collapse {
+        border-top: 1px solid transparent;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .navbar-fixed-top {
+        top: 0;
+        border-width: 0 0 1px;
+    }
+    .navbar-collapse.collapse {
+        display: none!important;
+    }
+    .navbar-nav {
+        float: none!important;
+        margin-top: 7.5px;
+    }
+    .navbar-nav>li {
+        float: none;
+    }
+    .navbar-nav>li>a {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .collapse.in{
+        display:block !important;
+    }
+}"
+  
+  
   tagList(
     tags$html(lang = "en"),
+    tags$head(tags$style(HTML(navbar_js))),
     # shiny::includeHTML("inst/app/www/google-analytics.html"),
     # Leave this function for adding external resources
     golem_add_external_resources(),
@@ -18,9 +58,9 @@ app_ui <- function(request) {
 
 
     # List the first level UI elements here
-
+    # tags$head(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")), #,'.navbar-brand{display:none;}')),
     navbarPage(
-      title = div(
+      title = div(style = "align:center",
         # img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo"),
         # img(src = "www/main-logo.png", alt = "Met Council logo",
         #     style="margin-top: -30px; padding-left:0px",
@@ -32,12 +72,12 @@ app_ui <- function(request) {
         
         a(href = "https://metrocouncil.org/", target = "_blank", 
           img(src = "www/main-logo.png", alt = "Met Council logo",
-            style="margin-top: -30px; padding-left:0px",
+            # style="margin-top: -30px; padding-left:0px",
             height = 60)),
         a(href = "https://treetrust.org/non-profit/", target = "_blank", 
           img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
-            style="margin-top: -25px;",
-            height = 120
+            # style="margin-top: -25px;",
+            height = 60
         ))
       ),
       windowTitle = "Growing Shade Tool",
