@@ -380,15 +380,18 @@ a:hover, a:focus {
     color: var(--council-blue);
     font-size: 16pt;
     text-transform: uppercase;
-    margin-left: auto;
-    margin-right: auto;
-    /*margin-right: 0px;
-	margin-left: 0px;*/
+ /*   margin-left: auto;
+    margin-right: auto;*/
+        float:none;
+  display: block;
+  justify-content: center;
+  text-align: center; !important
+    align-items: center !important;
     font-family: Bold-Condensed, "Helvetica", "Tahoma", "Geneva", "Arial Narrow", "Arial", sans-serif;
     height: 95px;
     width: 100%;
-    padding-right: 10%;
-    padding-left: 10%;
+    padding-right: 0%;
+    padding-left: 0%;
 }
 
 .navbar-brand {
@@ -409,13 +412,6 @@ a:hover, a:focus {
     background-color: #d6d6d6;
 }
 
-
-/* //unclear what this is doing
-.navbar-default .navbar-brand {
-	color: var(--council-blue);//ack);
-}
-*/
-
 .navbar-default .navbar-nav>.active>a,
 .navbar-default .navbar-nav>.active>a:focus,
 .navbar-default .navbar-nav>.active>a:hover {
@@ -427,14 +423,6 @@ a:hover, a:focus {
 .navbar-collapse {
     background-color: var(--council-gray) !important;
 }
-
-
-/*
-.navbar-nav {
-	float: right;
-	margin: 0;
-}
-*/
 
 .nav-tabs>li>a {
     margin-right: 2px;
