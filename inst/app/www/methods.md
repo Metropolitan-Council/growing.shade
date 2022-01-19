@@ -32,7 +32,7 @@ Priority variables were sourced from several locations including:
     Prevention. PLACES data is reported by census tract.
 -   Tree canopy and green space information is obtained from the
     <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Copernicus
-    Sentinel-2 satellite mission</a>
+    Sentinel-2 satellite mission</a>.
 -   Climate data including temperatures and flood risk was processed
     using the
     <a href = 'https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx' target = '_blank'>Climate
