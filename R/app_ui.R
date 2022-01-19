@@ -21,7 +21,24 @@ app_ui <- function(request) {
 
     navbarPage(
       title = div(
-        img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")
+        # img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo"),
+        # img(src = "www/main-logo.png", alt = "Met Council logo",
+        #     style="margin-top: -30px; padding-left:0px",
+        #     height = 60),
+        # img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
+        #     style="margin-top: -25px;",
+        #     height = 120
+        #     )
+        
+        a(href = "https://metrocouncil.org/", target = "_blank", 
+          img(src = "www/main-logo.png", alt = "Met Council logo",
+            style="margin-top: -30px; padding-left:0px",
+            height = 60)),
+        a(href = "https://treetrust.org/non-profit/", target = "_blank", 
+          img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
+            style="margin-top: -25px;",
+            height = 120
+        ))
       ),
       windowTitle = "Growing Shade Tool",
       id = "nav",
