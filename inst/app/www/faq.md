@@ -76,7 +76,7 @@ information is given in the “methods” tab.
 tool show trees where there are not trees?** <span
 style="line-height: .1;"><br></span> A. Calibration revealed that the
 tree layer mapped in Growing Shade identifies areas which have at least
-70% tree canopy cover. The tree canopy has been identified from
+72% tree canopy cover. The tree canopy has been identified from
 satellite imagery using a machine learning method rather than collecting
 on-the-ground data. More information is given in the “methods” tab.
 
