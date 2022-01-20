@@ -49,7 +49,7 @@ scores are averaged to create a single, integrated priority value.
 <span style="font-size:16pt">Tree canopy</span>
 </h2>
 
-Growing Shade uses and shows a tree canopy layer from 2020. A machine
+Growing Shade uses and shows a tree canopy layer from 2021 A machine
 learning method was created in
 <a href = 'https://earthengine.google.com/' target = "_blank">Google
 Earth Engine</a> and used to detect tree cover from other land cover
