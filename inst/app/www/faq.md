@@ -48,7 +48,7 @@ priority scores of 4 and 5 is the same as the difference between
 priority scores of 5 and 6 (both have a difference of 1).
 
 **Q. Why do different canopy tools show different canopy coverage
-percents? How did you decide on a goal of 30% tree canopy coverage?**
+percents? How did you decide on a goal of 50% tree canopy coverage?**
 <span style="line-height: .1;"><br></span> A. We created this tool to
 respond to the stakeholder need of providing up-to-date, actionable
 data. Therefore, we focus on satellite data to provide current data that
@@ -64,19 +64,19 @@ from Sentinel-2 data with a more spatially accurate (but less temporally
 accurate)
 <a href = "https://gisdata.mn.gov/dataset/base-landcover-twincities" target = "_blank">1
 meter squared landcover data set</a>, there was high correlation but
-Sentinel-2 data detects about twice as much tree canopy as the 1 meter
+Sentinel-2 data detects about a quarter more tree canopy as the 1 meter
 squared landcover data. Essentially, this means that the methods in
-Growing Shade detect areas with at least 50% tree canopy coverage. We
+Growing Shade detect areas with at least 72% tree canopy coverage. We
 re-scaled our data using this relationship to improve the clarity of
-messaging. Thus, another way to view the goal of 30% canopy cover is to
-have 60% of land area covered by at least 50% tree canopy. More
+messaging. Thus, another way to view the goal of 50% canopy cover is to
+have 50% of land area covered by at least 72% tree canopy. More
 information is given in the “methods” tab.
 
 **Q. Why doesn’t the tool show trees where there are trees? Why does the
 tool show trees where there are not trees?** <span
 style="line-height: .1;"><br></span> A. Calibration revealed that the
 tree layer mapped in Growing Shade identifies areas which have at least
-50% tree canopy cover. The tree canopy has been identified from
+70% tree canopy cover. The tree canopy has been identified from
 satellite imagery using a machine learning method rather than collecting
 on-the-ground data. More information is given in the “methods” tab.
 
