@@ -422,9 +422,12 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 
 ```{r treecanopy_bg}
-bg_canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021.csv",
-                   col_types = cols(.default = "d", GEOID = "c")) %>%
-  rename(GEOID10 = GEOID) %>%
+bg_canopy <- 
+read_csv("../data-raw/TreeAcres/TreeAcres_blockgroups_year2021.csv",
+                   col_types = cols(.default = "d", GEOID10 = "c")) %>%
+  # read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021.csv",
+  #                  col_types = cols(.default = "d", GEOID = "c")) %>%
+  # rename(GEOID10 = GEOID) %>%
   replace(is.na(.), 0) %>%
   left_join(sf::st_drop_geometry(mn_bgs_2), by = c("GEOID10" = "GEOID")) %>%
   transmute(bg10 = GEOID10, 
@@ -433,8 +436,9 @@ bg_canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
 
 ## ctu canopy ----
-canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2020.csv",
+canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2021.csv",
                    col_types = cols(.default = "d", CTU_NAME = "c")) %>%
+  mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME)) %>%
   left_join(ctu_land, by = c("CTU_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = CTU_NAME, 
             treeacres = `1`,
@@ -442,16 +446,17 @@ canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) 
 
 ## nhood canopy ----
-canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2020.csv",
+canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021.csv",
                    col_types = cols(.default = "d", GEO_NAME = "c")) %>%
   left_join(nhood_land, by = c("GEO_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = GEO_NAME, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) %>%
-  full_join(read_csv("../data-raw/TreeAcres/UMNTreeAcres_neighborhoods_year2020_scale1.csv")) %>%
+  full_join(read_csv("../data-raw/TreeAcres/UMNTreeAcres_neighborhoods_scale1_year2021.csv")) %>%
   mutate(umn_canopy = `1`/landacres)
-canopy_nhood %>% arrange(canopy_percent)
+
+
 ```
 
 
