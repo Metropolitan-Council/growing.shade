@@ -1,0 +1,204 @@
+---
+title: "Tree classifier"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  github_document:
+    toc: true
+always_allow_html: true
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F,
+                      cache = TRUE,
+                      cache.path = "cache/")
+library(tidyverse)
+library(tigris)
+library(sf)
+
+
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+`%not_in%` <- Negate(`%in%`)
+
+```
+
+
+# Training a classification model
+
+This script is based off of a GEE script: 
+https://developers.google.com/earth-engine/tutorials/community/classify-maizeland-ng
+
+
+
+REad in sampled data
+
+```{r}
+sample <- read_sf("../data-raw/training data for tree classifier/LandcoverSample.shp") %>%
+  filter(b1 != 0)
+
+sample %>% filter(b1 == 1) %>% 
+  st_write(., "../data-raw/training data for tree classifier/grass_sample.kml", append = FALSE)
+
+sample %>% filter(b1 == 2) %>% 
+  st_write(., "../data-raw/training data for tree classifier/bare_sample.kml", append = FALSE)
+
+sample %>% filter(b1 == 3) %>% 
+  st_write(., "../data-raw/training data for tree classifier/bldg_sample.kml", append = FALSE)
+
+sample %>% filter(b1 == 4) %>% 
+  st_write(., "../data-raw/training data for tree classifier/paved_sample.kml", append = FALSE)
+
+sample %>% filter(b1 %in% c(5, 11)) %>% 
+  st_write(., "../data-raw/training data for tree classifier/water_sample.kml", append = FALSE)
+
+sample %>% filter(b1 == 6) %>% 
+  st_write(., "../data-raw/training data for tree classifier/decid_sample.kml", append = FALSE)
+
+sample %>% filter(b1 == 7) %>% 
+  st_write(., "../data-raw/training data for tree classifier/conif_sample.kml", append = FALSE)
+sample %>% filter(b1 == 8) %>% 
+  st_write(., "../data-raw/training data for tree classifier/ag_sample.kml", append = FALSE)
+sample %>% filter(b1 == 9) %>% 
+  st_write(., "../data-raw/training data for tree classifier/wet_sample.kml", append = FALSE)
+sample %>% filter(b1 == 10) %>% 
+  st_write(., "../data-raw/training data for tree classifier/fwet_sample.kml", append = FALSE)
+sample %>% filter(b1 == 12) %>% 
+  st_write(., "../data-raw/training data for tree classifier/ext_sample.kml", append = FALSE)
+
+
+ggplot() +
+  geom_sf(data = sample, aes(col = as.factor(b1)))
+```
+
+need more urban deciddious training data
+
+```{r}
+ext_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/ext_points.kml") %>%
+  mutate(type = case_when(str_detect(Name, "grass") ~ "grass",
+                          str_detect(Name, "bldg") ~ "bldg",
+                          str_detect(Name, "ext") ~ "ext",
+                          str_detect(Name, "paved") ~ "paved",
+                          str_detect(Name, "bar") ~ "bare",
+                          TRUE ~ "other"))
+
+ggplot() +
+  geom_sf(data = ext_pts, aes(col = type))
+levels(as.factor(ext_pts$type))
+
+
+grass_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/grass_pts.kml") %>%
+  filter(Name != "")
+nrow(grass_pts)
+
+ag_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/ag_pts.kml") %>%
+  filter(Name != "")
+nrow(ag_pts)
+
+water_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/water_pts.kml") %>%
+  filter(Name != "")
+nrow(water_pts)
+
+bldg_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/bldg_pts.kml") %>%
+  filter(Name != "")
+nrow(bldg_pts)
+
+bare_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/bare_pts.kml") %>%
+  filter(Name != "")
+nrow(bare_pts)
+
+paved_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/paved_pts.kml") %>%
+  filter(Name != "")
+nrow(paved_pts)
+
+wet_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/wet_pts.kml") %>%
+  filter(Name != "")
+nrow(wet_pts)
+
+fwet_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/fwet_pts.kml") %>%
+  filter(Name != "")
+nrow(fwet_pts)
+
+decid_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/decid_pts.kml") %>%
+  filter(Name != "")
+nrow(decid_pts)
+
+conif_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/conif_pts.kml") %>%
+  filter(Name != "")
+nrow(conif_pts)
+
+#question - is fwet in the tree canopy? seems like it should be. grass vs wet might be dicey. 
+
+id_pts <- bind_rows(grass_pts, 
+                    water_pts) %>%
+  bind_rows(conif_pts) %>%
+  bind_rows(decid_pts) %>%
+  bind_rows(fwet_pts) %>%
+  bind_rows(wet_pts) %>%
+  bind_rows(paved_pts) %>%
+  bind_rows(bldg_pts) %>%
+  bind_rows(bare_pts) %>%
+  bind_rows(ag_pts) %>%
+  bind_rows(ext_pts)  %>%
+  mutate(type = case_when(str_detect(Name, "grass") ~ "grass",
+                          str_detect(Name, "bldg") ~ "bldg",
+                          str_detect(Name, "bdlg") ~ "bldg",
+                          str_detect(Name, "ext") ~ "ext",
+                          str_detect(Name, "paved") ~ "paved",
+                          str_detect(Name, "bar") ~ "bare",
+                          str_detect(Name, "de") ~ "decid",
+                          str_detect(Name, "coin") ~ "conif",
+                          str_detect(Name, "conif") ~ "conif",
+                          str_detect(Name, "fwet") ~ "fwet",
+                          str_detect(Name, "wet") ~ "wet",
+                          str_detect(Name, "wate") ~ "water",
+                          str_detect(Name, "ag") ~ "ag",
+                          TRUE ~ Name)) %>%
+  rename("otherc" = "type") %>%
+  mutate(class = case_when(otherc == "conif" ~ 1,
+                           otherc == "decid" ~ 2,
+                           otherc == "grass" ~ 3,
+                           otherc == "fwet" ~ 4,
+                           otherc == "wet" ~5,
+                           otherc == "water" ~ 6,
+                           otherc == "ag" ~ 7,
+                           otherc == "paved" ~ 8,
+                           otherc == "bldg" ~ 9,
+                           otherc == "ext" ~ 10,
+                           otherc == "bare" ~ 11)) %>%
+  select(-Description, -Name) %>%
+  relocate(class, .before = geometry) %>%
+    mutate(longitude = unlist(map(.$geometry,1)),
+           latitude = unlist(map(.$geometry,2))) %>%
+  st_drop_geometry()
+
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(id_pts))
+
+## set the seed to make your partition reproducible
+set.seed(123)
+train_ind <- sample(seq_len(nrow(id_pts)), size = smp_size)
+
+train <- id_pts[train_ind, ] 
+test <- id_pts[-train_ind, ]
+
+train %>% group_by(class) %>% count() %>% arrange(-n)
+test %>% group_by(class) %>% count() %>% arrange(-n)
+
+write_csv(train, "../data-raw/training data for tree classifier/back to gee/train.csv")
+write_csv(test, "../data-raw/training data for tree classifier/back to gee/test.csv")
+# st_write(train, "../data-raw/training data for tree classifier/back to gee/train.kml", append = F)
+# st_write(test, "../data-raw/training data for tree classifier/back to gee/test.kml", append = F)
+
+id_pts %>%
+  group_by(class) %>% count() %>% arrange(-n)
+
+ggplot() +
+  geom_sf(data = id_pts, aes(col = class)) +
+  scale_color_brewer(palette = "Paired")
+```
+
+
+
+
+
+

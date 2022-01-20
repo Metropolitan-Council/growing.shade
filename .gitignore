@@ -84,3 +84,10 @@ storymap-info/pics/3904.jpg
 storymap-info/pics/.DS_Store
 storymap-info/Cities_Tree_Infographic_UrbanTreesCampaign_SocialMedia_NoLogos.png
 storymap-info/2945.jpg
+*.kml
+data-raw/training data for tree classifier/LandcoverSample.cpg
+data-raw/training data for tree classifier/LandcoverSample.dbf
+data-raw/training data for tree classifier/LandcoverSample.fix
+data-raw/training data for tree classifier/LandcoverSample.prj
+data-raw/training data for tree classifier/LandcoverSample.shp
+data-raw/training data for tree classifier/LandcoverSample.shx
