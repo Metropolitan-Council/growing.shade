@@ -56,7 +56,7 @@ mod_geo_selection_ui <- function(id) {
           `live-search` = TRUE
         ),
         multiple = F,
-        selected = "Thomas-Dale/Frogtown"
+        selected = "Frogtown"
       )
     ),
     conditionalPanel(

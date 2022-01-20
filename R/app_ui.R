@@ -99,7 +99,7 @@ app_ui <- function(request) {
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-19. '),
+          HTML('Source: <a href = "https://metrotransitmn.shinyapps.io/growing-shade/" target = "_blank">Growing Shade Project</a>. Last updated on 2022-01-20. '),
           align = "right",
           style = "
               position:absolute;
@@ -137,7 +137,7 @@ app_ui <- function(request) {
                   href = "https://www.youtube.com/watch?v=R3Qbhaq4gWs",
                   .noWS = "outside",
                   target = "_blank"
-                ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2020."
+                ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021."
               ),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
