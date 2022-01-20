@@ -29,10 +29,12 @@ This script is based off of a GEE script:
 https://developers.google.com/earth-engine/tutorials/community/classify-maizeland-ng
 
 
+- In google earth engine, a random sample was taken across the region from each of the TC 1m2 land use classes. Those points were imported into google earth and land cover was confirmed (or changed) based on recent imagery. In most cases, August 2021 imagery was available. For the coniferous tree class, the TC 1m2 data set was not very accurate - for this class points were relocated so that they correctly identified coniferous trees. 
 
-REad in sampled data
-
-```{r}
+```{r id-random-pts}
+#########
+# first write out the random sample by land classes by type to make google earth identification easier
+#########
 sample <- read_sf("../data-raw/training data for tree classifier/LandcoverSample.shp") %>%
   filter(b1 != 0)
 
@@ -56,35 +58,24 @@ sample %>% filter(b1 == 6) %>%
 
 sample %>% filter(b1 == 7) %>% 
   st_write(., "../data-raw/training data for tree classifier/conif_sample.kml", append = FALSE)
+
 sample %>% filter(b1 == 8) %>% 
   st_write(., "../data-raw/training data for tree classifier/ag_sample.kml", append = FALSE)
+
 sample %>% filter(b1 == 9) %>% 
   st_write(., "../data-raw/training data for tree classifier/wet_sample.kml", append = FALSE)
+
 sample %>% filter(b1 == 10) %>% 
   st_write(., "../data-raw/training data for tree classifier/fwet_sample.kml", append = FALSE)
 sample %>% filter(b1 == 12) %>% 
   st_write(., "../data-raw/training data for tree classifier/ext_sample.kml", append = FALSE)
 
 
-ggplot() +
-  geom_sf(data = sample, aes(col = as.factor(b1)))
-```
-
-need more urban deciddious training data
-
-```{r}
+##########
+# then bring back in points after the land use has been correctly identified
+#########
 ext_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/ext_points.kml") %>%
-  mutate(type = case_when(str_detect(Name, "grass") ~ "grass",
-                          str_detect(Name, "bldg") ~ "bldg",
-                          str_detect(Name, "ext") ~ "ext",
-                          str_detect(Name, "paved") ~ "paved",
-                          str_detect(Name, "bar") ~ "bare",
-                          TRUE ~ "other"))
-
-ggplot() +
-  geom_sf(data = ext_pts, aes(col = type))
-levels(as.factor(ext_pts$type))
-
+  filter(Name != "")
 
 grass_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/grass_pts.kml") %>%
   filter(Name != "")
@@ -127,6 +118,33 @@ conif_pts <- read_sf("../data-raw/training data for tree classifier/labeled poin
 nrow(conif_pts)
 
 #question - is fwet in the tree canopy? seems like it should be. grass vs wet might be dicey. 
+```
+
+- an initial classification run revealed that more training and testing points for trees inside core urban areas was needed. Back in GEE I did another random sample of coniferous and deciduous trees (from TC 1m2 data set) within the boundaries of Saint Paul and Minneapolis. 
+
+```{r id-urban-pts}
+urbansample <- read_sf("../data-raw/training data for tree classifier/urbanLandcoverSample.shp") %>%
+  filter(b1 != 0)
+
+urbansample %>% filter(b1 == 6) %>% 
+  st_write(., "../data-raw/training data for tree classifier/urbandecid_sample.kml", append = FALSE)
+
+urbansample %>% filter(b1 == 7) %>% 
+  st_write(., "../data-raw/training data for tree classifier/urbanconif_sample.kml", append = FALSE)
+
+urbandecid_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/urbandecid_pts.kml") %>%
+  filter(Name != "")
+nrow(urbandecid_pts)
+
+urbanconif_pts <- read_sf("../data-raw/training data for tree classifier/labeled points/urbanconif_pts.kml") %>%
+  filter(Name != "")
+nrow(urbanconif_pts)
+
+```
+
+- Next, the correctly identified points need to be joined together. The names of land cover need to be cleaned up (I had some typos), and also the land use classification needs to become an interger (not a string). 
+
+```{r combine-id-pts}
 
 id_pts <- bind_rows(grass_pts, 
                     water_pts) %>%
@@ -139,6 +157,8 @@ id_pts <- bind_rows(grass_pts,
   bind_rows(bare_pts) %>%
   bind_rows(ag_pts) %>%
   bind_rows(ext_pts)  %>%
+  bind_rows(urbanconif_pts) %>%
+  bind_rows(urbandecid_pts) %>%
   mutate(type = case_when(str_detect(Name, "grass") ~ "grass",
                           str_detect(Name, "bldg") ~ "bldg",
                           str_detect(Name, "bdlg") ~ "bldg",
@@ -171,6 +191,15 @@ id_pts <- bind_rows(grass_pts,
            latitude = unlist(map(.$geometry,2))) %>%
   st_drop_geometry()
 
+
+levels(as.factor(id_pts$otherc))
+```
+
+- Finally, all of the points need to be (randomly) broken into training and testing datasets. This gets brought brought back into GEE in order to train and test two classifiers: classification and regression trees (CART) and Random Forest (RF), which are both suitable for categorical classification and have been used in various contexts for classification. 
+
+
+```{r split-train-test}
+
 ## 75% of the sample size
 smp_size <- floor(0.75 * nrow(id_pts))
 
@@ -181,13 +210,11 @@ train_ind <- sample(seq_len(nrow(id_pts)), size = smp_size)
 train <- id_pts[train_ind, ] 
 test <- id_pts[-train_ind, ]
 
-train %>% group_by(class) %>% count() %>% arrange(-n)
-test %>% group_by(class) %>% count() %>% arrange(-n)
+train %>% group_by(otherc) %>% count() %>% arrange(-n)
+test %>% group_by(otherc) %>% count() %>% arrange(-n)
 
 write_csv(train, "../data-raw/training data for tree classifier/back to gee/train.csv")
 write_csv(test, "../data-raw/training data for tree classifier/back to gee/test.csv")
-# st_write(train, "../data-raw/training data for tree classifier/back to gee/train.kml", append = F)
-# st_write(test, "../data-raw/training data for tree classifier/back to gee/test.kml", append = F)
 
 id_pts %>%
   group_by(class) %>% count() %>% arrange(-n)
