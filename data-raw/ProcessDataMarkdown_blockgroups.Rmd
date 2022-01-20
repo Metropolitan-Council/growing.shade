@@ -1038,6 +1038,12 @@ copd_exp <- bg_growingshade_main %>%
 sf::st_write(copd_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/copd.shp", append = FALSE)
 
 
+highestp_exp <- mn_bgs_1 %>%
+  right_join(mn_bgs %>%
+               sf::st_drop_geometry()) %>%
+               select(GEOID, highest_priority)
+sf::st_write(highestp_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/highestpriority.shp", append = FALSE)
+
 ```
 
 

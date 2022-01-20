@@ -757,7 +757,7 @@ mod_report_server <- function(id,
         scale_y_continuous(
           labels = scales::percent_format(accuracy = 1),
           expand = expansion(mult = c(0, .05)),
-          breaks = c(0, .15, .30, .45)
+          breaks = c(0, .15, .30, .45, .60)
         ) +
         # scale_x_continuous(breaks = breaks_fun,
         #                    limits = c(0, NA),
