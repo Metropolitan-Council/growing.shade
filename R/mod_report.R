@@ -201,7 +201,7 @@ mod_report_server <- function(id,
           if (geo_selections$selected_geo == "tracts") {
             paste0(
               param_areasummary()$fancyname, " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
-              "% in 2020. Compared to other block groups across the region, the tree canopy in the selected block group is ",
+              "% in 2021. Compared to other block groups across the region, the tree canopy in the selected block group is ",
               if (param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {
                 "above"
               } else if (param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {
@@ -210,13 +210,13 @@ mod_report_server <- function(id,
                 "about equal to"
               },
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%).<br><br> ",
-              "The plot below shows how tree canopy cover in the selected block group (shown in green) compares to other block groups across the region. In most areas, a goal of 30% tree canopy coverage (as detected by our methods) is suitable."
+              "The plot below shows how tree canopy cover in the selected block group (shown in green) compares to other block groups across the region. In most areas, a goal of 50% tree canopy coverage (as detected by our methods) is suitable."
             )
           } else {
             paste0(
               param_area(),
               " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 1),
-              "% in 2020. Compared to other ", if (geo_selections$selected_geo == "ctus") {
+              "% in 2021. Compared to other ", if (geo_selections$selected_geo == "ctus") {
                 "cities and townships"
               } else {
                 "neighborhoods"
@@ -241,7 +241,7 @@ mod_report_server <- function(id,
               param_areasummary()$min,
               "% to ",
               param_areasummary()$max,
-              "%. <br><br>The plot below shows how tree canopy cover in the selected area (shown in green) compares to other areas across the region. Within the selected area, tree canopy cover varies across census block groups. In most areas, a goal of 30% tree canopy coverage (as detected by our methods) is suitable."
+              "%. <br><br>The plot below shows how tree canopy cover in the selected area (shown in green) compares to other areas across the region. Within the selected area, tree canopy cover varies across census block groups. In most areas, a goal of 50% tree canopy coverage (as detected by our methods) is suitable."
             )
           }
         )
@@ -310,7 +310,7 @@ mod_report_server <- function(id,
           ) +
           labs(
             y = "", x = "Tree canopy cover (%)",
-            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)"
+            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)"
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
@@ -356,7 +356,7 @@ mod_report_server <- function(id,
 
           labs(
             y = "", x = "Tree canopy cover (%)",
-            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)"
+            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)"
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = 1),
@@ -491,7 +491,7 @@ mod_report_server <- function(id,
       ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)"
         )
       return(plot)
     })
@@ -770,7 +770,7 @@ mod_report_server <- function(id,
         labs(
           x = "", y = "Tree\ncanopy\n (%)",
           caption = # expression(italic(
-          "Source: Analysis of Sentinel-2 satellite imagery (2020)\nand ACS 5-year estimates (2015-2019)" # ))
+          "Source: Analysis of Sentinel-2 satellite imagery (2021)\nand ACS 5-year estimates (2015-2019)" # ))
         ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
@@ -840,7 +840,7 @@ mod_report_server <- function(id,
         councilR::council_theme() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2020)\nand Landsat 8 satellite imagery (2016)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
         ) +
         theme(
           panel.grid.minor = element_blank(),
