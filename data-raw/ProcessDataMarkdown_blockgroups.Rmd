@@ -95,13 +95,15 @@ Need to run some things, export some things etc.
 
 For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file. 
 
+Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!). 
 
 ```{r calibrate_trees}
-calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
+calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% #TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2020.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2021.csv") %>%
               rename(sentinel = `1`),
             by = 'id')
+#if do equal area grid r2 = 0.9343173; calib = 0.6123283
 
 # cor.test(~ umn + sentinel,
 #          data = calibrate_trees)
@@ -134,29 +136,32 @@ calibrate_trees %>%
         title = "calibrated")
   # labs(y = expression ("Sentinel in"~m/s^2))
 
+# 
+calibrate_trees %>%
+  ggplot(aes(x = (sentinel), y = (umn))) +
+  geom_point(alpha = .5) +
+  geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
+  stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
+  # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "green", fill = NA) +
+  # geom_smooth(method = "lm", fill = NA)+
+  theme_minimal()  +
+  labs( y = "UMN tree acres in grid", x = "Sentinel tree acres in grid", title = "UNcalibrated")
 
+# 
 # calibrate_trees %>%
 #   ggplot(aes(x = (sentinel), y = (umn))) +
 #   geom_point(alpha = .5) +
-#   geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
-#       stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
-#   # geom_smooth(method = "lm", fill = NA)+
-#   theme_minimal()  +
-#   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
-#         title = "UNcalibrated")
-# calibrate_trees %>%
-#   ggplot(aes(x = (sentinel), y = log(umn))) +
-#   geom_point(alpha = .5) +
-#   stat_smooth(fill = NA)+
+#   stat_smooth(fill = NA, method = "lm") +
 #   # geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
-#       # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "red", fill = NA) +
+#   # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "red", fill = NA) +
 #   # geom_smooth(method = "lm", fill = NA)+
 #   theme_minimal()  +
 #   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
 #         title = "UNcalibrated")
+
 ```
 
-
+Calib coeff is 0.7159169, meaning that senitel sees about 25% more trees; or detects area with at least 70% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 710 acres. 
 
 # get EAB data
 
