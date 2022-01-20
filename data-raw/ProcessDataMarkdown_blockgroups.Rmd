@@ -272,7 +272,17 @@ minneap <- read_sf("../data-raw/minneapolis communities/Minneapolis_Communities.
 stpaul <- read_sf("../data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   rename(GEO_NAME = name2) %>%
-  mutate(city = "St. Paul")
+  mutate(city = "St. Paul") %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME))
 
 nhood_geo <- bind_rows(minneap, stpaul) %>%
   find_centroid(., GEO_NAME)
@@ -448,6 +458,16 @@ canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2021.csv",
 ## nhood canopy ----
 canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021.csv",
                    col_types = cols(.default = "d", GEO_NAME = "c")) %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME)) %>%
   left_join(nhood_land, by = c("GEO_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = GEO_NAME, 
             treeacres = `1`,
@@ -489,17 +509,7 @@ nhood_list <- nhood_geo %>%
   full_join(canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326) %>%
-  group_by(city) %>%  mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
-  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
-                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
-                              GEO_NAME == "West Side Community Organization" ~ "West Side",
-                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
-                              GEO_NAME == "Highland" ~ "Highland Park",
-                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
-                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
-                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
-                              GEO_NAME == "Como" ~ "Como Park",
-                              TRUE ~ GEO_NAME))
+  group_by(city) %>%  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
 
 
 
