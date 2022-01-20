@@ -95,13 +95,15 @@ Need to run some things, export some things etc.
 
 For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file. 
 
+Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!). 
 
 ```{r calibrate_trees}
-calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
+calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% #TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2020.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2021.csv") %>%
               rename(sentinel = `1`),
             by = 'id')
+#if do equal area grid r2 = 0.9343173; calib = 0.6123283
 
 # cor.test(~ umn + sentinel,
 #          data = calibrate_trees)
@@ -134,29 +136,32 @@ calibrate_trees %>%
         title = "calibrated")
   # labs(y = expression ("Sentinel in"~m/s^2))
 
+# 
+calibrate_trees %>%
+  ggplot(aes(x = (sentinel), y = (umn))) +
+  geom_point(alpha = .5) +
+  geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
+  stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
+  # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "green", fill = NA) +
+  # geom_smooth(method = "lm", fill = NA)+
+  theme_minimal()  +
+  labs( y = "UMN tree acres in grid", x = "Sentinel tree acres in grid", title = "UNcalibrated")
 
+# 
 # calibrate_trees %>%
 #   ggplot(aes(x = (sentinel), y = (umn))) +
 #   geom_point(alpha = .5) +
-#   geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
-#       stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
-#   # geom_smooth(method = "lm", fill = NA)+
-#   theme_minimal()  +
-#   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
-#         title = "UNcalibrated")
-# calibrate_trees %>%
-#   ggplot(aes(x = (sentinel), y = log(umn))) +
-#   geom_point(alpha = .5) +
-#   stat_smooth(fill = NA)+
+#   stat_smooth(fill = NA, method = "lm") +
 #   # geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
-#       # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "red", fill = NA) +
+#   # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "red", fill = NA) +
 #   # geom_smooth(method = "lm", fill = NA)+
 #   theme_minimal()  +
 #   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
 #         title = "UNcalibrated")
+
 ```
 
-
+Calib coeff is 0.7159169, meaning that senitel sees about 25% more trees; or detects area with at least 70% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 710 acres. 
 
 # get EAB data
 
@@ -267,7 +272,17 @@ minneap <- read_sf("../data-raw/minneapolis communities/Minneapolis_Communities.
 stpaul <- read_sf("../data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp") %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   rename(GEO_NAME = name2) %>%
-  mutate(city = "St. Paul")
+  mutate(city = "St. Paul") %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME))
 
 nhood_geo <- bind_rows(minneap, stpaul) %>%
   find_centroid(., GEO_NAME)
@@ -417,9 +432,12 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 
 ```{r treecanopy_bg}
-bg_canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021.csv",
-                   col_types = cols(.default = "d", GEOID = "c")) %>%
-  rename(GEOID10 = GEOID) %>%
+bg_canopy <- 
+read_csv("../data-raw/TreeAcres/TreeAcres_blockgroups_year2021.csv",
+                   col_types = cols(.default = "d", GEOID10 = "c")) %>%
+  # read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021.csv",
+  #                  col_types = cols(.default = "d", GEOID = "c")) %>%
+  # rename(GEOID10 = GEOID) %>%
   replace(is.na(.), 0) %>%
   left_join(sf::st_drop_geometry(mn_bgs_2), by = c("GEOID10" = "GEOID")) %>%
   transmute(bg10 = GEOID10, 
@@ -428,8 +446,9 @@ bg_canopy <- read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
 
 ## ctu canopy ----
-canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2020.csv",
+canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2021.csv",
                    col_types = cols(.default = "d", CTU_NAME = "c")) %>%
+  mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME)) %>%
   left_join(ctu_land, by = c("CTU_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = CTU_NAME, 
             treeacres = `1`,
@@ -437,16 +456,27 @@ canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2020.csv",
             canopy_percent = treeacres / landacres * calib_coeff) 
 
 ## nhood canopy ----
-canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2020.csv",
+canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021.csv",
                    col_types = cols(.default = "d", GEO_NAME = "c")) %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME)) %>%
   left_join(nhood_land, by = c("GEO_NAME" = "GEO_NAME")) %>%
   transmute(GEO_NAME = GEO_NAME, 
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) %>%
-  full_join(read_csv("../data-raw/TreeAcres/UMNTreeAcres_neighborhoods_year2020_scale1.csv")) %>%
+  full_join(read_csv("../data-raw/TreeAcres/UMNTreeAcres_neighborhoods_scale1_year2021.csv")) %>%
   mutate(umn_canopy = `1`/landacres)
-canopy_nhood %>% arrange(canopy_percent)
+
+
 ```
 
 
@@ -517,9 +547,15 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 
 
 ```{r ndvi_bgs}
-bg_ndvi <- read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
+bg_ndvi <- 
+  read_csv("../data-raw/TreeAcres/meanNDVI_blockgroups_year2021.csv",
                     na = "No data",
-                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
+                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
+  rename(GEOID = GEOID10) %>%
+  
+  # read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
+  #                   na = "No data",
+  #                      col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
   # dplyr::select(-`system:index`, -.geo, -Year)
   dplyr::select(GEOID, ndvi) %>%
     rename(bg10 = GEOID)
@@ -934,17 +970,17 @@ mn_bgs <- mn_bgs %>%
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 
-leaflet::leaflet() %>%
-  leaflet::addPolygons(data = mn_bgs) %>%
-  leaflet::addPolygons(data = mn_bgs5, color = "red")
-object.size(mn_bgs) / 1e5
-object.size(mn_bgs5) / 1e5
+# leaflet::leaflet() %>%
+#   leaflet::addPolygons(data = mn_bgs) %>%
+#   leaflet::addPolygons(data = mn_bgs5, color = "red")
+# object.size(mn_bgs) / 1e5
+# object.size(mn_bgs5) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
-  select(tract_string, name, weights_scaled, raw_value)
+  dplyr::select(tract_string, name, weights_scaled, raw_value)
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
-eab <- eab %>% select(geometry)
+eab <- eab %>% dplyr::select(geometry)
 usethis::use_data(eab, overwrite = TRUE)
 
 object.size(eab2) / 1e5
