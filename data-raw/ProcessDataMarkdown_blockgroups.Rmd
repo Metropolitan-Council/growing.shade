@@ -651,7 +651,7 @@ equity_data_raw_bg <- equity_bg %>%
          env_cancer,
          luse_green,
          tr_ej,
-         holc_pred,
+         holc_pred, holc_pgrn, holc_pblu, holc_pylw,
          pwk_nowork,
          poptot_mc
          ) %>%
