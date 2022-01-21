@@ -103,7 +103,9 @@ leaflet(hinc) %>%
               popup = ~paste0(tract_string,
                               "<br>pop density: ", round(pop_density, 1), 
                               "<br>Tree canopy: ", round(canopy_percent, 2),
-                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","))) %>%
+                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","),
+                              "<br>Temp: ", avg_temp,
+                              "<br>NDVI: ", ndvi)) %>%
   addLegend("bottomright", 
             pal = pal,
             values = ~canopy_percent,
@@ -142,7 +144,127 @@ leaflet(hinc) %>%
 
 # low = 270530001025 in camden
 # high = 271230357002 in summit hill
+
+bg_growingshade_data$ndvi[bg_growingshade_data$tract_string == "270530001025"] #96
+bg_growingshade_data$avg_temp[bg_growingshade_data$tract_string == "271230357002"] #96
 ```
+
+
+
+Temp
+
+```{r}
+ndvilabs <- c(
+      "<img src='./NDVI_.17.png' height='75' /><br>Low<br>green space",
+      "<img src='./NDVI_.42.png' height='75' /><br>Moderate<br>green space",
+      "<img src='./NDVI_.67.png' height='75' /><br>High<br>green space"
+    )
+
+df <- df1 %>%
+        select(avg_temp, ndvi)
+
+      tempplot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
+        geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = T) +
+        geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
+        councilR::council_theme() +
+        labs(
+          x = "Amount of green space\n(maximum NDVI)", y = "Summer\nland surface\ntemperature\n(°F)",
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
+        ) +
+        theme(
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          strip.placement = "outside",
+          axis.title.y = element_text(
+            angle = 0,
+            vjust = .5
+          ),
+          plot.margin = margin(7, 7, 14, 7),
+          axis.line = element_line(),
+          axis.ticks = element_line(),
+          axis.text.y = element_text(vjust = .5, hjust = 1),
+          plot.caption = element_text(
+            size = rel(1),
+            colour = "grey30"
+          ),
+          axis.text.x.bottom = ggtext::element_markdown(size = 15)
+        ) +
+        scale_y_continuous(expand = expansion(mult = c(0, .05))) +
+        scale_x_continuous(
+          name = NULL,
+          breaks = c(.17, .42, .67),
+          labels = ndvilabs,
+          position = "bottom"
+        )
+      tempplot
+ggsave("fig_temp.png",tempplot,  width = 6, height = 5, units = "in", device = "png")
+
+```
+
+
+redline
+
+```{r}
+rl <- bg_growingshade_data %>%
+  select(tract_string, holc_pred, holc_pgrn, holc_pblu, holc_pylw, canopy_percent, ndvi, avg_temp) %>% #
+  mutate_all(~replace(., . == 0, NA)) %>%
+  mutate(flag = if_else(is.na(holc_pred) & is.na(holc_pblu) & is.na(holc_pgrn) & is.na(holc_pylw), "remove", "keep")) %>%
+  filter(flag == "keep") %>% select(-flag) %>%
+  pivot_longer(names_to = "holc", values_to = "percent", -c(tract_string, avg_temp, canopy_percent, ndvi)) %>%
+  filter(!is.na(percent)) %>%
+  mutate(grade = case_when(holc == "holc_pred" ~ "D (redlined)",
+                           holc == "holc_pgrn" ~ "A (highest)",
+                           holc == "holc_pylw" ~ "C",
+                           holc == "holc_pblu" ~ "B"))
+rl2 <- rl%>% filter(percent > .75) 
+
+av <- rl2 %>% distinct(tract_string, .keep_all = TRUE) %>% summarise(avg_temp = mean(avg_temp))
+
+redline_fig <- rl2 %>%
+  ggplot(aes(y = fct_rev(grade), x = (avg_temp - as.numeric(av)), fill = (avg_temp))) +
+  councilR::council_theme() +
+  geom_vline(xintercept = 0, color = "grey70") +
+  # geom_point() +
+  ggbeeswarm::geom_beeswarm(
+            size = 2, #if(geo_selections$selected_geo == "ctus") {2.5} else {3}, 
+            # alpha = .3,
+            cex = 1.5,
+            # corral = "wrap", corral.width = 0.5,
+            method = "compactswarm",
+            # col = "grey40",
+            # aes(x = raw_value, y = type),
+            # data = filter(canopyplot, is.na(flag)),
+            na.rm = T,
+            pch = 21, color = "grey40"
+          ) +
+  scale_fill_distiller(palette = "RdBu") + 
+  labs(x = "2016 temperature difference from region average",
+       y = "1934\nHome\nOwners'\nLoan\nCorporation\nrating",
+       caption = "\nSource: Analysis of Landsat 8 satellite imagery (2016)\nand Equity Considerations dataset (2021) ") +
+  theme(
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          strip.placement = "outside",
+          axis.title.y = element_text(
+            angle = 0,
+            vjust = .5
+          ),
+          plot.margin = margin(7, 7, 7, 7),
+          axis.line = element_line(),
+          axis.line.y = element_line(),
+          axis.ticks = element_line(),
+          axis.text.y = element_text(vjust = .5, hjust = 1),
+          plot.caption = element_text(
+            size = rel(1),
+            colour = "grey30"
+          )
+        ) +
+  guides(fill = F)
+
+ggsave("fig_redline.png",redline_fig,  width = 7, height = 4.5, units = "in", device = "png")
+
+```
+
 
 
 
