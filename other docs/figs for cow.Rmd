@@ -14,6 +14,7 @@ library(tidyverse)
 library(tigris)
 library(sf)
 library(cowplot)
+library(leaflet)
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
 
@@ -22,10 +23,12 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 
 ```{r}
 
-df <- bg_growingshade_main %>%
-  filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi")) %>%
+df1 <- bg_growingshade_main %>%
+  filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi", "pop_density")) %>%
         select(tract_string, variable, raw_value) %>%
-        pivot_wider(names_from = variable, values_from = raw_value) %>%
+        pivot_wider(names_from = variable, values_from = raw_value)
+
+df <- df1 %>%
         select(canopy_percent, mdhhincnow, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(canopy_percent)) %>%
         mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value))
@@ -37,10 +40,9 @@ fig_equity <-
           method = "gam", formula = y ~ s(x, bs = "cs"),
           fill = NA, col = councilR::colors$councilBlue, na.rm = T
         ) +
-  theme_cowplot() +
-        # councilR::council_theme()  +
+        councilR::council_theme()  +
         facet_wrap(~names,
-          scales = "free_x", nrow = 1, strip.position = "bottom",
+          scales = "free", nrow = 1, strip.position = "bottom",
           labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
         ) +
         theme(
@@ -64,7 +66,7 @@ fig_equity <-
         scale_y_continuous(
           labels = scales::percent_format(accuracy = 1),
           expand = expansion(mult = c(0, .05)),
-          breaks = c(0, .15, .30, .45)
+          breaks = c(0, .15, .30, .45, .60)
         ) +
         scale_x_continuous(
           labels = scales::comma,
@@ -76,6 +78,73 @@ fig_equity <-
           "Source: Analysis of Sentinel-2 satellite imagery (2021)\nand ACS 5-year estimates (2015-2019)" # ))
         )
 fig_equity
-ggsave("fig_equity.png",fig_equity,  width = 8, height = 5.5, units = "in", device = "png")
+ggsave("fig_equity.png",fig_equity,  width = 10, height = 5, units = "in", device = "png")
 # ggsave("fig_equity.png",fig_equity,  width = 4, height = 5.5, units = "in", device = "png")
 ```
+
+
+```{r}
+hinc <- mn_bgs %>% select(GEOID) %>%
+  rename(tract_string=GEOID) %>%
+  right_join(df1 %>%
+               filter(mdhhincnow > 100000,
+                      canopy_percent > .35,
+                      pop_density > 8))
+
+pal <- colorNumeric(
+  palette = "Greens",
+  domain = hinc$canopy_percent)
+
+leaflet(hinc) %>%
+  addTiles() %>%
+  addPolygons(color = "black",
+              fillOpacity = .7,
+              fillColor = ~pal(canopy_percent),
+              popup = ~paste0(tract_string,
+                              "<br>pop density: ", round(pop_density, 1), 
+                              "<br>Tree canopy: ", round(canopy_percent, 2),
+                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","))) %>%
+  addLegend("bottomright", 
+            pal = pal,
+            values = ~canopy_percent,
+    opacity = 1
+  ) 
+
+
+
+
+hinc <- mn_bgs %>% select(GEOID) %>%
+  rename(tract_string=GEOID) %>%
+  right_join(df1 %>%
+               filter(mdhhincnow < 80000,
+                      canopy_percent < .21,
+                      pop_density > 8, pop_density < 15))
+
+pal <- colorNumeric(
+  palette = "Greens",
+  domain = hinc$canopy_percent)
+
+leaflet(hinc) %>%
+  addTiles() %>%
+  addPolygons(color = "black",
+              fillOpacity = .7,
+              fillColor = ~pal(canopy_percent),
+              popup = ~paste0(tract_string, 
+                              "<br>pop density: ", round(pop_density, 1), 
+                              "<br>Tree canopy: ", round(canopy_percent, 2),
+                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","))) %>%
+  addLegend("bottomright", 
+            pal = pal,
+            values = ~canopy_percent,
+    opacity = 1
+  ) 
+
+
+# low = 270530001025 in camden
+# high = 271230357002 in summit hill
+```
+
+
+
+
+
