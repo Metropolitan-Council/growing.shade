@@ -448,7 +448,7 @@ mod_report_server <- function(id,
         tibble()
       } else {
         param_selectedtractvalues() %>%
-          rename(score = MEAN) %>%
+          # rename(score = MEAN) %>%
           mutate(priority = " Custom")
       }
 
