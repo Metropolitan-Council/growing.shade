@@ -861,7 +861,7 @@ acs_metadata <-
 acs_tractsonly %>% #use tracts becuase it has info about disability
     filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
            year == 2019) %>% #just do metc region for now
-  select(geoid, poptotal:pphother) %>%
+  dplyr::select(geoid, poptotal:pphother) %>%
   pivot_longer(names_to = "variable", values_to = "values", -geoid) %>%
   group_by(variable) %>%
   summarise(SUM = sum(values, na.rm = T)) %>%
@@ -913,7 +913,7 @@ metadata <- bg_growingshade_main %>%
                                   TRUE ~ "")) %>%
   full_join(acs_metadata) %>%
   mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
-  select(-MEANRAW2, -rgn)
+  dplyr::select(-MEANRAW2, -rgn)
 
 usethis::use_data(metadata, overwrite = TRUE)
 
