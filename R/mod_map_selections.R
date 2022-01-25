@@ -65,7 +65,7 @@ mod_map_selections_ui <- function(id) {
         #                    " values have higher priority scores")),
         options = list(
           `actions-box` = TRUE,
-          size = 10,
+          size = 20,
           `selected-text-format` = "count > 1"
         ),
         multiple = T,

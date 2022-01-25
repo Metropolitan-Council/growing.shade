@@ -632,6 +632,8 @@ bg_acs <- acs %>%
          sens_age = p_0017 + p_65up) %>%
   mutate(tr10 = substr(bg10, 1, 11)) %>%
   full_join(tract_acs)
+
+  
 ```
 
 
@@ -762,7 +764,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
                           "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
                           "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
-                          "p_0017", "age, % age 17 or younger", "people",  "high_opportunity", 0, 0, 0, 0, 
+                          "p_0017", "age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
                           "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
                           "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
                           # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
@@ -776,7 +778,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "canopy_percent", "Tree canopy in 2020 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
                           "canopy_percent2", "Tree canopy in 2020 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, #, 2015-2019 period (in 2019 dollars)
-                          "sens_age", "age, % 17 or younger and 65 or older", "people", "high_opportunity", 0,0,1,0,
+                          "sens_age", "age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
                           "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
                           "pblacknh", "race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
                           "pothmultnh", "race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
@@ -843,11 +845,60 @@ bg_growingshade_main <- bg_growingshade_data %>%
 ########
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
+```
+
+Create metadata. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
+
+
+```{r}
 # ########
 # # create metadata
 # #########
 md1 <- bg_growingshade_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
                                                           MEANSCALED = mean(weights_scaled, na.rm = T))
+
+acs_metadata <-
+acs_tractsonly %>% #use tracts becuase it has info about disability
+    filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
+           year == 2019) %>% #just do metc region for now
+  select(geoid, poptotal:pphother) %>%
+  pivot_longer(names_to = "variable", values_to = "values", -geoid) %>%
+  group_by(variable) %>%
+  summarise(SUM = sum(values, na.rm = T)) %>%
+  pivot_wider(names_from = variable, values_from = SUM) %>%
+  transmute(rgn = "twin cities",
+            ppov185 = (povertyn + poverty150 + pov150_185) / povdenom,
+            pbipoc = (poptotal - whitenh) / poptotal,
+            pamindnh = (amindnh) / poptotal,
+            phisppop = hisppop / poptotal,
+            pblacknh = blacknh / poptotal,
+            pasiannh = asiannh / poptotal,
+            pothmultnh = (othernh + multracenh) / poptotal,
+            pownhome = ownerocc / hutotal,
+            p_65up = age65up / poptotal,
+            p_0017 = ageunder18 / poptotal,
+            sens_age = (age65up + ageunder18) / poptotal,
+            # pwk_nowork
+            # mdhhincnow
+            # prim_flood
+            # holc_pred
+            # tr_ej
+            # ndvi
+            # ndvi2
+            # avg_temp
+            # canopy_percent
+            # canopy_percent2,
+            # CASTHMA
+            # COPD
+            # env_cancer
+            # MHLTH
+            # PHLTH
+            # pop_density
+            pd_any = anydis / cdenom) %>%
+  pivot_longer(names_to = "variable", values_to = "MEANRAW2", -rgn)
+
+
+
 metadata <- bg_growingshade_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
   dplyr::count() %>%
@@ -859,7 +910,10 @@ metadata <- bg_growingshade_main %>%
          nicer_interp = case_when(niceinterp == "Lower" ~ "Lower values = higher priority", 
                                   variable == "ndvi2" ~ "Higher values = higher priority",
                                   variable == "canopy_percent2" ~ "Higher values = higher priority",
-                                  TRUE ~ ""))
+                                  TRUE ~ "")) %>%
+  full_join(acs_metadata) %>%
+  mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
+  select(-MEANRAW2, -rgn)
 
 usethis::use_data(metadata, overwrite = TRUE)
 
@@ -1006,7 +1060,7 @@ usethis::use_data(eab, overwrite = TRUE)
 
 # Export data for storymaps
 
-```{r}
+```{r storymap-shp, include = F, eval = F}
 race_exp <- bg_growingshade_main %>%
   filter(variable == "pbipoc") %>%
   mutate(raw_value = raw_value * 100) %>%
@@ -1060,7 +1114,7 @@ sf::st_write(highestp_exp, "/Users/escheh/Documents/GitHub/planting.shade/storym
 ```
 
 
-```{r treetrust-fig}
+```{r treetrust-fig, include=F, eval=F}
 # https://www.bls.gov/cpi/tables/supplemental-files/historical-cpi-u-202111.pdf
 cpi05 <- 193.2
 cpi21 <-  266.236
@@ -1087,7 +1141,7 @@ adapted from: https://extension.umn.edu/managing-woodlands/carbon-minnesota-tree
 access on web at: https://apps.fs.usda.gov/Evalidator/rest/Evalidator/fullreport?reptype=State&lat=0&lon=0&radius=0&snum=Aboveground and belowground carbon in live trees (at least 1 inch d.b.h./d.r.c), in short tons, on forest land&sdenom=Area of forest land, in acres&wc=272019&pselected=None&rselected=Forest Type MnDNR&cselected=Stand age 20 yr classes (0 to 100 plus)&ptime=Current&rtime=Current&ctime=Current&wf=&wnum=&wnumdenom=&FIAorRPA=FIADEF&outputFormat=HTML&estOnly=Y&schemaName=FS_FIADB.
 
 
-```{r}
+```{r carbon-stand-age, include = F, eval = F}
 usfs <- readxl::read_xlsx("../data-raw/evalidator fsusda.xlsx", 
                           skip = 1,
                           na = "-") %>%
