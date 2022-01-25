@@ -13,7 +13,7 @@ this project.
 
 Methods and data sources for the analyses presented within the Growing
 Shade are detailed below. Please
-<a href = "mailto:ellen.esch@metc.state.mn.us?subject=growing%shade%20tool&cc=eric.wojchik@metc.state.mn.us;mjohnston-mcintosh@TNC.ORG">contact
+<a href = "mailto:ellen.esch@metc.state.mn.us?subject=growing%shade%20tool&cc=eric.wojchik@metc.state.mn.us">contact
 us</a> if you have questions or feedback.
 
 <h2>
