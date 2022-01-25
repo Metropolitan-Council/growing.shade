@@ -120,6 +120,14 @@ nrow(conif_pts)
 #question - is fwet in the tree canopy? seems like it should be. grass vs wet might be dicey. 
 ```
 
+```{r}
+decid_pts %>% st_drop_geometry() %>%
+  group_by(Name) %>% count() %>% arrange(-n)
+nrow(decid_pts)
+(354 + 61) / 500
+
+```
+
 - an initial classification run revealed that more training and testing points for trees inside core urban areas was needed. Back in GEE I did another random sample of coniferous and deciduous trees (from TC 1m2 data set) within the boundaries of Saint Paul and Minneapolis. 
 
 ```{r id-urban-pts}

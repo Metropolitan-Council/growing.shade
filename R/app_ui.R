@@ -6,7 +6,7 @@
 #' @noRd
 app_ui <- function(request) {
   
-  navbar_js <- "@media (max-width: 840px) {
+  navbar_js <- "@media (max-width: 991px) {
     .navbar-header {
         float: none;
     }
@@ -78,7 +78,12 @@ app_ui <- function(request) {
           img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
             # style="margin-top: -25px;",
             height = 60
-        ))
+        )),
+        a(href = "https://www.nature.org/en-us/about-us/where-we-work/united-states/minnesota/", target = "_blank", 
+          img(src = "www/tnc-logo.svg", alt = "The Nature Conservancy logo",
+              style="margin-top: 15px;",
+              height = 45
+          ))
       ),
       windowTitle = "Growing Shade Tool",
       id = "nav",

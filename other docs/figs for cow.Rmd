@@ -82,6 +82,7 @@ ggsave("fig_equity.png",fig_equity,  width = 10, height = 5, units = "in", devic
 # ggsave("fig_equity.png",fig_equity,  width = 4, height = 5.5, units = "in", device = "png")
 ```
 
+Hi income neighborhood:
 
 ```{r}
 hinc <- mn_bgs %>% select(GEOID) %>%
@@ -89,7 +90,8 @@ hinc <- mn_bgs %>% select(GEOID) %>%
   right_join(df1 %>%
                filter(mdhhincnow > 100000,
                       canopy_percent > .35,
-                      pop_density > 8))
+                      pop_density > 8,
+                      pbipoc < .2))
 
 pal <- colorNumeric(
   palette = "Greens",
@@ -102,6 +104,7 @@ leaflet(hinc) %>%
               fillColor = ~pal(canopy_percent),
               popup = ~paste0(tract_string,
                               "<br>pop density: ", round(pop_density, 1), 
+                              "<br>P bipoc: ", round(pbipoc(100), 2),
                               "<br>Tree canopy: ", round(canopy_percent, 2),
                               "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","),
                               "<br>Temp: ", avg_temp,
@@ -112,7 +115,10 @@ leaflet(hinc) %>%
     opacity = 1
   ) 
 
+```
 
+Low income neighborhood
+```{r}
 
 
 hinc <- mn_bgs %>% select(GEOID) %>%
@@ -120,7 +126,9 @@ hinc <- mn_bgs %>% select(GEOID) %>%
   right_join(df1 %>%
                filter(mdhhincnow < 80000,
                       canopy_percent < .21,
-                      pop_density > 8, pop_density < 15))
+                      pop_density > 8, 
+                      pop_density < 15,
+                      pbipoc > .4))
 
 pal <- colorNumeric(
   palette = "Greens",
@@ -131,10 +139,13 @@ leaflet(hinc) %>%
   addPolygons(color = "black",
               fillOpacity = .7,
               fillColor = ~pal(canopy_percent),
-              popup = ~paste0(tract_string, 
+              popup = ~paste0(tract_string,
                               "<br>pop density: ", round(pop_density, 1), 
+                              "<br>P bipoc: ", round(pbipoc * 100, 2),
                               "<br>Tree canopy: ", round(canopy_percent, 2),
-                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","))) %>%
+                              "<br>Median hhinc: $", prettyNum(mdhhincnow, big.mark = ","),
+                              "<br>Temp: ", avg_temp,
+                              "<br>NDVI: ", ndvi)) %>%
   addLegend("bottomright", 
             pal = pal,
             values = ~canopy_percent,
@@ -221,24 +232,21 @@ rl2 <- rl%>% filter(percent > .75)
 av <- rl2 %>% distinct(tract_string, .keep_all = TRUE) %>% summarise(avg_temp = mean(avg_temp))
 
 redline_fig <- rl2 %>%
-  ggplot(aes(y = fct_rev(grade), x = (avg_temp - as.numeric(av)), fill = (avg_temp))) +
+  ggplot(aes(y = fct_rev(grade), x = avg_temp, #(avg_temp - as.numeric(av)), 
+             fill = (avg_temp))) +
   councilR::council_theme() +
-  geom_vline(xintercept = 0, color = "grey70") +
-  # geom_point() +
+  geom_vline(xintercept = as.numeric(av), color = "grey70") +
+  # geom_vline(xintercept = 0, color = "grey70") +
   ggbeeswarm::geom_beeswarm(
-            size = 2, #if(geo_selections$selected_geo == "ctus") {2.5} else {3}, 
-            # alpha = .3,
+            size = 2, 
             cex = 1.5,
-            # corral = "wrap", corral.width = 0.5,
             method = "compactswarm",
-            # col = "grey40",
-            # aes(x = raw_value, y = type),
-            # data = filter(canopyplot, is.na(flag)),
             na.rm = T,
             pch = 21, color = "grey40"
           ) +
   scale_fill_distiller(palette = "RdBu") + 
-  labs(x = "2016 temperature difference from region average",
+  labs(x = "Land surface temperature during 2016 heat wave",
+       #x = "2016 temperature difference from region average",
        y = "1934\nHome\nOwners'\nLoan\nCorporation\nrating",
        caption = "\nSource: Analysis of Landsat 8 satellite imagery (2016)\nand Equity Considerations dataset (2021) ") +
   theme(
@@ -259,11 +267,22 @@ redline_fig <- rl2 %>%
             colour = "grey30"
           )
         ) +
-  guides(fill = F)
-
+  guides(fill = "none")
+redline_fig
 ggsave("fig_redline.png",redline_fig,  width = 7, height = 4.5, units = "in", device = "png")
 
 ```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
