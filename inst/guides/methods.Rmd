@@ -12,7 +12,7 @@ output:
 
 Growing Shade developed out of a collaboration between the <a href="https://metrocouncil.org/" target="_blank">Metropolitan Council</a>, <a href="https://www.nature.org/en-us/about-us/where-we-work/united-states/minnesota/" target="_blank">The Nature Conservancy</a>, and <a href="https://treetrust.org/" target="_blank">Tree Trust</a>. We thank members of the advisory group for initial consultations and thank all individuals who provided feedback during the development phase of this project. 
 
-Methods and data sources for the analyses presented within the Growing Shade are detailed below. Please <a href = "mailto:ellen.esch@metc.state.mn.us?subject=growing%shade%20tool&cc=eric.wojchik@metc.state.mn.us;mjohnston-mcintosh@TNC.ORG">contact us</a> if you have questions or feedback. 
+Methods and data sources for the analyses presented within the Growing Shade are detailed below. Please <a href = "mailto:ellen.esch@metc.state.mn.us?subject=growing%shade%20tool&cc=eric.wojchik@metc.state.mn.us">contact us</a> if you have questions or feedback. 
 
 
 <h2><span style='font-size:16pt'>Prioritization layer</span></h2>
