@@ -210,7 +210,7 @@ mod_report_server <- function(id,
                 "about equal to"
               },
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%).<br><br> ",
-              "The plot below shows how tree canopy cover in the selected block group (shown in green) compares to other block groups across the region. In most areas, a goal of 50% tree canopy coverage (as detected by our methods) is suitable."
+              "The plot below shows how tree canopy cover in the selected block group (shown in green) compares to other block groups across the region. In most areas, a goal of 45% tree canopy coverage (as detected by our methods) is suitable."
             )
           } else {
             paste0(
@@ -241,7 +241,7 @@ mod_report_server <- function(id,
               param_areasummary()$min,
               "% to ",
               param_areasummary()$max,
-              "%. <br><br>The plot below shows how tree canopy cover in the selected area (shown in green) compares to other areas across the region. Within the selected area, tree canopy cover varies across census block groups. In most areas, a goal of 50% tree canopy coverage (as detected by our methods) is suitable."
+              "%. <br><br>The plot below shows how tree canopy cover in the selected area (shown in green) compares to other areas across the region. Within the selected area, tree canopy cover varies across census block groups. In most areas, a goal of 45% tree canopy coverage (as detected by our methods) is suitable."
             )
           }
         )
