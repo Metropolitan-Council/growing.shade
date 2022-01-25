@@ -86,8 +86,9 @@ mod_map_overview_server <- function(input, output, session,
       # ) %>%
 
       # add tree tiles
-      addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}",
-        attribution = NULL,
+      # addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}",
+        addTiles("https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}",
+             attribution = NULL,
         options = c(
           tileOptions(opacity = .5),
           pathOptions(pane = "Trees")
