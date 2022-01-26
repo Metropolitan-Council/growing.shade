@@ -383,18 +383,20 @@ nhood_crosswalk <- find_crosswalks(nhood_geo)
 # test <- "Blakeley Twp."
 # test <- "May Twp."
 # test <- "Minneapolis"
-# # test <- "Lake Elmo"
-# # test <- "Landfall"
-# # test <- "South St. Paul"
-# mn_bgs_1 %>%
-#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
-#   # geom_sf(data = (mn_bgs_1 %>% 
-#   #                   right_join(filter(ctu_crosswalk, tract_id =="271390813001"),
-#   #                              by = c("GEOID" = "tract_id"))), fill = "red", alpha =.1, color = "red")+
-#   geom_sf(fill = NA, lwd = 2)
+# test <- "Lake Elmo"
+# test <- "Landfall"
+# test <- "South St. Paul"
+test <- "Belle Plaine"
+test <- "Belle Plaine Twp."
+mn_bgs_1 %>%
+  right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
+             by = c("GEOID" = "tract_id")) %>%
+  ggplot()+
+  geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
+  # geom_sf(data = (mn_bgs_1 %>%
+  #                   right_join(filter(ctu_crosswalk, tract_id =="271390813001"),
+  #                              by = c("GEOID" = "tract_id"))), fill = "red", alpha =.1, color = "red")+
+  geom_sf(fill = NA, lwd = 2)
 # 
 # test <- "The Greater East Side"
 # mn_bgs_1 %>%

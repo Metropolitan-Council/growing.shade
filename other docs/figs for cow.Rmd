@@ -282,7 +282,8 @@ library(tidyverse); library(sf)
 ctu_list %>%
   st_drop_geometry() %>%
   dplyr::select(GEO_NAME, canopy_percent, min, max) %>%
-  mutate(canopy_percent = round(canopy_percent * 100, 2)) %>%
+  mutate(min = min/100,
+         max = max / 100) %>%
   rename(`CTU Name` = "GEO_NAME",
          `Average tree cover (%)` = canopy_percent,
          `Lowest block group tree cover (%)` = min,
