@@ -137,15 +137,15 @@ calibrate_trees %>%
   # labs(y = expression ("Sentinel in"~m/s^2))
 
 # 
-calibrate_trees %>%
-  ggplot(aes(x = (sentinel), y = (umn))) +
-  geom_point(alpha = .5) +
-  geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
-  stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
-  # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "green", fill = NA) +
-  # geom_smooth(method = "lm", fill = NA)+
-  theme_minimal()  +
-  labs( y = "UMN tree acres in grid", x = "Sentinel tree acres in grid", title = "UNcalibrated")
+# calibrate_trees %>%
+#   ggplot(aes(x = (sentinel), y = (umn))) +
+#   geom_point(alpha = .5) +
+#   geom_abline(slope=calib_coeff, intercept=0, col = 'blue', lwd = 2) +
+#   stat_smooth(aes(y = umn),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "red", fill = NA) +
+#   # stat_smooth(aes(y = umn),method = "lm", formula = y ~ log(x), size = 1, color = "green", fill = NA) +
+#   # geom_smooth(method = "lm", fill = NA)+
+#   theme_minimal()  +
+#   labs( y = "UMN tree acres in grid", x = "Sentinel tree acres in grid", title = "UNcalibrated")
 
 # 
 # calibrate_trees %>%
@@ -161,7 +161,7 @@ calibrate_trees %>%
 
 ```
 
-Calib coeff is 0.7159169, meaning that senitel sees about 25% more trees; or detects area with at least 70% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 710 acres. 
+Calib coeff is 0.7159169, meaning that senitel sees about 25% more trees; or detects area with at least 72% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 716 (720) acres. 
 
 # get EAB data
 
@@ -348,7 +348,7 @@ mn_bgs_2 <- mn_bgs_1 %>%
 
 # river layer to erase Mississippi and Minnesota rivers-------
 river_lake_buffer <- river_lake_all %>%
-  filter(NAME_DNR %in% c("Mississippi", "Minnesota")) #%>% #these rivers are boundaries
+  filter(NAME_DNR %in% c("Mississippi", "Minnesota", "St. Croix")) #%>% #these rivers are boundaries
   # st_buffer(200) %>% #add 10m buffer
   # # st_simplify(dTolerance = 100) %>%
   # # st_buffer(300) %>%
@@ -372,19 +372,29 @@ find_crosswalks <- function(x) {
   return(crosswalk)
 }
 
-ctu_crosswalk <- find_crosswalks(ctu_geo)
+ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
+  mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & tract_id != "271390813001" ~ "remove", #minnesota river is squirrely
+                   TRUE ~ "keep")) %>%
+  filter(flag != "remove") %>% 
+  dplyr::select(-flag)
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
 # test <- "Hilltop"
-# test <- "Lake Elmo"
-# test <- "Landfall"
-# test <- "South St. Paul"
+# test <- "Blakeley Twp."
+# test <- "May Twp."
+# test <- "Minneapolis"
+# # test <- "Lake Elmo"
+# # test <- "Landfall"
+# # test <- "South St. Paul"
 # mn_bgs_1 %>%
 #   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
 #              by = c("GEOID" = "tract_id")) %>%
 #   ggplot()+
 #   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
-#   geom_sf(fill = NA, lwd = 2) 
+#   # geom_sf(data = (mn_bgs_1 %>% 
+#   #                   right_join(filter(ctu_crosswalk, tract_id =="271390813001"),
+#   #                              by = c("GEOID" = "tract_id"))), fill = "red", alpha =.1, color = "red")+
+#   geom_sf(fill = NA, lwd = 2)
 # 
 # test <- "The Greater East Side"
 # mn_bgs_1 %>%
@@ -520,8 +530,6 @@ nhood_list <- nhood_geo %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326) %>%
   group_by(city) %>%  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
-
-
 
 
 

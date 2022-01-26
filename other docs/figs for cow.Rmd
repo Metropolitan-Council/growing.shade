@@ -275,7 +275,23 @@ ggsave("fig_redline.png",redline_fig,  width = 7, height = 4.5, units = "in", de
 
 
 
+Doc with canopy cover by community
 
+```{r}
+library(tidyverse); library(sf)
+ctu_list %>%
+  st_drop_geometry() %>%
+  dplyr::select(GEO_NAME, canopy_percent, min, max) %>%
+  mutate(canopy_percent = round(canopy_percent * 100, 2)) %>%
+  rename(`CTU Name` = "GEO_NAME",
+         `Average tree cover (%)` = canopy_percent,
+         `Lowest block group tree cover (%)` = min,
+         `Highest block group tree cover (%)` = max) %>%
+  write_csv("planit_trivia.csv")
+
+
+
+```
 
 
 
