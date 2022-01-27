@@ -93,4 +93,14 @@ tree layer mapped in Growing Shade identifies areas which have at least
 satellite imagery using a machine learning method rather than collecting
 on-the-ground data. More information is given in the “methods” tab.
 
+**Q. Is it possible to get the type of information Growing Shade
+provides for other areas? Is it possible to get historic data about the
+tree canopy from Growing Shade?** <span
+style="line-height: .1;"><br></span> A. Right now the focus of Growing
+Shade is on current conditions within the 7-county Twin Cities metro. We
+do have future updates and new features of this tool planned, but cannot
+ensure that any updates will meet specific needs. Please look to the
+“resources” tab to see if another product might meet your needs, and
+thank you for your interest and understanding.
+
 <br> <br><br><br><br>
