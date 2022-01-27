@@ -781,12 +781,12 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
                           "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Greenness (2020 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Greenness (2020 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          "ndvi", "Greenness (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                          "ndvi2", "Greenness (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
                           "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
-                          "canopy_percent", "Tree canopy in 2020 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
-                          "canopy_percent2", "Tree canopy in 2020 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
+                          "canopy_percent2", "Tree canopy in 2021 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, #, 2015-2019 period (in 2019 dollars)
                           "sens_age", "age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
                           "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
