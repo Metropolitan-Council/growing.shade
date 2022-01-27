@@ -784,7 +784,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
                           "ndvi", "Greenness (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Greenness (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          "ndvi2", "Greenness (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
                           "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
                           "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
                           "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
