@@ -533,8 +533,7 @@ nhood_list <- nhood_geo %>%
   st_transform(4326) %>%
   group_by(city) %>%  
   # mutate(avgcanopy = mean(canopy_percent, na.rm = T))
-  mutate(avgcanopy = sumtree / sumland * calib_coeff) 
-  # mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
+  mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
 
 
 
@@ -550,8 +549,8 @@ ctu_list <- ctu_geo %>%
   full_join(canopy_ctu) %>%
   arrange(GEO_NAME) %>%
   st_transform(4326) %>%
-  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
-  # mutate(tree = sum(treeacres, na.rm = T), land = sum(landacres, na.rm = T), avgcanopy = tree/land * calib_coeff)
+  mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
+  # mutate(avgcanopy = mean(canopy_percent, na.rm = T))
 
 #should check credit river / credit river twp.
 nhood_list %>% arrange(avgcanopy, canopy_percent)
@@ -867,8 +866,10 @@ Create metadata. While the average values for the block groups are needed to cre
 # ########
 # # create metadata
 # #########
-md1 <- bg_growingshade_main %>% group_by(variable) %>% summarise(MEANRAW = mean(raw_value, na.rm = T),
-                                                          MEANSCALED = mean(weights_scaled, na.rm = T))
+md1 <- bg_growingshade_main %>% 
+  group_by(variable) %>% 
+  summarise(MEANRAW = mean(raw_value, na.rm = T),
+            MEANSCALED = mean(weights_scaled, na.rm = T))
 
 acs_metadata <-
 acs_tractsonly %>% #use tracts becuase it has info about disability
@@ -910,7 +911,14 @@ acs_tractsonly %>% #use tracts becuase it has info about disability
             pd_any = anydis / cdenom) %>%
   pivot_longer(names_to = "variable", values_to = "MEANRAW2", -rgn)
 
-
+md_gee <- 
+  tribble(~rgn, ~variable, ~MEANRAW2,
+          "twin cities", "canopy_percent", ctu_list$avgcanopy[1], 
+          "twin cities", "canopy_percent2", ctu_list$avgcanopy[1]#, 
+          # "twin cities", "ndvi", , 
+          # "twin cities", "ndvi2", , 
+          # "twin cities", "avg_temp", ,
+  )
 
 metadata <- bg_growingshade_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
@@ -924,7 +932,8 @@ metadata <- bg_growingshade_main %>%
                                   variable == "ndvi2" ~ "Higher values = higher priority",
                                   variable == "canopy_percent2" ~ "Higher values = higher priority",
                                   TRUE ~ "")) %>%
-  full_join(acs_metadata) %>%
+  full_join(acs_metadata %>%
+              bind_rows(md_gee)) %>%
   mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
   dplyr::select(-MEANRAW2, -rgn)
 
