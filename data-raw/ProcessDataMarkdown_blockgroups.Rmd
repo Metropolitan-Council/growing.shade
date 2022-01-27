@@ -531,7 +531,10 @@ nhood_list <- nhood_geo %>%
   full_join(canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
   st_transform(4326) %>%
-  group_by(city) %>%  mutate(avgcanopy = mean(canopy_percent, na.rm = T))
+  group_by(city) %>%  
+  # mutate(avgcanopy = mean(canopy_percent, na.rm = T))
+  mutate(avgcanopy = sumtree / sumland * calib_coeff) 
+  # mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
 
 
 
