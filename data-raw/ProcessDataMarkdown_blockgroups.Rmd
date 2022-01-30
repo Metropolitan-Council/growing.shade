@@ -98,9 +98,9 @@ For some good reasons we are going to use data from 2020 for the tree canopy cov
 Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!). 
 
 ```{r calibrate_trees}
-calibrate_trees <- read_csv("../data-raw/TreeAcres/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% #TreeAcres/UMNTreeAcres_metcgrid_year2020.csv") %>%
+calibrate_trees <- read_csv("../data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% 
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcres/TreeAcres_metcgrid_year2021.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv") %>%
               rename(sentinel = `1`),
             by = 'id')
 #if do equal area grid r2 = 0.9343173; calib = 0.6123283
@@ -161,7 +161,7 @@ calibrate_trees %>%
 
 ```
 
-Calib coeff is 0.7159169, meaning that senitel sees about 25% more trees; or detects area with at least 72% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 716 (720) acres. 
+Calib coeff is 0.885246, meaning that senitel sees about 11% more trees; or detects area with at least 89% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 885 (890) acres. 
 
 # get EAB data
 
@@ -178,7 +178,7 @@ list.files(temp2)
 eab <-
   sf::read_sf(paste0(temp2, pattern = "/eab_trees.shp")) %>%
   # filter()
-  st_transform(4326) 
+  st_transform(4326)
 files <- list.files(temp2, full.names = T)
 file.remove(files)
 
@@ -445,7 +445,7 @@ usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
 ```{r treecanopy_bg}
 bg_canopy <- 
-read_csv("../data-raw/TreeAcres/TreeAcres_blockgroups_year2021.csv",
+read_csv("../data-raw/TreeAcresCART/TreeAcres_blockgroups_year2021.csv",
                    col_types = cols(.default = "d", GEOID10 = "c")) %>%
   # read_csv("../data-raw/TreeAcres/TreeAcres_mnwi_blockgroups_year2021.csv",
   #                  col_types = cols(.default = "d", GEOID = "c")) %>%
@@ -458,7 +458,7 @@ read_csv("../data-raw/TreeAcres/TreeAcres_blockgroups_year2021.csv",
             canopy_percent = treeacres / landacres * calib_coeff) #use calibration coefficient
 
 ## ctu canopy ----
-canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2021.csv",
+canopy_ctu <- read_csv("../data-raw/TreeAcresCART/TreeAcres_ctus_year2021.csv",
                    col_types = cols(.default = "d", CTU_NAME = "c")) %>%
   mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME)) %>%
   left_join(ctu_land, by = c("CTU_NAME" = "GEO_NAME")) %>%
@@ -468,7 +468,7 @@ canopy_ctu <- read_csv("../data-raw/TreeAcres/TreeAcres_ctus_year2021.csv",
             canopy_percent = treeacres / landacres * calib_coeff) 
 
 ## nhood canopy ----
-canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021.csv",
+canopy_nhood <- read_csv("../data-raw/TreeAcresCART/TreeAcres_neighborhoods_year2021.csv",
                    col_types = cols(.default = "d", GEO_NAME = "c")) %>%
   mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
                               GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
@@ -485,7 +485,7 @@ canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021
             treeacres = `1`,
             landacres = ALAND / 4046.86,
             canopy_percent = treeacres / landacres * calib_coeff) %>%
-  full_join(read_csv("../data-raw/TreeAcres/UMNTreeAcres_neighborhoods_scale1_year2021.csv") %>%
+  full_join(read_csv("../data-raw/TreeAcresCART/UMNTreeAcres_neighborhoods_scale1_year2021.csv") %>%
                 mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
                               GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
                               GEO_NAME == "West Side Community Organization" ~ "West Side",
@@ -498,6 +498,8 @@ canopy_nhood <- read_csv("../data-raw/TreeAcres/TreeAcres_neighborhoods_year2021
                               TRUE ~ GEO_NAME))) %>%
   mutate(umn_canopy = `1`/landacres)
 
+canopy_nhood %>%
+  ggplot(aes(x = canopy_percent, y = umn_canopy)) + geom_point()
 
 ```
 
@@ -524,7 +526,7 @@ tree_summary <- function(x) {
               ntracts = n())
 }
 
-nhood_list <- nhood_geo %>%
+nhood_list_raw <- nhood_geo %>%
   full_join(tree_summary(nhood_crosswalk)) %>%
   # full_join(eab_counts(., GEO_NAME)) %>%
   #   mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
@@ -539,10 +541,10 @@ nhood_list <- nhood_geo %>%
 
   # group_by(city) %>% mutate(tree = sum(treeacres), land = sum(landacres), avgcanopy = tree/land * calib_coeff,
                             # umncanopy = sum(`1`/land))
-usethis::use_data(nhood_list, overwrite = TRUE)
+# usethis::use_data(nhood_list, overwrite = TRUE)
 
 
-ctu_list <- ctu_geo %>%
+ctu_list_raw <- ctu_geo %>%
   full_join(tree_summary(ctu_crosswalk)) %>%
     full_join(eab_counts(., GEO_NAME)) %>%
     mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
@@ -553,9 +555,9 @@ ctu_list <- ctu_geo %>%
   # mutate(avgcanopy = mean(canopy_percent, na.rm = T))
 
 #should check credit river / credit river twp.
-nhood_list %>% arrange(avgcanopy, canopy_percent)
+nhood_list_raw %>% arrange(avgcanopy, canopy_percent)
 
-usethis::use_data(ctu_list, overwrite = TRUE)
+# usethis::use_data(ctu_list, overwrite = TRUE)
 # usethis::use_data(ctu_list2, overwrite = TRUE)
 
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
@@ -569,18 +571,30 @@ usethis::use_data(ctu_list, overwrite = TRUE)
 
 
 ```{r ndvi_bgs}
-bg_ndvi <- 
-  read_csv("../data-raw/TreeAcres/meanNDVI_blockgroups_year2021.csv",
+ndvi_uncultivated <- 
+  read_csv("../data-raw/TreeAcresCART/uncultivatedNDVI_blockgroups_year2021.csv",
                     na = "No data",
-                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-  rename(GEOID = GEOID10) %>%
+                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+  rename(GEOID = GEOID10)
+
+ndvi_allland <- 
+  read_csv("../data-raw/TreeAcresCART/landNDVI_blockgroups_year2021.csv",
+                    na = "No data",
+                       col_types = cols(GEOID10 = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+  rename(GEOID = GEOID10)
   
   # read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
   #                   na = "No data",
   #                      col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
   # dplyr::select(-`system:index`, -.geo, -Year)
-  dplyr::select(GEOID, ndvi) %>%
+bg_ndvi <- ndvi_uncultivated %>%
+  dplyr::select(GEOID, ndvi_uncultivated) %>%
+  full_join(ndvi_allland %>%
+  dplyr::select(GEOID, ndvi_land)) %>%
     rename(bg10 = GEOID)
+
+
+
 
 ```
 
@@ -739,7 +753,8 @@ bg_growingshade_data <- bg_acs %>%
   left_join(bg_canopy) %>%
   left_join(bg_ndvi) %>%
   left_join(bg_health2) %>%
-  mutate(ndvi2 = ndvi,
+  mutate(inverse_ndvi_uncultivated = ndvi_uncultivated,
+         inverse_ndvi_land = ndvi_land,
          canopy_percent2 = canopy_percent,
          pop_density = poptot_mc / landacres) %>%
   rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
@@ -760,7 +775,16 @@ bg_growingshade_data <- bg_acs %>%
 # sort(names(eva_data_raw))
 # sort(names(bg_growingshade_data))
 
+bg_growingshade_data %>%
+  ggplot(aes(y = avg_temp,
+             x = ndvi_land
+             # x = ndvi_uncultivated
+             # x = canopy_percent
+             )) +
+  geom_point()
 ```
+
+
 
 ```{r}
 ###################
@@ -783,8 +807,13 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
                           "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 1, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
-                          "ndvi", "Greenness (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
-                          "ndvi2", "Greenness (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
+                          
+                          "ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                          "inverse_ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                          
+                          "ndvi_land", "Greenness, all land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                          "inverse_ndvi_land", "Greenness, all land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
+                          
                           "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
                           "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
                           "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
@@ -913,8 +942,8 @@ acs_tractsonly %>% #use tracts becuase it has info about disability
 
 md_gee <- 
   tribble(~rgn, ~variable, ~MEANRAW2,
-          "twin cities", "canopy_percent", ctu_list$avgcanopy[1], 
-          "twin cities", "canopy_percent2", ctu_list$avgcanopy[1]#, 
+          "twin cities", "canopy_percent", ctu_list_raw$avgcanopy[1], 
+          "twin cities", "canopy_percent2", ctu_list_raw$avgcanopy[1]#, 
           # "twin cities", "ndvi", , 
           # "twin cities", "ndvi2", , 
           # "twin cities", "avg_temp", ,
@@ -929,7 +958,8 @@ metadata <- bg_growingshade_main %>%
                case_when(interpret_high_value == "high_opportunity" ~ "Higher",
                          TRUE ~ "Lower"),
          nicer_interp = case_when(niceinterp == "Lower" ~ "Lower values = higher priority", 
-                                  variable == "ndvi2" ~ "Higher values = higher priority",
+                                  variable == "inverse_ndvi_uncultivated" ~ "Higher values = higher priority",
+                                  variable == "inverse_ndvi_land" ~ "Higher values = higher priority",
                                   variable == "canopy_percent2" ~ "Higher values = higher priority",
                                   TRUE ~ "")) %>%
   full_join(acs_metadata %>%
@@ -991,7 +1021,7 @@ priority_summary <- priority_summary_1 %>%
 
 ```{r bg_shapefiles_for_mapping}
 
-mn_bgs <- mn_bgs_1 %>%
+mn_bgs_raw <- mn_bgs_1 %>%
   right_join(wide_ctu_crosswalk) %>%
   full_join(eab_counts(., GEOID)) %>%
   mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
@@ -1017,7 +1047,7 @@ mn_bgs <- mn_bgs_1 %>%
                                substr(GEOID, 3, 5) == "163" ~ paste0("Washington County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                TRUE ~ NA_character_))
 
-usethis::use_data(mn_bgs, overwrite = TRUE)
+# usethis::use_data(mn_bgs, overwrite = TRUE)
 
 
 mncounties <- tigris::counties(state = "MN") %>%
@@ -1033,13 +1063,13 @@ usethis::use_data(metc_region, overwrite = TRUE)
 
 ```{r}
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
-ctu_list <- ctu_list %>% 
+ctu_list <- ctu_list_raw %>% 
   st_transform(26915) %>%
   sf::st_simplify(dTolerance = 50, preserveTopology = T) %>%
   sf::st_transform(4326)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
-nhood_list <- nhood_list %>% 
+nhood_list <- nhood_list_raw %>% 
   st_transform(26915) %>%
   sf::st_simplify(dTolerance = 50, preserveTopology = T) %>%
   sf::st_transform(4326)
@@ -1052,7 +1082,7 @@ redline <- redline %>%
 usethis::use_data(redline, overwrite = TRUE)
 
 
-mn_bgs <- mn_bgs %>% 
+mn_bgs <- mn_bgs_raw %>% 
   # st_transform(26915) %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326)

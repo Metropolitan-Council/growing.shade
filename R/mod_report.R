@@ -173,7 +173,7 @@ mod_report_server <- function(id,
 
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
-        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi")) %>%
+        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi_land")) %>%
         select(tract_string, variable, raw_value, flag) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
@@ -827,9 +827,9 @@ mod_report_server <- function(id,
       req(TEST() != "")
 
       df <- param_equity() %>%
-        select(flag, avg_temp, ndvi)
+        select(flag, avg_temp, ndvi_land)
 
-      plot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
+      plot <- ggplot(aes(x = ndvi_land, y = avg_temp), data = df) +
         geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, 

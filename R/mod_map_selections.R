@@ -91,7 +91,7 @@ mod_map_selections_ui <- function(id) {
           `selected-text-format` = "count > 1"
         ),
         multiple = T,
-        selected = dplyr::filter(metadata, type == "environment")[7, 2]
+        selected = dplyr::filter(metadata, type == "environment")[9, 2]
       )
     ),
     conditionalPanel(
