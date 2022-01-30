@@ -66,7 +66,7 @@ to the tree canopy identified in 2015 using LiDAR data from 2011
 (<a href="https://gisdata.mn.gov/dataset/base-landcover-twincities" target="_blank">Twin
 Cities Metropolitan area 1-meter land cover classification</a>). With
 1000 equal-area regions across the 7-county area, a scaling factor of
-0.716 was used to bring the Sentinel data in line with on-the-ground
+0.885 was used to bring the Sentinel data in line with on-the-ground
 tree canopy. This scaling factor is appropriate for our methods of using
 10 m x 10 m resolution data, which is often larger than tree canopies.
 This scaling factor makes our data align very closely with other reports
