@@ -66,7 +66,7 @@ accurate)
 meter squared landcover data set</a>, there was high correlation but
 Sentinel-2 data detects about a quarter more tree canopy as the 1 meter
 squared landcover data. Essentially, this means that the methods in
-Growing Shade detect areas with at least 72% tree canopy coverage. We
+Growing Shade detect areas with at least 89% tree canopy coverage. We
 re-scaled our data using this relationship to improve the clarity of
 messaging. More information is given in the “methods” tab.
 
@@ -89,7 +89,7 @@ we have rounded to our goal of 45% tree canopy cover.
 tool show trees where there are not trees?** <span
 style="line-height: .1;"><br></span> A. Calibration revealed that the
 tree layer mapped in Growing Shade identifies areas which have at least
-72% tree canopy cover. The tree canopy has been identified from
+89% tree canopy cover. The tree canopy has been identified from
 satellite imagery using a machine learning method rather than collecting
 on-the-ground data. More information is given in the “methods” tab.
 
