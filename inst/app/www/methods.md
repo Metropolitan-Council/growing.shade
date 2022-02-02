@@ -70,7 +70,7 @@ Cities Metropolitan area 1-meter land cover classification</a>). With
 tree canopy. This scaling factor is appropriate for our methods of using
 10 m x 10 m resolution data, which is often larger than tree canopies.
 This scaling factor makes our data align very closely with other reports
-while still leveraging the scalability and temporal accuracy of our
-method.
+(r^2 = 0.96) while still leveraging the scalability and temporal
+accuracy of our method.
 
 <br> <br><br><br><br>
