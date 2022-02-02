@@ -952,10 +952,14 @@ mod_report_server <- function(id,
     #
     # })
     #
+    param_reportname <- reactive({
+      req(TEST() != "")
+      paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html")
+    })
 
 
     output$dl_report <- downloadHandler(
-      filename = paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html"), # ".docx"), # ".html"),
+      filename = param_reportname, #paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html"), # ".docx"), # ".html"),
       content = function(file) {
         tempReport <- file.path(tempdir(), "report_new.Rmd")
         tempCss <- file.path(tempdir(), "style.css")
