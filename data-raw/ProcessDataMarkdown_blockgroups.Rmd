@@ -1086,9 +1086,31 @@ redline <- redline %>%
   sf::st_transform(4326)
 usethis::use_data(redline, overwrite = TRUE)
 
+library(tidyverse); library(sf)
+# lakes <- river_lake_all %>%
+#   filter(SYSTEM %in% c("Lake"),
+#          AREA_ACRES > 10) %>% #these rivers are boundaries
+#   sf::st_transform(26915) %>%
+#   st_union() %>%
+#   st_buffer(-10) %>%
+#   # smoothr::smooth(method = "ksmooth") %>%
+#   sf::st_simplify(dTolerance = 50, preserveTopology = F) #There’s also a parameter preserveTopology which, when set to TRUE, makes sure that polygons are not reduced to lines or even removed, or that inner holes in them are removed during the simplification process.
+
+temp <- tempfile()
+download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dot/trans_airports/gpkg_trans_airports.zip", destfile = temp)
+airports <- sf::read_sf(unzip(temp, "trans_airports.gpkg"))  %>%
+  st_buffer(dist = .$RUNWAY_WID) %>%
+  st_union() %>%
+  # ggplot() + geom_sf()
+  # sf::st_simplify(dTolerance = 25, preserveTopology = F) %>%
+  sf::st_transform(4326) 
+  
 
 mn_bgs <- mn_bgs_raw %>% 
+  # if I want to remove lakes; I don't love them removed tbh
   # st_transform(26915) %>%
+  # st_erase(lakes) %>% 
+  # st_erase(airports) %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326)
 usethis::use_data(mn_bgs, overwrite = TRUE)
