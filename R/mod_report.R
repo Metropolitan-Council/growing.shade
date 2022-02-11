@@ -75,8 +75,9 @@ mod_report_ui <- function(id) {
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("download_para")),
       fluidRow(
-        column(width = 6, uiOutput(ns("get_the_report"))),
-        column(width = 6, uiOutput(ns("get_the_data")))
+        column(width = 4, uiOutput(ns("get_the_report"))),
+        column(width = 4, uiOutput(ns("get_the_data"))),
+        column(width = 4, uiOutput(ns("get_shape_data")))
       )
     ))
   )
@@ -1056,7 +1057,8 @@ mod_report_server <- function(id,
                 `Conservation variable` = cons,
                 `Number of block groups with data` = n
               ),
-            "Selected Area" = param_selectedtractvalues() %>%
+            "Selected Area" = 
+              (param_selectedtractvalues() %>%
               select(
                 GEO_NAME, jurisdiction, canopy_percent, MEAN,
                 "Public health", Conservation, "Environmental justice", "Climate change"
@@ -1073,8 +1075,8 @@ mod_report_server <- function(id,
               left_join(bg_growingshade_main %>%
                           select(tract_string, variable, raw_value) %>%
                           pivot_wider(names_from = variable, values_from = raw_value) %>%
-                          rename(GEO_ID = tract_string), by = c("GEO_ID")) %>%
-              left(),
+                          rename(GEO_ID = tract_string), by = c("GEO_ID"))) 
+               ,
             "Entire Region" = bg_growingshade_main %>%
               select(tract_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
@@ -1085,6 +1087,55 @@ mod_report_server <- function(id,
       }
     )
 
+    
+    output$shapefile_dl <- downloadHandler(
+
+      filename <- function() {
+        paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".zip")
+      },
+      content = function(file) {
+        withProgress(message = "Exporting Data", {
+          
+          incProgress(0.5)
+          tmp.path <- dirname(file)
+          
+          name.base <- file.path(tmp.path, "GrowingShade")
+          name.glob <- paste0(name.base, ".*")
+          name.shp  <- paste0(name.base, ".shp")
+          name.zip  <- paste0(name.base, ".zip")
+          
+          if (length(Sys.glob(name.glob)) > 0) file.remove(Sys.glob(name.glob))
+          sf::st_write((param_selectedtractvalues() %>%
+                          select(
+                            GEO_NAME, jurisdiction, canopy_percent, MEAN,
+                            "Public health", Conservation, "Environmental justice", "Climate change"
+                          ) %>%
+                          rename(
+                            GEO_ID = GEO_NAME,
+                            `Selected priority score` = MEAN,
+                            `Climate change priority score` = `Climate change`,
+                            `Conservation priority score` = `Conservation`,
+                            `Environmental justice priority score` = `Environmental justice`,
+                            `Public health priority score` = `Public health`,
+                            `Percent tree cover` = canopy_percent
+                          ) %>%
+                          left_join(bg_growingshade_main %>%
+                                      select(tract_string, variable, raw_value) %>%
+                                      pivot_wider(names_from = variable, values_from = raw_value) %>% select(-inverse_ndvi_uncultivated, -inverse_ndvi_land) %>%
+                                      
+                                      rename(GEO_ID = tract_string), by = c("GEO_ID"))),
+                       dsn = name.shp, ## layer = "shpExport",
+                       driver = "ESRI Shapefile", quiet = TRUE)
+          
+          zip::zipr(zipfile = name.zip, files = Sys.glob(name.glob))
+          req(file.copy(name.zip, file))
+          
+          if (length(Sys.glob(name.glob)) > 0) file.remove(Sys.glob(name.glob))
+          
+          incProgress(0.5)
+        })
+      }  
+    )
 
     ####### put things into reactive uis ----------
 
@@ -1131,6 +1182,13 @@ mod_report_server <- function(id,
       downloadButton(ns("dl_data"), label = "Raw data")
     })
 
+    
+    
+    output$get_shape_data <- renderUI({
+      req(TEST() != "")
+      downloadButton(ns("shapefile_dl"), label = "Shapefile")
+    })
+    
 
 
     # ######## make figs expand on click
