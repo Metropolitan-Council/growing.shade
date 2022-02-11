@@ -803,7 +803,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "pop_density", "Population density (persons / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
                           "housing_density", "Housing unit density (units / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
                           "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 0, 0, 0,
                           "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
                           "p_0017", "age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
                           "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,

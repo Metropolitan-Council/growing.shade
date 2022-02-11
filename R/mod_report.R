@@ -1073,7 +1073,8 @@ mod_report_server <- function(id,
               left_join(bg_growingshade_main %>%
                           select(tract_string, variable, raw_value) %>%
                           pivot_wider(names_from = variable, values_from = raw_value) %>%
-                          rename(GEO_ID = tract_string), by = c("GEO_ID")),
+                          rename(GEO_ID = tract_string), by = c("GEO_ID")) %>%
+              left(),
             "Entire Region" = bg_growingshade_main %>%
               select(tract_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
