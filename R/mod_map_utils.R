@@ -110,7 +110,14 @@ mod_map_utils_server <- function(input, output, session,
         left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
         st_as_sf()
     }
-    return(faststep)
+    
+    
+    filterstep <- if(geo_selections$mapfilter == "above5") {
+      faststep %>%
+        filter(MEAN >= 5)
+    } else {faststep}
+    
+    return(filterstep)
 
     # #80
     # profvis::profvis(
