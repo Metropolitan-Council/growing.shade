@@ -64,9 +64,18 @@ mod_map_utils_server <- function(input, output, session,
   #           map_selections$allInputs$value)
 
   make_map_data_filter <- reactive({
-    filterstep <- if(geo_selections$mapfilter == "above5") {
+    filterstep <- if(geo_selections$mapfilter == "above4") {
+      make_map_data() %>%
+        filter(MEAN >= 4)
+    } else if (geo_selections$mapfilter == "above5") {
       make_map_data() %>%
         filter(MEAN >= 5)
+    } else if (geo_selections$mapfilter == "above6") {
+      make_map_data() %>%
+        filter(MEAN >= 6)
+    } else if (geo_selections$mapfilter == "above7") {
+      make_map_data() %>%
+        filter(MEAN >= 7)
     } else {make_map_data()}
     
     return(filterstep)

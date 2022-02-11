@@ -66,17 +66,39 @@ fluidRow(column(width = 6,
       HTML("Please click on an area within the map at right.")
     )
 ),
+# column(width = 6,
+#        radioButtons(
+#          ns("mapfilter"),
+#          # h4("Report area"),
+#          label = HTML("<h4><span style='font-size:14pt'>Map priority scores</span></h4>"),
+#          choices = c(
+#            "All scores" = "nofilter",
+#            "Above 5" = "above5",
+#            "Above 6" = "above6",
+#            "Above 7" = "above7"
+#            # "All priority scores" = "nofilter",
+#            # "Priority scores above 5" = "above5"
+#            ), # multiple = F,
+#          selected = "nofilter", inline = T
+#        ))
 column(width = 6,
-       radioButtons(
+       div(style = "color:'green';",
+           shinyWidgets::radioGroupButtons(
          ns("mapfilter"),
          # h4("Report area"),
          label = HTML("<h4><span style='font-size:14pt'>Map priority scores</span></h4>"),
          choices = c(
-           "All priority scores" = "nofilter",
-           "Priority scores above 5" = "above5"
-           ), # multiple = F,
+           "All scores" = "nofilter",
+           ">4" = "above4",
+           ">5" = "above5",
+           ">6" = "above6",
+           ">7" = "above7"
+           # "All priority scores" = "nofilter",
+           # "Priority scores above 5" = "above5"
+         ), # multiple = F,
          selected = "nofilter"
-       ))))
+       )))
+))
 }
 
 #' geo_selection Server Functions

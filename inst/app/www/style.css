@@ -314,7 +314,7 @@ a:hover, a:focus {
 	touch-action: manipulation;
 	cursor: pointer;
 	background-image: none;
-	border: 1px solid transparent;
+	border: 1px solid /*transparent;*/
 	padding: 6px 12px;
 	font-size: 13pt;
 	line-height: 1.42857143;

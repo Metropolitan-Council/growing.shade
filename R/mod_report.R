@@ -630,7 +630,7 @@ mod_report_server <- function(id,
       ns <- session$ns
       req(TEST() != "")
       para <- HTML(
-        "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded.<br>"
+        "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
       )
       return(para)
     })
@@ -1173,7 +1173,7 @@ mod_report_server <- function(id,
 
     output$get_the_report <- renderUI({
       req(TEST() != "")
-      downloadButton(ns("dl_report"), label = "Comprehensive report")
+      downloadButton(ns("dl_report"), label = "Text report")
     })
 
 
