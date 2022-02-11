@@ -1306,7 +1306,13 @@ ggsave("./usfs_fig.jpg", usfs_fig,  width = 8, height = 5, units = "in", device 
 
 
 
-
+```{r testdl, include=F, eval=F}
+# eh<-  sf::read_sf("/Users/escheh/Downloads/Data_shpExport/BufferedTracks.shp")
+# 
+# eh %>%
+#   ggplot() +
+#   geom_sf(aes(fill = Prcnttc))
+```
 
 
 
