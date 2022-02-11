@@ -90,7 +90,7 @@ mod_map_overview_server <- function(input, output, session,
         addTiles("https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}",
              attribution = NULL,
         options = c(
-          tileOptions(opacity = .5),
+          tileOptions(opacity = .6),
           pathOptions(pane = "Trees")
         ),
         group = "Trees"
@@ -246,7 +246,7 @@ mod_map_overview_server <- function(input, output, session,
       )) %>%
       groupOptions(
         group = "Trees",
-        zoomLevels = 12:18
+        zoomLevels = 14:18
       )
     # groupOptions(
     #       group = "Road outlines",

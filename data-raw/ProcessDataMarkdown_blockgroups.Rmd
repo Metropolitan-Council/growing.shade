@@ -131,7 +131,8 @@ calibrate_trees %>%
   geom_point(alpha = .5) +
   geom_abline(slope=1, intercept=0, col = 'blue', lwd = 2) +
   # geom_smooth(method = "lm", fill = NA)+
-  theme_minimal()  + 
+  theme_minimal()  +
+  # councilR::theme_council()
   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
         title = "calibrated")
   # labs(y = expression ("Sentinel in"~m/s^2))
@@ -681,7 +682,8 @@ equity_data_raw_bg <- equity_bg %>%
          tr_ej,
          holc_pred, holc_pgrn, holc_pblu, holc_pylw,
          pwk_nowork,
-         poptot_mc
+         poptot_mc,
+         hutot_mc
          ) %>%
   rowwise() %>%
   mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)#,
@@ -756,7 +758,8 @@ bg_growingshade_data <- bg_acs %>%
   mutate(inverse_ndvi_uncultivated = ndvi_uncultivated,
          inverse_ndvi_land = ndvi_land,
          canopy_percent2 = canopy_percent,
-         pop_density = poptot_mc / landacres) %>%
+         pop_density = poptot_mc / landacres,
+         housing_density = hutot_mc / landacres) %>%
   rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
   # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
              # env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
@@ -777,11 +780,12 @@ bg_growingshade_data <- bg_acs %>%
 
 bg_growingshade_data %>%
   ggplot(aes(y = avg_temp,
-             x = ndvi_land
+             # x = ndvi_land
              # x = ndvi_uncultivated
              # x = canopy_percent
              )) +
-  geom_point()
+  geom_point(aes(x = ndvi_land), col = 'black') #+
+  # geom_point(aes(x = ndvi_uncultivated), col = "blue")
 ```
 
 
@@ -796,9 +800,10 @@ bg_growingshade_data %>%
 #ej (environmental justice preset) = pbipoc, phhi_qntl1, prim_flood, avg_temp, ndvi
 #ph (public health preset)
 eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
-                          "pop_density", "population density (persons / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
+                          "pop_density", "Population density (persons / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
+                          "housing_density", "Housing unit density (units / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
                           "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 1, 0, 0,
+                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 0, 0, 0,
                           "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
                           "p_0017", "age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
                           "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
@@ -1107,6 +1112,23 @@ usethis::use_data(eab, overwrite = TRUE)
 # # ggplot() +
 # #   geom_sf(data = ctu_list) +
 # #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
+
+```
+
+
+# Export for PlanIt
+
+```{r}
+ctu_list %>%
+  sf::st_drop_geometry() %>%
+  dplyr::select(GEO_NAME, canopy_percent, min, max) %>%
+  mutate(min = min/100, 
+         max = max/100) %>%
+  rename("CTU Name" = GEO_NAME,
+         "Average tree %" = canopy_percent,
+         "Lowest block group tree %" = min,
+         "Highest block group tree %" = max) %>%
+  write_csv("./PlanIttriva.csv")
 
 ```
 

@@ -135,7 +135,7 @@ mod_report_server <- function(id,
     param_selectedtractvalues <- reactive({
       req(TEST() != "")
       output <- filter(
-        (map_util$map_data2),
+        (map_util$map_data),
         tract_string %in%
           if (geo_selections$selected_geo == "ctus") {
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
@@ -1069,7 +1069,12 @@ mod_report_server <- function(id,
                 `Environmental justice priority score` = `Environmental justice`,
                 `Public health priority score` = `Public health`,
                 `Percent tree cover` = canopy_percent
-              ),
+              ) %>%
+              left_join(bg_growingshade_main %>%
+                          select(tract_string, variable, raw_value) %>%
+                          pivot_wider(names_from = variable, values_from = raw_value) %>%
+                          rename(GEO_ID = tract_string), by = c("GEO_ID")) %>%
+              left(),
             "Entire Region" = bg_growingshade_main %>%
               select(tract_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
