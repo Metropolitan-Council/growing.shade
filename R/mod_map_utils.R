@@ -21,61 +21,7 @@ mod_map_utils_server <- function(input, output, session,
                                  geo_selections) {
   ns <- session$ns
 
-  # # we need to make this data for a bar plot, or something like that
-  # make_plot_data2 <- reactive({
-  #   p <- bg_growingshade_main %>%
-  #     filter(name %in% map_selections$allInputs$value)
-  #   return(p)
-  # })
-
-
-  # # we need to make this data for the popup
-  # make_ccp <- reactive({
-  #   p <- bg_growingshade_main %>%
-  #     filter(variable == "canopy_percent")
-  #   return(p)
-  # })
-
-  # but we want to get a single averaged value for every tract to put on the map
-  make_map_data2 <- reactive({
-    #   step1 <- if (map_selections$preset == "Climate change") {
-    #     bg_growingshade_main %>%
-    #       filter(name %in% metadata$name[metadata$cc == 1])
-    #   } else if (map_selections$preset == "Conservation") {
-    #     bg_growingshade_main %>%
-    #       filter(name %in% metadata$name[metadata$cons == 1])
-    #   } else if (map_selections$preset == "Environmental justice") {
-    #     bg_growingshade_main %>%
-    #       filter(name %in% metadata$name[metadata$ej == 1])
-    #   } else if (map_selections$preset == "Public health") {
-    #     bg_growingshade_main %>%
-    #       filter(name %in% metadata$name[metadata$ph == 1])
-    #   } else if (map_selections$preset == "Custom") {
-    #     bg_growingshade_main %>%
-    #       filter(name %in% map_selections$allInputs$value)
-    #
-    #   }
-    #
-    #
-    #   step2 <- step1 %>%
-    #     group_by(tract_string) %>%
-    #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-    #     # mutate(RANK = min_rank(desc(MEAN))) %>%
-    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
-    #     st_as_sf()
-    #
-    #   return(step2)
-    #
-    #   bg_growingshade_main %>%
-    #     filter(name %in% metadata$name[metadata$ph == 1]) %>%
-    #     group_by(tract_string) %>%
-    #     summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-    #     # mutate(RANK = min_rank(desc(MEAN))) %>%
-    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
-    #     sf::st_as_sf() %>% str()
-    #
-    #   mn_bgs %>%
-    #         rename(MEAN = `Climate change`) %>% as_tibble() %>% sf::st_as_sf() %>% str()
+  make_map_data <- reactive({
 
     faststep <- if (map_selections$preset == "Climate change") {
       mn_bgs %>%
@@ -111,38 +57,29 @@ mod_map_utils_server <- function(input, output, session,
         st_as_sf()
     }
     
-    
-    filterstep <- if(geo_selections$mapfilter == "above5") {
-      faststep %>%
-        filter(MEAN >= 5)
-    } else {faststep}
-    
-    return(filterstep)
+    return(faststep)
 
-    # #80
-    # profvis::profvis(
-    #   data.table::data.table(bg_growingshade_main)[, .(MEAN = mean(weights_scaled, na.rm = T)), tract_string] %>%
-    #     mutate(RANK = min_rank(desc(MEAN))) %>%
-    #     # .[, RANK:=min_rank(desc(MEAN))] %>%
-    #     left_join(mn_bgs, by = c("tract_string" = "GEOID")) #%>%
-    #     # st_as_sf() %>%
-    #     # st_transform(4326)
-    # )
   }) # %>%
   # bindCache(map_selections$preset,
   #           map_selections$allInputs$value)
 
+  make_map_data_filter <- reactive({
+    filterstep <- if(geo_selections$mapfilter == "above5") {
+      make_map_data() %>%
+        filter(MEAN >= 5)
+    } else {make_map_data()}
+    
+    return(filterstep)
+    
+  })
 
   #------- reactive things
 
   vals <- reactiveValues()
 
-  # observe({
-  #   vals$plot_data2 <- make_plot_data2()
-  # })
-
   observe({
-    vals$map_data2 <- make_map_data2()
+    vals$map_data <- make_map_data()
+    vals$map_data2 <- make_map_data_filter()
   })
 
   # observe({
