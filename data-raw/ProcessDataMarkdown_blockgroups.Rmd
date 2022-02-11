@@ -131,7 +131,8 @@ calibrate_trees %>%
   geom_point(alpha = .5) +
   geom_abline(slope=1, intercept=0, col = 'blue', lwd = 2) +
   # geom_smooth(method = "lm", fill = NA)+
-  theme_minimal()  + 
+  theme_minimal()  +
+  # councilR::theme_council()
   labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
         title = "calibrated")
   # labs(y = expression ("Sentinel in"~m/s^2))
