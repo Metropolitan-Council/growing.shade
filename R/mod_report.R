@@ -135,7 +135,7 @@ mod_report_server <- function(id,
     param_selectedtractvalues <- reactive({
       req(TEST() != "")
       output <- filter(
-        (map_util$map_data2),
+        (map_util$map_data),
         tract_string %in%
           if (geo_selections$selected_geo == "ctus") {
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
