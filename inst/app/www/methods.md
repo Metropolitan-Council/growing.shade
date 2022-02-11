@@ -49,7 +49,7 @@ scores are averaged to create a single, integrated priority value.
 <span style="font-size:16pt">Tree canopy</span>
 </h2>
 
-Growing Shade uses and shows a tree canopy layer from 2021 A machine
+Growing Shade uses and shows a tree canopy layer from 2021. A machine
 learning method was created in
 <a href = 'https://earthengine.google.com/' target = "_blank">Google
 Earth Engine</a> and used to detect tree cover from other land cover
@@ -72,5 +72,9 @@ tree canopy. This scaling factor is appropriate for our methods of using
 This scaling factor makes our data align very closely with other reports
 (r^2 = 0.96) while still leveraging the scalability and temporal
 accuracy of our method.
+
+<h2>
+<span style="font-size:16pt">Data dictionary</span>
+</h2>
 
 <br> <br><br><br><br>

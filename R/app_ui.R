@@ -61,15 +61,6 @@ app_ui <- function(request) {
     # tags$head(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")), #,'.navbar-brand{display:none;}')),
     navbarPage(
       title = div(style = "align:center",
-        # img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo"),
-        # img(src = "www/main-logo.png", alt = "Met Council logo",
-        #     style="margin-top: -30px; padding-left:0px",
-        #     height = 60),
-        # img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
-        #     style="margin-top: -25px;",
-        #     height = 120
-        #     )
-        
         a(href = "https://metrocouncil.org/", target = "_blank", 
           img(src = "www/main-logo.png", alt = "Met Council logo",
             # style="margin-top: -30px; padding-left:0px",
@@ -104,7 +95,7 @@ app_ui <- function(request) {
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-02-02. '),
+          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-02-10. '),
           align = "right",
           style = "
               position:absolute;
