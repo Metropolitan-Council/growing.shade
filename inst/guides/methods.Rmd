@@ -19,7 +19,7 @@ Methods and data sources for the analyses presented within the Growing Shade are
 
 Priority variables were sourced from several locations including:
 
-- Demographic and socioeconomic information comes from the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American Community Survey 5-Year Summary File</a> published by the Metropolitan Council. Census block group data is used. 
+- Demographic and socioeconomic information comes from the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American Community Survey 5-Year Summary File</a> (2015-2019) and the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity Considerations data</a> published by the Metropolitan Council. Census block group data is used. 
 - Health information comes from the <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES dataset</a> published by the Center of Disease Control and Prevention. PLACES data is reported by census tract.
 - Tree canopy and green space information is obtained from the <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Copernicus Sentinel-2 satellite mission</a>.
 - Climate data including temperatures and flood risk was processed using the <a href = 'https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx' target = '_blank'>Climate Vulnerability Assessment</a> published by the Metropolitan Council.
@@ -37,7 +37,7 @@ Growing Shade uses and shows a tree canopy layer from 2021. A machine learning m
 Next, the tree canopy as identified with Sentinel-2 data was calibrated to the tree canopy identified in 2015 using LiDAR data from 2011 (<a href="https://gisdata.mn.gov/dataset/base-landcover-twincities" target="_blank">Twin Cities Metropolitan area 1-meter land cover classification</a>). With 1000 equal-area regions across the 7-county area, a scaling factor of 0.885 was used to bring the Sentinel data in line with on-the-ground tree canopy. This scaling factor is appropriate for our methods of using 10 m x 10 m resolution data, which is often larger than tree canopies. This scaling factor makes our data align very closely with other reports (r^2 = 0.96) while still leveraging the scalability and temporal accuracy of our method. 
 
 
-<h2><span style='font-size:16pt'>Data dictionary</span></h2>
+
 
 
 ```{r include = F, eval = F}
@@ -59,6 +59,23 @@ Next, the tree canopy as identified with Sentinel-2 data was calibrated to the t
 # 
 # 
 # https://browser.creodias.eu/#lat=45.15999&lng=-92.79540&zoom=15&time=2020-07-05&preset=3_NDVI&datasource=Sentinel-2%20L1C
+# <h2><span style='font-size:16pt'>Data dictionary</span></h2>
+# 
+# **Demographics**<br>
+# *Age, % age 65 or older*<br>
+# *Age, % under age 18*<br>
+# *Age, % under age 18 or 65+*<br>
+# *Disability, % any disability*<br>
+# *Housing unit density (units / acre)*<br>
+# *Population density (persons / acre)*<br>
+# *Race, % Asian*<br>
+# *Race, % Black or African American*<br>
+# *Race, % Hispanic or Latino*<br>
+# *Race, % Indigenous*<br>
+# *Race, % Multiracial or other*<br>
+# *Race, % people of color*<br>
+# &nbsp; &nbsp; &bullet; <a href = "https://www.itreetools.org/tools/which-tool-should-i-use" target = "_blank">iTree tools</a> to quantify the benefits and values of trees, including tools for individuals such as homeowners concerned with individual or small amounts of trees<br>
+
 
 ```
 

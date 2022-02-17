@@ -635,11 +635,11 @@ bg_acs <- acs %>%
          age65up,
          medianhhi,
          blacknh,
-         asiannh,
+         asiannh, pacificnh,
          hisppop,
          amindnh,
          homeownpct,
-         multracenh
+         multracenh, othernh
          ) %>%
   rowwise() %>%
   transmute(
@@ -649,10 +649,10 @@ bg_acs <- acs %>%
     pownhome = homeownpct,
     # pwhitenh = whitenh / poptotal,
          pblacknh = blacknh / poptotal,
-         pasiannh = asiannh / poptotal,
+         pasiannh = (asiannh + pacificnh) / poptotal,
          phisppop = hisppop / poptotal,
          pamindnh = amindnh / poptotal,
-        pothmultnh = multracenh / poptotal,
+        pothmultnh = (multracenh + othernh) / poptotal,
          pbipoc = 1 - (whitenh / poptotal),
          p_0017 = ageunder18 / poptotal,
          p_65up = age65up / poptotal,
@@ -804,9 +804,9 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "housing_density", "Housing unit density (units / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
                           "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
                           "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 0, 0, 0,
-                          "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
-                          "p_0017", "age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
-                          "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
+                          "pbipoc", "Race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
+                          "p_0017", "Age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
+                          "p_65up", "Age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
                           "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 0, 1, 0,
                           # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
@@ -824,13 +824,13 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
                           "canopy_percent2", "Tree canopy in 2021 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
                           "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, #, 2015-2019 period (in 2019 dollars)
-                          "sens_age", "age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
-                          "pd_any", "% people with any disability", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pblacknh", "race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pothmultnh", "race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pasiannh", "race, % Asian", "people", "high_opportunity", 0, 0, 0, 0,
-                          "phisppop", "race, % Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pamindnh", "race, % Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
+                          "sens_age", "Age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
+                          "pd_any", "Disability, % any disability", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pblacknh", "Race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pothmultnh", "Race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pasiannh", "Race, % Asian or Pacific Islander", "people", "high_opportunity", 0, 0, 0, 0,
+                          "phisppop", "Race, % Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                          "pamindnh", "Race, % Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
                           "pwk_nowork", "% of unemployed residents", "dollar", "high_opportunity", 0, 0, 0, 0, # age 16-64 who did not work in past 12 months
                           "pownhome", "% of residents who own their home", "dollar", "high_opportunity", 0,0,0,0,
                           "MHLTH", "Mental health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
@@ -890,7 +890,7 @@ bg_growingshade_main <- bg_growingshade_data %>%
 # save data
 ########
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-
+eva_data_codes %>% arrange(type, name)%>% select(type, name) 
 ```
 
 Create metadata. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
@@ -920,7 +920,7 @@ acs_tractsonly %>% #use tracts becuase it has info about disability
             pamindnh = (amindnh) / poptotal,
             phisppop = hisppop / poptotal,
             pblacknh = blacknh / poptotal,
-            pasiannh = asiannh / poptotal,
+            pasiannh = (asiannh + pacificnh) / poptotal,
             pothmultnh = (othernh + multracenh) / poptotal,
             pownhome = ownerocc / hutotal,
             p_65up = age65up / poptotal,

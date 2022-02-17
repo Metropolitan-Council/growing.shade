@@ -95,7 +95,7 @@ app_ui <- function(request) {
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-02-10. '),
+          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-02-17. '),
           align = "right",
           style = "
               position:absolute;

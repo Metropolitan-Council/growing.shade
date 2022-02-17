@@ -24,8 +24,10 @@ Priority variables were sourced from several locations including:
 
 -   Demographic and socioeconomic information comes from the
     <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American
-    Community Survey 5-Year Summary File</a> published by the
-    Metropolitan Council. Census block group data is used.
+    Community Survey 5-Year Summary File</a> (2015-2019) and the
+    <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity
+    Considerations data</a> published by the Metropolitan Council.
+    Census block group data is used.
 -   Health information comes from the
     <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES
     dataset</a> published by the Center of Disease Control and
@@ -72,9 +74,5 @@ tree canopy. This scaling factor is appropriate for our methods of using
 This scaling factor makes our data align very closely with other reports
 (r^2 = 0.96) while still leveraging the scalability and temporal
 accuracy of our method.
-
-<h2>
-<span style="font-size:16pt">Data dictionary</span>
-</h2>
 
 <br> <br><br><br><br>
