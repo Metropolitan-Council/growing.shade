@@ -807,10 +807,10 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "pbipoc", "race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
                           "p_0017", "age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
                           "p_65up", "age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
-                          "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 1, 1, 0,
+                          "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 0, 1, 0,
                           # "phhi_qntl1", "% households with annual income less than $35,000 (bottom quintile of households)", "people",  "high_opportunity", 0, 1, 0, 0,
                           # "green_roof", "Water holding potential of green roofs on commercial bldgs", "environment",  "high_opportunity", 
-                          "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 1, 1,  0,
+                          "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 0, 1,  0,
                           # "luse_notgreen", "% of tract NOT used for green space", "environment", "high_opportunity"
                           
                           "ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
@@ -819,7 +819,7 @@ eva_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~
                           "ndvi_land", "Greenness, all land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
                           "inverse_ndvi_land", "Greenness, all land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
                           
-                          "tr_ej", "Area of Environmental Justice Concern", "environment", "high_opportunity", 0, 1, 0, 0,
+                          "tr_ej", "MPCA area of environmental justice concern", "environment", "high_opportunity", 0, 0, 0, 0,
                           "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
                           "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
                           "canopy_percent2", "Tree canopy in 2021 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
@@ -1096,14 +1096,14 @@ library(tidyverse); library(sf)
 #   # smoothr::smooth(method = "ksmooth") %>%
 #   sf::st_simplify(dTolerance = 50, preserveTopology = F) #There’s also a parameter preserveTopology which, when set to TRUE, makes sure that polygons are not reduced to lines or even removed, or that inner holes in them are removed during the simplification process.
 
-temp <- tempfile()
-download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dot/trans_airports/gpkg_trans_airports.zip", destfile = temp)
-airports <- sf::read_sf(unzip(temp, "trans_airports.gpkg"))  %>%
-  st_buffer(dist = .$RUNWAY_WID) %>%
-  st_union() %>%
-  # ggplot() + geom_sf()
-  # sf::st_simplify(dTolerance = 25, preserveTopology = F) %>%
-  sf::st_transform(4326) 
+# temp <- tempfile()
+# download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dot/trans_airports/gpkg_trans_airports.zip", destfile = temp)
+# airports <- sf::read_sf(unzip(temp, "trans_airports.gpkg"))  %>%
+#   st_buffer(dist = .$RUNWAY_WID) %>%
+#   st_union() %>%
+#   # ggplot() + geom_sf()
+#   # sf::st_simplify(dTolerance = 25, preserveTopology = F) %>%
+#   sf::st_transform(4326) 
   
 
 mn_bgs <- mn_bgs_raw %>% 
