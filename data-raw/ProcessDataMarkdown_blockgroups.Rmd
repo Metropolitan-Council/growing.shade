@@ -1083,20 +1083,25 @@ priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>
   pivot_longer(names_to = "preset", values_to = "score", -tract_string) 
 
 priority_summary_all <- priority_summary_1_all %>%
-  pivot_wider(names_from = preset, values_from = score) %>%
-  left_join(bg_growingshade_main_allMN %>%
-  rename(scaled = weights_scaled,
-         raw = raw_value) %>%
-  # ungroup() %>%
-  dplyr::select(tract_string, variable, scaled, raw) %>%
-  pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
-  arrange(tract_string) %>%
-  rename(block_group_id_2010 = tract_string)
+  group_by(tract_string) %>%
+  summarise(score = max(score)) %>%
+  left_join(priority_summary_1_all) %>%
+  rename(highest_priority = preset) %>%
+  rename(GEOID = tract_string)
+  # pivot_wider(names_from = preset, values_from = score) %>%
+  # left_join(bg_growingshade_main_allMN %>%
+  # rename(scaled = weights_scaled,
+  #        raw = raw_value) %>%
+  # # ungroup() %>%
+  # dplyr::select(tract_string, variable, scaled, raw) %>%
+  # pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
+  # arrange(tract_string) #%>%
+  # rename(block_group_id_2010 = tract_string)
 
 
 
 mn_bgs_1 %>%
-  right_join(priority_summary_all, by = c("GEOID" = "block_group_id_2010")) %>%
+  right_join(priority_summary_all, by = c("GEOID" = "tract_string")) %>%
   filter(!is.na(`Environmental justice`)) %>%
   ggplot() +
   geom_sf(aes(fill = `Environmental justice`), lwd = 0) +
@@ -1109,13 +1114,38 @@ mn_bgs_1 %>%
 
 ```{r bg_shapefiles_for_mapping}
 
+# mn_bgs_raw <- mn_bgs_1 %>%
+#   right_join(wide_ctu_crosswalk) %>%
+#   full_join(eab_counts(., GEOID)) %>%
+#   mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+#   full_join(bg_canopy %>% rename(GEOID = bg10)) %>%
+#   full_join(priority_summary) %>%
+#   full_join(priority_summary_1%>%
+#               group_by(preset) %>% 
+#               # mutate(rank = rank(-score)) %>%
+#               # dplyr::select(-score) %>%
+#               pivot_wider(names_from = preset, values_from = score)#rank)
+#             %>% rename(GEOID = tract_string)) %>%
+#   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
+#   dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
+#   sf::st_as_sf() %>%
+#       sf::st_transform(4326) %>% 
+#   filter(!is.na(highest_priority)) %>% #don't want greater mn in here
+#     mutate(fancyname = case_when(substr(GEOID, 3, 5) == "053" ~ paste0("Hennepin County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "003" ~ paste0("Anoka County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "019" ~ paste0("Carver County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "037" ~ paste0("Dakota County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "123" ~ paste0("Ramsey County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "139" ~ paste0("Scott County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                substr(GEOID, 3, 5) == "163" ~ paste0("Washington County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+#                                TRUE ~ NA_character_))
 mn_bgs_raw <- mn_bgs_1 %>%
-  right_join(wide_ctu_crosswalk) %>%
+  full_join(wide_ctu_crosswalk) %>%
   full_join(eab_counts(., GEOID)) %>%
   mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(bg_canopy %>% rename(GEOID = bg10)) %>%
-  full_join(priority_summary) %>%
-  full_join(priority_summary_1%>%
+  full_join(priority_summary_all) %>%
+  full_join(priority_summary_1_all%>%
               group_by(preset) %>% 
               # mutate(rank = rank(-score)) %>%
               # dplyr::select(-score) %>%
@@ -1125,7 +1155,7 @@ mn_bgs_raw <- mn_bgs_1 %>%
   dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
   sf::st_as_sf() %>%
       sf::st_transform(4326) %>% 
-  filter(!is.na(highest_priority)) %>% #don't want greater mn in here
+  # filter(!is.na(highest_priority)) %>% #don't want greater mn in here
     mutate(fancyname = case_when(substr(GEOID, 3, 5) == "053" ~ paste0("Hennepin County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "003" ~ paste0("Anoka County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "019" ~ paste0("Carver County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
@@ -1133,7 +1163,8 @@ mn_bgs_raw <- mn_bgs_1 %>%
                                substr(GEOID, 3, 5) == "123" ~ paste0("Ramsey County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "139" ~ paste0("Scott County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "163" ~ paste0("Washington County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               TRUE ~ NA_character_))
+                               TRUE ~ NA_character_)) %>%
+  filter(ALAND > 0)
 
 # usethis::use_data(mn_bgs, overwrite = TRUE)
 
@@ -1194,7 +1225,7 @@ mn_bgs <- mn_bgs_raw %>%
   # st_transform(26915) %>%
   # st_erase(lakes) %>% 
   # st_erase(airports) %>%
-  sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
+  sf::st_simplify(dTolerance = 35, preserveTopology = T) %>%
   sf::st_transform(4326)
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
@@ -1205,7 +1236,7 @@ usethis::use_data(mn_bgs, overwrite = TRUE)
 # object.size(mn_bgs) / 1e5
 # object.size(mn_bgs5) / 1e5
 
-bg_growingshade_main <- bg_growingshade_main %>%
+bg_growingshade_main <- bg_growingshade_main_allMN %>%
   dplyr::select(tract_string, name, weights_scaled, raw_value)
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
