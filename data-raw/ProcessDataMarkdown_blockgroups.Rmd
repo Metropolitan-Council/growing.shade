@@ -285,8 +285,8 @@ stpaul <- read_sf("../data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-
                               GEO_NAME == "Como" ~ "Como Park",
                               TRUE ~ GEO_NAME))
 
-nhood_geo <- bind_rows(minneap, stpaul) %>%
-  find_centroid(., GEO_NAME)
+nhood_geo <- bind_rows(minneap, stpaul) #%>%
+  # find_centroid(., GEO_NAME)
 
 #### ctus -----------
 temp <- tempfile()
@@ -301,7 +301,7 @@ list.files(temp2)
 ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
   dplyr::select(CTU_NAME, Shape_Area) %>%
   add_column(city = "doesn't matter") %>%
-  find_centroid(., CTU_NAME) %>%
+  # find_centroid(., CTU_NAME) %>%
   dplyr::select(-city) %>%
   rename(GEO_NAME = CTU_NAME) 
 
@@ -556,7 +556,7 @@ ctu_list_raw <- ctu_geo %>%
   # mutate(avgcanopy = mean(canopy_percent, na.rm = T))
 
 #should check credit river / credit river twp.
-nhood_list_raw %>% arrange(avgcanopy, canopy_percent)
+# nhood_list_raw %>% arrange(avgcanopy, canopy_percent)
 
 # usethis::use_data(ctu_list, overwrite = TRUE)
 # usethis::use_data(ctu_list2, overwrite = TRUE)
@@ -741,7 +741,7 @@ bg_health2 <- bg_health %>%
 # combine data sources
 ###################
 
-bg_growingshade_data <- bg_acs %>%
+bg_growingshade_data_allMN <- bg_acs %>%
   # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
   mutate(tr10 = substr(bg10, 1, 11)) %>% #this is the tract id
   # full_join(equity_data_raw_bg) %>%
@@ -760,7 +760,7 @@ bg_growingshade_data <- bg_acs %>%
          canopy_percent2 = canopy_percent,
          pop_density = poptot_mc / landacres,
          housing_density = hutot_mc / landacres) %>%
-  rename(tract_string = bg10) %>% #and for this project, I need to rename the tract variable
+  rename(tract_string = bg10) #%>% #and for this project, I need to rename the tract variable
   # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
              # env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
              # green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
@@ -771,6 +771,7 @@ bg_growingshade_data <- bg_acs %>%
              # pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
              # tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
   
+bg_growingshade_data <- bg_growingshade_data_allMN %>%
   filter(str_detect(tract_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
   # dplyr::select(-tr10)
 
@@ -890,7 +891,47 @@ bg_growingshade_main <- bg_growingshade_data %>%
 # save data
 ########
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-eva_data_codes %>% arrange(type, name)%>% select(type, name) 
+eva_data_codes %>% arrange(type, name)%>% select(type, name)
+
+
+
+############
+#all MN
+##########
+# #long data
+bg_growingshade_main_allMN <- bg_growingshade_data_allMN %>%
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(tract_string, tr10)) %>% #end the code after this line if you just want the reshaped data
+  group_by(variable) %>%
+  mutate(MEAN = mean(raw_value, na.rm = T),
+         SD = sd(raw_value, na.rm = T),
+         MIN = min(raw_value, na.rm = T),
+         MAX = max(raw_value, na.rm = T),
+         COUNT = as.numeric(sum(!is.na(raw_value))),
+         z_score = (raw_value - MEAN)/SD) %>%
+  
+  full_join(eva_data_codes, by = 'variable') %>%
+  
+  # #we want high opportunity to be a high value, so this reorders those values if needed
+  # mutate(opportunity_zscore = case_when(interpret_high_value == "high_opportunity" ~ z_score,
+  #                                       interpret_high_value == "low_opportunity" ~ z_score * (-1),
+  #                                         TRUE ~ NA_real_)) %>%
+  
+  #create nominal weights
+  mutate(weights_nominal = case_when(interpret_high_value == "high_opportunity" ~ (raw_value - MIN) / (MAX - MIN) * 10,
+                                     interpret_high_value == "low_opportunity" ~ 10 - (raw_value - MIN) / (MAX - MIN) * 10,
+                                     TRUE ~ NA_real_)) %>%
+  
+  #Weights Standard Score
+  mutate(weights_scaled = case_when(interpret_high_value == "high_opportunity" ~ pnorm(z_score) * 10,
+                                    interpret_high_value == "low_opportunity" ~ (10 - pnorm(z_score) * 10),
+                                    TRUE ~ NA_real_)) %>%
+  #clean
+  dplyr::select(-MEAN, -SD, -MIN, -MAX)  %>%
+  # full_join(wide_ctu_crosswalk %>% rename(tr10 = GEOID)) %>%
+  filter(!is.na(name))
+
+
+
 ```
 
 Create metadata. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
@@ -1020,6 +1061,48 @@ priority_summary <- priority_summary_1 %>%
 
 ```
 
+
+highest priority all
+
+```{r include=F, eval = F}
+
+highest_p_all <- function(group_var) {
+  selectedvars <- metadata %>%
+    filter(!!enquo(group_var) == 1) %>%
+    .[,2]
+  bg_growingshade_main_allMN %>% 
+    filter(name %in% selectedvars$name) %>%
+      group_by(tract_string) %>%
+      summarise(MEAN = mean(weights_scaled, na.rm = F))
+}
+
+priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>%
+  full_join(highest_p_all(cons) %>% rename(Conservation = MEAN)) %>%
+  full_join(highest_p_all(ej) %>% rename(`Environmental justice` = MEAN)) %>%
+  full_join(highest_p_all(cc) %>% rename(`Climate change` = MEAN)) %>%
+  pivot_longer(names_to = "preset", values_to = "score", -tract_string) 
+
+priority_summary_all <- priority_summary_1_all %>%
+  pivot_wider(names_from = preset, values_from = score) %>%
+  left_join(bg_growingshade_main_allMN %>%
+  rename(scaled = weights_scaled,
+         raw = raw_value) %>%
+  # ungroup() %>%
+  dplyr::select(tract_string, variable, scaled, raw) %>%
+  pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
+  arrange(tract_string) %>%
+  rename(block_group_id_2010 = tract_string)
+
+
+
+mn_bgs_1 %>%
+  right_join(priority_summary_all, by = c("GEOID" = "block_group_id_2010")) %>%
+  filter(!is.na(`Environmental justice`)) %>%
+  ggplot() +
+  geom_sf(aes(fill = `Environmental justice`), lwd = 0) +
+  theme_minimal()
+
+```
 
 # export bg data
 
