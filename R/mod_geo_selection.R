@@ -12,19 +12,33 @@ mod_geo_selection_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # waiter::useWaitress(),
-
-HTML("<h2><section style='font-size:20pt'>Geography</h2>"),
+HTML("<h2><section style='font-size:20pt'>Geography</h2>
+     </section><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to read and download the report.</strong></section></p>"),
+# fluidRow(
+  shinyWidgets::pickerInput(ns("geoRegion"),
+                                          label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a region</span></h4>")),
+                                          choices = c("Twin Cities region", "Duluth region", "Rochester region"
+                                          ),
+                                          options = list(
+                                            title = "Pick a geographic region", size = 10,
+                                            `live-search` = TRUE
+                                          ),
+                                          multiple = F,
+                            width = "80%", inline = F,
+                                          selected = "Twin Cities region"
+                ),
     radioButtons(
       ns("geo"),
       # h4("Report area"),
-      label = HTML("</section><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to read and download the report.</strong></section></p>"),
+      label = NULL,
       choices = c(
         "Cities and townships" = "ctus",
         "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
         "A Census block group" = "tracts"
       ), # multiple = F,
       selected = "ctus"
-    ),
+    # )
+  ),
     # hr(),
 
     # uiOutput(ns("geodropdowns"))
