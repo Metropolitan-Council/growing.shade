@@ -25,8 +25,8 @@ Forests Tree Equity Score project</a> <br>     •
 County, MN Tree Canopy Tree Planting Priority Areas</a><br>     •
 <a href = "https://www.stpaul.gov/departments/parks-recreation/natural-resources/forestry/urban-tree-canopy-assessment" target = "_blank">City
 of Saint Paul Urban Tree Canopy Assessment 2011</a><br> *Where can I
-lean more about the benefits provided by urban forests and learn how to
-build them?*<br>     •
+lean more about the benefits provided by urban forests and how to build
+them?*<br>     •
 <a href = "https://www.vibrantcitieslab.com/" target = "_blank">Vibrant
 Cities Lab</a><br> *Where can I learn more about the impact of emerald
 ash borer?*<br>     •
@@ -97,3 +97,13 @@ and inform urban forests in the Twin Cities?*<br>     •
 LTER (Long-term Ecological Research) in the Twin Cities</a>
 
 <br><br><br><br><br>
+
+<!-- Tools -->
+<!-- How can I assess current tree canopy cover and identify ways to increase it equitably and sustainably? -->
+<!-- Assessing Equitable Tree Canopy Coverage -->
+<!-- Community Engagement -->
+<!-- How can I design and implement a community engagement project to support tree canopy? -->
+<!-- Urban Tree Canopy Community Engagement Toolkit -->
+<!-- Traditional Ecological Knowledge -->
+<!-- How can I consider traditional knowledge systems and engage with Native American Tribal Nations in urban forestry planning efforts? -->
+<!-- Incorporating Traditional Ecological Knowledge into Urban Tree Canopy Projects -->
