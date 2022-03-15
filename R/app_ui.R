@@ -129,8 +129,8 @@ app_ui <- function(request) {
                   .noWS = "outside",
                   target = "_blank"
                 ),
-                " or the ", a("video user guide",
-                  href = "https://www.youtube.com/watch?v=R3Qbhaq4gWs",
+                " or a ", a("recorded webinar",
+                  href = "https://youtu.be/3SKC-29AwME?t=1944",
                   .noWS = "outside",
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021."
