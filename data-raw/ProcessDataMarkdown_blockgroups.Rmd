@@ -891,7 +891,7 @@ bg_growingshade_main <- bg_growingshade_data %>%
 # save data
 ########
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-eva_data_codes %>% arrange(type, name)%>% select(type, name)
+eva_data_codes %>% arrange(type, name)%>% dplyr::select(type, name)
 
 
 

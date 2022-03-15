@@ -1,12 +1,12 @@
 FAQ
 ================
 
-Please refer to the
+Please refer to a
+<a href="https://youtu.be/3SKC-29AwME?t=252" target="_blank">recorded
+webinar</a> or the
 <a href="www/Growing Shade User Guide (January 2022).pdf" target="_blank">text
-user guide</a> or the
-<a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video
-user guide</a> for help using the tool. Short answers to frequently
-asked questions can be found below. <br>
+user guide for help using the tool. Short answers to frequently asked
+questions can be found below. <br>
 
 **Q. How are the priority layers created?** <span
 style="line-height: .1;"><br></span> A. Priority scores are calculated
