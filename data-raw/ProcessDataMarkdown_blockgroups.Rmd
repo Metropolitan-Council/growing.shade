@@ -1235,6 +1235,30 @@ ctu_list %>%
          "Highest block group tree %" = max) %>%
   write_csv("./PlanIttriva.csv")
 
+
+ctu_list %>%
+  sf::st_drop_geometry() %>%
+  dplyr::select(GEO_NAME, canopy_percent) %>%
+  mutate(canopy_percent = case_when(canopy_percent < .10 ~ "<10%",
+                                    canopy_percent <=.2 ~ "10-20%",
+                                    canopy_percent <=.3~ "20-30%",
+                                    canopy_percent <=.4 ~ "30-40%",
+                                    canopy_percent <=.5 ~ "40-50%",
+                                    TRUE ~ ">50%")) %>%
+  count(canopy_percent) %>%
+  mutate(total_com = sum(n),
+         n = n / total_com) %>%
+  mutate(canopy_percent = factor(canopy_percent, levels=c("<10%", "10-20%", "20-30%", "30-40%", "40-50%", ">50%"))) %>%
+  ggplot(aes(y = fct_rev(canopy_percent), x = n,
+             label = paste0(round(n*100,1), "%"))) +
+  geom_bar(stat = "identity",
+           width = .5)+
+  labs(y = "", x = "Percent of communities") +
+  theme_minimal() +
+  scale_x_continuous(labels = scales::percent, limits = c(0,.4)) +
+  ggrepel::geom_label_repel(nudge_x = 10,segment.color = NA)
+
+
 ```
 
 # Export data for storymaps
