@@ -6,15 +6,28 @@ output:
   bookdown::word_document2:
     reference_docx: counciltemplate.docx
     toc: true
+    plots:
+      caption:
+        tnd: 1
+    tables:
+      caption:
+        tnd: 1
+      conditional:
+        first_row: true
+        first_column: true
+        last_row: false
+        last_column: false
+        no_hband: false
+        no_vband: true
 urlcolor: blue
 always_allow_html: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = F, message = F, warning = F, results = "hide",
-  fig.pos = "H"
-  ,fig.height = 4
+  echo = F, message = F, warning = F, results = "hide"#,
+  # fig.pos = "H"
+  # ,fig.height = 4
   , dpi = 300
 )
 
@@ -66,7 +79,7 @@ Since January 2022, Growing Shade has been accessed by 581 users (929 users sinc
 
 Within the 7 county region, St. Paul and Minneapolis have the most users (Figure \@ref(fig:user-fig)). 
 
-```{r user-fig, fig.cap='Average time that each user has spent engaged on the Growing Shade application.', out.width='90%', fig.asp=.5, fig.align='center'}
+```{r user-fig, fig.cap='Users accessing the Growing Shade application by city.', out.width='90%', fig.asp=.5, fig.align='center'}
 df %>% 
   # arrange(-Users) %>%
   # select(City, Users) %>%
@@ -79,7 +92,7 @@ df %>%
 
 \newpage
 
-But the east metro (esp. Maplewood) has the highest engagement where people have spent the most time on the application (Figure \@ref(fig:time-fig)).
+But the east metro (esp. Maplewood) has the highest engagement where people have spent the most time, on average, within the application (Figure \@ref(fig:time-fig)).
 
 ```{r time-fig, fig.cap='Average time that each user has spent engaged on the Growing Shade application.', out.width='90%', fig.asp=.5, fig.align='center'}
 
