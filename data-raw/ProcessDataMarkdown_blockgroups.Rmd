@@ -83,7 +83,20 @@ Google Earth Engine needs some assets created.
 # sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
 # 
 
-
+# #########
+# #update to 2020 geography
+# ########
+# MN_counties <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington")
+# 
+# block_group2020 <- tigris::block_groups(
+#   year = 2021,
+#   state = "MN",
+#   county = MN_counties,
+#   class = "sf"
+# ) %>%
+#   dplyr::select(GEOID)
+# sf::st_write(block_group2020, "~/Documents/GitHub/planting.shade/storymap-info/blockgroups2020.shp", append = FALSE)
+# 
 ```
 
 
@@ -1253,8 +1266,9 @@ ctu_list %>%
              label = paste0(round(n*100,1), "%"))) +
   geom_bar(stat = "identity",
            width = .5)+
-  labs(y = "", x = "Percent of communities") +
+  labs(y = "2021\ntree\ncanopy", x = "Percent of communities") +
   theme_minimal() +
+  theme(axis.title.y = element_text(angle = 0, vjust = .5)) +
   scale_x_continuous(labels = scales::percent, limits = c(0,.4)) +
   ggrepel::geom_label_repel(nudge_x = 10,segment.color = NA)
 
@@ -1422,6 +1436,20 @@ ggsave("./usfs_fig.jpg", usfs_fig,  width = 8, height = 5, units = "in", device 
 ```
 
 
+ampo
+
+```{r}
+a <- bg_growingshade_main %>% 
+  filter(variable %in% c("mdhhincnow", "canopy_percent", "pbipoc")) %>%
+  dplyr::select(-name, -weights_scaled) %>%
+  pivot_wider(names_from = variable, values_from = raw_value)
+
+car::Anova(lm(canopy_percent ~ mdhhincnow, data = a))
+car::Anova(lm(canopy_percent ~ pbipoc, data = a))
+
+mn_bgs %>% sf::st_drop_geometry() %>% group_by(highest_priority) %>% count() %>%
+  mutate(n = n/ nrow(mn_bgs))
+```
 
 
 
