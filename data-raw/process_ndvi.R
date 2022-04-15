@@ -177,7 +177,7 @@ leaflet() %>%
 # )
 
 ###### raster to vector
-trees <- terra::rast("./data/tree_raster.tif") # %>%
+# trees <- terra::rast("./data/tree_raster.tif") # %>%
 tree_polys <- as.polygons(trees)
 writeVector(tree_polys, "./data/tree_poly.shp", overwrite = TRUE)
 sf::st_write(tree_polys, "./data/tree_poly.shp", append = FALSE)
