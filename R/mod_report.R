@@ -937,7 +937,7 @@ mod_report_server <- function(id,
             #       "",
             #       "The interactive tool can be accessed at <https://metrotransitmn.shinyapps.io/growing-shade/>.")
             #   ),
-            "Region Averages" = metadata %>%
+            "Metadata" = metadata %>%
               filter(!is.na(name)) %>%
               mutate(nicer_interp = case_when(
                 nicer_interp != "" ~ nicer_interp,
@@ -949,7 +949,7 @@ mod_report_server <- function(id,
                 `Variable` = variable,
                 `Variable description` = name,
                 `Value interpretation` = nicer_interp,
-                `Average values` = MEANRAW,
+                `Region average` = MEANRAW,
                 `Climate Change variable` = cc,
                 `Environmental Justice variable` = ej,
                 `Public Health variable` = ph,
