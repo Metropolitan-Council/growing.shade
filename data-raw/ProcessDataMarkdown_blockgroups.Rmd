@@ -33,7 +33,7 @@ These are the files that must be in the data folder:
 - mn_tracts.rda
 - eva_data_main.rda
 - metadata.rda
-- eab.rda
+- eab.rda *NOT needed*
 - ctu_list.rda
 - nhood_list.rda
 - redline.rda
@@ -177,39 +177,39 @@ calibrate_trees %>%
 
 Calib coeff is 0.885246, meaning that senitel sees about 11% more trees; or detects area with at least 89% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 885 (890) acres. 
 
-# get EAB data
+<!-- # get EAB data -->
 
-```{r eab}
-temp <- tempfile()
-temp2 <- tempfile()
+<!-- ```{r eab} -->
+<!-- temp <- tempfile() -->
+<!-- temp2 <- tempfile() -->
 
-download.file(
-  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_mda/env_emerald_ash_borer/shp_env_emerald_ash_borer.zip",
-  destfile = temp
-)
-unzip(zipfile = temp, exdir = temp2)
-list.files(temp2)
-eab <-
-  sf::read_sf(paste0(temp2, pattern = "/eab_trees.shp")) %>%
-  # filter()
-  st_transform(4326)
-files <- list.files(temp2, full.names = T)
-file.remove(files)
+<!-- download.file( -->
+<!--   "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_mda/env_emerald_ash_borer/shp_env_emerald_ash_borer.zip", -->
+<!--   destfile = temp -->
+<!-- ) -->
+<!-- unzip(zipfile = temp, exdir = temp2) -->
+<!-- list.files(temp2) -->
+<!-- eab <- -->
+<!--   sf::read_sf(paste0(temp2, pattern = "/eab_trees.shp")) %>% -->
+<!--   # filter() -->
+<!--   st_transform(4326) -->
+<!-- files <- list.files(temp2, full.names = T) -->
+<!-- file.remove(files) -->
 
-eab_counts <- function(x, ...) {
-  eab %>%
-    st_transform(26915) %>%
-    st_intersection(x %>%
-                      st_transform(26915) %>%
-                      st_buffer(0)) %>%
-  st_drop_geometry() %>%
-  group_by(!!!quos(...)) %>%
-  count() %>%
-  rename(EAB = n)
-}
+<!-- eab_counts <- function(x, ...) { -->
+<!--   eab %>% -->
+<!--     st_transform(26915) %>% -->
+<!--     st_intersection(x %>% -->
+<!--                       st_transform(26915) %>% -->
+<!--                       st_buffer(0)) %>% -->
+<!--   st_drop_geometry() %>% -->
+<!--   group_by(!!!quos(...)) %>% -->
+<!--   count() %>% -->
+<!--   rename(EAB = n) -->
+<!-- } -->
 
-usethis::use_data(eab, overwrite = TRUE)
-```
+<!-- usethis::use_data(eab, overwrite = TRUE) -->
+<!-- ``` -->
 
 
 
@@ -222,7 +222,7 @@ Since we're going to be making a map which shows census tracts, ctus, or neighbo
 - find centroid and zoom level of area (for reactive zooming, if I want to re-implement that)
 - make a crosswalk of which tracts belong in each ctu/neighborhood
 - get the tree canopy coverage of each tract
-- get the count of EAB 
+- get the count of EAB. **This has been removed, eab is everywhere, will kill every untreated ash tree. no longer necessary to rely on dnr maps.** 
 
 Make crosswalk linking tracts to ctus and neighborhoods
 
@@ -560,8 +560,8 @@ nhood_list_raw <- nhood_geo %>%
 
 ctu_list_raw <- ctu_geo %>%
   full_join(tree_summary(ctu_crosswalk)) %>%
-    full_join(eab_counts(., GEO_NAME)) %>%
-    mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+    # full_join(eab_counts(., GEO_NAME)) %>%
+    # mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(canopy_ctu) %>%
   arrange(GEO_NAME) %>%
   st_transform(4326) %>%
@@ -1124,8 +1124,8 @@ mn_bgs_1 %>%
 
 mn_bgs_raw <- mn_bgs_1 %>%
   right_join(wide_ctu_crosswalk) %>%
-  full_join(eab_counts(., GEOID)) %>%
-  mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
+  # full_join(eab_counts(., GEOID)) %>%
+  # mutate(EAB = ifelse(is.na(EAB), 0, EAB)) %>%
   full_join(bg_canopy %>% rename(GEOID = bg10)) %>%
   full_join(priority_summary) %>%
   full_join(priority_summary_1%>%
@@ -1222,8 +1222,8 @@ bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(tract_string, name, weights_scaled, raw_value)
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
-eab <- eab %>% dplyr::select(geometry)
-usethis::use_data(eab, overwrite = TRUE)
+# eab <- eab %>% dplyr::select(geometry)
+# usethis::use_data(eab, overwrite = TRUE)
 
 # object.size(eab2) / 1e5
 # object.size(eab) / 1e5
