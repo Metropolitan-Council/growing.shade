@@ -42,10 +42,10 @@ app_server <- function(input, output, session) {
     geo_selections = geo_selections
   )
 
-  # browser()
-  # observe({print(head(map_util$map_data2))}) #to check that data summary is working
-  # observe({print(head(map_util$plot_data2))}) #to check that plot summary is working
-
+#   # browser()
+#   observe({print(head(map_util$map_data2))}) #to check that data summary is working
+#   observe({print(head(map_util$map_data))}) #to check that plot summary is working
+# browser()
   tract_selections <- callModule(mod_map_overview_server, "map_overview_ui_1",
     geo_selections = geo_selections,
     map_selections = map_selections,
@@ -53,15 +53,15 @@ app_server <- function(input, output, session) {
     current_tab = input$nav
   )
   #
-  observe({
-    print(paste0("selected tract: ", (tract_selections$selected_tract)))
-  }) # to check that selections are working
+  # observe({
+  #   print(paste0("selected tract: ", (tract_selections$selected_tract)))
+  # }) # to check that selections are working
 
-  mod_report_server(
-    "report_ui_1",
-    geo_selections,
-    map_selections,
-    tract_selections,
-    map_util
-  )
+  # mod_report_server(
+  #   "report_ui_1",
+  #   geo_selections,
+  #   map_selections,
+  #   tract_selections,
+  #   map_util
+  # )
 }
