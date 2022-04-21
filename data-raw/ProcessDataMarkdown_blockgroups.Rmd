@@ -580,20 +580,27 @@ This is where most variables come from. ACS data now uses 2020 geographies!
 
 ```{r acsdata}
 # in most cases, downloading the acs data will be appropriate since other varibales will come from equity considerations data. In the meantime, equity considerations uses old geographies, so is not appropriate here. 
-temp <- tempfile()
-download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
-  destfile = temp
-)
+# temp <- tempfile()
+# download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
+#   destfile = temp
+# )
 
 # tract variables of interest; some variables only exist at tract level
-acs_tractsonly <- readxl::read_xlsx(unzip(temp, "CensusACSTract.xlsx")) %>%
+# since no equity considerations yet, getting some numbers from acs github repo
+acs_tractsonly <- read_csv("./20205_tract.csv") %>% #readxl::read_xlsx(unzip(temp, "CensusACSTract.xlsx")) %>%
   janitor::clean_names()
 tract_acs <-  acs_tractsonly %>%
-  transmute(tr20 = geog_unit,
+  transmute(tr20 = as.character(geog_unit),
             pd_any = anydis / cdenom,
-            povdenom = povdenom)
+            # povdenom = povdenom,
+            tr_medianhhinc = medianhhinc, #medianhhi,
+            tr_p_0017 = ageunder18 / poptotal,
+            tr_p_65up = age65up / poptotal,
+            tr_sens_age = tr_p_0017 + tr_p_65up,
+            tr_pwk_nowork = pwk_nowork,
+            tr_phhi_qntl1 = phhi_qntl1)
 
-fs::file_delete("CensusACSTract.xlsx")
+# fs::file_delete("CensusACSTract.xlsx")
 
 # block group variables of interest
 # acs <- readxl::read_xlsx(unzip(temp, "CensusACSBlockGroup.xlsx")) %>%
@@ -606,6 +613,7 @@ bg_acs <- acs %>%
     bg20 = as.character(geog_unit),
     ppov185 = pov185rate,
     mdhhincnow = medianhhinc, #medianhhi
+    # meanhhinc = meanhhinc,
     pownhome = homeownerrate, #homeownpct,
     
     #get some variables to replace census zeros where needed
@@ -702,7 +710,7 @@ bg_health <- read.socrata(
   app_token = Sys.getenv("CDC_TOKEN"), 
   email     = "ellen.esch@metc.state.mn.us",
   password  = Sys.getenv("CDC_KEY")) %>% 
-  rename(GEOID20 = locationname)
+  rename(GEOID10 = locationname)
 
 bg_health
 names(bg_health)
@@ -713,11 +721,60 @@ bg_health2 <- bg_health %>%
                         "Chronic obstructive pulmonary disease among adults aged >=18 years",
                         "Mental health not good for >=14 days among adults aged >=18 years",
                         "Physical health not good for >=14 days among adults aged >=18 years")) %>%
-  dplyr::select(GEOID20, measureid, data_value) %>%
+  dplyr::select(GEOID10, measureid, data_value) %>%
   mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
   pivot_wider(names_from = measureid, values_from = data_value) %>%
-  rename(tr20 = GEOID20)
+  rename(tr10 = GEOID10)
 
+## this data uses 2010 geographies; make a crosswalk realating 2010 tracts to 2020 block groups
+tract_2010 <- tigris::tracts(state = "MN", 
+                                    county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"),
+                                    year = 2011)
+
+tract_bg_crosswalk <- tract_2010 %>% transmute(tract2010_id = GEOID) %>%
+  st_transform(26915) %>%
+  st_buffer(-350) %>% #buffer the perimeter of the geography
+  st_erase(river_lake_buffer %>%
+             st_buffer(200) %>% #buffer out rivers
+             st_union() %>% 
+             st_buffer(0)) %>% 
+  st_intersection(bg_geo  %>%
+                    dplyr::select(GEOID) %>%
+                    rename(bg2020_id = GEOID) %>%
+                    st_transform(26915) %>% st_buffer(-20)) %>%
+  mutate(overlap_area = as.numeric(st_area(.))) %>%
+  st_drop_geometry()
+
+step1 <- tract_bg_crosswalk %>% 
+  group_by(bg2020_id) %>%
+  mutate(n = n(),
+         max_overlap = max(overlap_area))  %>%
+  filter(n > 1) %>% 
+  mutate(good_tract2010_id = if_else(overlap_area == max_overlap, tract2010_id, NA_character_)) %>%
+  dplyr::select(tract2010_id, bg2020_id, good_tract2010_id)
+
+step2 <- tract_bg_crosswalk %>% 
+  group_by(bg2020_id) %>%
+  mutate(n = n(),
+         max_overlap = max(overlap_area))  %>%
+  filter(n == 1) %>% 
+  mutate(good_tract2010_id = tract2010_id)%>%
+  dplyr::select(tract2010_id, bg2020_id, good_tract2010_id)
+
+step4 <- tract_bg_crosswalk %>%
+  full_join(step2) %>%
+  full_join(step1) %>%
+  full_join(census_race %>% dplyr::select(bg20, poptotal), by = c("bg2020_id" = "bg20")) %>%
+  # mutate(good_tract2010_id = if_else(poptotal > 10, good_tract2010_id, NA_character_)) %>%
+  filter(!is.na(good_tract2010_id)) %>%
+  select(good_tract2010_id, bg2020_id)
+  # count(bg2020_id) %>% filter(n>1)
+
+## translate health data into 2020 geographies
+bg_health3 <- bg_health2 %>%
+  full_join(step4, by = c("tr10" = "good_tract2010_id")) %>%
+  filter(!is.na(bg2020_id)) %>%
+  rename(bg20 = bg2020_id) %>% dplyr::select(-tr10)
 ```
 # Combine all variables
 
@@ -729,10 +786,11 @@ bg_growingshade_data_allMN <-
   #demographics
   census_race %>%
   full_join(bg_acs) %>%
+  full_join(tract_acs) %>%
   # filter(bg20 == "270531016003") %>%
   
   full_join(matt_data) %>% #equity_considerations
-  full_join(bg_health2) %>%
+  full_join(bg_health3) %>%
 
   #environmental
   full_join(bg_canopy) %>%
@@ -748,15 +806,23 @@ bg_growingshade_data_allMN <-
          canopy_percent2 = canopy_percent,
          pop_density = poptot_mc / landacres,
          housing_density = hutot_mc / landacres) %>%
-  rename(tract_string = bg20) %>%
+  rename(bg_string = bg20) %>%
   rowwise() %>%
-  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) #%>%
+  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
   
-    # deal witih some non residential blocks
-  mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
-         across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))) %>% 
+    # deal with some non residential blocks and insufficent data
+    mutate(across(c(poptotal:pwk_nowork, pd_any:povdenom, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
+           p_0017 = if_else(is.nan(p_0017), tr_p_0017, p_0017),
+           p_65up = if_else(is.nan(p_65up), tr_p_65up, p_65up),
+           sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
+           mdhhincnow = if_else(is.na(mdhhincnow), tr_medianhhinc, mdhhincnow),
+           phhi_qntl1 = if_else(is.na(phhi_qntl1), tr_phhi_qntl1, phhi_qntl1),
+           pwk_nowork = if_else(is.na(pwk_nowork), tr_pwk_nowork, pwk_nowork)) %>%
+  # mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
+  #        across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))
+  #        ) %>%
   # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
-  select(-c(pblacknh_acs:sens_age_acs))# %>% filter(bg20 == "270531016003")
+  dplyr::select(-c(pblacknh_acs:pbipoc_acs))# %>% filter(bg20 == "270531016003")
 
 
 #%>% #and for this project, I need to rename the tract variable
@@ -771,7 +837,31 @@ bg_growingshade_data_allMN <-
              # tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
   
 bg_growingshade_data <- bg_growingshade_data_allMN %>%
-  filter(str_detect(tract_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
+  filter(str_detect(bg_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
+
+filter(bg_growingshade_data_allMN, bg_string %in% c("270531263002")) #this has population, but no age component
+filter(bg_growingshade_data_allMN, poptotal <10 )
+# temp <- tempfile()
+# download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
+#   destfile = temp
+# )
+
+# # tract variables of interest; some variables only exist at tract level
+# acs_bgtest <- readxl::read_xlsx(unzip(temp, "CensusACSBlockGroup.xlsx")) %>%
+#   janitor::clean_names()  %>%
+#   filter(geog_unit %in% c("270531263002", "270531007004"))#, "270017701001"))
+#   # transmute(bg20 = geog_unit,
+#   #           pd_any = anydis / cdenom,
+#   #           povdenom = povdenom)
+# acs_bgtest$ageunder18
+# acs_bgtest$age65up
+# 
+# acs_bgtest %>% filter(geog_unit %in% c("270531007004")) %>% dplyr::select(geog_unit, poptotal, meanhhinc, medianhhi)#, "270531007004"))
+# 
+# census_race %>% filter(bg20 %in% c("270531263002"))# %>% dplyr::select(geog_unit, meanhhinc, medianhhi, poptotal)#, "270531007004"))
+# acs_bgtest %>% filter(geog_unit %in% c("270531263002")) %>% dplyr::select(geog_unit, poptotal, meanhhinc, medianhhi)#, "270531007004"))
+# 
+# fs::file_delete("CensusACSTract.xlsx")
 ```
 
 
@@ -823,7 +913,7 @@ Standardize and re-scale variables so we can create equally weighted priority sc
 ```{r standardize-rescale}
 
 bg_growingshade_main <- bg_growingshade_data %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -c(tract_string, tr20)) %>% #end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string, tr20)) %>% #end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(MEAN = mean(raw_value, na.rm = T),
          SD = sd(raw_value, na.rm = T),
@@ -876,7 +966,7 @@ gs_data_codes %>% arrange(type, name)%>% dplyr::select(type, name)
 ##########
 # #long data
 bg_growingshade_main_allMN <- bg_growingshade_data_allMN %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -c(tract_string, tr20)) %>% #end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string, tr20)) %>% #end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(MEAN = mean(raw_value, na.rm = T),
          SD = sd(raw_value, na.rm = T),
@@ -999,7 +1089,7 @@ highest_p <- function(group_var) {
     .[,2]
   bg_growingshade_main %>% 
     filter(name %in% selectedvars$name) %>%
-      group_by(tract_string) %>%
+      group_by(bg_string) %>%
       summarise(MEAN = mean(weights_scaled, na.rm = T))
 }
 
@@ -1007,14 +1097,14 @@ priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
   full_join(highest_p(cons) %>% rename(Conservation = MEAN)) %>%
   full_join(highest_p(ej) %>% rename(`Environmental justice` = MEAN)) %>%
   full_join(highest_p(cc) %>% rename(`Climate change` = MEAN)) %>%
-  pivot_longer(names_to = "preset", values_to = "score", -tract_string) 
+  pivot_longer(names_to = "preset", values_to = "score", -bg_string) 
 
 priority_summary <- priority_summary_1 %>%
-  group_by(tract_string) %>%
+  group_by(bg_string) %>%
   summarise(score = max(score)) %>%
   left_join(priority_summary_1) %>%
   rename(highest_priority = preset) %>%
-  rename(GEOID = tract_string)
+  rename(GEOID = bg_string)
 
 ```
 
@@ -1029,7 +1119,7 @@ highest_p_all <- function(group_var) {
     .[,2]
   bg_growingshade_main_allMN %>% 
     filter(name %in% selectedvars$name) %>%
-      group_by(tract_string) %>%
+      group_by(bg_string) %>%
       summarise(MEAN = mean(weights_scaled, na.rm = F))
 }
 
@@ -1037,7 +1127,7 @@ priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>
   full_join(highest_p_all(cons) %>% rename(Conservation = MEAN)) %>%
   full_join(highest_p_all(ej) %>% rename(`Environmental justice` = MEAN)) %>%
   full_join(highest_p_all(cc) %>% rename(`Climate change` = MEAN)) %>%
-  pivot_longer(names_to = "preset", values_to = "score", -tract_string) 
+  pivot_longer(names_to = "preset", values_to = "score", -bg_string) 
 
 priority_summary_all <- priority_summary_1_all %>%
   pivot_wider(names_from = preset, values_from = score) %>%
@@ -1045,10 +1135,10 @@ priority_summary_all <- priority_summary_1_all %>%
   rename(scaled = weights_scaled,
          raw = raw_value) %>%
   # ungroup() %>%
-  dplyr::select(tract_string, variable, scaled, raw) %>%
+  dplyr::select(bg_string, variable, scaled, raw) %>%
   pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
-  arrange(tract_string) %>%
-  rename(block_group_id_2010 = tract_string)
+  arrange(bg_string) %>%
+  rename(block_group_id_2010 = bg_string)
 
 
 
@@ -1075,7 +1165,7 @@ mn_bgs_raw <- bg_geo %>%
               # mutate(rank = rank(-score)) %>%
               # dplyr::select(-score) %>%
               pivot_wider(names_from = preset, values_from = score)#rank)
-            %>% rename(GEOID = tract_string)) %>%
+            %>% rename(GEOID = bg_string)) %>%
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
   dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
   sf::st_as_sf() %>%
@@ -1163,8 +1253,8 @@ usethis::use_data(mn_bgs, overwrite = TRUE)
 # object.size(mn_bgs5) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
-  dplyr::select(tract_string, name, weights_scaled, raw_value) %>%
-  filter(!is.na(tract_string))
+  dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
+  filter(!is.na(bg_string))
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
 # eab <- eab %>% dplyr::select(geometry)
@@ -1185,14 +1275,14 @@ filter(bg_growingshade_data, alkdjf ="daklsjf;")
 library(tidyverse); library(sf)
 bg_growingshade_main %>%
   filter(variable %in% c("pbipoc", "canopy_percent")) %>%
-  dplyr::select(tract_string, variable, raw_value) %>%
+  dplyr::select(bg_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
   filter(canopy_percent < .01)# %>% #, canopy_percent > .15)
   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
   geom_point(alpha = .4) + 
   geom_smooth()
   
-filter(bg_growingshade_data, tract_string == "270531044003")  
+filter(bg_growingshade_data, bg_string == "270531044003")  
 filter(ctu_crosswalk, tract_id == "270531044003")  
 ```
 
@@ -1244,8 +1334,8 @@ ctu_list %>%
 race_exp <- bg_growingshade_main %>%
   filter(variable == "pbipoc") %>%
   mutate(raw_value = raw_value * 100) %>%
-  left_join(bg_geo %>% rename(tract_string = GEOID)) %>%
-  dplyr::select(tract_string, raw_value, geometry) %>%
+  left_join(bg_geo %>% rename(bg_string = GEOID)) %>%
+  dplyr::select(bg_string, raw_value, geometry) %>%
   rename(pbipoc = raw_value) %>%
   st_as_sf()
 
@@ -1255,8 +1345,8 @@ sf::st_write(race_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap-i
 canopy_exp <- bg_growingshade_main %>%
   filter(variable == "canopy_percent") %>%
   mutate(raw_value = raw_value * 100) %>%
-  left_join(bg_geo %>% rename(tract_string = GEOID)) %>%
-  dplyr::select(tract_string, raw_value, geometry) %>%
+  left_join(bg_geo %>% rename(bg_string = GEOID)) %>%
+  dplyr::select(bg_string, raw_value, geometry) %>%
   rename(canopy_percent = raw_value) %>%
   st_as_sf()
 
@@ -1266,8 +1356,8 @@ sf::st_write(canopy_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap
 income_exp <- bg_growingshade_main %>%
   filter(variable == "mdhhincnow") %>%
   mutate(raw_value = raw_value * 100) %>%
-  left_join(bg_geo %>% rename(tract_string = GEOID)) %>%
-  dplyr::select(tract_string, raw_value, geometry) %>%
+  left_join(bg_geo %>% rename(bg_string = GEOID)) %>%
+  dplyr::select(bg_string, raw_value, geometry) %>%
   rename(mdhhincnow = raw_value) %>%
   st_as_sf()
 
@@ -1277,8 +1367,8 @@ sf::st_write(income_exp, "/Users/escheh/Documents/GitHub/planting.shade/storymap
 copd_exp <- bg_growingshade_main %>%
   filter(variable == "COPD") %>%
   mutate(raw_value = raw_value * 100) %>%
-  left_join(bg_geo %>% rename(tract_string = GEOID)) %>%
-  dplyr::select(tract_string, raw_value, geometry) %>%
+  left_join(bg_geo %>% rename(bg_string = GEOID)) %>%
+  dplyr::select(bg_string, raw_value, geometry) %>%
   rename(COPD = raw_value) %>%
   st_as_sf()
 
