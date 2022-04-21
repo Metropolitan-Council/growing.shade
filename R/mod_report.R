@@ -82,7 +82,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       output <- filter(
         (map_util$map_data),
-        tract_string %in%
+        bg_string %in%
           if (geo_selections$selected_geo == "ctus") {
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
           } else if (geo_selections$selected_geo == "nhood") {
@@ -104,7 +104,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
 
       output <- bg_growingshade_main %>%
-        mutate(flag = if_else(tract_string %in%
+        mutate(flag = if_else(bg_string %in%
           if (geo_selections$selected_geo == "ctus") {
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
           } else if (geo_selections$selected_geo == "nhood") {
@@ -120,7 +120,7 @@ mod_report_server <- function(id,
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
         filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi_land")) %>%
-        select(tract_string, variable, raw_value, flag) %>%
+        select(bg_string, variable, raw_value, flag) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
     })
@@ -212,8 +212,8 @@ mod_report_server <- function(id,
             nhood_list
           }) %>%
             mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
-            rename(tract_string = GEO_NAME) %>%
-            select(tract_string, canopy_percent, flag) %>%
+            rename(bg_string = GEO_NAME) %>%
+            select(bg_string, canopy_percent, flag) %>%
             mutate(type = if (geo_selections$selected_geo == "ctus") {
               "Cities across\nthe region"
             } else {
@@ -632,9 +632,9 @@ mod_report_server <- function(id,
       # }
       # df<-bg_growingshade_main %>%
       #   filter(variable %in% c("canopy_percent", "pbipoc", "mdhhincnow")) %>%
-      #   select(tract_string, variable, raw_value) %>%
+      #   select(bg_string, variable, raw_value) %>%
       #   pivot_wider(names_from = variable,values_from = raw_value) %>%
-      #   pivot_longer(names_to = "names", values_to = "raw_value", -c(tract_string, canopy_percent))
+      #   pivot_longer(names_to = "names", values_to = "raw_value", -c(bg_string, canopy_percent))
       #
       #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
       #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
@@ -978,14 +978,14 @@ mod_report_server <- function(id,
                 `Percent tree cover` = canopy_percent
               ) %>%
               left_join(bg_growingshade_main %>%
-                          select(tract_string, variable, raw_value) %>%
+                          select(bg_string, variable, raw_value) %>%
                           pivot_wider(names_from = variable, values_from = raw_value) %>%
-                          rename(GEO_ID = tract_string), by = c("GEO_ID"))) 
+                          rename(GEO_ID = bg_string), by = c("GEO_ID"))) 
                ,
             "Entire Region" = bg_growingshade_main %>%
-              select(tract_string, variable, raw_value) %>%
+              select(bg_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
-              rename(GEO_ID = tract_string)
+              rename(GEO_ID = bg_string)
           ),
           path = file
         )
@@ -1025,10 +1025,10 @@ mod_report_server <- function(id,
                             `Percent tree cover` = canopy_percent
                           ) %>%
                           left_join(bg_growingshade_main %>%
-                                      select(tract_string, variable, raw_value) %>%
+                                      select(bg_string, variable, raw_value) %>%
                                       pivot_wider(names_from = variable, values_from = raw_value) %>% select(-inverse_ndvi_uncultivated, -inverse_ndvi_land) %>%
                                       
-                                      rename(GEO_ID = tract_string), by = c("GEO_ID"))),
+                                      rename(GEO_ID = bg_string), by = c("GEO_ID"))),
                        dsn = name.shp, ## layer = "shpExport",
                        driver = "ESRI Shapefile", quiet = TRUE)
           
