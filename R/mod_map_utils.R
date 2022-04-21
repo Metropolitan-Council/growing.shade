@@ -41,6 +41,35 @@ mod_map_utils_server <- function(input, output, session,
           tract_string = GEOID,
           MEAN = `Environmental justice`
         )
+      
+      # library(leaflet); library(tidyverse)
+      # test <-  mn_bgs %>%
+      #   mutate(
+      #     tract_string = GEOID,
+      #     MEAN = `Environmental justice`
+      #   )
+      # leaflet() %>%
+      #   addPolygons(data =test,
+      #               opacity = 0.9,
+      #               weight = 0.5, # 0.25,
+      #               fillOpacity = 0.5,
+      #               smoothFactor = 0.2,
+      #               label = ~ (paste0("Priority score: ", round(test$MEAN, 3))),
+      #               highlightOptions = highlightOptions(
+      #                 stroke = TRUE,
+      #                 color = "white",
+      #                 weight = 6,
+      #                 bringToFront = T,
+      #                 opacity = 1
+      #               ),
+      #               fillColor = ~ colorNumeric(
+      #                 # n = 5,
+      #                 palette = "YlOrBr", # "YlOrRd", #"Oranges",
+      #                 domain = test %>% select("MEAN") %>% .[[1]]
+      #                 ,na.color = "#FFFFFF"
+      #               )(test %>% select("MEAN") %>% .[[1]]))
+      
+      
     } else if (map_selections$preset == "Public health") {
       mn_bgs %>%
         mutate(

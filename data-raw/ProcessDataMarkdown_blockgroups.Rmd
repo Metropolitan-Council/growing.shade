@@ -753,9 +753,10 @@ bg_growingshade_data_allMN <-
   mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
   
     # deal witih some non residential blocks
-  mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x))) 
+  mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
+         across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))) %>% 
   # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
-  # select(-c(pblacknh_acs:sens_age_acs)) %>% filter(bg20 == "270531016003")
+  select(-c(pblacknh_acs:sens_age_acs))# %>% filter(bg20 == "270531016003")
 
 
 #%>% #and for this project, I need to rename the tract variable
@@ -1182,7 +1183,14 @@ filter(bg_growingshade_data, alkdjf ="daklsjf;")
 
 library(tidyverse); library(sf)
 bg_growingshade_main %>%
-  filter(tract_string == "270539800001")
+  filter(variable %in% c("pbipoc", "canopy_percent")) %>%
+  dplyr::select(tract_string, variable, raw_value) %>%
+  pivot_wider(names_from = variable, values_from = raw_value) %>%
+  filter(pbipoc < .07) %>% #, canopy_percent > .15)
+  ggplot(aes(x = pbipoc, y = canopy_percent)) + 
+  geom_point()
+  
+filter(bg_growingshade_data, poptotal < 50)  
 ```
 
 
