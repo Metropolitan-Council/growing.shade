@@ -284,17 +284,17 @@ mod_map_overview_server <- function(input, output, session,
             fillColor = ~ colorNumeric(
               # n = 5,
               palette = "YlOrBr", # "YlOrRd", #"Oranges",
-              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]], na.color = "#ffffff"
+              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]], na.color = "#03fc13"
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
-              "Geographic ID: ", map_util$map_data2$tract_string,
+              "Geographic ID: ", map_util$map_data2$bg_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
               "<br>Priority score: ",  ifelse(!is.nan(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"),
               # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
               "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
             options = pathOptions(pane = "Priority score"),
-            layerId = ~tract_string
+            layerId = ~bg_string
           ) %>%
           # maybe want to add this: https://stackoverflow.com/questions/42245302/shiny-leaflet-highlight-polygon
           addLegend(
@@ -307,7 +307,7 @@ mod_map_overview_server <- function(input, output, session,
               # n = 5,
               palette = "YlOrBr", #"YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
-              ,na.color="#ffffff"
+              ,na.color="#03fc13"
             ),
             values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
           ) %>%
@@ -441,7 +441,7 @@ mod_map_overview_server <- function(input, output, session,
     req(geo_selections$selected_geo == "tracts")
     event <- input$map_shape_click
     vals$TEST <- event$id
-    vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
+    vals$selected_tract <- (map_util$map_data2$bg_string[map_util$map_data2$bg_string == event$id])
     # vals$clicked_geo <-  input$map_shape_click$id
   })
   return(vals)

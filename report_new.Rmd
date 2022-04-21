@@ -171,7 +171,7 @@ params$param_equityplot
 # 
 # bg_growingshade_main %>%
 #   filter(variable %in% c("ndvi", "avg_temp")) %>%
-#   select(tract_string, variable, raw_value) %>%
+#   select(bg_string, variable, raw_value) %>%
 #   pivot_wider(names_from = variable, values_from = raw_value) %>%
 #   ggplot(aes(x = ndvi, y = avg_temp)) +
 #   geom_point() +
