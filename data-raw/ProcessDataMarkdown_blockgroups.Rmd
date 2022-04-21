@@ -1091,7 +1091,8 @@ mn_bgs_raw <- bg_geo %>%
 mncounties <- tigris::counties(state = "MN") %>%
   filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
 metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
-  sf::st_simplify(dTolerance = 400)
+  sf::st_simplify(dTolerance = 400) %>%
+  sf::st_transform(4326)
 usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
@@ -1108,7 +1109,8 @@ speed_up <- function(x, smooth){
     
 }
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
-ctu_list <- ctu_list_raw 
+ctu_list <- ctu_list_raw %>%
+  sf::st_transform(4326)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
 nhood_list <- nhood_list_raw %>% 
@@ -1144,7 +1146,8 @@ mn_bgs <- mn_bgs_raw %>%
   # st_erase(lakes) %>% 
   # st_erase(airports) %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
-  sf::st_transform(4326)
+  sf::st_transform(4326) %>%
+  filter(!is.na(GEOID))
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 
