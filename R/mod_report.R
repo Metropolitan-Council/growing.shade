@@ -493,7 +493,7 @@ mod_report_server <- function(id,
       ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year\nestimates (2015-2019), and CDC PLACES data (2020)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year estimates (2016-2020),\ndecennial census (2020), and CDC PLACES data (2020)"
         )
       return(plot)
     })
@@ -778,7 +778,7 @@ mod_report_server <- function(id,
         labs(
           x = "", y = "Tree\ncanopy\n (%)",
           caption = # expression(italic(
-          "Source: Analysis of Sentinel-2 satellite imagery (2021)\nand ACS 5-year estimates (2015-2019)" # ))
+          "Source: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year \nestimates (2016-2020), and decennial census (2020)" # ))
         ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
