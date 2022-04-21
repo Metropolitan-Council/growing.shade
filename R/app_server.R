@@ -15,6 +15,7 @@ app_server <- function(input, output, session) {
   mod_faq_server("faq_ui_1")
   # observe({print(paste0("preset selection: ", preset_selections$preset))})
 
+  
   map_selections <- callModule(
     mod_map_selections_server, "map_selections_ui_1" # ,
     # current_tab = input$nav
@@ -41,8 +42,9 @@ app_server <- function(input, output, session) {
     geo_selections = geo_selections
   )
 
-  # observe({print((map_util$map_data2))}) #to check that data summary is working
-  # observe({print((map_util$plot_data2))}) #to check that plot summary is working
+  # browser()
+  # observe({print(head(map_util$map_data2))}) #to check that data summary is working
+  # observe({print(head(map_util$plot_data2))}) #to check that plot summary is working
 
   tract_selections <- callModule(mod_map_overview_server, "map_overview_ui_1",
     geo_selections = geo_selections,
