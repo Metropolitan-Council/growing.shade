@@ -57,11 +57,11 @@ app_server <- function(input, output, session) {
   #   print(paste0("selected tract: ", (tract_selections$selected_tract)))
   # }) # to check that selections are working
 
-  # mod_report_server(
-  #   "report_ui_1",
-  #   geo_selections,
-  #   map_selections,
-  #   tract_selections,
-  #   map_util
-  # )
+  mod_report_server(
+    "report_ui_1",
+    geo_selections,
+    map_selections,
+    tract_selections,
+    map_util
+  )
 }
