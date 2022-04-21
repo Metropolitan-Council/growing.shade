@@ -55,6 +55,45 @@ These are the files that must be in the data folder:
 - nhood_crosswalk.rda
 - metc_region.rda
 
+
+
+## Redlining shapefile
+
+HOLC Redlining; this data was originally in equity considerations dataset, but that data uses old 2010 geographies, so need to actually get the data. 
+
+Remove open water. "all non residential" 
+
+```{r holc}
+## holc  ---------------
+# ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
+temp <- tempfile()
+download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip",
+  destfile = temp
+)
+# holc <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
+#   group_by(HSG_SCALE) %>% 
+#   summarise() %>% st_transform(26915) %>%
+#   st_intersection(bg_geo %>% dplyr::select(GEOID) %>% st_transform(26915) %>% st_buffer(-10)) %>%
+#   mutate(area = as.numeric(st_area(.))) %>%
+#   st_drop_geometry() %>%
+#   filter(HSG_SCALE %in% c("Definitely Declining", "Still Desirable", "Hazardous", "Best")) %>%
+#   pivot_wider(names_from = HSG_SCALE, values_from = area) %>%
+#   left_join(bg_geo %>% dplyr::select(GEOID) %>% mutate(area = as.numeric(st_area(.)))) %>%
+#   mutate(SUM = rowSums(across(c(`Definitely Declining`:Hazardous)), na.rm = T)) %>%
+#   mutate(across(`Definitely Declining`:`Hazardous`, ~.x / (SUM))) %>%
+#   as_tibble() %>%
+#   rename(holc_pred = Hazardous) %>%
+#   dplyr::select(GEOID, holc_pred) %>%
+#     drop_na()
+
+redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
+  filter(HSG_SCALE == "Hazardous") %>% # | HSG_SCALE == "Definitely Declining") %>%
+  sf::st_union() %>%
+  sf::st_transform(4326)
+
+fs::file_delete("plan_historic_holc_appraisal.gpkg")
+```
+
 # Process geographies
 
 ## Get geographies
@@ -530,6 +569,7 @@ census_race <- readxl::read_xlsx(unzip(temp, "Census2020PopulationBlockGroup.xls
   ) 
 
 fs::file_delete("./Census2020PopulationBlockGroup.xlsx")
+
 ```
 
 ## ACS data
@@ -565,15 +605,17 @@ bg_acs <- acs %>%
     ppov185 = pov185rate,
     mdhhincnow = medianhhinc, #medianhhi
     pownhome = homeownerrate, #homeownpct,
-         # pblacknh = blacknh / poptotal,
-        #  pasiannh = (asiannh + pacificnh) / poptotal,
-        #  phisppop = hisppop / poptotal,
-        #  pamindnh = amindnh / poptotal,
-        # pothmultnh = (multracenh + othernh) / poptotal,
-         # pbipoc = 1 - (whitenh / poptotal),
-         p_0017 = ageunder18 / poptotal,
-         p_65up = age65up / poptotal,
-         sens_age = p_0017 + p_65up,
+    
+    #get some variables to replace census zeros where needed
+        pblacknh_acs = blacknh / poptotal,
+         pasiannh_acs = (asiannh + pacificnh) / poptotal,
+         phisppop_acs = hisppop / poptotal,
+         pamindnh_acs = amindnh / poptotal,
+        pothmultnh_acs = (multracenh + othernh) / poptotal,
+        pbipoc_acs = 1 - (whitenh / poptotal),
+         p_0017_acs = ageunder18 / poptotal,
+         p_65up_acs = age65up / poptotal,
+         sens_age_acs = p_0017_acs + p_65up_acs,
     
     #new to replace old equity considerations data
     phhi_qntl1 = phhi_qntl1,
@@ -685,12 +727,18 @@ bg_growingshade_data_allMN <-
   #demographics
   census_race %>%
   full_join(bg_acs) %>%
+  # filter(bg20 == "270531016003") %>%
+  
   full_join(matt_data) %>% #equity_considerations
   full_join(bg_health2) %>%
 
   #environmental
   full_join(bg_canopy) %>%
   full_join(bg_ndvi) %>%
+  
+  # deal witih some non residential blocks
+  # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, 0, .x))) %>%
+  # select(-c(pblacknh_acs:sens_age_acs)) %>% filter(bg20 == "270531016003")
   
   #update some variables
   # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
@@ -854,7 +902,6 @@ bg_growingshade_main_allMN <- bg_growingshade_data_allMN %>%
   filter(!is.na(name))
 
 
-
 ```
 
 # Create independant files for export
@@ -1009,43 +1056,6 @@ bg_geo %>%
 
 ```
 
-## Redlining shapefile
-
-HOLC Redlining; this data was originally in equity considerations dataset, but that data uses old 2010 geographies, so need to actually get the data. 
-
-Remove open water. "all non residential" 
-
-```{r holc}
-## holc  ---------------
-# ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
-temp <- tempfile()
-download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip",
-  destfile = temp
-)
-# holc <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
-#   group_by(HSG_SCALE) %>% 
-#   summarise() %>% st_transform(26915) %>%
-#   st_intersection(bg_geo %>% dplyr::select(GEOID) %>% st_transform(26915) %>% st_buffer(-10)) %>%
-#   mutate(area = as.numeric(st_area(.))) %>%
-#   st_drop_geometry() %>%
-#   filter(HSG_SCALE %in% c("Definitely Declining", "Still Desirable", "Hazardous", "Best")) %>%
-#   pivot_wider(names_from = HSG_SCALE, values_from = area) %>%
-#   left_join(bg_geo %>% dplyr::select(GEOID) %>% mutate(area = as.numeric(st_area(.)))) %>%
-#   mutate(SUM = rowSums(across(c(`Definitely Declining`:Hazardous)), na.rm = T)) %>%
-#   mutate(across(`Definitely Declining`:`Hazardous`, ~.x / (SUM))) %>%
-#   as_tibble() %>%
-#   rename(holc_pred = Hazardous) %>%
-#   dplyr::select(GEOID, holc_pred) %>%
-#     drop_na()
-
-redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
-  filter(HSG_SCALE == "Hazardous") %>% # | HSG_SCALE == "Definitely Declining") %>%
-  st_union() %>%
-  st_transform(4326)
-
-fs::file_delete("plan_historic_holc_appraisal.gpkg")
-```
-
 # Export data
 
 
@@ -1081,7 +1091,7 @@ mn_bgs_raw <- bg_geo %>%
 mncounties <- tigris::counties(state = "MN") %>%
   filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
 metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
-  st_simplify(dTolerance = 400)
+  sf::st_simplify(dTolerance = 400)
 usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
@@ -1092,7 +1102,7 @@ usethis::use_data(metc_region, overwrite = TRUE)
 ```{r}
 speed_up <- function(x, smooth){
   x %>%
-  st_transform(26915) %>%
+  sf::st_transform(26915) %>%
   sf::st_simplify(dTolerance = smooth, preserveTopology = T) %>%
   sf::st_transform(4326)
     
@@ -1157,6 +1167,15 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 # #   geom_sf(data = ctu_list) +
 # #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
 
+```
+
+STOP running
+```{r}
+filter(bg_growingshade_data, alkdjf ="daklsjf;")
+
+library(tidyverse); library(sf)
+bg_growingshade_main %>%
+  filter(tract_string == "270531016003")
 ```
 
 
