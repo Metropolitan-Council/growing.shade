@@ -615,9 +615,9 @@ bg_acs <- acs %>%
          pamindnh_acs = amindnh / poptotal,
         pothmultnh_acs = (multracenh + othernh) / poptotal,
         pbipoc_acs = 1 - (whitenh / poptotal),
-         p_0017_acs = ageunder18 / poptotal,
-         p_65up_acs = age65up / poptotal,
-         sens_age_acs = p_0017_acs + p_65up_acs,
+         p_0017 = ageunder18 / poptotal,
+         p_65up = age65up / poptotal,
+         sens_age = p_0017 + p_65up,
     
     #new to replace old equity considerations data
     phhi_qntl1 = phhi_qntl1,
@@ -1163,7 +1163,8 @@ usethis::use_data(mn_bgs, overwrite = TRUE)
 # object.size(mn_bgs5) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
-  dplyr::select(tract_string, name, weights_scaled, raw_value)
+  dplyr::select(tract_string, name, weights_scaled, raw_value) %>%
+  filter(!is.na(tract_string))
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
 # eab <- eab %>% dplyr::select(geometry)
