@@ -570,6 +570,8 @@ census_race <- readxl::read_xlsx(unzip(temp, "Census2020PopulationBlockGroup.xls
 
 fs::file_delete("./Census2020PopulationBlockGroup.xlsx")
 
+# filter(census_race, (bg20 == "270539800001"))
+
 ```
 
 ## ACS data
@@ -736,10 +738,6 @@ bg_growingshade_data_allMN <-
   full_join(bg_canopy) %>%
   full_join(bg_ndvi) %>%
   
-  # deal witih some non residential blocks
-  # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, 0, .x))) %>%
-  # select(-c(pblacknh_acs:sens_age_acs)) %>% filter(bg20 == "270531016003")
-  
   #update some variables
   # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
   mutate(tr20 = substr(bg20, 1, 11)) %>% #this is the tract id
@@ -752,7 +750,13 @@ bg_growingshade_data_allMN <-
          housing_density = hutot_mc / landacres) %>%
   rename(tract_string = bg20) %>%
   rowwise() %>%
-  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) 
+  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
+  
+    # deal witih some non residential blocks
+  mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x))) 
+  # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
+  # select(-c(pblacknh_acs:sens_age_acs)) %>% filter(bg20 == "270531016003")
+
 
 #%>% #and for this project, I need to rename the tract variable
   # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
@@ -1178,7 +1182,7 @@ filter(bg_growingshade_data, alkdjf ="daklsjf;")
 
 library(tidyverse); library(sf)
 bg_growingshade_main %>%
-  filter(tract_string == "270531016003")
+  filter(tract_string == "270539800001")
 ```
 
 
