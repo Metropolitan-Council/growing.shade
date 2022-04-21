@@ -750,7 +750,7 @@ bg_growingshade_data_allMN <-
          housing_density = hutot_mc / landacres) %>%
   rename(tract_string = bg20) %>%
   rowwise() %>%
-  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
+  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) #%>%
   
     # deal witih some non residential blocks
   mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
@@ -1186,11 +1186,13 @@ bg_growingshade_main %>%
   filter(variable %in% c("pbipoc", "canopy_percent")) %>%
   dplyr::select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
-  filter(pbipoc < .07) %>% #, canopy_percent > .15)
+  filter(canopy_percent < .01)# %>% #, canopy_percent > .15)
   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
-  geom_point()
+  geom_point(alpha = .4) + 
+  geom_smooth()
   
-filter(bg_growingshade_data, poptotal < 50)  
+filter(bg_growingshade_data, tract_string == "270531044003")  
+filter(ctu_crosswalk, tract_id == "270531044003")  
 ```
 
 
