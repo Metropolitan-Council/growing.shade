@@ -727,7 +727,13 @@ mod_report_server <- function(id,
         geom_smooth( # method = "lm",
           # formula = "y ~ x",
           method = "gam", formula = y ~ s(x, bs = "cs"),
-          fill = NA, col = councilR::colors$councilBlue, na.rm = T
+          fill = NA, col = councilR::colors$councilBlue, na.rm = T,
+          data = filter(df, names != "pbipoc")
+        ) +
+        geom_smooth( method = "lm",
+          formula = "y ~ x",
+          fill = NA, col = councilR::colors$councilBlue, na.rm = T,
+          data = filter(df, names == "pbipoc")
         ) +
         geom_point(fill = councilR::colors$cdGreen, 
                    # size = 4, 
