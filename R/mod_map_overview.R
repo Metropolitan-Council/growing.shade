@@ -124,33 +124,7 @@ mod_map_overview_server <- function(input, output, session,
         group = "Map",
         options = pathOptions(pane = "Map")
       ) %>%
-      #### regional specific other data layers
-      # addCircles(
-      #   data = trans_stops,
-      #   group = "Active transit stops",
-      #   radius = 20,
-      #   fill = T,
-      #   stroke = TRUE,
-      #   weight = 2,
-      #   color = "black",
-      #   fillColor = "black",
-      #   options = pathOptions(pane = "trans")
-      # ) %>%
-      # addCircles(
-      #   data = eab,
-      #   group = "Emerald ash borer",
-      #   # layerId = NULL,
-      #   radius = 15,
-      #   fill = T,
-      #   stroke = TRUE,
-      #   weight = 4,
-      #   opacity = 1,
-      #   fillOpacity = .8,
-      #   color = "#6a3d9a",
-      #   fillColor = "white",
-      #   options = pathOptions(pane = "EAB"),
-      #   label = "EAB infested tree"
-      # ) %>%
+     
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -308,9 +282,9 @@ mod_map_overview_server <- function(input, output, session,
               opacity = 1
             ),
             fillColor = ~ colorNumeric(
-              n = 5,
+              # n = 5,
               palette = "YlOrBr", # "YlOrRd", #"Oranges",
-              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
+              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]], na.color = "#ffffff"
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
               "Geographic ID: ", map_util$map_data2$tract_string,
@@ -330,9 +304,10 @@ mod_map_overview_server <- function(input, output, session,
             group = "Priority score",
             layerId = "score",
             pal = colorNumeric(
-              n = 5,
+              # n = 5,
               palette = "YlOrBr", #"YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
+              ,na.color="#ffffff"
             ),
             values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
           ) %>%
