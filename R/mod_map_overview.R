@@ -273,7 +273,7 @@ mod_map_overview_server <- function(input, output, session,
             weight = 0.5, # 0.25,
             fillOpacity = 0.5,
             smoothFactor = 0.2,
-            label = ~ (paste0("Priority score: ", round(map_util$map_data2$MEAN, 3))),
+            label = ~ (paste0("Priority score: ", ifelse(!is.nan(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"))),
             highlightOptions = highlightOptions(
               stroke = TRUE,
               color = "white",
@@ -289,7 +289,7 @@ mod_map_overview_server <- function(input, output, session,
             popup = ~ paste0(
               "Geographic ID: ", map_util$map_data2$tract_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
-              "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
+              "<br>Priority score: ",  ifelse(!is.nan(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"),
               # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
               "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
