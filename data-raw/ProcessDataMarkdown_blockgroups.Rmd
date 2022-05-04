@@ -20,21 +20,23 @@ library(sf)
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
 
+
+
+# # block group issues
+# 
+# the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
+# 
+# would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals. 
+# 
+# very slow when showing block groups across entire state
+# 
+# --
+# options:
+# focus on statistical areas; some of this won't be super useful either since ag land
+# focus on areas where population density is above some threshold
 ```
 
 
-# block group issues
-
-the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
-
-would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals. 
-
-very slow when showing block groups across entire state
-
---
-options:
-focus on statistical areas; some of this won't be super useful either since ag land
-focus on areas where population density is above some threshold
 
 # Introduction
 
@@ -55,7 +57,9 @@ These are the files that must be in the data folder:
 - nhood_crosswalk.rda
 - metc_region.rda
 
+# Set parameters
 
+There are different years available, different geographies, etc. 
 
 ## Redlining shapefile
 
@@ -683,6 +687,15 @@ readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
             green_roof = GREEN_ROOF
             ))
 
+# some issues with blocks not having flood information?
+readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
+  transmute(bg20 = BG20,
+            avg_temp = AVG_TEMP,
+            prim_flood = PRIM_FLOOD,
+            green_roof = GREEN_ROOF
+            ) %>%
+  filter(bg20 == "270530117035")
+
 ```
 
 
@@ -811,7 +824,7 @@ bg_growingshade_data_allMN <-
   mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
   
     # deal with some non residential blocks and insufficent data
-    mutate(across(c(poptotal:pwk_nowork, pd_any:povdenom, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
+    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
            p_0017 = if_else(is.nan(p_0017), tr_p_0017, p_0017),
            p_65up = if_else(is.nan(p_65up), tr_p_65up, p_65up),
            sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
@@ -951,7 +964,8 @@ bg_growingshade_main <- bg_growingshade_data %>%
   #clean
   dplyr::select(-MEAN, -SD, -MIN, -MAX)  %>%
   full_join(wide_ctu_crosswalk %>% rename(tr20 = GEOID)) %>%
-  filter(!is.na(name))
+  filter(!is.na(name))#,
+         # bg_string != "270539800001") #remove airport
 
 ########
 # save data
@@ -1014,8 +1028,15 @@ md1 <- bg_growingshade_main %>%
   summarise(MEANRAW = mean(raw_value, na.rm = T),
             MEANSCALED = mean(weights_scaled, na.rm = T))
 
+temp <- tempfile()
+download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
+  destfile = temp
+)
+acs_tr2 <- readxl::read_xlsx(unzip(temp, "CensusACSTract.xlsx")) %>%
+  janitor::clean_names()
+
 acs_metadata <-
-acs_tractsonly %>% #use tracts becuase it has info about disability
+acs_tr2 %>% #use tracts becuase it has info about disability
     filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
            year == 2020) %>% #just do metc region for now
   dplyr::select(geoid, poptotal:pphother) %>%
@@ -1090,7 +1111,7 @@ highest_p <- function(group_var) {
   bg_growingshade_main %>% 
     filter(name %in% selectedvars$name) %>%
       group_by(bg_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = T))
+      summarise(MEAN = mean(weights_scaled, na.rm = F)) #set to false so that public health or ej doesnt get calculated if it is a nonres area
 }
 
 priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
@@ -1178,7 +1199,7 @@ mn_bgs_raw <- bg_geo %>%
                                substr(GEOID, 3, 5) == "123" ~ paste0("Ramsey County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "139" ~ paste0("Scott County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "163" ~ paste0("Washington County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               TRUE ~ NA_character_))
+                               TRUE ~ NA_character_)) 
 
 # usethis::use_data(mn_bgs, overwrite = TRUE)
 
@@ -1242,7 +1263,8 @@ mn_bgs <- mn_bgs_raw %>%
   # st_erase(airports) %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326) %>%
-  filter(!is.na(GEOID))
+  filter(!is.na(GEOID)) #%>%
+  # filter(GEOID != "270539800001") #remove airport
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 
@@ -1277,13 +1299,17 @@ bg_growingshade_main %>%
   filter(variable %in% c("pbipoc", "canopy_percent")) %>%
   dplyr::select(bg_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) %>%
-  filter(canopy_percent < .01)# %>% #, canopy_percent > .15)
+  # filter(canopy_percent < .01) %>% #, canopy_percent > .15)
   ggplot(aes(x = pbipoc, y = canopy_percent)) + 
   geom_point(alpha = .4) + 
-  geom_smooth()
+  geom_smooth(method = "lm")
   
-filter(bg_growingshade_data, bg_string == "270531044003")  
+filter(bg_growingshade_data, poptotal < 10)  
 filter(ctu_crosswalk, tract_id == "270531044003")  
+
+this geoid is being tricky 
+filter(bg_acs,bg20 == "270539800001") %>% data.frame()
+filter(bg_acs,bg20 == "270539800001")
 ```
 
 
