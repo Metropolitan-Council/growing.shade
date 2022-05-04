@@ -428,7 +428,7 @@ mod_report_server <- function(id,
               "block groups within ",
               param_area(),
               " have priority scores ranging from ",
-              round(min(param_selectedtractvalues()$MEAN), 2), " to ", round(max(param_selectedtractvalues()$MEAN), 2),
+              round(min(param_selectedtractvalues()$MEAN, na.rm = T), 2), " to ", round(max(param_selectedtractvalues()$MEAN, na.rm = T), 2),
               "  (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area (average of ", param_areasummary()$ntracts, " block group values) and region-wide averages.<br>"
             )
