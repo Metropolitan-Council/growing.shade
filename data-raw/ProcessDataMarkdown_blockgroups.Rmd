@@ -835,7 +835,10 @@ bg_growingshade_data_allMN <-
   #        across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))
   #        ) %>%
   # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
-  dplyr::select(-c(pblacknh_acs:pbipoc_acs))# %>% filter(bg20 == "270531016003")
+  dplyr::select(-c(pblacknh_acs:pbipoc_acs)) %>% 
+      # get rid of blocks where acs has no data
+    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.nan(sens_age) | is.na(sens_age), NA_real_, .x))) 
+  # filter(!is.na(sens_age), !is.nan(sens_age)) #get rid of block groups where there is no acs data
 
 
 #%>% #and for this project, I need to rename the tract variable
@@ -852,8 +855,9 @@ bg_growingshade_data_allMN <-
 bg_growingshade_data <- bg_growingshade_data_allMN %>%
   filter(str_detect(bg_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
 
-filter(bg_growingshade_data_allMN, bg_string %in% c("270531263002")) #this has population, but no age component
+filter(bg_growingshade_data_allMN, bg_string %in% c("270539800001")) #this has population, but no age component
 filter(bg_growingshade_data_allMN, poptotal <10 )
+filter(bg_growingshade_data_allMN, is.na(tr_medianhhinc))
 # temp <- tempfile()
 # download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
 #   destfile = temp
@@ -1122,7 +1126,7 @@ priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
 
 priority_summary <- priority_summary_1 %>%
   group_by(bg_string) %>%
-  summarise(score = max(score)) %>%
+  summarise(score = max(score, na.rm = T)) %>%
   left_join(priority_summary_1) %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
@@ -1181,7 +1185,7 @@ mn_bgs_raw <- bg_geo %>%
   right_join(wide_ctu_crosswalk) %>%
   full_join(bg_canopy %>% rename(GEOID = bg20)) %>%
   full_join(priority_summary) %>%
-  full_join(priority_summary_1%>%
+  full_join(priority_summary_1 %>%
               group_by(preset) %>% 
               # mutate(rank = rank(-score)) %>%
               # dplyr::select(-score) %>%
@@ -1202,7 +1206,9 @@ mn_bgs_raw <- bg_geo %>%
                                TRUE ~ NA_character_)) 
 
 # usethis::use_data(mn_bgs, overwrite = TRUE)
-
+filter(mn_bgs_raw, GEOID == "270539800001") #for na people blocks priority summary is giving two results; should only be one
+filter(priority_summary, GEOID == "270539800001")
+filter(priority_summary, GEOID == "270030501071")
 
 mncounties <- tigris::counties(state = "MN") %>%
   filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
