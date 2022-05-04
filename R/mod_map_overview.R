@@ -317,7 +317,7 @@ mod_map_overview_server <- function(input, output, session,
             fillColor = ~ colorNumeric(
               # n = 5,
               palette = "YlOrBr", # "YlOrRd", #"Oranges",
-              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]], na.color = "#03fc13"
+              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]#, na.color = "#03fc13"
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
               "Geographic ID: ", map_util$map_data2$bg_string,
@@ -340,7 +340,7 @@ mod_map_overview_server <- function(input, output, session,
               # n = 5,
               palette = "YlOrBr", #"YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
-              ,na.color="#03fc13"
+              # ,na.color="#03fc13"
             ),
             values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
           ) %>%
