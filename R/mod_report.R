@@ -418,8 +418,8 @@ mod_report_server <- function(id,
           " layer, ", #signing test
           if (geo_selections$selected_geo == "tracts") {
             paste0(
-              param_areasummary()$fancyname, " has a score of ",
-              round((param_selectedtractvalues()$MEAN), 2),
+              param_areasummary()$fancyname, 
+              if(!is.na(param_selectedtractvalues()$MEAN)) {paste0(" has a score of ", round((param_selectedtractvalues()$MEAN), 2))} else {paste0("'s priority score cannot be computed due to insufficient data ")},
               " (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
