@@ -92,6 +92,7 @@ mod_report_ui <- function(id) {
 #' @import stringr
 #' @import ggbeeswarm
 #' @import ggtext
+
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
@@ -100,6 +101,7 @@ mod_report_server <- function(id,
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    library(councilR)
     ####### things to export
     TEST <- reactive({
       TEST <- if (geo_selections$selected_geo == "ctus") {
@@ -287,7 +289,7 @@ mod_report_server <- function(id,
 
       if (geo_selections$selected_geo != "tracts") {
         plot <- ggplot() +
-          councilR::council_theme() +
+          councilR::theme_council() +
           theme(
             plot.title = element_text(size = 16),
             panel.grid.minor = element_blank(),
@@ -334,7 +336,7 @@ mod_report_server <- function(id,
         
       } else {
         plot <- ggplot() +
-          councilR::council_theme() +
+          councilR::theme_council() +
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
@@ -461,7 +463,7 @@ mod_report_server <- function(id,
 
       plot <-
         ggplot() +
-        councilR::council_theme() +
+        councilR::theme_council() +
         theme(
           axis.title.y = element_blank(),
           panel.grid.minor = element_blank(),
@@ -693,7 +695,7 @@ mod_report_server <- function(id,
       #
       #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
       #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
-      #   councilR::council_theme() +
+      #   councilR::theme_council() +
       #   theme(
       #     panel.grid.minor = element_blank(),
       #     panel.grid.major = element_blank(),
@@ -737,7 +739,7 @@ mod_report_server <- function(id,
                    pch = 21, 
                    data = filter(df, flag == "selected"), 
                    na.rm = T) +
-        councilR::council_theme() +
+        councilR::theme_council() +
         theme(
           panel.grid.minor = element_blank(),
           panel.grid.major = element_blank(),
@@ -838,7 +840,7 @@ mod_report_server <- function(id,
                    size = if (selected_length() > 100) {2} else {4},
                    
                    col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
-        councilR::council_theme() +
+        councilR::theme_council() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
           caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
@@ -945,7 +947,7 @@ mod_report_server <- function(id,
     #     scale_fill_brewer(palette = "Paired", name = "Species") +
     #     scale_color_brewer(palette = "Paired", name = "Species") +
     #     scale_shape_manual(values = rep(c(21:25), 3), name = "Species")+
-    #     councilR::council_theme() +
+    #     councilR::theme_council() +
     #     labs(x = "Year", y = "Species composition (%)") +
     #     guides(fill = guide_legend(nrow = 6, byrow = T),
     #            color = guide_legend(nrow = 6, byrow = T),
