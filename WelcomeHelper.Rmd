@@ -1,0 +1,11 @@
+---
+output: 
+  github_document:
+    html_preview: false
+# params: 
+#   actor_id: "esch" 
+#   data_date: "2020-03-26"
+#   sha: "sha"
+---
+
+Please refer to the text user guide or a recorded webinar for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021.

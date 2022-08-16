@@ -174,6 +174,8 @@ display:none!important
 
               # width = 2,
               HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
+              # HTML("<h1><section style='font-size: 22pt;' class='d-none d-lg-block'>Welcome to the Growing Shade mapping tool</h1></section>"),
+              # HTML("<h1><section style='font-size: 16pt;' class='d-block d-lg-none'>Welcome to the Growing Shade mapping tool</h1></section>"),
               br(class="d-none d-lg-block"),
               p(class="d-none d-lg-block",
                 "Please refer to the ", a("text user guide",
@@ -186,6 +188,19 @@ display:none!important
                   .noWS = "outside",
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021."
+              ),
+              
+              p(class="d-block d-lg-none", 
+                "Please refer to the ", a("text user guide",
+                                          href = "www/Growing Shade User Guide (January 2022).pdf",
+                                          .noWS = "outside",
+                                          target = "_blank"
+                ),
+                " or a ", a("recorded webinar",
+                            href = "https://youtu.be/3SKC-29AwME?t=1944",
+                            .noWS = "outside",
+                            target = "_blank"
+                ), " for help."
               ),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
