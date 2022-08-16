@@ -41,6 +41,52 @@ app_ui <- function(request) {
     .collapse.in{
         display:block !important;
     }
+}
+
+@media (max-width: 990px) {
+.navbar-brand{
+padding:0 0!important
+}
+.navbar-default{
+font-size: 12pt!important;
+height: 65px
+}
+.nav>li>a{
+padding: 1px 1px
+}
+.navbar-fixed-bottom .navbar-collapse, .navbar-fixed-top .navbar-collapse {
+max-height: 500px;
+}
+.body{
+padding-top:0px
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: var(--council-blue);
+    height: 65px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.nav>li>a {
+    position: relative;
+    display: inline!important;
+    padding: 0px 15px;
+}
+
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+    color: var(--council-blue);
+    background-color: #d6d6d6;
+    height: 45px;
+    padding: 5px !important;
+}
+}
+
+
+@media (max-width: 454px) {
+.navbar-brand{
+display:none!important
+}
 }"
   
   
