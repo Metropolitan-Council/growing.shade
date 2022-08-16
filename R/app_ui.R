@@ -35,15 +35,14 @@ app_ui <- function(request) {
         float: none;
     }
     .navbar-nav>li>a {
-        padding-top: 10px;
-        padding-bottom: 10px;
+/*        padding-top: 10px;*/
+  /*      padding-bottom: 10px;*/
     }
     .collapse.in{
         display:block !important;
     }
-}
 
-@media (max-width: 990px) {
+
 .navbar-brand{
 padding:0 0!important
 }
@@ -89,8 +88,6 @@ a {
     padding: 0px!important;
 }
 
-
-}
 
 
 @media (max-width: 454px) {
