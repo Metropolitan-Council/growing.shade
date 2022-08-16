@@ -9,27 +9,10 @@
 #' @importFrom shiny NS tagList
 mod_storymap_ui <- function(id) {
   ns <- NS(id)
-  hiding_js <- "
-  .d-none {
-  display: none !important;
-  }
-  .d-block {
-  display: block !important;
-}
 
-@media (min-width: 992px) {
-.d-lg-none {
-    display: none !important;
-  }
-  .d-lg-block {
-    display: block !important;
-  }
-}
-  
-  "
   
   tagList(
-    tags$head(tags$style(HTML(hiding_js))),
+    # tags$head(tags$style(HTML(hiding_js))),
     # tags$style(type = "text/css", "#storymap {overflow:hidden}"),
     # div(br(class = "d-none d-lg-block")),
     bootstrapPage(# theme  = bslib::bs_theme(version = 5),
