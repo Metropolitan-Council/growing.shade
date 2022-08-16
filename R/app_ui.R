@@ -49,7 +49,7 @@ padding:0 0!important
 }
 .navbar-default{
 font-size: 12pt!important;
-height: 65px
+height: 65px !important
 }
 .nav>li>a{
 padding: 1px 1px
@@ -145,7 +145,7 @@ display:none!important
       tabPanel(
         "HOME",
         # id = "B",
-        br(), # br(),
+        # br(), # br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
