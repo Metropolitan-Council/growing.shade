@@ -13,7 +13,7 @@ mod_methods_ui <- function(id) {
     br(), br(),
     shiny::div(
       id = "methods",
-      includeMarkdown(system.file("inst/app/www/methods.md", package = "planting.shade"))
+      includeMarkdown(system.file("app/www/methods.md", package = "planting.shade"))
     ),
     br()
   )
