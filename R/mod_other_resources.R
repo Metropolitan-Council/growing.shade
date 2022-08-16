@@ -10,7 +10,7 @@
 mod_other_resources_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    br(), br(),
+    br(class="d-none d-lg-block"), br(class="d-none d-lg-block"),
     shiny::div(
       id = "otherresources",
       # includeMarkdown(paste0(here::here(),("inst/app/www/otherresources.md")))

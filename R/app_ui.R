@@ -177,9 +177,8 @@ display:none!important
 
               # width = 2,
               HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # h1("Welcome to the Growing Shade mapping tool"),
-              br(),
-              p(
+              br(class="d-none d-lg-block"),
+              p(class="d-none d-lg-block",
                 "Please refer to the ", a("text user guide",
                   href = "www/Growing Shade User Guide (January 2022).pdf",
                   .noWS = "outside",
@@ -199,7 +198,7 @@ display:none!important
               # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
               # hr(style="margin-top: 2px; margin-bottom: 2px "),
-              br(),
+              br(class="d-none d-lg-block"),
               mod_report_ui("report_ui_1") # ,
               # mod_plot_tract_ui("plot_tract_ui_1")
             ),
