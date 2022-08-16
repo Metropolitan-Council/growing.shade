@@ -563,18 +563,7 @@ ctu_list_raw <- ctu_geo %>%
 
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 
-#from gee reducer; 
-gee_treeacres <- 795.9813205905608
-gee_notreeacres <- 1990.4382264740245
 
-(gee_treeacres *calib_coeff) / (gee_notreeacres + gee_treeacres) #25.28%
-
-
-gee_treeacres_nonag <- 795.9813205905608
-gee_notreeacres_nonag <- 876.388970789196
-
-(gee_treeacres_nonag *calib_coeff) / (gee_notreeacres_nonag + gee_treeacres_nonag) #42.13416
-#jeff; how many people (percent of MN) live in low tree canopy cover areas??
 ```
 
 
