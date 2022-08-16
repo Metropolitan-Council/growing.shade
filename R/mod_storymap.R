@@ -15,14 +15,14 @@ mod_storymap_ui <- function(id) {
     # tags$head(tags$style(HTML(hiding_js))),
     # tags$style(type = "text/css", "#storymap {overflow:hidden}"),
     # div(br(class = "d-none d-lg-block")),
-    bootstrapPage(# theme  = bslib::bs_theme(version = 5),
+    # bootstrapPage(# theme  = bslib::bs_theme(version = 5),
     # h2("Old Faithful Geyser Data", class="d-none d-lg-block"),
     # h2("Geyser Data", class="d-block d-lg-none"),
       br(class="d-none d-lg-block"),
       # htmlOutput(ns("storymap_wide"), class = "d-none d-lg-block"),
       # htmlOutput(ns("storymap_narrow"), class = "d-block d-lg-none")
       htmlOutput(ns("storymap"))
-  )
+  # )
   )
 }
 
