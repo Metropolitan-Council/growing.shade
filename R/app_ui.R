@@ -61,25 +61,32 @@ max-height: 500px;
 padding-top:0px
 }
 
-.navbar-default .navbar-nav>li>a {
-    color: var(--council-blue);
-    height: 65px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
 .nav>li>a {
     position: relative;
     display: inline!important;
     padding: 0px 15px;
 }
+navbar-default .navbar-nav>li>a {
+    color: var(--council-blue);
+    height: 10px!important;
+    padding-top: 5px!important;
+    padding-bottom: 5px!important;
+}
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
     color: var(--council-blue);
     background-color: #d6d6d6;
-    height: 45px;
+  /*  height: 45px;*/
     padding: 5px !important;
 }
+
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    color: var(--council-blue);
+     background-color: #d6d6d6; 
+    padding: 5px;
+}
+
+
 }
 
 
