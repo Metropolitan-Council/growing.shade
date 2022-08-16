@@ -65,7 +65,7 @@ mod_map_selections_ui <- function(id) {
 ))),
     # fluidRow(
     radioButtons(ns("preset"),
-      HTML("<h2><section style='font-size:20pt'>Priority layer</h2></section><p><section style='font-weight: normal;'>Trees intersect with regional issues and priorities. Use a preset or create a custom layer to understand the overlap. </section></p>"),
+      HTML("<h2><section style='font-size:20pt'>Priority layer</h2></section><p><section style='font-weight: normal;' class='d-none d-lg-block'>Trees intersect with regional issues and priorities. Use a preset or create a custom layer to understand the overlap. </section></p>"),
       choiceNames = list(
         HTML("<a data-toggle='tooltip' trigger='click' data-html='true' data-placement='bottom'
              title='<strong>Variables include:</strong><br>

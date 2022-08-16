@@ -10,7 +10,7 @@
 mod_faq_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    br(), br(),
+    br(class="d-none d-lg-block"), br(class="d-none d-lg-block"),
     shiny::div(
       id = "faq",
       includeMarkdown(system.file("app/www/faq.md", package = "planting.shade"))
