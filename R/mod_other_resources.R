@@ -13,7 +13,10 @@ mod_other_resources_ui <- function(id) {
     br(), br(),
     shiny::div(
       id = "otherresources",
-      includeMarkdown(system.file("inst/app/www/otherresources.md", package = "planting.shade"))
+      # includeMarkdown(paste0(here::here(),("inst/app/www/otherresources.md")))
+      
+      includeMarkdown(system.file("app/www/otherresources.md", package = "planting.shade"))
+      # includeMarkdown(system.file("inst/app/www/otherresources.md", package = "planting.shade"))
     ),
     br()
   )
