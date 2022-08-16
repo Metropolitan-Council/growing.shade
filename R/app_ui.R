@@ -85,6 +85,9 @@ navbar-default .navbar-nav>li>a {
      background-color: #d6d6d6; 
     padding: 5px;
 }
+a {
+    padding: 0px!important;
+}
 
 
 }
