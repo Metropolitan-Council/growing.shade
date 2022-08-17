@@ -31,8 +31,9 @@ mod_map_overview_ui <- function(id) {
 mod_map_overview_server <- function(input, output, session,
                                     map_selections,
                                     geo_selections,
-                                    map_util,
-                                    current_tab) {
+                                    map_util
+                                    ,current_tab
+                                    ) {
   ns <- session$ns
 
 
@@ -187,7 +188,7 @@ mod_map_overview_server <- function(input, output, session,
         layerId = ~GEO_NAME
       ) %>%
       addPolygons(
-        data = filter(ctu_list, GEO_NAME == "Oakdale"),
+        data = filter(mn_bgs, GEO_NAME == "271230420012"),
         stroke = TRUE,
         color = "#0073e0", # "blue",
         fill = NA,
@@ -218,6 +219,17 @@ mod_map_overview_server <- function(input, output, session,
       #   options = pathOptions(pane = "geooutline2"),
       #   layerId = ~GEO_NAME
       # ) %>%
+    addPolygons(
+       data =  mn_bgs,
+      group = "Jurisdiction outlines",
+      stroke = T,
+      smoothFactor = 1,
+      color = "black",
+      weight = 2,
+      fill = F,
+      opacity = 1,
+      options = pathOptions(pane = "geooutline2"),
+      layerId =  NULL    ) %>%
 
       ### add layer control
       addLayersControl(
@@ -269,22 +281,18 @@ mod_map_overview_server <- function(input, output, session,
   #### changing priority score --------------
   toListen_mainleaflet <- reactive({
     list(
-      current_tab,
+      # current_tab,
       # map_selections$priority_layer,
       map_util$map_data2
     )
   })
 
   observeEvent(
-    ignoreInit = TRUE, # TRUE,
+    ignoreInit = F, # TRUE,
     toListen_mainleaflet(),
     {
       if (is.null(map_util$map_data2)) {
         print("nodata")
-        # } else if (map_selections$priority_layer == "Off") {
-        #   leafletProxy("map") %>%
-        #     clearGroup("Priority score") %>%
-        #     clearControls()
       } else {
         print("rendering polygons")
         waitertest$show()
@@ -436,12 +444,22 @@ mod_map_overview_server <- function(input, output, session,
     )
   })
   observeEvent(
-    ignoreInit = FALSE,
+    ignoreInit = T,
     toListen_clickytracts(),
     {
       if (input$map_shape_click$id == "") {
         leafletProxy("map") %>%
-          clearGroup("outline")
+          addPolygons(
+            data = mn_bgs %>% filter(GEO_NAME == "271230420012"),
+            stroke = TRUE,
+            color = "#0073e0", #"blue",
+            fill = NA,
+            opacity = 1,
+            group = "outline",
+            smoothFactor = 0.2,
+            options = pathOptions(pane = "outline")
+          )
+          # clearGroup("outline") #271230420012
       } else {
         leafletProxy("map") %>%
           clearGroup("outline") %>%

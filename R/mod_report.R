@@ -17,7 +17,7 @@ mod_report_ui <- function(id) {
     br(),
     fluidRow(shinydashboard::box(
       title = ("Tree canopy"),
-      width = 12, collapsed = F,
+      width = 12, collapsed = T,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("tree_para")),
       # uiOutput(ns("get_tree_plot"))
@@ -29,7 +29,7 @@ mod_report_ui <- function(id) {
     )),
     fluidRow(shinydashboard::box(
       title = "Prioritization",
-      width = 12, collapsed = F,
+      width = 12, collapsed = T,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("rank_para")),
       # uiOutput(ns("get_rank_plot")),
@@ -43,7 +43,7 @@ mod_report_ui <- function(id) {
     )),
     fluidRow(shinydashboard::box(
       title = "Race & income disparities",
-      width = 12, collapsed = F,
+      width = 12, collapsed = T,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("equity_para")),
       # uiOutput(ns("get_equity_plot")),
@@ -54,7 +54,7 @@ mod_report_ui <- function(id) {
     )),
     fluidRow(shinydashboard::box(
       title = "Temperature",
-      width = 12, collapsed = F,
+      width = 12, collapsed = T,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("heat_para")),
       fluidRow(
@@ -65,13 +65,13 @@ mod_report_ui <- function(id) {
     )),
     # fluidRow(shinydashboard::box(
     #   title = "Threats",
-    #   width = 12, collapsed = F,
+    #   width = 12, collapsed = T,
     #   status = "danger", solidHeader = F, collapsible = TRUE,
     #   uiOutput(ns("other_para"))
     # )),
     fluidRow(shinydashboard::box(
       title = "Download data",
-      width = 12, collapsed = F,
+      width = 12, collapsed = T,
       status = "danger", solidHeader = F, collapsible = TRUE,
       uiOutput(ns("download_para")),
       fluidRow(

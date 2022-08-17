@@ -116,8 +116,8 @@ mod_geo_selection_server <- function(id) {
         input$cityInput
       } else if (input$geo == "nhood") {
         input$nhoodInput
-      } else {
-        ""
+      } else if (input$geo == "tracts"){
+        "271230420012"
       }
     })
     return(input_values)
