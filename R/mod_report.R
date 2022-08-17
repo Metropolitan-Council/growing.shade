@@ -1141,13 +1141,16 @@ mod_report_server <- function(id,
         title = "Download data",
         width = 12, collapsed = shinybrowser::get_device() == "Mobile",
         status = "danger", solidHeader = F, collapsible = TRUE,
-        HTML(
-          "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
-        ),# uiOutput(ns("download_para")),
+        HTML("<section class='d-none d-lg-block'>
+             Use the buttons below to download a version of this report which can be printed or shared. 
+             The raw data may also be downloaded as an excel or shapefile.<br></section>"),# uiOutput(ns("download_para")),
+        HTML("<section class='d-block d-lg-none'>
+             Download a complete version of this report. 
+             Use a desktop computer to download raw data or shapefiles.<br></section>"),# uiOutput(ns("download_para")),
         fluidRow(
           column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
-          column(width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
-          column(width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
+          column(class='d-none d-lg-block', width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
+          column(class='d-none d-lg-block', width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
         )
       )
     })
