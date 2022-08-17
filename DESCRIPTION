@@ -42,7 +42,8 @@ Imports:
     writexl (>= 1.4.0),
     ggbeeswarm (>= 0.7.0.9000),
     ggtext (>= 0.1.1),
-    waiter (>= 0.2.4.900)
+    waiter (>= 0.2.4.900),
+    shinybrowser (>= 1.0.0)
 Suggests: 
     fs (>= 1.4.1),
     readxl (>= 1.3.1),
