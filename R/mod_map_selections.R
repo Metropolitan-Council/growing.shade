@@ -147,7 +147,7 @@ mod_map_selections_ui <- function(id) {
           `selected-text-format` = "count > 1"
         ),
         multiple = T,
-        selected = NULL # filter(metadata, type == "people")[1, 2]
+        selected = c("Age, % age 65 or older", "Race, % people of color") #filter(metadata, type == "people")[c(1, 12), 2]
       )
     ),
     conditionalPanel(
@@ -169,7 +169,7 @@ mod_map_selections_ui <- function(id) {
           `selected-text-format` = "count > 1"
         ),
         multiple = T,
-        selected = dplyr::filter(metadata, type == "environment")[9, 2]
+        selected = c("Greenness, uncultivated land (2021 NDVI)", "Temperature on hot summer day", "Tree canopy in 2021 (%)")
       )
     ),
     conditionalPanel(
@@ -207,7 +207,7 @@ mod_map_selections_ui <- function(id) {
           `selected-text-format` = "count > 1"
         ),
         multiple = T,
-        selected = NULL
+        selected = dplyr::filter(metadata, type == "dollar")[3, 2]
       )
     )
   )
