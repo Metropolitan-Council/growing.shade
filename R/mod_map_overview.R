@@ -15,16 +15,29 @@ mod_map_overview_ui <- function(id) {
    /* #map {width: 50% !important;} */
    div#map_overview_ui_1-map {
     width: 95% !important;
-    height: 45vh !important;
+    height: 55vh !important;
     visibility: inherit;
     position: relative;
     right: 5em;
     left: 0em;
-    bottom:2em
-}
+    bottom:2em;
+   }
+   .navbar-right{
+   float: right !important;
+   }
+   body{padding-top:15px;}
+   }
   }
+
   "
   
+  # .leaflet-pane leaflet-map-pane{
+  #   transform: translate3d(-6.75px, -71.1px, 0px)'
+  #  }
+  #  .leaflet-proxy leaflet-zoom-animated{
+  #  transform:translate3d(31560px, 4718px, 0px) scale(256);
+  #  }
+  # }
   tagList(
     tags$style(type = "text/css", "#map {width; 100%;}"), #works
     tags$style(HTML(js_map)),
