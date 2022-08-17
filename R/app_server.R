@@ -6,7 +6,7 @@
 #' @noRd
 app_server <- function(input, output, session) {
   # List the first level callModules here
-  shinyhelper::observe_helpers(help_dir = "inst/app/www")
+  # shinyhelper::observe_helpers(help_dir = "inst/app/www")
   # options(shiny.usecairo = T)
 
   # waitress <- waiter::Waitress$new("nav", theme = "overlay", min = 0, max = 10)
