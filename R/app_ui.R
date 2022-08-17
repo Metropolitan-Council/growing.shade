@@ -139,12 +139,7 @@ display:none!important
                        }",
         "body {padding-top: 75px;}"
       ),
-      tabPanel(
-        "HOME",
-        # id = "B",
-        # br(), # br(),
-        fluidRow((mod_storymap_ui("storymap_ui_1")))
-      ),
+
       tabPanel(
         "Mapping tool",
         tags$footer(
@@ -224,6 +219,12 @@ display:none!important
             )
           )
         )
+      ),
+      tabPanel(
+        "HOME",
+        # id = "B",
+        # br(), # br(),
+        fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
         "Resources",
