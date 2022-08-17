@@ -11,58 +11,17 @@ mod_report_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # shinyjs::useShinyjs(),
+    shinybrowser::detect(),
+    
     shinyWidgets::useShinydashboard(),
     # ,
     (uiOutput(ns("geoarea"))),
     br(),
-    fluidRow(shinydashboard::box(
-      title = ("Tree canopy"),
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("tree_para")),
-      # uiOutput(ns("get_tree_plot"))
-      fluidRow(
-        align = "center",
-        imageOutput(ns("tree_plot"), height = "100%", width = "100%") # %>%
-        # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
-      )
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Prioritization",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("rank_para")),
-      # uiOutput(ns("get_rank_plot")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("rank_plot"), height = "100%", width = "100%") # %>%
-        # shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
-      ),
-      br(),
-      tableOutput(ns("priority_table"))
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Race & income disparities",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("equity_para")),
-      # uiOutput(ns("get_equity_plot")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("equity_plot"), height = "100%", width = "100%")
-      )
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Temperature",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("heat_para")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("temp_plot"), height = "100%", width = "100%")
-      )
-      # uiOutput(ns("get_temp_plot"))
-    )),
+    fluidRow(uiOutput(ns("treecanopy_box"))
+    ),
+    fluidRow(uiOutput(ns("priority_box"))),
+    fluidRow(uiOutput(ns("disparity_box"))),
+    fluidRow(uiOutput(ns("temp_box"))), 
     # fluidRow(shinydashboard::box(
     #   title = "Threats",
     #   width = 12, collapsed = F,
@@ -251,11 +210,11 @@ mod_report_server <- function(id,
       ))
     })
 
-    output$tree_para <- renderUI({
-      req(TEST() != "")
-      (tree_text())
-      # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
-    })
+    # output$tree_para <- renderUI({
+    #   req(TEST() != "")
+    #   (tree_text())
+    #   # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
+    # })
 
 
     report_tree_plot <- reactive({
@@ -438,11 +397,11 @@ mod_report_server <- function(id,
       ))
     })
 
-    output$rank_para <- renderUI({
-      ns <- session$ns
-      req(TEST() != "")
-      rank_text()
-    })
+    # output$rank_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   rank_text()
+    # })
 
     report_rank_plot <- reactive({
       req(TEST() != "")
@@ -623,10 +582,10 @@ mod_report_server <- function(id,
       return(para)
     })
 
-    output$equity_para <- renderUI({
-      req(TEST() != "")
-      (equity_text())
-    })
+    # output$equity_para <- renderUI({
+    #   req(TEST() != "")
+    #   (equity_text())
+    # })
 
     output$download_para <- renderUI({
       ns <- session$ns
@@ -658,10 +617,10 @@ mod_report_server <- function(id,
     })
 
 
-    output$heat_para <- renderUI({
-      req(TEST() != "")
-      heat_text()
-    })
+    # output$heat_para <- renderUI({
+    #   req(TEST() != "")
+    #   heat_text()
+    # })
 
     report_equity_plot <- reactive({
       req(TEST() != "")
@@ -907,54 +866,8 @@ mod_report_server <- function(id,
       deleteFile = FALSE
     )
 
-    # report_other_para <- reactive({
-    #   ns <- session$ns
-    #   req(TEST() != "")
-    #   tagList(
-    #     HTML(paste0(
-    #       # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
-    #       "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ",
-    #       param_areasummary()$EAB, " trees in ",
-    #       if (geo_selections$selected_geo == "tracts") {
-    #         param_fancytract()
-    #       } else {
-    #         param_area()
-    #       }, " (",
-    #       a("Minnesota DNR",
-    #         href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
-    #         .noWS = "outside",
-    #         target = "_blank"
-    #       ),
-    #       "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-    #       "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'resources' tab at top.<br><br>"
-    #       # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
-    #     ))
-    #   )
-    # })
+# 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
 
-    # output$other_para <- renderUI({
-    #   req(TEST() != "")
-    #   report_other_para()
-    # })
-
-
-    # output$other_plot <- renderPlot({
-    #   treebiodiv %>%
-    #     ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
-    #     geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
-    #     geom_point(
-    #       size = 5, position = position_dodge(width = 10)) +
-    #     scale_fill_brewer(palette = "Paired", name = "Species") +
-    #     scale_color_brewer(palette = "Paired", name = "Species") +
-    #     scale_shape_manual(values = rep(c(21:25), 3), name = "Species")+
-    #     councilR::theme_council() +
-    #     labs(x = "Year", y = "Species composition (%)") +
-    #     guides(fill = guide_legend(nrow = 6, byrow = T),
-    #            color = guide_legend(nrow = 6, byrow = T),
-    #            shape = guide_legend(nrow = 6, byrow = T))
-    #
-    # })
-    #
     param_reportname <- reactive({
       req(TEST() != "")
       paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html")
@@ -1171,6 +1084,71 @@ mod_report_server <- function(id,
     #   req(TEST() != "")
     #   plotOutput(ns("other_plot"), "300px", width = "80%")
     # })
+    
+    output$treecanopy_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = ("Tree canopy"),
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        (tree_text()),# uiOutput(ns("tree_para")),
+        # uiOutput(ns("get_tree_plot"))
+        fluidRow(
+          align = "center",
+          imageOutput(ns("tree_plot"), height = "100%", width = "100%")
+        ))
+    })
+    
+    output$priority_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Prioritization",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        rank_text(), #uiOutput(ns("rank_para")),
+        # uiOutput(ns("get_rank_plot")),
+        fluidRow(
+          align = "center",
+          imageOutput(ns("rank_plot"), height = "100%", width = "100%") 
+        ),
+        br(),
+        tableOutput(ns("priority_table"))
+      )
+    })
+    
+    output$disparity_box <- renderUI({
+      req(TEST() != "")
+
+      shinydashboard::box(
+        title = "Race & income disparities",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        equity_text(), #uiOutput(ns("equity_para")),
+        # uiOutput(ns("get_equity_plot")),
+        fluidRow(
+          align = "center",
+          imageOutput(ns("equity_plot"), height = "100%", width = "100%")
+        )
+      )
+    })
+    
+    output$temp_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Temperature",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        heat_text(), #uiOutput(ns("heat_para")),
+        fluidRow(
+          align = "center",
+          imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+        )
+        # uiOutput(ns("get_temp_plot"))
+      )
+    })
 
 
     output$get_the_report <- renderUI({
