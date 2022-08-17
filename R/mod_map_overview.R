@@ -10,8 +10,29 @@
 #' @import waiter
 mod_map_overview_ui <- function(id) {
   ns <- NS(id)
+  
+  js_map <- "@media (max-width: 765px) {
+   /* #map {width: 50% !important;} */
+   div#map_overview_ui_1-map {
+    width: 95% !important;
+    height: 45vh !important;
+    visibility: inherit;
+    position: relative;
+    right: 5em;
+    left: 0em;
+    bottom:2em
+}
+  }
+  "
+  
   tagList(
-    tags$style(type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
+    tags$style(type = "text/css", "#map {width; 100%;}"), #works
+    tags$style(HTML(js_map)),
+    #doesnt work
+    # tags$style(class = "d-none d-lg-block", #desktop
+    #            type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
+    # tags$style(class = "d-block d-lg-none",#mobile
+    #            type = "text/css", "#map {width; 95% !important;}"),
     useWaiter(),
     # waiter::useWaitress(color = "blue"),
 

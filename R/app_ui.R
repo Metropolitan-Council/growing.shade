@@ -210,10 +210,8 @@ display:none!important
 
               # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
-              # hr(style="margin-top: 2px; margin-bottom: 2px "),
               br(class="d-none d-lg-block"),
-              mod_report_ui("report_ui_1") # ,
-              # mod_plot_tract_ui("plot_tract_ui_1")
+              mod_report_ui("report_ui_1"),
             ),
             mainPanel(
               width = 6,
