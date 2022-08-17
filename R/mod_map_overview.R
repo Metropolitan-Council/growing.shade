@@ -174,19 +174,19 @@ mod_map_overview_server <- function(input, output, session,
         fillOpacity = 1,
         options = pathOptions(pane = "redline2")
       ) %>%
-      # maybe not the best, but need city outlines to show up first
-      addPolygons(
-        data = ctu_list,
-        group = "Jurisdiction outlines",
-        stroke = T,
-        smoothFactor = 1,
-        color = "black",
-        weight = 2,
-        fill = F,
-        opacity = 1,
-        options = pathOptions(pane = "geooutline2"),
-        layerId = ~GEO_NAME
-      ) %>%
+      # # maybe not the best, but need city outlines to show up first
+      # addPolygons(
+      #   data = ctu_list,
+      #   group = "Jurisdiction outlines",
+      #   stroke = T,
+      #   smoothFactor = 1,
+      #   color = "black",
+      #   weight = 2,
+      #   fill = F,
+      #   opacity = 1,
+      #   options = pathOptions(pane = "geooutline2"),
+      #   layerId = ~GEO_NAME
+      # ) %>%
       addPolygons(
         data = filter(mn_bgs, GEO_NAME == "271230420012"),
         stroke = TRUE,
@@ -219,17 +219,17 @@ mod_map_overview_server <- function(input, output, session,
       #   options = pathOptions(pane = "geooutline2"),
       #   layerId = ~GEO_NAME
       # ) %>%
-    addPolygons(
-       data =  mn_bgs,
-      group = "Jurisdiction outlines",
-      stroke = T,
-      smoothFactor = 1,
-      color = "black",
-      weight = 2,
-      fill = F,
-      opacity = 1,
-      options = pathOptions(pane = "geooutline2"),
-      layerId =  NULL    ) %>%
+    # addPolygons(
+    #    data =  mn_bgs,
+    #   group = "Jurisdiction outlines",
+    #   stroke = T,
+    #   smoothFactor = 1,
+    #   color = "black",
+    #   weight = 2,
+    #   fill = F,
+    #   opacity = 1,
+    #   options = pathOptions(pane = "geooutline2"),
+    #   layerId =  NULL    ) %>%
 
       ### add layer control
       addLayersControl(
@@ -358,7 +358,7 @@ mod_map_overview_server <- function(input, output, session,
   # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
   ## jurisdiction outlines -----------
   observeEvent(
-    ignoreInit = FALSE, # true
+    ignoreInit = T, # true
     geo_selections$selected_geo,
     {
       if (geo_selections$selected_geo == "tracts") {
