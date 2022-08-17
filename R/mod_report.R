@@ -22,23 +22,7 @@ mod_report_ui <- function(id) {
     fluidRow(uiOutput(ns("priority_box"))),
     fluidRow(uiOutput(ns("disparity_box"))),
     fluidRow(uiOutput(ns("temp_box"))), 
-    # fluidRow(shinydashboard::box(
-    #   title = "Threats",
-    #   width = 12, collapsed = F,
-    #   status = "danger", solidHeader = F, collapsible = TRUE,
-    #   uiOutput(ns("other_para"))
-    # )),
-    fluidRow(shinydashboard::box(
-      title = "Download data",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("download_para")),
-      fluidRow(
-        column(width = 4, uiOutput(ns("get_the_report"))),
-        column(width = 4, uiOutput(ns("get_the_data"))),
-        column(width = 4, uiOutput(ns("get_shape_data")))
-      )
-    ))
+    fluidRow(uiOutput(ns("download_box")))
   )
 }
 
@@ -587,14 +571,14 @@ mod_report_server <- function(id,
     #   (equity_text())
     # })
 
-    output$download_para <- renderUI({
-      ns <- session$ns
-      req(TEST() != "")
-      para <- HTML(
-        "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
-      )
-      return(para)
-    })
+    # output$download_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   para <- HTML(
+    #     "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
+    #   )
+    #   return(para)
+    # })
 
 
     heat_text <- reactive({
@@ -1149,25 +1133,43 @@ mod_report_server <- function(id,
         # uiOutput(ns("get_temp_plot"))
       )
     })
-
-
-    output$get_the_report <- renderUI({
+    
+    output$download_box <- renderUI({
       req(TEST() != "")
-      downloadButton(ns("dl_report"), label = "Text report")
+      
+      shinydashboard::box(
+        title = "Download data",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        HTML(
+          "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
+        ),# uiOutput(ns("download_para")),
+        fluidRow(
+          column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
+          column(width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
+          column(width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
+        )
+      )
     })
 
 
-    output$get_the_data <- renderUI({
-      req(TEST() != "")
-      downloadButton(ns("dl_data"), label = "Raw data")
-    })
+    # output$get_the_report <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("dl_report"), label = "Text report")
+    # })
+
+
+    # output$get_the_data <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("dl_data"), label = "Raw data")
+    # })
 
     
     
-    output$get_shape_data <- renderUI({
-      req(TEST() != "")
-      downloadButton(ns("shapefile_dl"), label = "Shapefile")
-    })
+    # output$get_shape_data <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("shapefile_dl"), label = "Shapefile")
+    # })
     
 
 
