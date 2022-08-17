@@ -23,7 +23,7 @@ HTML("<h2><section style='font-size:20pt'>Geography</h2>"),
         "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
         "A Census block group" = "tracts"
       ), # multiple = F,
-      selected = "ctus"
+      selected = "tracts"
     ),
     # hr(),
 
