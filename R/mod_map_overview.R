@@ -246,7 +246,7 @@ mod_map_overview_server <- function(input, output, session,
       )) %>%
       groupOptions(
         group = "Trees",
-        zoomLevels = 11:18
+        zoomLevels = 10:18
       )
     # groupOptions(
     #       group = "Road outlines",
