@@ -15,14 +15,14 @@ mod_report_ui <- function(id) {
     
     shinyWidgets::useShinydashboard(),
     # ,
-    (uiOutput(ns("geoarea"))),
-    br(),
-    fluidRow(uiOutput(ns("treecanopy_box"))
-    ),
-    fluidRow(uiOutput(ns("priority_box"))),
-    fluidRow(uiOutput(ns("disparity_box"))),
-    fluidRow(uiOutput(ns("temp_box"))), 
-    fluidRow(uiOutput(ns("download_box")))
+    # (uiOutput(ns("geoarea"))),
+    # br(),
+    fluidRow(uiOutput(ns("fullreport_box"))),
+    # fluidRow(uiOutput(ns("treecanopy_box"))),
+    # fluidRow(uiOutput(ns("priority_box"))),
+    # fluidRow(uiOutput(ns("disparity_box"))),
+    # fluidRow(uiOutput(ns("temp_box"))), 
+    # fluidRow(uiOutput(ns("download_box")))
   )
 }
 
@@ -125,20 +125,21 @@ mod_report_server <- function(id,
       return(equityplot)
     })
 
-    output$geoarea <- renderUI({
-      ns <- session$ns
-      tagList(
-        HTML(paste0(
-          "<h2><section style='font-size:20pt'>Growing Shade report for ",
-          if (geo_selections$selected_geo == "tracts") {
-            # param_fancytract()
-            param_areasummary()$fancyname
-          } else {
-            param_area()
-          }, "</h2></section>"
-        ))
-      )
-    })
+    # output$geoarea <- renderUI({
+    #   ns <- session$ns
+    #   tagList(
+    #     HTML(paste0(
+    #       "<h2><section style='font-size:20pt'>Growing Shade report for ",
+    #       if (geo_selections$selected_geo == "tracts") {
+    #         # param_fancytract()
+    #         param_areasummary()$fancyname
+    #       } else {
+    #         param_area()
+    #       }, "</h2></section>"
+    #     ))
+    #   )
+    # })
+    
 
     tree_text <- reactive({
       req(TEST() != "")
@@ -1069,91 +1070,181 @@ mod_report_server <- function(id,
     #   plotOutput(ns("other_plot"), "300px", width = "80%")
     # })
     
-    output$treecanopy_box <- renderUI({
+    output$fullreport_box <- renderUI({
       req(TEST() != "")
       
       shinydashboard::box(
-        title = ("Tree canopy"),
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        (tree_text()),# uiOutput(ns("tree_para")),
-        # uiOutput(ns("get_tree_plot"))
-        fluidRow(
-          align = "center",
-          imageOutput(ns("tree_plot"), height = "100%", width = "100%")
-        ))
-    })
-    
-    output$priority_box <- renderUI({
-      req(TEST() != "")
-      
-      shinydashboard::box(
-        title = "Prioritization",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        rank_text(), #uiOutput(ns("rank_para")),
-        # uiOutput(ns("get_rank_plot")),
-        fluidRow(
-          align = "center",
-          imageOutput(ns("rank_plot"), height = "100%", width = "100%") 
+        title = (
+          HTML(paste0(
+            "<h2><section style='font-size:20pt;line-height:1'>Growing Shade report for ",
+            # "<h2><section style='font-size:20pt; line-height:1' color='#000000' background='##0054a4'>Growing Shade report for ",
+            if (geo_selections$selected_geo == "tracts") {
+              # param_fancytract()
+              param_areasummary()$fancyname
+            } else {
+              param_area()
+            }, "</h2></section>"
+          ))
         ),
-        br(),
-        tableOutput(ns("priority_table"))
-      )
-    })
-    
-    output$disparity_box <- renderUI({
-      req(TEST() != "")
-
-      shinydashboard::box(
-        title = "Race & income disparities",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        equity_text(), #uiOutput(ns("equity_para")),
-        # uiOutput(ns("get_equity_plot")),
-        fluidRow(
-          align = "center",
-          imageOutput(ns("equity_plot"), height = "100%", width = "100%")
-        )
-      )
-    })
-    
-    output$temp_box <- renderUI({
-      req(TEST() != "")
-      
-      shinydashboard::box(
-        title = "Temperature",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        heat_text(), #uiOutput(ns("heat_para")),
-        fluidRow(
-          align = "center",
-          imageOutput(ns("temp_plot"), height = "100%", width = "100%")
-        )
-        # uiOutput(ns("get_temp_plot"))
-      )
-    })
-    
-    output$download_box <- renderUI({
-      req(TEST() != "")
-      
-      shinydashboard::box(
-        title = "Download data",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        HTML("<section class='d-none d-lg-block'>
+        width = 12,
+        collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", 
+        solidHeader = T, 
+        collapsible = TRUE,
+        
+        fluidRow(shinydashboard::box(
+          title = ("Tree canopy"),
+          width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+          status = "danger", solidHeader = F, collapsible = TRUE,
+          (tree_text()),
+          fluidRow(
+            align = "center",
+            imageOutput(ns("tree_plot"), height = "100%", width = "100%")
+          ))),
+        
+        fluidRow(shinydashboard::box(
+          title = "Prioritization",
+          width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+          status = "danger", solidHeader = F, collapsible = TRUE,
+          rank_text(), #uiOutput(ns("rank_para")),
+          # uiOutput(ns("get_rank_plot")),
+          fluidRow(
+            align = "center",
+            imageOutput(ns("rank_plot"), height = "100%", width = "100%") 
+          ),
+          br(),
+          tableOutput(ns("priority_table"))
+        )),
+        
+        fluidRow(shinydashboard::box(
+          title = "Race & income disparities",
+          width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+          status = "danger", solidHeader = F, collapsible = TRUE,
+          equity_text(), #uiOutput(ns("equity_para")),
+          # uiOutput(ns("get_equity_plot")),
+          fluidRow(
+            align = "center",
+            imageOutput(ns("equity_plot"), height = "100%", width = "100%")
+          )
+        )),
+        
+        fluidRow(shinydashboard::box(
+          title = "Temperature",
+          width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+          status = "danger", solidHeader = F, collapsible = TRUE,
+          heat_text(), #uiOutput(ns("heat_para")),
+          fluidRow(
+            align = "center",
+            imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+          )
+          # uiOutput(ns("get_temp_plot"))
+        )),
+        
+      fluidRow(shinydashboard::box(
+          title = "Download data",
+          width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+          status = "danger", solidHeader = F, collapsible = TRUE,
+          HTML("<section class='d-none d-lg-block'>
              Use the buttons below to download a version of this report which can be printed or shared. 
              The raw data may also be downloaded as an excel or shapefile.<br></section>"),# uiOutput(ns("download_para")),
-        HTML("<section class='d-block d-lg-none'>
+          HTML("<section class='d-block d-lg-none'>
              Download a complete version of this report. 
              Use a desktop computer to download raw data or shapefiles.<br></section>"),# uiOutput(ns("download_para")),
-        fluidRow(
-          column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
-          column(class='d-none d-lg-block', width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
-          column(class='d-none d-lg-block', width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
-        )
+          fluidRow(
+            column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
+            column(class='d-none d-lg-block', width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
+            column(class='d-none d-lg-block', width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
+          )
+        ))
+        
       )
     })
+    
+    # output$treecanopy_box <- renderUI({
+    #   req(TEST() != "")
+    #   
+    #   shinydashboard::box(
+    #     title = ("Tree canopy"),
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     (tree_text()),# uiOutput(ns("tree_para")),
+    #     # uiOutput(ns("get_tree_plot"))
+    #     fluidRow(
+    #       align = "center",
+    #       imageOutput(ns("tree_plot"), height = "100%", width = "100%")
+    #     ))
+    # })
+    
+    # output$priority_box <- renderUI({
+    #   req(TEST() != "")
+    #   
+    #   shinydashboard::box(
+    #     title = "Prioritization",
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     rank_text(), #uiOutput(ns("rank_para")),
+    #     # uiOutput(ns("get_rank_plot")),
+    #     fluidRow(
+    #       align = "center",
+    #       imageOutput(ns("rank_plot"), height = "100%", width = "100%") 
+    #     ),
+    #     br(),
+    #     tableOutput(ns("priority_table"))
+    #   )
+    # })
+    
+    # output$disparity_box <- renderUI({
+    #   req(TEST() != "")
+    # 
+    #   shinydashboard::box(
+    #     title = "Race & income disparities",
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     equity_text(), #uiOutput(ns("equity_para")),
+    #     # uiOutput(ns("get_equity_plot")),
+    #     fluidRow(
+    #       align = "center",
+    #       imageOutput(ns("equity_plot"), height = "100%", width = "100%")
+    #     )
+    #   )
+    # })
+    
+    # output$temp_box <- renderUI({
+    #   req(TEST() != "")
+    #   
+    #   shinydashboard::box(
+    #     title = "Temperature",
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     heat_text(), #uiOutput(ns("heat_para")),
+    #     fluidRow(
+    #       align = "center",
+    #       imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+    #     )
+    #     # uiOutput(ns("get_temp_plot"))
+    #   )
+    # })
+    
+    # output$download_box <- renderUI({
+    #   req(TEST() != "")
+    #   
+    #   shinydashboard::box(
+    #     title = "Download data",
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     HTML("<section class='d-none d-lg-block'>
+    #          Use the buttons below to download a version of this report which can be printed or shared. 
+    #          The raw data may also be downloaded as an excel or shapefile.<br></section>"),# uiOutput(ns("download_para")),
+    #     HTML("<section class='d-block d-lg-none'>
+    #          Download a complete version of this report. 
+    #          Use a desktop computer to download raw data or shapefiles.<br></section>"),# uiOutput(ns("download_para")),
+    #     fluidRow(
+    #       column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
+    #       column(class='d-none d-lg-block', width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
+    #       column(class='d-none d-lg-block', width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
+    #     )
+    #   )
+    # })
 
 
     # output$get_the_report <- renderUI({
