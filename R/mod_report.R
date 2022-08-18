@@ -17,8 +17,7 @@ mod_report_ui <- function(id) {
     # ,
     (uiOutput(ns("geoarea"))),
     br(),
-    fluidRow(uiOutput(ns("treecanopy_box"))
-    ),
+    fluidRow(uiOutput(ns("treecanopy_box"))),
     fluidRow(uiOutput(ns("priority_box"))),
     fluidRow(uiOutput(ns("disparity_box"))),
     fluidRow(uiOutput(ns("temp_box"))), 
@@ -1080,7 +1079,13 @@ mod_report_server <- function(id,
         # uiOutput(ns("get_tree_plot"))
         fluidRow(
           align = "center",
-          imageOutput(ns("tree_plot"), height = "100%", width = "100%")
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(
+              {req(TEST() != "")
+                report_tree_plot()} # , res = 150)
+              )
+             #plotOutput(ns("tree_plot"), "200px", width = "100%") #renderPlot, plotOutput
+          } else {imageOutput(ns("tree_plot"), height = "100%", width = "100%")}
         ))
     })
     
