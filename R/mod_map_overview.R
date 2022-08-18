@@ -277,11 +277,11 @@ mod_map_overview_server <- function(input, output, session,
         "Emerald ash borer",
         "Historically redlined areas",
         "Road outlines"
-      )) %>%
-      groupOptions(
-        group = "Trees",
-        zoomLevels = 15:18
-      )
+      )) #%>%
+      # groupOptions(
+      #   group = "Trees",
+      #   zoomLevels = 15:18
+      # )
     # groupOptions(
     #       group = "Road outlines",
     #       zoomLevels = 13:13# 13:18
