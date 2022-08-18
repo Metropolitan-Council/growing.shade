@@ -106,7 +106,7 @@ mod_map_overview_server <- function(input, output, session,
       addMapPane(name = "geooutline2", zIndex = 152) %>%
       addMapPane("redline", zIndex = 160) %>%
       # addMapPane("trans", zIndex = 200) %>%
-      addMapPane("EAB", zIndex = 201) %>%
+      # addMapPane("EAB", zIndex = 201) %>%
       addMapPane("outline", zIndex = 250) %>%
       addMapPane("labels", zIndex = 251) %>%
       addMapPane("Trees", zIndex = 130) %>%
@@ -170,21 +170,21 @@ mod_map_overview_server <- function(input, output, session,
       #   fillColor = "black",
       #   options = pathOptions(pane = "trans")
       # ) %>%
-      addCircles(
-        data = eab,
-        group = "Emerald ash borer",
-        # layerId = NULL,
-        radius = 15,
-        fill = T,
-        stroke = TRUE,
-        weight = 4,
-        opacity = 1,
-        fillOpacity = .8,
-        color = "#6a3d9a",
-        fillColor = "white",
-        options = pathOptions(pane = "EAB"),
-        label = "EAB infested tree"
-      ) %>%
+      # addCircles(
+      #   data = eab,
+      #   group = "Emerald ash borer",
+      #   # layerId = NULL,
+      #   radius = 15,
+      #   fill = T,
+      #   stroke = TRUE,
+      #   weight = 4,
+      #   opacity = 1,
+      #   fillOpacity = .8,
+      #   color = "#6a3d9a",
+      #   fillColor = "white",
+      #   options = pathOptions(pane = "EAB"),
+      #   label = "EAB infested tree"
+      # ) %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -250,7 +250,6 @@ mod_map_overview_server <- function(input, output, session,
       #   fill = F,
       #   opacity = 1,
       #   options = pathOptions(pane = "geooutline2"),
-      #   layerId = ~GEO_NAME
       # ) %>%
 
       ### add layer control
@@ -267,14 +266,14 @@ mod_map_overview_server <- function(input, output, session,
           # "Active transit stops",
           "Road outlines",
           "Historically redlined areas",
-          "Emerald ash borer",
+          # "Emerald ash borer",
           "Jurisdiction outlines" # ,
         ),
         options = layersControlOptions(collapsed = T)
       ) %>%
       hideGroup(c(
         # "Active transit stops",
-        "Emerald ash borer",
+        # "Emerald ash borer",
         "Historically redlined areas",
         "Road outlines"
       )) #%>%
