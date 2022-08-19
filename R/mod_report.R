@@ -1075,15 +1075,11 @@ mod_report_server <- function(id,
         title = ("Tree canopy"),
         width = 12, collapsed = shinybrowser::get_device() == "Mobile",
         status = "danger", solidHeader = F, collapsible = TRUE,
-        (tree_text()),# uiOutput(ns("tree_para")),
-        # uiOutput(ns("get_tree_plot"))
+        (tree_text()),
         fluidRow(
           align = "center",
           if(shinybrowser::get_device() == "Mobile") {
-            renderPlot(
-              {req(TEST() != "")
-                report_tree_plot()} # , res = 150)
-              )
+            renderPlot(report_tree_plot())
              #plotOutput(ns("tree_plot"), "200px", width = "100%") #renderPlot, plotOutput
           } else {imageOutput(ns("tree_plot"), height = "100%", width = "100%")}
         ))
@@ -1096,11 +1092,13 @@ mod_report_server <- function(id,
         title = "Prioritization",
         width = 12, collapsed = shinybrowser::get_device() == "Mobile",
         status = "danger", solidHeader = F, collapsible = TRUE,
-        rank_text(), #uiOutput(ns("rank_para")),
-        # uiOutput(ns("get_rank_plot")),
+        rank_text(),
         fluidRow(
           align = "center",
-          imageOutput(ns("rank_plot"), height = "100%", width = "100%") 
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(report_rank_plot())
+            } else {
+              imageOutput(ns("rank_plot"), height = "100%", width = "100%") }
         ),
         br(),
         tableOutput(ns("priority_table"))
@@ -1118,7 +1116,10 @@ mod_report_server <- function(id,
         # uiOutput(ns("get_equity_plot")),
         fluidRow(
           align = "center",
-          imageOutput(ns("equity_plot"), height = "100%", width = "100%")
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(report_equity_plot())
+          } else {
+            imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
         )
       )
     })
@@ -1133,7 +1134,11 @@ mod_report_server <- function(id,
         heat_text(), #uiOutput(ns("heat_para")),
         fluidRow(
           align = "center",
-          imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+          # if(shinybrowser::get_device() == "Mobile") {
+            # renderPlot(report_temp_plot())
+          # } else {
+            imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+            # }
         )
         # uiOutput(ns("get_temp_plot"))
       )
