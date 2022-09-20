@@ -10,11 +10,12 @@ output: html_document
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = TRUE,
                       cache.path = "cache/")
-library(tidyverse)
 library(tigris)
 library(sf)
 library(cowplot)
 library(leaflet)
+library(tidyverse)
+library(councilR)
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
 
@@ -23,13 +24,13 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 
 ```{r}
 
-df1 <- bg_growingshade_main %>%
+df1 <- bg_growingshade_main_allMN %>% #bg_growingshade_data_allMN
   filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi", "pop_density")) %>%
-        select(tract_string, variable, raw_value) %>%
+        dplyr::select(tract_string, variable, raw_value) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
 
 df <- df1 %>%
-        select(canopy_percent, mdhhincnow, pbipoc) %>%
+        dplyr::select(canopy_percent, mdhhincnow, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(canopy_percent)) %>%
         mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value))
 
@@ -40,7 +41,7 @@ fig_equity <-
           method = "gam", formula = y ~ s(x, bs = "cs"),
           fill = NA, col = councilR::colors$councilBlue, na.rm = T
         ) +
-        councilR::council_theme()  +
+        councilR::theme_council()  +
         facet_wrap(~names,
           scales = "free", nrow = 1, strip.position = "bottom",
           labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
@@ -85,7 +86,7 @@ ggsave("fig_equity.png",fig_equity,  width = 10, height = 5, units = "in", devic
 Hi income neighborhood:
 
 ```{r}
-hinc <- mn_bgs %>% select(GEOID) %>%
+hinc <- mn_bgs %>% dplyr::select(GEOID) %>%
   rename(tract_string=GEOID) %>%
   right_join(df1 %>%
                filter(mdhhincnow > 100000,
@@ -121,7 +122,7 @@ Low income neighborhood
 ```{r}
 
 
-hinc <- mn_bgs %>% select(GEOID) %>%
+hinc <- mn_bgs %>% dplyr::select(GEOID) %>%
   rename(tract_string=GEOID) %>%
   right_join(df1 %>%
                filter(mdhhincnow < 80000,
@@ -172,7 +173,7 @@ ndvilabs <- c(
     )
 
 df <- df1 %>%
-        select(avg_temp, ndvi)
+        dplyr::select(avg_temp, ndvi)
 
       tempplot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
         geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = T) +
@@ -217,10 +218,10 @@ redline
 
 ```{r}
 rl <- bg_growingshade_data %>%
-  select(tract_string, holc_pred, holc_pgrn, holc_pblu, holc_pylw, canopy_percent, ndvi, avg_temp) %>% #
+  dplyr::select(tract_string, holc_pred, holc_pgrn, holc_pblu, holc_pylw, canopy_percent, ndvi, avg_temp) %>% #
   mutate_all(~replace(., . == 0, NA)) %>%
   mutate(flag = if_else(is.na(holc_pred) & is.na(holc_pblu) & is.na(holc_pgrn) & is.na(holc_pylw), "remove", "keep")) %>%
-  filter(flag == "keep") %>% select(-flag) %>%
+  filter(flag == "keep") %>% dplyr::select(-flag) %>%
   pivot_longer(names_to = "holc", values_to = "percent", -c(tract_string, avg_temp, canopy_percent, ndvi)) %>%
   filter(!is.na(percent)) %>%
   mutate(grade = case_when(holc == "holc_pred" ~ "D (redlined)",
@@ -281,7 +282,7 @@ Doc with canopy cover by community
 library(tidyverse); library(sf)
 ctu_list %>%
   st_drop_geometry() %>%
-  dplyr::select(GEO_NAME, canopy_percent, min, max) %>%
+  dplyr::dplyr::select(GEO_NAME, canopy_percent, min, max) %>%
   mutate(min = min/100,
          max = max / 100) %>%
   rename(`CTU Name` = "GEO_NAME",
