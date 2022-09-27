@@ -20,6 +20,8 @@ library(sf)
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
 
+# ggbeeswarm needs to be downloaded from github: 
+#   devtools::install_github("eclarke/ggbeeswarm")
 
 
 # # block group issues
@@ -36,36 +38,34 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 # focus on areas where population density is above some threshold
 ```
 
-
-
 # Introduction
 
-The Growing Shade Project couples remote sensing data and demographic data to create insights about the intersection between the natural environment and people in real-time. 
+The Growing Shade Project couples remote sensing data and demographic data to create insights about the intersection between the natural environment and people in real-time.
 
-Because there are several steps which must be done in order, this document lays those steps out logically. 
+Because there are several steps which must be done in order, this document lays those steps out logically.
 
 These are the files that must be in the data folder:
 
-- mn_tracts.rda
-- eva_data_main.rda
-- metadata.rda
-- ctu_list.rda
-- nhood_list.rda
-- redline.rda
-- trans_stops.rda
-- ctu_crosswalk.rda
-- nhood_crosswalk.rda
-- metc_region.rda
+-   mn_tracts.rda
+-   eva_data_main.rda
+-   metadata.rda
+-   ctu_list.rda
+-   nhood_list.rda
+-   redline.rda
+-   trans_stops.rda
+-   ctu_crosswalk.rda
+-   nhood_crosswalk.rda
+-   metc_region.rda
 
 # Set parameters
 
-There are different years available, different geographies, etc. 
+There are different years available, different geographies, etc.
 
 ## Redlining shapefile
 
-HOLC Redlining; this data was originally in equity considerations dataset, but that data uses old 2010 geographies, so need to actually get the data. 
+HOLC Redlining; this data was originally in equity considerations dataset, but that data uses old 2010 geographies, so need to actually get the data.
 
-Remove open water. "all non residential" 
+Remove open water. "all non residential"
 
 ```{r holc}
 ## holc  ---------------
@@ -106,7 +106,7 @@ First we need to fetch various raw files to get geographic files
 
 ### Census block groups
 
-Most data is shown at the census block group level. We are using 2020 era census geographies. 
+Most data is shown at the census block group level. We are using 2020 era census geographies.
 
 ```{r census-geography}
 bg_geo_2010 <- tigris::block_groups(state = "MN", 
@@ -128,8 +128,8 @@ bg_geo <- tigris::block_groups(state = "MN", year = 2020) %>%
 
 Since we're going to be making a map which shows census tracts, ctus, or neighborhoods depending on the user input, do the following to make a crosswalk relating block groups to the city and neighborhood levels:
 
-- get geography of neighborhoods and cities
- - find the centroid and zoom level of area (for reactive zooming, if I want to re-implement that)
+-   get geography of neighborhoods and cities
+-   find the centroid and zoom level of area (for reactive zooming, if I want to re-implement that)
 
 ```{r ctu-nhood-geo}
 # find centroid of geographies
@@ -205,7 +205,7 @@ file.remove(files)
 
 ```
 
-- Then make a crosswalk which relates block groups into neighborhoods and cities. For this step, it is useful to remove major river features (boundaries around rivers often are poorly aligned, removing rivers makes generating the crosswalk much cleaner)
+-   Then make a crosswalk which relates block groups into neighborhoods and cities. For this step, it is useful to remove major river features (boundaries around rivers often are poorly aligned, removing rivers makes generating the crosswalk much cleaner)
 
 ```{r ctu-nhood-crosswalk}
 temp <- tempfile()
@@ -315,7 +315,7 @@ bg_land_geo <- calc_land_area(bg_geo)
 
 ```
 
-# Remote sensing data 
+# Remote sensing data
 
 These items come out of Google Earth Engine analyses. Some files need to be created/exported (and then imported into GEE), and all GEE exports need to be pulled in to this code.
 
@@ -358,14 +358,13 @@ These items come out of Google Earth Engine analyses. Some files need to be crea
 # 
 ```
 
+## Calculate and calibrate tree canopy coverage
 
-## Calculate and calibrate tree canopy coverage 
+For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file.
 
-For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file. 
+Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!).
 
-Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!). 
-
-Calibration coeff is 0.885246, meaning that sentinel sees about 11% more trees; or detects area with at least 89% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 885 (890) acres. 
+Calibration coeff is 0.885246, meaning that sentinel sees about 11% more trees; or detects area with at least 89% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 885 (890) acres.
 
 ```{r, calibrate-tree-cover}
 calibrate_trees <- read_csv("../data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% 
@@ -465,12 +464,10 @@ canopy_nhood %>%
 
 ```
 
-
-- process GEE code to link canopy with geography
-  - GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
-  - https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59
-
-- bind everything together for city and nhood
+-   process GEE code to link canopy with geography
+    -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+    -   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
+-   bind everything together for city and nhood
 
 ```{r tree-canopy-summaries}
 tree_summary <- function(.geo_file,
@@ -512,12 +509,9 @@ ctu_list_raw <- tree_summary(.geo_file = ctu_geo,
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 ```
 
-
-
 ## Greenness (NDVI) Data
 
 We do this for all land (no water!) and non-cultivated land (excluding crops/ag land).
-
 
 ```{r ndvi_bgs}
 ndvi_uncultivated <- 
@@ -549,7 +543,7 @@ Demographic variables come from various places.
 
 ## Decennial census
 
-Has information about race and total population numbers. 
+Has information about race and total population numbers.
 
 ```{r decennial-census-race}
 temp <- tempfile()
@@ -640,11 +634,9 @@ bg_acs <- acs %>%
 
 ```
 
-
-
 ## Equity considerations data
 
-This dataset has been *replaced* because it does not have current geographies. 
+This dataset has been *replaced* because it does not have current geographies.
 
 ```{r equity-considerations-data}
 # equity_bg <- read_csv("/Volumes/shared/CommDev/Research/Research/EquityConsiderationsData/2_OutputData/CSV/Release_20210225/EquityConsiderationsBlockGroups.csv",
@@ -698,13 +690,12 @@ readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
 
 ```
 
-
-
 ## Health data from CDC
-- Enter in the console: `usethis::edit_r_environ()`
-- When the `.Renviron` file comes up in the editor, type: `CDC_KEY="KEY GOES HERE, INSIDE QUOTES"`
-- Save and close the `.Renviron` file.
-- Hit Ctrl+Shift+F10 to restart R.
+
+-   Enter in the console: `usethis::edit_r_environ()`
+-   When the `.Renviron` file comes up in the editor, type: `CDC_KEY="KEY GOES HERE, INSIDE QUOTES"`
+-   Save and close the `.Renviron` file.
+-   Hit Ctrl+Shift+F10 to restart R.
 
 [PLACES: Local Data for Better Health, Census Tract Data 2021 release](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh)
 
@@ -789,9 +780,10 @@ bg_health3 <- bg_health2 %>%
   filter(!is.na(bg2020_id)) %>%
   rename(bg20 = bg2020_id) %>% dplyr::select(-tr10)
 ```
+
 # Combine all variables
 
-Merge demographic and environmental data 
+Merge demographic and environmental data
 
 ```{r combinedata}
 bg_growingshade_data_allMN <- 
@@ -881,8 +873,7 @@ filter(bg_growingshade_data_allMN, is.na(tr_medianhhinc))
 # fs::file_delete("CensusACSTract.xlsx")
 ```
 
-
-Add some metadata. 
+Add some metadata.
 
 ```{r make-metadata}
 gs_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
@@ -925,7 +916,7 @@ gs_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~e
                           )
 ```
 
-Standardize and re-scale variables so we can create equally weighted priority scores. Do *not* include spatial data at this point, it should be joined after summarizing to save computational time. 
+Standardize and re-scale variables so we can create equally weighted priority scores. Do *not* include spatial data at this point, it should be joined after summarizing to save computational time.
 
 ```{r standardize-rescale}
 
@@ -1020,8 +1011,8 @@ bg_growingshade_main_allMN <- bg_growingshade_data_allMN %>%
 # Create independant files for export
 
 ## Regional averages
-Create some regional averages. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
 
+Create some regional averages. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income.
 
 ```{r regional-averages}
 # ########
@@ -1091,11 +1082,9 @@ usethis::use_data(metadata, overwrite = TRUE)
 
 ```
 
-
-
 ## Highest priority for each block group
 
-For storymap and to make database. 
+For storymap and to make database.
 
 ```{r}
 highest_p <- function(x) {
@@ -1132,7 +1121,6 @@ priority_summary <- priority_summary_1 %>%
   rename(GEOID = bg_string)
 
 ```
-
 
 highest priority all
 
@@ -1178,7 +1166,6 @@ bg_geo %>%
 
 # Export data
 
-
 ```{r bg_shapefiles_for_mapping}
 
 mn_bgs_raw <- bg_geo %>%
@@ -1218,7 +1205,6 @@ metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st
 usethis::use_data(metc_region, overwrite = TRUE)
 
 ```
-
 
 # Simplify data for speed
 
@@ -1297,6 +1283,7 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 ```
 
 STOP running
+
 ```{r}
 filter(bg_growingshade_data, alkdjf ="daklsjf;")
 
@@ -1317,7 +1304,6 @@ this geoid is being tricky
 filter(bg_acs,bg20 == "270539800001") %>% data.frame()
 filter(bg_acs,bg20 == "270539800001")
 ```
-
 
 # Export for PlanIt
 
@@ -1415,7 +1401,6 @@ sf::st_write(highestp_exp, "/Users/escheh/Documents/GitHub/planting.shade/storym
 
 ```
 
-
 ```{r treetrust-fig, include=F, eval=F}
 # https://www.bls.gov/cpi/tables/supplemental-files/historical-cpi-u-202111.pdf
 cpi05 <- 193.2
@@ -1438,10 +1423,9 @@ tribble(~`Benefits`, ~`Total ($)`, ~`SE ($)`, ~`$/tree`, ~`SE ($/tree)`, ~`$/cap
 
 # carbon by tree stands from USForest Service EVALIDATOR
 
-adapted from: https://extension.umn.edu/managing-woodlands/carbon-minnesota-trees-and-woodlands#manage-for-carbon-storage-2244060
+adapted from: <https://extension.umn.edu/managing-woodlands/carbon-minnesota-trees-and-woodlands#manage-for-carbon-storage-2244060>
 
-access on web at: https://apps.fs.usda.gov/Evalidator/rest/Evalidator/fullreport?reptype=State&lat=0&lon=0&radius=0&snum=Aboveground and belowground carbon in live trees (at least 1 inch d.b.h./d.r.c), in short tons, on forest land&sdenom=Area of forest land, in acres&wc=272019&pselected=None&rselected=Forest Type MnDNR&cselected=Stand age 20 yr classes (0 to 100 plus)&ptime=Current&rtime=Current&ctime=Current&wf=&wnum=&wnumdenom=&FIAorRPA=FIADEF&outputFormat=HTML&estOnly=Y&schemaName=FS_FIADB.
-
+access on web at: <https://apps.fs.usda.gov/Evalidator/rest/Evalidator/fullreport?reptype=State&lat=0&lon=0&radius=0&snum=Aboveground> and belowground carbon in live trees (at least 1 inch d.b.h./d.r.c), in short tons, on forest land&sdenom=Area of forest land, in acres&wc=272019&pselected=None&rselected=Forest Type MnDNR&cselected=Stand age 20 yr classes (0 to 100 plus)&ptime=Current&rtime=Current&ctime=Current&wf=&wnum=&wnumdenom=&FIAorRPA=FIADEF&outputFormat=HTML&estOnly=Y&schemaName=FS_FIADB.
 
 ```{r carbon-stand-age, include = F, eval = F}
 usfs <- readxl::read_xlsx("../data-raw/evalidator fsusda.xlsx", 
@@ -1509,9 +1493,6 @@ ggsave("./usfs_fig.jpg", usfs_fig,  width = 8, height = 5, units = "in", device 
 
 ```
 
-
-
-
 ```{r testdl, include=F, eval=F}
 # eh<-  sf::read_sf("/Users/escheh/Downloads/Data_shpExport/BufferedTracks.shp")
 # 
@@ -1519,7 +1500,6 @@ ggsave("./usfs_fig.jpg", usfs_fig,  width = 8, height = 5, units = "in", device 
 #   ggplot() +
 #   geom_sf(aes(fill = Prcnttc))
 ```
-
 
 ampo
 
@@ -1535,6 +1515,3 @@ car::Anova(lm(canopy_percent ~ pbipoc, data = a))
 mn_bgs %>% sf::st_drop_geometry() %>% group_by(highest_priority) %>% count() %>%
   mutate(n = n/ nrow(mn_bgs))
 ```
-
-
-
