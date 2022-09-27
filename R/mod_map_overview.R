@@ -10,8 +10,42 @@
 #' @import waiter
 mod_map_overview_ui <- function(id) {
   ns <- NS(id)
+  
+  js_map <- "@media (max-width: 765px) {
+   /* #map {width: 50% !important;} */
+   div#map_overview_ui_1-map {
+    width: 95% !important;
+    height: 55vh !important;
+    visibility: inherit;
+    position: relative;
+    right: 5em;
+    left: 0em;
+    bottom:2em;
+   }
+   .navbar-right{
+   float: right !important;
+   }
+   body{padding-top:15px;}
+   }
+  }
+
+  "
+  
+  # .leaflet-pane leaflet-map-pane{
+  #   transform: translate3d(-6.75px, -71.1px, 0px)'
+  #  }
+  #  .leaflet-proxy leaflet-zoom-animated{
+  #  transform:translate3d(31560px, 4718px, 0px) scale(256);
+  #  }
+  # }
   tagList(
-    tags$style(type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
+    tags$style(type = "text/css", "#map {width; 100%;}"), #works
+    tags$style(HTML(js_map)),
+    #doesnt work
+    # tags$style(class = "d-none d-lg-block", #desktop
+    #            type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
+    # tags$style(class = "d-block d-lg-none",#mobile
+    #            type = "text/css", "#map {width; 95% !important;}"),
     useWaiter(),
     # waiter::useWaitress(color = "blue"),
 
@@ -124,7 +158,33 @@ mod_map_overview_server <- function(input, output, session,
         group = "Map",
         options = pathOptions(pane = "Map")
       ) %>%
-     
+      #### regional specific other data layers
+      # addCircles(
+      #   data = trans_stops,
+      #   group = "Active transit stops",
+      #   radius = 20,
+      #   fill = T,
+      #   stroke = TRUE,
+      #   weight = 2,
+      #   color = "black",
+      #   fillColor = "black",
+      #   options = pathOptions(pane = "trans")
+      # ) %>%
+      # addCircles(
+      #   data = eab,
+      #   group = "Emerald ash borer",
+      #   # layerId = NULL,
+      #   radius = 15,
+      #   fill = T,
+      #   stroke = TRUE,
+      #   weight = 4,
+      #   opacity = 1,
+      #   fillOpacity = .8,
+      #   color = "#6a3d9a",
+      #   fillColor = "white",
+      #   options = pathOptions(pane = "EAB"),
+      #   label = "EAB infested tree"
+      # ) %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -190,7 +250,6 @@ mod_map_overview_server <- function(input, output, session,
       #   fill = F,
       #   opacity = 1,
       #   options = pathOptions(pane = "geooutline2"),
-      #   layerId = ~GEO_NAME
       # ) %>%
 
       ### add layer control
@@ -217,11 +276,11 @@ mod_map_overview_server <- function(input, output, session,
         # "Emerald ash borer",
         "Historically redlined areas",
         "Road outlines"
-      )) %>%
-      groupOptions(
-        group = "Trees",
-        zoomLevels = 13:18
-      )
+      )) #%>%
+      # groupOptions(
+      #   group = "Trees",
+      #   zoomLevels = 15:18
+      # )
     # groupOptions(
     #       group = "Road outlines",
     #       zoomLevels = 13:13# 13:18
