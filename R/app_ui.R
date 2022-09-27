@@ -35,12 +35,65 @@ app_ui <- function(request) {
         float: none;
     }
     .navbar-nav>li>a {
-        padding-top: 10px;
-        padding-bottom: 10px;
+/*        padding-top: 10px;*/
+  /*      padding-bottom: 10px;*/
     }
     .collapse.in{
         display:block !important;
     }
+
+
+.navbar-brand{
+padding:0 0!important
+}
+.navbar-default{
+font-size: 12pt!important;
+height: 65px !important
+}
+.nav>li>a{
+padding: 1px 1px
+}
+.navbar-fixed-bottom .navbar-collapse, .navbar-fixed-top .navbar-collapse {
+max-height: 500px;
+}
+.body{
+padding-top:0px
+}
+
+.nav>li>a {
+    position: relative;
+    display: inline!important;
+    padding: 0px 15px;
+}
+navbar-default .navbar-nav>li>a {
+    color: var(--council-blue);
+    height: 10px!important;
+    padding-top: 5px!important;
+    padding-bottom: 5px!important;
+}
+
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+    color: var(--council-blue);
+    background-color: #d6d6d6;
+  /*  height: 45px;*/
+    padding: 5px !important;
+}
+
+.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+    color: var(--council-blue);
+     background-color: #d6d6d6; 
+    padding: 5px;
+}
+a {
+    padding: 0px!important;
+}
+
+
+
+@media (max-width: 454px) {
+.navbar-brand{
+display:none!important
+}
 }"
   
   
@@ -89,13 +142,14 @@ app_ui <- function(request) {
       tabPanel(
         "HOME",
         # id = "B",
-        br(), # br(),
+        # br(), # br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
         "Mapping tool",
         tags$footer(
-          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-04-21. '),
+          class = 'd-none d-lg-block',#desktop
+          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-05-04. '),
           align = "right",
           style = "
               position:absolute;
@@ -121,9 +175,10 @@ app_ui <- function(request) {
 
               # width = 2,
               HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # h1("Welcome to the Growing Shade mapping tool"),
-              br(),
-              p(
+              # HTML("<h1><section style='font-size: 22pt;' class='d-none d-lg-block'>Welcome to the Growing Shade mapping tool</h1></section>"),
+              # HTML("<h1><section style='font-size: 16pt;' class='d-block d-lg-none'>Welcome to the Growing Shade mapping tool</h1></section>"),
+              br(class="d-none d-lg-block"),
+              p(class="d-none d-lg-block",
                 "Please refer to the ", a("text user guide",
                   href = "www/Growing Shade User Guide (January 2022).pdf",
                   .noWS = "outside",
@@ -135,6 +190,19 @@ app_ui <- function(request) {
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021."
               ),
+              
+              p(class="d-block d-lg-none", 
+                "Please refer to the ", a("text user guide",
+                                          href = "www/Growing Shade User Guide (January 2022).pdf",
+                                          .noWS = "outside",
+                                          target = "_blank"
+                ),
+                " or a ", a("recorded webinar",
+                            href = "https://youtu.be/3SKC-29AwME?t=1944",
+                            .noWS = "outside",
+                            target = "_blank"
+                ), " for help."
+              ),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
               # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
@@ -142,10 +210,8 @@ app_ui <- function(request) {
 
               # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
-              # hr(style="margin-top: 2px; margin-bottom: 2px "),
-              br(),
-              mod_report_ui("report_ui_1") # ,
-              # mod_plot_tract_ui("plot_tract_ui_1")
+              br(class="d-none d-lg-block"),
+              mod_report_ui("report_ui_1"),
             ),
             mainPanel(
               width = 6,

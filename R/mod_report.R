@@ -11,75 +11,17 @@ mod_report_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # shinyjs::useShinyjs(),
+    shinybrowser::detect(),
+    
     shinyWidgets::useShinydashboard(),
     # ,
     (uiOutput(ns("geoarea"))),
     br(),
-    fluidRow(shinydashboard::box(
-      title = ("Tree canopy"),
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("tree_para")),
-      # uiOutput(ns("get_tree_plot"))
-      fluidRow(
-        align = "center",
-        imageOutput(ns("tree_plot"), height = "100%", width = "100%") # %>%
-        # shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
-      )
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Prioritization",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("rank_para")),
-      # uiOutput(ns("get_rank_plot")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("rank_plot"), height = "100%", width = "100%") # %>%
-        # shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
-      ),
-      br(),
-      tableOutput(ns("priority_table"))
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Race & income disparities",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("equity_para")),
-      # uiOutput(ns("get_equity_plot")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("equity_plot"), height = "100%", width = "100%")
-      )
-    )),
-    fluidRow(shinydashboard::box(
-      title = "Temperature",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("heat_para")),
-      fluidRow(
-        align = "center",
-        imageOutput(ns("temp_plot"), height = "100%", width = "100%")
-      )
-      # uiOutput(ns("get_temp_plot"))
-    )),
-    # fluidRow(shinydashboard::box(
-    #   title = "Threats",
-    #   width = 12, collapsed = F,
-    #   status = "danger", solidHeader = F, collapsible = TRUE,
-    #   uiOutput(ns("other_para"))
-    # )),
-    fluidRow(shinydashboard::box(
-      title = "Download data",
-      width = 12, collapsed = F,
-      status = "danger", solidHeader = F, collapsible = TRUE,
-      uiOutput(ns("download_para")),
-      fluidRow(
-        column(width = 4, uiOutput(ns("get_the_report"))),
-        column(width = 4, uiOutput(ns("get_the_data"))),
-        column(width = 4, uiOutput(ns("get_shape_data")))
-      )
-    ))
+    fluidRow(uiOutput(ns("treecanopy_box"))),
+    fluidRow(uiOutput(ns("priority_box"))),
+    fluidRow(uiOutput(ns("disparity_box"))),
+    fluidRow(uiOutput(ns("temp_box"))), 
+    fluidRow(uiOutput(ns("download_box")))
   )
 }
 
@@ -100,6 +42,8 @@ mod_report_server <- function(id,
                               map_util) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    
+    library(councilR)
 
     ####### things to export
     TEST <- reactive({
@@ -250,11 +194,11 @@ mod_report_server <- function(id,
       ))
     })
 
-    output$tree_para <- renderUI({
-      req(TEST() != "")
-      (tree_text())
-      # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
-    })
+    # output$tree_para <- renderUI({
+    #   req(TEST() != "")
+    #   (tree_text())
+    #   # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
+    # })
 
 
     report_tree_plot <- reactive({
@@ -288,7 +232,7 @@ mod_report_server <- function(id,
 
       if (geo_selections$selected_geo != "tracts") {
         plot <- ggplot() +
-          councilR::council_theme() +
+          councilR::theme_council() +
           theme(
             plot.title = element_text(size = 16),
             panel.grid.minor = element_blank(),
@@ -335,7 +279,7 @@ mod_report_server <- function(id,
         
       } else {
         plot <- ggplot() +
-          councilR::council_theme() +
+          councilR::theme_council() +
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
@@ -437,11 +381,11 @@ mod_report_server <- function(id,
       ))
     })
 
-    output$rank_para <- renderUI({
-      ns <- session$ns
-      req(TEST() != "")
-      rank_text()
-    })
+    # output$rank_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   rank_text()
+    # })
 
     report_rank_plot <- reactive({
       req(TEST() != "")
@@ -462,7 +406,7 @@ mod_report_server <- function(id,
 
       plot <-
         ggplot() +
-        councilR::council_theme() +
+        councilR::theme_council() +
         theme(
           axis.title.y = element_blank(),
           panel.grid.minor = element_blank(),
@@ -622,19 +566,19 @@ mod_report_server <- function(id,
       return(para)
     })
 
-    output$equity_para <- renderUI({
-      req(TEST() != "")
-      (equity_text())
-    })
+    # output$equity_para <- renderUI({
+    #   req(TEST() != "")
+    #   (equity_text())
+    # })
 
-    output$download_para <- renderUI({
-      ns <- session$ns
-      req(TEST() != "")
-      para <- HTML(
-        "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
-      )
-      return(para)
-    })
+    # output$download_para <- renderUI({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   para <- HTML(
+    #     "Use the buttons below to download a version of this report which can be printed or shared. The raw data may also be downloaded as an excel or shapefile.<br>"
+    #   )
+    #   return(para)
+    # })
 
 
     heat_text <- reactive({
@@ -657,10 +601,10 @@ mod_report_server <- function(id,
     })
 
 
-    output$heat_para <- renderUI({
-      req(TEST() != "")
-      heat_text()
-    })
+    # output$heat_para <- renderUI({
+    #   req(TEST() != "")
+    #   heat_text()
+    # })
 
     report_equity_plot <- reactive({
       req(TEST() != "")
@@ -694,7 +638,7 @@ mod_report_server <- function(id,
       #
       #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
       #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
-      #   councilR::council_theme() +
+      #   councilR::theme_council() +
       #   theme(
       #     panel.grid.minor = element_blank(),
       #     panel.grid.major = element_blank(),
@@ -744,7 +688,7 @@ mod_report_server <- function(id,
                    pch = 21, 
                    data = filter(df, flag == "selected"), 
                    na.rm = T) +
-        councilR::council_theme() +
+        councilR::theme_council() +
         theme(
           panel.grid.minor = element_blank(),
           panel.grid.major = element_blank(),
@@ -845,7 +789,7 @@ mod_report_server <- function(id,
                    size = if (selected_length() > 100) {2} else {4},
                    
                    col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
-        councilR::council_theme() +
+        councilR::theme_council() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
           caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
@@ -912,54 +856,8 @@ mod_report_server <- function(id,
       deleteFile = FALSE
     )
 
-    # report_other_para <- reactive({
-    #   ns <- session$ns
-    #   req(TEST() != "")
-    #   tagList(
-    #     HTML(paste0(
-    #       # "The goal of this section is present information about biodiversity, management challenges, and other considerations for managing the tree canopy.<br><br>",
-    #       "The Emerald ash borer (EAB) insect is a major threat to existing tree canopy. Data shows that EAB has infested ",
-    #       param_areasummary()$EAB, " trees in ",
-    #       if (geo_selections$selected_geo == "tracts") {
-    #         param_fancytract()
-    #       } else {
-    #         param_area()
-    #       }, " (",
-    #       a("Minnesota DNR",
-    #         href = "https://mnag.maps.arcgis.com/apps/webappviewer/index.html?id=63ebb977e2924d27b9ef0787ecedf6e9",
-    #         .noWS = "outside",
-    #         target = "_blank"
-    #       ),
-    #       "). Please note that these data are not necessarily intended to identify every ash tree (infested or not), however this information may still be useful.<br><br>",
-    #       "Regional information about considerations related to climate change, the biodiversity of the existing tree canopy, and others are given under the 'resources' tab at top.<br><br>"
-    #       # "Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
-    #     ))
-    #   )
-    # })
+# 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
 
-    # output$other_para <- renderUI({
-    #   req(TEST() != "")
-    #   report_other_para()
-    # })
-
-
-    # output$other_plot <- renderPlot({
-    #   treebiodiv %>%
-    #     ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
-    #     geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
-    #     geom_point(
-    #       size = 5, position = position_dodge(width = 10)) +
-    #     scale_fill_brewer(palette = "Paired", name = "Species") +
-    #     scale_color_brewer(palette = "Paired", name = "Species") +
-    #     scale_shape_manual(values = rep(c(21:25), 3), name = "Species")+
-    #     councilR::council_theme() +
-    #     labs(x = "Year", y = "Species composition (%)") +
-    #     guides(fill = guide_legend(nrow = 6, byrow = T),
-    #            color = guide_legend(nrow = 6, byrow = T),
-    #            shape = guide_legend(nrow = 6, byrow = T))
-    #
-    # })
-    #
     param_reportname <- reactive({
       req(TEST() != "")
       paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html")
@@ -1176,25 +1074,122 @@ mod_report_server <- function(id,
     #   req(TEST() != "")
     #   plotOutput(ns("other_plot"), "300px", width = "80%")
     # })
-
-
-    output$get_the_report <- renderUI({
+    
+    output$treecanopy_box <- renderUI({
       req(TEST() != "")
-      downloadButton(ns("dl_report"), label = "Text report")
+      
+      shinydashboard::box(
+        title = ("Tree canopy"),
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        (tree_text()),
+        fluidRow(
+          align = "center",
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(report_tree_plot())
+             #plotOutput(ns("tree_plot"), "200px", width = "100%") #renderPlot, plotOutput
+          } else {imageOutput(ns("tree_plot"), height = "100%", width = "100%")}
+        ))
+    })
+    
+    output$priority_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Prioritization",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        rank_text(),
+        fluidRow(
+          align = "center",
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(report_rank_plot())
+            } else {
+              imageOutput(ns("rank_plot"), height = "100%", width = "100%") }
+        ),
+        br(),
+        tableOutput(ns("priority_table"))
+      )
+    })
+    
+    output$disparity_box <- renderUI({
+      req(TEST() != "")
+
+      shinydashboard::box(
+        title = "Race & income disparities",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        equity_text(), #uiOutput(ns("equity_para")),
+        # uiOutput(ns("get_equity_plot")),
+        fluidRow(
+          align = "center",
+          if(shinybrowser::get_device() == "Mobile") {
+            renderPlot(report_equity_plot())
+          } else {
+            imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
+        )
+      )
+    })
+    
+    output$temp_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Temperature",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        heat_text(), #uiOutput(ns("heat_para")),
+        fluidRow(
+          align = "center",
+          # if(shinybrowser::get_device() == "Mobile") {
+            # renderPlot(report_temp_plot())
+          # } else {
+            imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+            # }
+        )
+        # uiOutput(ns("get_temp_plot"))
+      )
+    })
+    
+    output$download_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Download data",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        HTML("<section class='d-none d-lg-block'>
+             Use the buttons below to download a version of this report which can be printed or shared. 
+             The raw data may also be downloaded as an excel or shapefile.<br></section>"),# uiOutput(ns("download_para")),
+        HTML("<section class='d-block d-lg-none'>
+             Download a complete version of this report. 
+             Use a desktop computer to download raw data or shapefiles.<br></section>"),# uiOutput(ns("download_para")),
+        fluidRow(
+          column(width = 4, downloadButton(ns("dl_report"), label = "Text report")), #uiOutput(ns("get_the_report"))),
+          column(class='d-none d-lg-block', width = 4, downloadButton(ns("dl_data"), label = "Raw data")), #uiOutput(ns("get_the_data"))),
+          column(class='d-none d-lg-block', width = 4, downloadButton(ns("shapefile_dl"), label = "Shapefile")) #uiOutput(ns("get_shape_data")))
+        )
+      )
     })
 
 
-    output$get_the_data <- renderUI({
-      req(TEST() != "")
-      downloadButton(ns("dl_data"), label = "Raw data")
-    })
+    # output$get_the_report <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("dl_report"), label = "Text report")
+    # })
+
+
+    # output$get_the_data <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("dl_data"), label = "Raw data")
+    # })
 
     
     
-    output$get_shape_data <- renderUI({
-      req(TEST() != "")
-      downloadButton(ns("shapefile_dl"), label = "Shapefile")
-    })
+    # output$get_shape_data <- renderUI({
+    #   req(TEST() != "")
+    #   downloadButton(ns("shapefile_dl"), label = "Shapefile")
+    # })
     
 
 
