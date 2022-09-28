@@ -12,31 +12,127 @@ urlcolor: blue
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = TRUE,
                       cache.path = "cache/")
-library(tidyverse)
+library(dplyr); library(tidyr); #library(ggplot2); library(string)
 library(tigris)
 library(sf)
-# source("packages_global.R")
+library(tidycensus)
+library(ggbeeswarm)
 
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
-
-# ggbeeswarm needs to be downloaded from github: 
-#   devtools::install_github("eclarke/ggbeeswarm")
-
-
-# # block group issues
-# 
-# the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
-# 
-# would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals. 
-# 
-# very slow when showing block groups across entire state
-# 
-# --
-# options:
-# focus on statistical areas; some of this won't be super useful either since ag land
-# focus on areas where population density is above some threshold
 ```
+
+
+# Set parameters
+
+These global parameters will be used in multiple code pieces. 
+
+This code is set up to use/process 2020-era census geographies at the block group level.
+
+```{r}
+state <- c("MN")
+
+# either type in specfic county names, or for all counties within a state assign "NULL"
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") 
+# county <- NULL
+
+process_demographics <- TRUE
+
+acs_year <- 2020 
+#note, decennial census data provides race-level information, but ACS provides other data
+# check what is the most recent year of acs data here: https://api.census.gov/data.html Search for "acs5" and see what is the most recent year of data available. As of 28 Sept 2022, 2020 was the most recent year available. 
+```
+
+
+## Process demographics
+
+You will need an API key from Census:
+  - [Request an api key](https://api.census.gov/data/key_signup.html)
+  - Enter in the console: `usethis::edit_r_environ()`
+  - When the `.Renviron` file comes up in the editor, type: `CENSUS_KEY="KEY GOES HERE, INSIDE QUOTES"`
+  - Save and close the `.Renviron` file.
+  - Restart R.
+  
+The demographic information is fetched using the `tidycensus` package. It might be nice to eventually figure out how to natively grab the data via the Census API (rather than going through `tidycensus`), but for now this works well.
+
+```{r}
+  census_api_key(Sys.getenv("CENSUS_KEY"))
+  
+  v20 <- load_variables(acs_year, "acs5", cache = TRUE)
+  View(v20 %>% filter(geography == "block group"))
+  # v20 %>% filter(label == "Estimate!!Total:",
+  #                geography == "block group",
+  #                str_detect(concept, "HOUSE"))
+  #  you may need to access the table shells: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.html
+  #  census reporter topics are also very useful! https://censusreporter.org/topics/
+
+  fxn_sum_acs <- function(.vars, .name){
+    get_acs(
+      geography = "block group",
+      variables = .vars,
+      survey = "acs5",
+      state = state,
+      county = county,
+      year = 2020) 
+  }
+
+  acs_variables <- c(
+    "B01001_001", #poptotal
+    paste0("B01001_00", c(3:6)), #under18 m
+    paste0("B01001_0", c(27:30)), #under18 f
+    paste0("B01001_0", c(20:25, 44:49)), #over 65m, f
+    "B19013_001",# median hh income
+    "B25003_001", #tenure_total
+    "B25003_002", #tenure owners
+    "B23025_001", #employment status denominator
+    "B23025_007", #unemployed
+    paste0("C17002_00", c(1:6)) #poverty status
+    )
+  
+ acs_data <-  get_acs(
+    geography = "block group",
+    variables = acs_variables,
+    survey = "acs5",
+      state = state,
+      county = county,
+    year = acs_year
+  ) %>%
+   select(-moe, -NAME) %>%
+   pivot_wider(names_from = variable, values_from = estimate)
+ 
+ acs_data %>%
+   mutate(
+     under18 = rowSums(across(c(
+       paste0("B01001_00", c(3:6)), #under18 m
+       paste0("B01001_0", c(27:30)) #under18 f
+       ), na.rm = T)),
+     over65 = rowSums(across(c(
+       paste0("B01001_0", c(20:25, 44:49)) #over 65m, f
+     ), na.rm = T))) %>%
+   mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
+          sensage = under18 + over65,
+          pownhome = B25003_002 / B25003_001,
+          pwk_nowork = B23025_007 / B23025_001,
+          ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
+   rename(hhincome = B19013_001) %>%
+   select(c(GEOID, !starts_with(c("B", "C"))))
+ 
+```
+
+
+# block group issues
+
+the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
+
+would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals.
+
+very slow when showing block groups across entire state
+
+--
+options:
+focus on statistical areas; some of this won't be super useful either since ag land
+focus on areas where population density is above some threshold
+
 
 # Introduction
 
