@@ -12,11 +12,14 @@ urlcolor: blue
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = TRUE,
                       cache.path = "cache/")
-library(dplyr); library(tidyr); #library(ggplot2); library(string)
+library(dplyr); library(tidyr); library(readr)#library(ggplot2); library(string)
 library(tigris)
 library(sf)
 library(tidycensus)
 library(ggbeeswarm)
+library(RSocrata)
+library(here)
+
 
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
@@ -36,11 +39,16 @@ state <- c("MN")
 county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") 
 # county <- NULL
 
-process_demographics <- TRUE
 
 acs_year <- 2020 
 #note, decennial census data provides race-level information, but ACS provides other data
 # check what is the most recent year of acs data here: https://api.census.gov/data.html Search for "acs5" and see what is the most recent year of data available. As of 28 Sept 2022, 2020 was the most recent year available. 
+
+census_year <- 2020
+
+
+process_demographics <- FALSE
+
 ```
 
 
@@ -53,28 +61,69 @@ You will need an API key from Census:
   - Save and close the `.Renviron` file.
   - Restart R.
   
+
+
 The demographic information is fetched using the `tidycensus` package. It might be nice to eventually figure out how to natively grab the data via the Census API (rather than going through `tidycensus`), but for now this works well.
 
-```{r}
-  census_api_key(Sys.getenv("CENSUS_KEY"))
-  
-  v20 <- load_variables(acs_year, "acs5", cache = TRUE)
-  View(v20 %>% filter(geography == "block group"))
-  # v20 %>% filter(label == "Estimate!!Total:",
-  #                geography == "block group",
-  #                str_detect(concept, "HOUSE"))
-  #  you may need to access the table shells: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.html
-  #  census reporter topics are also very useful! https://censusreporter.org/topics/
+### Race
 
-  fxn_sum_acs <- function(.vars, .name){
-    get_acs(
+Race variables come from the decennial 2020 census. Currently, the decennial census data is preferred over ACS data because it is a population count rather than a sample and because ACS data uses the average of 5 years (so starting with the ACS 2021-2025 data, it may be logical to switch over to using the ACS data instead).
+
+
+```{r decennial}
+if (process_demographics == TRUE) {
+census_api_key(Sys.getenv("CENSUS_KEY"))
+
+  race_var <- c(
+    "P2_005N", # white nh
+    "P2_006N", # black nh
+    "P2_007N", # amin nh
+    "P2_008N", # asian nh
+    "P2_009N", # hawaiian pi nh
+    "P2_010N", # some other nh
+    "P2_011N", # 2+ nh
+    "P2_002N" # hispanic
+  )
+
+  decennial_data <- get_decennial(
       geography = "block group",
-      variables = .vars,
-      survey = "acs5",
+      variables = race_var, 
+      summary_var = "P1_001N",
+      year = census_year,
       state = state,
       county = county,
-      year = 2020) 
-  }
+      geometry = F
+    ) %>%
+      pivot_wider(names_from = variable, values_from = value) %>%
+    
+    mutate(across(starts_with("P2"), ~ .x / summary_value)) %>%
+    rename(whitenh = P2_005N,
+        pblacknh = P2_006N,
+        pamindnh = P2_007N,
+        phisppop = P2_002N) %>%
+    mutate(pothmultnh = (P2_010N + P2_011N),
+           pasiannh = (P2_008N + P2_009N),
+           pbipoc = 1 - whitenh) %>%
+    select(-c(starts_with("P2"), summary_value, NAME))
+  
+  save(file = paste0(here::here(), "/data-raw/decennial_data.rda"), decennial_data)
+} else {
+  load(paste0(here::here(), "/data-raw/decennial_data.rda"))
+}
+```
+
+### General demographic variables
+
+Other demographic variables come from the American Community Survey 5-year data. ACS numbers come from a surveyed population sample.
+
+```{r acs}
+if (process_demographics == TRUE) {
+  census_api_key(Sys.getenv("CENSUS_KEY"))
+
+  v20 <- load_variables(acs_year, "acs5", cache = TRUE)
+  View(v20 %>% filter(geography == "block group"))
+  #  you may need to access the table shells: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.html
+  #  census reporter topics are also very useful! https://censusreporter.org/topics/
 
   acs_variables <- c(
     "B01001_001", #poptotal
@@ -98,9 +147,9 @@ The demographic information is fetched using the `tidycensus` package. It might 
     year = acs_year
   ) %>%
    select(-moe, -NAME) %>%
-   pivot_wider(names_from = variable, values_from = estimate)
- 
- acs_data %>%
+   pivot_wider(names_from = variable, values_from = estimate)  %>%
+   
+   #process to useable forms of the data
    mutate(
      under18 = rowSums(across(c(
        paste0("B01001_00", c(3:6)), #under18 m
@@ -117,8 +166,78 @@ The demographic information is fetched using the `tidycensus` package. It might 
    rename(hhincome = B19013_001) %>%
    select(c(GEOID, !starts_with(c("B", "C"))))
  
+  save(file = paste0(here::here(), "/data-raw/acs_data.rda"), acs_data)
+} else {
+  load(paste0(here::here(), "/data-raw/acs_data.rda"))
+}
+ 
 ```
 
+
+### Health data 
+
+Health metrics come from [PLACES: Local Data for Better Health, Census Tract Data](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh). I am not aware that there is a way to use a "health_year" parameter to get a specific timestamp of the data, so please just double check that the most recent data is being used! CDC has indicated that they *might* soon be switching over to using 2020-vintage census geoprahies rather than the old 2010 geographies, so the processing will get simplified at that point. 
+
+You will need an app token from CDC:
+  - [Request an app token](https://chronicdata.cdc.gov/profile/edit/developer_settings)
+    - You may have to create an account with Tyler Data & Insights ID
+    - More information about "app tokens" and metadata are on the [PLACES data overview](https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh)
+    - Note that CDC has APIs and app tokens. It's a bit confusing, but be sure you are looking at the app token for this.
+  - Enter in the console: `usethis::edit_r_environ()`
+  - When the `.Renviron` file comes up in the editor, type: 
+    - `CDC_KEY="APP TOKEN GOES HERE, INSIDE QUOTES"`
+    - `CDC_EMAIL="email you signed up with goes here, inside quotes"`
+    - `CDC_PASSWORD="password you used to signup with goes here, inside quotes"`
+  - Save and close the `.Renviron` file.
+  - Restart R.
+  
+Also, because this CDC data currently uses old census geographies, you will need to download a crosswalk
+  - Download the state-specific crosswalk of ["Block Groups --> Census Tracts" for year "2010 --> 2020" from NHGIS](https://www.nhgis.org/geographic-crosswalks#download-from-block-groups)
+  - Place the resultant file in the data-raw folder
+
+```{r health}
+##########
+# CDC health data
+#########
+# variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
+
+raw_health <- read.socrata(
+  # "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
+ paste0("https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('", state, "')"),
+  app_token = Sys.getenv("CDC_KEY"), 
+  email     = Sys.getenv("CDC_EMAIL"), 
+  password  = Sys.getenv("CDC_PASSWORD")) %>%
+
+  #get the columns of interest. there are more variables as an fyi though!
+# names(bg_health)
+# levels(as.factor(bg_health$measure))
+  filter(measure %in% c("Current asthma among adults aged >=18 years",
+                        "Chronic obstructive pulmonary disease among adults aged >=18 years",
+                        "Mental health not good for >=14 days among adults aged >=18 years",
+                        "Physical health not good for >=14 days among adults aged >=18 years")) %>%
+  dplyr::select(locationname, measureid, data_value) %>%
+  mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
+  pivot_wider(names_from = measureid, values_from = data_value)
+
+fips <- tigris::lookup_code(state = state) %>%
+  stringr::str_split("'", simplify = T)
+
+crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[,2], ".csv"),
+                      col_types = c('tr2010ge' = 'c',
+                                    "bg2020ge" = "c")) %>%
+  select(tr2010ge,#census geoid for 2010
+         bg2020ge,#census geoid for 2020
+         wt_pop) %>% #use weighted population crosswalk
+  group_by(bg2020ge) %>%
+  slice(which.max(wt_pop)) %>% # just get the crosswalk for where most people live. it's oversimplified, but pretty decent esp since block groups generally nest nicely into tracts across census geographies
+  select(-wt_pop)
+
+
+## translate health data into 2020 geographies
+health_data <- raw_health %>%
+  full_join(crosswalk, by = c("locationname" = "tr2010ge"))
+
+```
 
 # block group issues
 
@@ -786,96 +905,6 @@ readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
 
 ```
 
-## Health data from CDC
-
--   Enter in the console: `usethis::edit_r_environ()`
--   When the `.Renviron` file comes up in the editor, type: `CDC_KEY="KEY GOES HERE, INSIDE QUOTES"`
--   Save and close the `.Renviron` file.
--   Hit Ctrl+Shift+F10 to restart R.
-
-[PLACES: Local Data for Better Health, Census Tract Data 2021 release](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh)
-
-```{r health_bgs}
-##########
-# CDC health data
-#########
-# variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
-# api token: https://chronicdata.cdc.gov/profile/edit/developer_settings
-
-library("RSocrata")
-#metadata https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh
-
-bg_health <- read.socrata(
-  "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
-  app_token = Sys.getenv("CDC_TOKEN"), 
-  email     = "ellen.esch@metc.state.mn.us",
-  password  = Sys.getenv("CDC_KEY")) %>% 
-  rename(GEOID10 = locationname)
-
-bg_health
-names(bg_health)
-levels(as.factor(bg_health$measure))
-
-bg_health2 <- bg_health %>%
-  filter(measure %in% c("Current asthma among adults aged >=18 years",
-                        "Chronic obstructive pulmonary disease among adults aged >=18 years",
-                        "Mental health not good for >=14 days among adults aged >=18 years",
-                        "Physical health not good for >=14 days among adults aged >=18 years")) %>%
-  dplyr::select(GEOID10, measureid, data_value) %>%
-  mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
-  pivot_wider(names_from = measureid, values_from = data_value) %>%
-  rename(tr10 = GEOID10)
-
-## this data uses 2010 geographies; make a crosswalk realating 2010 tracts to 2020 block groups
-tract_2010 <- tigris::tracts(state = "MN", 
-                                    county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"),
-                                    year = 2011)
-
-tract_bg_crosswalk <- tract_2010 %>% transmute(tract2010_id = GEOID) %>%
-  st_transform(26915) %>%
-  st_buffer(-350) %>% #buffer the perimeter of the geography
-  st_erase(river_lake_buffer %>%
-             st_buffer(200) %>% #buffer out rivers
-             st_union() %>% 
-             st_buffer(0)) %>% 
-  st_intersection(bg_geo  %>%
-                    dplyr::select(GEOID) %>%
-                    rename(bg2020_id = GEOID) %>%
-                    st_transform(26915) %>% st_buffer(-20)) %>%
-  mutate(overlap_area = as.numeric(st_area(.))) %>%
-  st_drop_geometry()
-
-step1 <- tract_bg_crosswalk %>% 
-  group_by(bg2020_id) %>%
-  mutate(n = n(),
-         max_overlap = max(overlap_area))  %>%
-  filter(n > 1) %>% 
-  mutate(good_tract2010_id = if_else(overlap_area == max_overlap, tract2010_id, NA_character_)) %>%
-  dplyr::select(tract2010_id, bg2020_id, good_tract2010_id)
-
-step2 <- tract_bg_crosswalk %>% 
-  group_by(bg2020_id) %>%
-  mutate(n = n(),
-         max_overlap = max(overlap_area))  %>%
-  filter(n == 1) %>% 
-  mutate(good_tract2010_id = tract2010_id)%>%
-  dplyr::select(tract2010_id, bg2020_id, good_tract2010_id)
-
-step4 <- tract_bg_crosswalk %>%
-  full_join(step2) %>%
-  full_join(step1) %>%
-  full_join(census_race %>% dplyr::select(bg20, poptotal), by = c("bg2020_id" = "bg20")) %>%
-  # mutate(good_tract2010_id = if_else(poptotal > 10, good_tract2010_id, NA_character_)) %>%
-  filter(!is.na(good_tract2010_id)) %>%
-  select(good_tract2010_id, bg2020_id)
-  # count(bg2020_id) %>% filter(n>1)
-
-## translate health data into 2020 geographies
-bg_health3 <- bg_health2 %>%
-  full_join(step4, by = c("tr10" = "good_tract2010_id")) %>%
-  filter(!is.na(bg2020_id)) %>%
-  rename(bg20 = bg2020_id) %>% dplyr::select(-tr10)
-```
 
 # Combine all variables
 
