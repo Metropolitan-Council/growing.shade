@@ -8,13 +8,17 @@ always_allow_html: true
 urlcolor: blue
 ---
 
+# Introduction
+
+This tutorial walks through how to grab and synthesize various data pieces which go into making Growing Shade. This document should be useful when doing data updates update, or trying to scale this workflow to other regions/areas.
+
 The first time you run this code, it will be helpful to walk step-by-step through the various pieces. There are several places where you'll get instructions to request and save API keys, or other manual steps which can't be automated. However, after you walk thorough it initially, in future runs (if needed) or for small data/geography adjustments, you can probably be successful running everything in one go!
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = TRUE,
                       cache.path = "cache/")
-library(dplyr); library(tidyr); library(readr)#library(ggplot2); library(string)
+library(dplyr); library(tidyr); library(readr); library(stringr)
 library(tigris)
 library(sf)
 library(tidycensus)
@@ -27,57 +31,64 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
 ```
 
-
 # Set parameters
 
-These global parameters will be used in multiple code pieces. 
+These global parameters dictate what state/county combinations will be used, as well as from what year various data pieces come from. Since the data pieces are updated on different schedules, it's unfortunately not as simple as setting a "global" rule to use data corresponding to the current year
 
-This code is set up to use/process 2020-era census geographies at the block group level (even though some datasources are still using 2010-era geographies...but we'll deal with those later).
+This code is set up to use/process 2020-era census geographies at the block group level (even though some data sources are still using 2010-era geographies...but we'll deal with those later).
 
-```{r}
+```{r set-parameters}
+#####
+# Geography variables
+####
 state <- c("MN")
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 
-# either type in specific county names, or for all counties within a state assign "NULL"
-county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") 
-# county <- NULL
+process_geographies <- TRUE 
 
-
+#######
+# Demographic variables
+######
 acs_year <- 2020 #The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then. 
 census_year <- 2020
 
 process_demographics <- FALSE
-process_geographies <- TRUE #block
-```
 
+#######
+# Tree canopy variables
+#######
+
+calibrate_trees <- FALSE # recommend FALSE in most cases; this gets into a pretty bespoke analysis
+
+```
 
 # Process demographic data
 
 The demographic information is fetched using the APIs/app tokens. Follow these instructions:
 
 You will need an API key from Census:
-  - [Request an api key](https://api.census.gov/data/key_signup.html)
-  - Enter in the console: `usethis::edit_r_environ()`
-  - When the `.Renviron` file comes up in the editor, type: `CENSUS_KEY="KEY GOES HERE, INSIDE QUOTES"`
-  - Save and close the `.Renviron` file.
-  - Restart R.
+
+-   [Request an api key](https://api.census.gov/data/key_signup.html)
+-   Enter in the console: `usethis::edit_r_environ()`
+-   When the `.Renviron` file comes up in the editor, type: `CENSUS_KEY="KEY GOES HERE, INSIDE QUOTES"`
+-   Save and close the `.Renviron` file.
+-   Restart R.
 
 You will need an app token from CDC:
-  - [Request an app token](https://chronicdata.cdc.gov/profile/edit/developer_settings)
-    - You may have to create an account with Tyler Data & Insights ID
-    - More information about "app tokens" and metadata are on the [PLACES data overview](https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh)
-    - Note that CDC has APIs and app tokens. It's a bit confusing, but be sure you are looking at the app token for this.
-  - Enter in the console: `usethis::edit_r_environ()`
-  - When the `.Renviron` file comes up in the editor, type: 
-    - `CDC_KEY="APP TOKEN GOES HERE, INSIDE QUOTES"`
-    - `CDC_EMAIL="email you signed up with goes here, inside quotes"`
-    - `CDC_PASSWORD="password you used to signup with goes here, inside quotes"`
-  - Save and close the `.Renviron` file.
-  - Restart R.
+
+-   [Request an app token](https://chronicdata.cdc.gov/profile/edit/developer_settings)
+-   You may have to create an account with Tyler Data & Insights ID
+    -   More information about "app tokens" and metadata are on the [PLACES data overview](https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh)
+    -   Note that CDC has APIs and app tokens. It's a bit confusing, but be sure you are looking at the app token for this.
+-   Enter in the console: `usethis::edit_r_environ()`
+-   When the `.Renviron` file comes up in the editor, type: - `CDC_KEY="APP TOKEN GOES HERE, INSIDE QUOTES"` - `CDC_EMAIL="email you signed up with goes here, inside quotes"`
+-   `CDC_PASSWORD="password you used to signup with goes here, inside quotes"`
+-   Save and close the `.Renviron` file.
+-   Restart R.
 
 ## Decennial census
 
 Race variables come from the decennial 2020 census. Currently, the decennial census data is preferred over ACS data because it is a population count rather than a sample and because ACS data uses the average of 5 years (so starting with the ACS 2021-2025 data, it may be logical to switch over to using the ACS data instead).
-
 
 ```{r decennial}
 if (process_demographics == TRUE) {
@@ -125,8 +136,7 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
 
 Other demographic variables come from the American Community Survey 5-year data. ACS numbers come from a surveyed population sample.
 
-Check what is the most [recent year of acs data here](https://api.census.gov/data.html). Search for "acs5" and see what is the most recent year of data available. As of 28 Sept 2022, 2020 was the most recent year available.
-
+Check what is the most [recent year of ACS data here](https://api.census.gov/data.html). Search for "acs5" and see what is the most recent year of data available.
 
 ```{r acs}
 if (process_demographics == TRUE) {
@@ -185,14 +195,11 @@ if (process_demographics == TRUE) {
  
 ```
 
+## PLACES health data
 
-## PLACES health data 
+Health metrics come from [PLACES: Local Data for Better Health, Census Tract Data](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh). I am not aware that there is a way to use a "health_year" parameter to get a specific timestamp of the data, so please just double check that the most recent data is being used! CDC has indicated that they *might* soon be switching over to using 2020-vintage census geographies rather than the old 2010 geographies, so the processing will get simplified at that point.
 
-Health metrics come from [PLACES: Local Data for Better Health, Census Tract Data](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh). I am not aware that there is a way to use a "health_year" parameter to get a specific timestamp of the data, so please just double check that the most recent data is being used! CDC has indicated that they *might* soon be switching over to using 2020-vintage census geographies rather than the old 2010 geographies, so the processing will get simplified at that point. 
-
-Also, because this CDC data currently uses old census geographies, you will need to download a crosswalk
-  - Download the state-specific crosswalk of ["Block Groups --> Census Tracts" for year "2010 --> 2020" from NHGIS](https://www.nhgis.org/geographic-crosswalks#download-from-block-groups)
-  - Place the resultant file in the data-raw folder
+Also, because this CDC data currently uses old census geographies, you will need to download a crosswalk - Download the state-specific crosswalk of ["Block Groups --\> Census Tracts" for year "2010 --\> 2020" from NHGIS](https://www.nhgis.org/geographic-crosswalks#download-from-block-groups) - Place the resultant file in the data-raw folder
 
 ```{r health}
 ##########
@@ -245,14 +252,13 @@ health_data <- raw_health %>%
 
 ```
 
-
 # Process geographies
 
-Growing Shade is set up to have data at the block group, neighborhood, and city/township (ctu) levels. 
+Growing Shade is set up to have data at the block group, neighborhood, and city/township (ctu) levels.
 
 ### Census block groups
 
-Getting these geography files is easy - just downloaded directly. 
+Getting these geography files is easy - just downloaded directly.
 
 ```{r census-geography}
 bg_geo <- block_groups(state = state, 
@@ -269,15 +275,15 @@ Since we're going to be making a map which shows census tracts, cities, or neigh
 
 If you can't download with a code-based method, download specific geographies, and put them in the data-raw folder. For the Twin Cities, neighborhoods need to be downloaded manually.
 
-  - [Minneapolis](https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85)
-  - [St. Paul](https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b)
-  - [Brooklyn Park?](https://gis.brooklynpark.org/neighborhoodinfo/)
-  
-Adjust the code below as necessary to ensure that both `nhood_geo` (neighborhoods) and `ctu_geo` (city/townships) have a column named `GEO_NAME` and `geometry`. For the neighborhood data, there should also be a `city` column (i.e., "Minneapolis" or "St. Paul" for the Twin Cities region). 
+-   [Minneapolis](https://opendata.minneapolismn.gov/datasets/communities/explore?location=44.970861%2C-93.261718%2C12.85)
+-   [St. Paul](https://information.stpaul.gov/City-Administration/District-Council-Shapefile-Map/dq4n-yj8b)
+-   [Brooklyn Park](https://gis.brooklynpark.org/neighborhoodinfo/) (but we aren't including their neighborhoods yet)
 
-After the raw geographies are downloaded, then you need to make a crosswalk which relates block groups into neighborhoods and cities. For this step, it is useful to remove major river features (boundaries around rivers often are poorly aligned, removing rivers makes generating the crosswalk much cleaner). At least in the Twin Cities, several block groups legitimately do fall within multiple cities, so this step is a admittedly a bit complicated. A simpler alternative is to just use the city/township in which the majority of the block group falls. 
+Adjust the code below as necessary to ensure that both `nhood_geo` (neighborhoods) and `ctu_geo` (city/townships) have a column named `GEO_NAME` and `geometry`. For the neighborhood data, there should also be a `city` column (i.e., "Minneapolis" or "St. Paul" for the Twin Cities region).
 
-If this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application. 
+After the raw geographies are downloaded, then you need to make a crosswalk which relates block groups into neighborhoods and cities. For this step, it is useful to remove major river features (boundaries around rivers often are poorly aligned, removing rivers makes generating the crosswalk much cleaner). At least in the Twin Cities, several block groups legitimately do fall within multiple cities, so this step is a admittedly a bit complicated. A simpler alternative is to just use the city/township in which the majority of the block group falls.
+
+If this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
 
 ```{r nhood-ctu-geo}
 
@@ -323,7 +329,6 @@ file.remove(files)
 
 ```
 
-
 ```{r ctu-nhood-crosswalk}
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
@@ -361,26 +366,6 @@ ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
   dplyr::select(-flag)
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
-# test <- "Hilltop"
-# bg_geo %>%
-#   right_join(ctu_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf(data = filter(ctu_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
-#   # geom_sf(data = (bg_geo %>%
-#   #                   right_join(filter(ctu_crosswalk, tract_id =="271390813001"),
-#   #                              by = c("GEOID" = "tract_id"))), fill = "red", alpha =.1, color = "red")+
-#   geom_sf(fill = NA, lwd = 2)
-# 
-# test <- "The Greater East Side"
-# bg_geo %>%
-#   right_join(nhood_crosswalk %>% filter(GEO_NAME == test),
-#              by = c("GEOID" = "tract_id")) %>%
-#   ggplot()+
-#   geom_sf(data = filter(nhood_geo, GEO_NAME ==test), fill = "blue", alpha =.1, color = "blue")+
-#   geom_sf(fill = NA, lwd = 2)
-
-
 wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
   group_by(tract_id) %>%
   count() %>%
@@ -409,36 +394,11 @@ usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
 usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
-
-ctu_crosswalk %>%
-  count(tract_id) %>%
-  filter(n > 1)
-```
-
-### Calculate land area
-
-From the various geographic files, remove all water features and calculate the land area. Doing this step is necessary in order to figure out tree canopy cover on land. Unfortunately, the "aland" variable from census block groups is *less* useful here, because neighborhoods and cities don't always respect block group boundaries.
-
-```{r calc-land-area}
-calc_land_area <- function(x){
-  x %>%
-    st_transform(26915) %>%
-    st_buffer(0) %>%
-    st_erase(river_lake_all %>%
-             st_union() %>%
-             st_buffer(0)) %>%
-    mutate(ALAND = as.numeric(st_area(.)))
-}
-
-ctu_land <- calc_land_area(ctu_geo)
-nhood_land <- calc_land_area(nhood_geo)
-bg_land_geo <- calc_land_area(bg_geo)
-
 ```
 
 # Geographic overlay files
 
-This is probably not relevant for other regions, but here is the code. 
+This is probably not relevant for other regions, but here is the code.
 
 ## Redlining shapefile
 
@@ -453,38 +413,40 @@ temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip",
   destfile = temp
 )
-# holc <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
-#   group_by(HSG_SCALE) %>% 
-#   summarise() %>% st_transform(26915) %>%
-#   st_intersection(bg_geo %>% dplyr::select(GEOID) %>% st_transform(26915) %>% st_buffer(-10)) %>%
-#   mutate(area = as.numeric(st_area(.))) %>%
-#   st_drop_geometry() %>%
-#   filter(HSG_SCALE %in% c("Definitely Declining", "Still Desirable", "Hazardous", "Best")) %>%
-#   pivot_wider(names_from = HSG_SCALE, values_from = area) %>%
-#   left_join(bg_geo %>% dplyr::select(GEOID) %>% mutate(area = as.numeric(st_area(.)))) %>%
-#   mutate(SUM = rowSums(across(c(`Definitely Declining`:Hazardous)), na.rm = T)) %>%
-#   mutate(across(`Definitely Declining`:`Hazardous`, ~.x / (SUM))) %>%
-#   as_tibble() %>%
-#   rename(holc_pred = Hazardous) %>%
-#   dplyr::select(GEOID, holc_pred) %>%
-#     drop_na()
 
 redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
-  filter(HSG_SCALE == "Hazardous") %>% # | HSG_SCALE == "Definitely Declining") %>%
+  filter(HSG_SCALE == "Hazardous") %>% 
   sf::st_union() %>%
   sf::st_transform(4326)
 
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
 ```
 
-
 # Remote sensing data
 
 These items come out of Google Earth Engine analyses. Some files need to be created/exported (and then imported into GEE), and all GEE exports need to be pulled in to this code.
 
-```{r create-gee_assets}
+
+
+## Calibrate tree canopy coverage
+
+Growing Shade prioritizes temporal accuracy for tree canopy data. While some trade-offs come with prioritizing temporal accuracy over spatial accuracy, it is essential for this project to capture on-the-ground, real-time dynamics of how Emerald Ash Borer, development patterns, and recent tree planting programs among others are changing the tree canopy.
+
+Sentinel-2 is currently the most spatially accurate and publicly accessible remote sensing platform. However, the 10 meter squared spatial resolution of Sentinel is larger than a lot of individual tree canopies. In exploring the data, it appears as if the canopy coverage from Sentinel is little higher than what it should be (based on aerial imagery). I've chosen to calibrate the Sentinel data with the (outdated) UMN 1 meter squared land use file.
+
+I created a grid (n = 1015) across the region, and created a model to compare the amount of trees detected with the Sentinel 2 and with the UMN 1 meter data set (for the later, the tree area is the summation of all areas which identified as coniferous trees, deciduous trees, and forested wetland).
+
+The final calibration coefficient (at least for 2021 tree canopy) is 0.885246, meaning that Sentinel sees about 11% more trees in areas. Another way to think about this is that Sentinel detects area with at least 89% tree canopy coverage (i.e., if Sentinel sees 1,000 acres of trees, UMN sees more like 885 acres).
+
+In other temperate, upper Midwest areas, the .88 coefficient is probably sufficient. Otherwise, figuring out and adjusting a calibration coefficient for another area likely requires some pretty bespoke analyses and has specific data set needs which may not be widely available. 
+
+
+```{r, calibrate-tree-cover}
+
+if (calibrate_trees == TRUE){
 # ######
 # # Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
+# # In most instances, there is no need to run this gridding step more than once
 # #####
 # wholearea <- metc_region %>%
 #   summarise(st_union(.))
@@ -503,43 +465,12 @@ These items come out of Google Earth Engine analyses. Some files need to be crea
 # #           fill = "transparent")
 # 
 # sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
-# 
 
-# #########
-# #update to 2020 geography
-# ########
-# MN_counties <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington")
-# 
-# block_group2020 <- tigris::block_groups(
-#   year = 2021,
-#   state = "MN",
-#   county = MN_counties,
-#   class = "sf"
-# ) %>%
-#   dplyr::select(GEOID)
-# sf::st_write(block_group2020, "~/Documents/GitHub/planting.shade/storymap-info/blockgroups2020.shp", append = FALSE)
-# 
-```
-
-## Calculate and calibrate tree canopy coverage
-
-For some good reasons we are going to use data from 2020 for the tree canopy coverage. But since Sentinel has a 10 meter squared pixel size, this is larger than a lot of trees. In exploring the data, it appears as if the canopy coverage from Sentinel is about two times higher than what it should be (based on aerial imagery). However, this does make sense, because Sentinel is likely saying that a 10x10m pixel has a tree, even if that tree doesn't cover the whole area. In essence, it's telling us where land is covered at least half by trees. But we can refine this further!! Let's calibrate with the outdated UMN 1 meter squared land use file.
-
-Use UMN TC 1m2 land use where trees = coniferous trees, deciduous trees, and forested wetland (this last category is a new addition to the tree acres!).
-
-Calibration coeff is 0.885246, meaning that sentinel sees about 11% more trees; or detects area with at least 89% tree canopy coverage. Sentinel sees 1000 acres, UMN sees more like 885 (890) acres.
-
-```{r, calibrate-tree-cover}
-calibrate_trees <- read_csv("../data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv") %>% 
+calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
   rename(umn = `1`) %>%
-  full_join(read_csv("../data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv") %>%
+  full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv")) %>%
               rename(sentinel = `1`),
             by = 'id')
-#if do equal area grid r2 = 0.9343173; calib = 0.6123283
-# cor.test(~ umn + sentinel,
-#          data = calibrate_trees)
-# cor.test(~ umn + I(sentinel^2),
-#          data = calibrate_trees)
 
 calibrate_lm <- (lm(umn ~ sentinel, data = calibrate_trees))
 calibrate_lm2 <- (lm(umn ~ 0 + sentinel, data = calibrate_trees))
@@ -547,25 +478,24 @@ calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
 calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
 anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
 
-# AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3)
-anova(calibrate_lm, calibrate_lm2)
-anova(calibrate_lm2, calibrate_lm3)
+# AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3); AIC(calibrate_lm4)
 
 summary(calibrate_lm2)$r.squared # r2
 summary(calibrate_lm2)$coefficients[,4] # p-value
 
 calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
-calib_coeff
+
+  save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
+} else {
+  load(paste0(here::here(), "/data-raw/calib_coeff.rda"))
+}
 
 calibrate_trees %>%
   ggplot(aes(x = (umn), y = (sentinel * calib_coeff))) +
   geom_point(alpha = .5) +
-  geom_abline(slope=1, intercept=0, col = 'blue', lwd = 2) +
-  # geom_smooth(method = "lm", fill = NA)+
+  geom_abline(slope=1, intercept=0, col = 'blue', lwd = 1) +
   theme_minimal()  +
-  # councilR::theme_council()
-  labs( x = "UMN tree acres in grid", y = "Sentinel tree acres in grid",
-        title = "calibrated")
+  labs( x = "UMN tree acres", y = "Calibrated Sentinel tree acres")
 ```
 
 ## Process tree canopy cover at various geographies
@@ -587,8 +517,6 @@ bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_mnwi_blockg
 
 # canopy_nhood <- 
 ```
-
-
 
 -   process GEE code to link canopy with geography
     -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
@@ -698,7 +626,6 @@ readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
   filter(bg20 == "270530117035")
 
 ```
-
 
 # Combine all variables
 
@@ -1154,19 +1081,12 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
 ```
 
-
-
 # block group issues
 
-the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: https://gisdata.mn.gov/dataset/water-national-hydrography-data (but need something from WI in there too)
+the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: <https://gisdata.mn.gov/dataset/water-national-hydrography-data> (but need something from WI in there too)
 
 would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals.
 
 very slow when showing block groups across entire state
 
---
-options:
-focus on statistical areas; some of this won't be super useful either since ag land
-focus on areas where population density is above some threshold
-
-
+-- options: focus on statistical areas; some of this won't be super useful either since ag land focus on areas where population density is above some threshold
