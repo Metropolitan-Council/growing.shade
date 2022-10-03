@@ -1,4 +1,4 @@
-variable,name,type,interpret_high_value,cc,ej,ph,cons
+variable,name,type,interpret_high_value,climate_change,environmental_justice,public_health,conservation
 pop_density,Population density (persons / acre),people,high_opportunity,0,0,0,0
 housing_density,Housing unit density (units / acre),people,high_opportunity,0,0,0,0
 ppov185,% people with income <185% of the poverty threshold,dollar,high_opportunity,0,1,0,0
