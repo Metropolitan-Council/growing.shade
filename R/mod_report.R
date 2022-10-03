@@ -480,13 +480,13 @@ mod_report_server <- function(id,
       step1 <- param_dl_data() %>%
         filter(name %in%
           if (map_selections$preset == "Environmental justice") {
-            metadata[metadata$ej == 1, ]$name
+            metadata[metadata$environmental_justice == 1, ]$name
           } else if (map_selections$preset == "Climate change") {
-            metadata[metadata$cc == 1, ]$name
+            metadata[metadata$climate_change == 1, ]$name
           } else if (map_selections$preset == "Public health") {
-            metadata[metadata$ph == 1, ]$name
+            metadata[metadata$public_health == 1, ]$name
           } else if (map_selections$preset == "Conservation") {
-            metadata[metadata$cons == 1, ]$name
+            metadata[metadata$conservation == 1, ]$name
           } else if (map_selections$preset == "Custom") {
             c(map_selections$allInputs$value)
           }) %>%
@@ -505,13 +505,13 @@ mod_report_server <- function(id,
         full_join(metadata %>%
           filter(name %in%
             if (map_selections$preset == "Environmental justice") {
-              metadata[metadata$ej == 1, ]$name
+              metadata[metadata$environmental_justice == 1, ]$name
             } else if (map_selections$preset == "Climate change") {
-              metadata[metadata$cc == 1, ]$name
+              metadata[metadata$climate_change == 1, ]$name
             } else if (map_selections$preset == "Public health") {
-              metadata[metadata$ph == 1, ]$name
+              metadata[metadata$public_health == 1, ]$name
             } else if (map_selections$preset == "Conservation") {
-              metadata[metadata$cons == 1, ]$name
+              metadata[metadata$conservation == 1, ]$name
             } else {
               c(map_selections$allInputs$value)
             }) %>%
@@ -950,16 +950,16 @@ mod_report_server <- function(id,
                 niceinterp == "Lower" ~ "Lower values = higher priority",
                 niceinterp == "Higher" ~ "Higher values = higher priority"
               )) %>%
-              select(variable, name, nicer_interp, MEANRAW, cc, ej, ph, cons, n) %>%
+              select(variable, name, nicer_interp, MEANRAW, climate_change, environmental_justice, public_health, conservation, n) %>%
               rename(
                 `Variable` = variable,
                 `Variable description` = name,
                 `Value interpretation` = nicer_interp,
                 `Region average` = MEANRAW,
-                `Climate Change variable` = cc,
-                `Environmental Justice variable` = ej,
-                `Public Health variable` = ph,
-                `Conservation variable` = cons,
+                `Climate Change variable` = climate_change,
+                `Environmental Justice variable` = environmental_justice,
+                `Public Health variable` = public_health,
+                `Conservation variable` = conservation,
                 `Number of block groups with data` = n
               ),
             "Selected Area" = 
