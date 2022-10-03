@@ -77,9 +77,9 @@ In other temperate, upper Midwest areas, the .88 coefficient is probably suffici
 # 
 # sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
 
-calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
+calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
   rename(umn = `1`) %>%
-  full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv")) %>%
+  full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcres_metcgrid_year2021.csv")) %>%
               rename(sentinel = `1`),
             by = 'id')
 
@@ -110,9 +110,9 @@ calibrate_trees %>%
 ### Process tree canopy cover at various geographies
 
 ```{r}
-
-bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_mnwi_blockgroups_year2021.csv"),
-                 col_select = c(GEO_NAME, sq_miles, ALAND), col_types = c("GEO_NAME" = "c")) %>%
+# function for processing gee data
+process_gee <- function(x){
+  x %>%
   mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
 
   separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
@@ -120,12 +120,69 @@ bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_mnwi_blockg
          trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
          treeless = if_else(ALAND == 0, 0, as.numeric(treeless)),
          trees = if_else(ALAND == 0, 0, as.numeric(trees)),
-         percent_canopy = trees / (trees + treeless) * calib_coeff)
+         percent_canopy = trees / (trees + treeless) * calib_coeff, #using the calibration coefficient is important for twin cities
+         percent_canopy = if_else(is.na(percent_canopy), 0, percent_canopy)) %>%
+    select(-ALAND, -trees, -treeless)
+}
 
-# canopy_ctu <- 
-
-# canopy_nhood <- 
 ```
+
+
+```{r}
+###
+# block groups
+###
+bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups2020_year2021.csv"),
+                 col_select = c(GEO_NAME, sq_miles, ALAND), col_types = c("GEO_NAME" = "c")) %>%
+  process_gee() %>%
+  rename(bg_id = GEO_NAME)
+
+###
+# cities
+###
+canopy_ctu <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year2021.csv"),
+                   col_select = c(CTU_NAME, sq_miles),
+                   col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
+  mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME),
+         ALAND = 99) %>% #ALAND doesn't matter here, so just set it to a random number
+  rename(GEO_NAME = CTU_NAME) %>%
+  process_gee()
+
+
+###
+# neighborhoods
+###
+canopy_nhood <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborhoods_year2021.csv"),
+                         col_select = c(GEO_NAME, city, sq_miles), 
+                         col_types = c("GEO_NAME" = "c")) %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME),
+         ALAND = 99) %>% #again, just a random number here
+  process_gee() %>%
+  rename(avgcanopy = percent_canopy) %>%
+  right_join(nhood_crosswalk %>%
+               left_join(bg_canopy)) %>%  #bg_id
+        group_by(GEO_NAME, city) %>%
+        summarise(min = round(min(percent_canopy)*100, 1),
+              max = round(max(percent_canopy)*100, 1),
+              n_blockgroups = n())
+
+nhood_list
+#avgcanopy
+
+filter(bg_canopy, bg_id == "270531026004")
+filter(bg_geo, GEOID == "270531026004")
+
+```
+
 
 -   process GEE code to link canopy with geography
     -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
@@ -141,18 +198,14 @@ tree_summary <- function(.geo_file,
     full_join(
       .crosswalk_file %>%
         left_join(bg_canopy %>%
-                rename(tract_id = bg20),
-              by = "tract_id") %>%
+                rename(bg_id = GEO_NAME),
+              by = "bg_id") %>%
         group_by(GEO_NAME) %>%
         summarise(min = round(min(canopy_percent)*100, 1),
               max = round(max(canopy_percent)*100, 1),
               ntracts = n())) %>%
 
-  full_join(.canopy_file) #%>%
-  # arrange(!!!.group_factor, GEO_NAME)# %>%
-  # # st_transform(4326) %>%
-  # group_by(!!.group_factor) %>%
-  # mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
+  full_join(.canopy_file) 
 }
 
 nhood_list_raw <- tree_summary(.geo_file = nhood_geo,
@@ -169,6 +222,8 @@ ctu_list_raw <- tree_summary(.geo_file = ctu_geo,
   arrange(GEO_NAME) %>%
   mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
   
+nhood_list
+
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 ```
 

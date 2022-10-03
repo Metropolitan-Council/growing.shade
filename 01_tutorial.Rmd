@@ -21,7 +21,7 @@ The first time you run this code, it will be helpful to walk step-by-step throug
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = F)
-library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble)
+library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble); library(ggplot2)
 library(tigris)
 library(sf)
 library(tidycensus)
@@ -266,11 +266,12 @@ bg_geo <- block_groups(state = state,
 
 ```
 
+
 ### Neighborhoods and city levels
 
 Since we're going to be making a map which shows census tracts, cities, or neighborhoods depending on the user input, a crosswalk needs to be made which relates block groups to the city and neighborhood levels.
 
-This section doesn't seem to be easily scalable to other regions. As such, the code for this section will likely need to be highly customized, and processing will be done within the `02_geographies.Rmd` script. Further, if this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
+This section doesn't seem to be easily scalable to other regions. As such, the code for this section will likely need to be customized, and processing will be done within the `02_geographies.Rmd` script. Further, if this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
 
 
 In any case, the following files should exist in the `data` folder (again, the `02_geographies.Rmd` script shows an example of creating these files for the Twin Cities region).
@@ -285,17 +286,108 @@ In any case, the following files should exist in the `data` folder (again, the `
 - **wide_ctu_crosswalk**
 
 
+```{r, child = c('02_geographies.Rmd'), include=F, eval=F}
+```
+
+
+# Remote sensing data
+
+This section *may* scale to other regions, but currently requires some initial processing steps done *outside* of R, and hence the code has been moved into the `02_remotesensing.Rmd` script. 
+
+These are the resulting files which should exist:
+
+**still working on this**
+
+- tree canopy
+- NDVI
+
+
+# Environmental data
+
+
+## Lifetime cancer risk from air toxins
+
+The EPA's 2021 EJSCREEN data release can be downloaded automatically and filtered for the region of interest. Interestingly, the 2021 EJSCREEN data uses 2017 AirToxScreen data, even though there does appear to be a more recent, [2018 AirToxScreen file](https://www.epa.gov/AirToxScreen/2018-airtoxscreen-assessment-results) as of October 3, 2022. 
+
+It is my recommendation to use the EJSCREEN data because the process can be automated, and then just [check back to see when this data gets updated for future years](https://gaftp.epa.gov/EJSCREEN). Hopefully the 2018 AirToxScreen data will be incorporated soon. 
+
+Additionally, please note that the 2021 EJSCREEN data is using old (2010-vintage) Census geographies (at the tract level). Fortunately, the crosswalk downloaded to process the PLACES health data will additionally work here. 
+
+
+```{r air-toxins}
+if (process_demographics == TRUE) {
+
+temp <- tempfile()
+temp2 <- tempfile()
+download.file(
+  "https://gaftp.epa.gov/EJSCREEN/2021/EJSCREEN_2021_USPR_Tracts.csv.zip",
+  destfile = temp
+)
+unzip(zipfile = temp, exdir = temp2)
+list.files(temp2)
+
+ejscreen <- read_csv(paste0(temp2, pattern = "/EJSCREEN_2021_USPR_Tracts.csv"),
+                     col_select = c(ST_ABBREV, CANCER, ID)) %>%
+  filter(ST_ABBREV == state)
+
+# #ejscreen is still using 2010 geographies
+# ejscreen %>% left_join(bg_geo %>%
+#                          mutate(ID = substr(GEOID, start = 1, stop = 11))) %>%
+#   st_as_sf() %>%
+#   ggplot() +
+#   geom_sf(aes(fill = CANCER))
+
+files <- list.files(temp2, full.names = T)
+file.remove(files)
+
+## translate into 2020 geographies
+cancer_data <- ejscreen %>%
+  full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
+  rename(bg_id = bg2020ge)
+
+  save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
+} else {
+  load(paste0(here::here(), "/data-raw/cancer_data.rda"))
+}
+
+```
+
+## Climate vulnerability - temperature & flooding
+
+This section relies on processing remote sensing data outside of R, and may require some specific processing to work for other regions. Here, the files created are as follow: 
+
+- **env_data** Column names should be as follows:
+  - `bg_id` (block group geo-identifier)
+  - `avg_temp` (average land surface temperature during a heatwave)
+  - `prim_flood` (amount of land susceptible to primary flooding)
+
+```{r matt-data}
+env_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/CLIMATE_BG20.xlsx")) %>%
+  transmute(bg_id = BG20,
+            avg_temp = AVG_TEMP,
+            prim_flood = PRIM_FLOOD)
+
+```
+
+
 # Geographic overlay files
 
-This is probably not relevant for other regions, but here is the code.
+This may not be relevant for other regions, but here is the code.
 
-## Redlining shapefile
+## Redlining
 
-HOLC Redlining; this data was originally in equity considerations dataset, but that data uses old 2010 geographies, so need to actually get the data.
+HOLC Redlining; this data was originally in equity considerations data set, but that data uses old 2010 geographies, so need to actually get the data.
 
 Remove open water. "all non residential"
 
-```{r holc}
+```{r}
+holc_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/HOLC_BG20.xlsx")) %>%
+  transmute(bg_id = BG20,
+            holc_pred = HOLC_4_RED)
+
+```
+
+```{r holc-geography}
 ## holc  ---------------
 # ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
 temp <- tempfile()
@@ -309,49 +401,6 @@ redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
   sf::st_transform(4326)
 
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
-```
-
-# Remote sensing data
-
-This section *may* scale to other regions, but currently requires some initial processing steps done *outside* of R, and hence the code has been moved into the `02_remotesensing.Rmd` script. 
-
-These are the resulting files which should exist:
-
-- **still working on this**
-
-
-## Equity considerations data
-
-There are several variables which Matt processed in advance of an equity considerations release for me with new geographies:
-
-```{r matt-data}
-matt_data <- 
-  readxl::read_xlsx("./EJSCREEN_OLD_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            env_cancer = ENV_CANCER) %>%
-  
-  full_join(
-readxl::read_xlsx("./HOLC_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            holc_pred = HOLC_4_RED)) %>%
-
-  full_join(
-readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            avg_temp = AVG_TEMP,
-            prim_flood = PRIM_FLOOD,
-            green_roof = GREEN_ROOF
-            ))
-
-# some issues with blocks not having flood information?
-readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            avg_temp = AVG_TEMP,
-            prim_flood = PRIM_FLOOD,
-            green_roof = GREEN_ROOF
-            ) %>%
-  filter(bg20 == "270530117035")
-
 ```
 
 # Combine all variables
