@@ -573,7 +573,10 @@ if (regional_specific_data == FALSE) {
 
 This section *may* scale to other regions, but currently requires some initial processing steps done *outside* of R, and hence the code has been moved into the `03_remotesensing.Rmd` script. 
 
-These are the resulting files which should exist:
+  save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
+} else {
+  load(paste0(here::here(), "/data-raw/cancer_data.rda"))
+}
 
 - **bg_canopy** which has the tree canopy cover of every block group. Columns should be as follows:
   - `bg_id` (block group identifier)
