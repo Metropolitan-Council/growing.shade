@@ -8,7 +8,7 @@ always_allow_html: true
 urlcolor: blue
 ---
 
-```{r setup, include=FALSE}
+```{r include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
                       cache = F)
 library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble)
