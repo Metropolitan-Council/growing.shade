@@ -1,7 +1,7 @@
 README
 ================
 Ellen Esch
-28 September 2022
+03 October 2022
 
 -   <a href="#overview" id="toc-overview">Overview</a>
 -   <a href="#getting-started" id="toc-getting-started">Getting started</a>
@@ -28,8 +28,11 @@ used in interactive mapping tool.**
 
 ## Getting started
 
-The Tutorial.Rmd script walks through the steps to get a working
-versions for different areas.
+The `01_tutorial.Rmd` script walks through the steps to get a working
+versions for different areas. Depending on what data is available for
+various regions, the `02_geographies.Rmd` and `03_treecanopy.Rmd`
+scripts may also be needed (although this data can be created through
+other methods).
 
 Most packages are available on CRAN, so can be downloaded through
 standard procedures. There are two specific packages which should be
