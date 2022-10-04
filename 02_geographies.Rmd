@@ -67,7 +67,8 @@ stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul communities/geo_export_
                               GEO_NAME == "Como" ~ "Como Park",
                               TRUE ~ GEO_NAME))
 
-nhood_geo <- bind_rows(minneap, stpaul) 
+nhood_geo <- bind_rows(minneap, stpaul) %>%
+  select(GEO_NAME, city)
 
 #### ctus -----------
 temp <- tempfile()
@@ -80,8 +81,7 @@ unzip(zipfile = temp, exdir = temp2)
 list.files(temp2)
 
 ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  transmute(GEO_NAME = CTU_NAME,
-            Shape_Area = Shape_Area) 
+  transmute(GEO_NAME = CTU_NAME) 
 
 files <- list.files(temp2, full.names = T)
 file.remove(files)
@@ -132,7 +132,7 @@ wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
   add_column(cities = 999) %>%
   dplyr::select(bg_id, GEO_NAME, cities, n) %>%
   # spread(cities, GEO_NAME)
-  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>%
+  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
   unnest_wider(`999`) 
 
 wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
@@ -140,17 +140,24 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
                               # `...6`, `...7`,
                               sep = ", ")) %>%
   dplyr::select(bg_id, jurisdiction) %>%
-  mutate(jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", ""),
-         jurisdiction = str_replace(jurisdiction, ", NA", "")) %>%
+  mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", "")) %>%
   rename(GEOID = bg_id)
 
 usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
 usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
 
+# library(tibble); library(dplyr); library(tidyr); library(stringr)
+# test <- tibble(id = c(1, 2, 3, 4, 5, 6),
+#                city = c("a", "a", "b", "c", "c", "c"))
+# 
+# count(test, city) %>%
+#   left_join(test) %>%
+#   add_column(junk = NA_real_) %>%
+#   pivot_wider(names_from = junk, values_from = id, values_fn = list) %>%
+#   unnest_wider(`NA`) %>%
+#   mutate(jurisdiction = paste(`...1`, `...2`, `...3`,
+#                               collapse = ", ")) %>%
+#   dplyr::select(city, jurisdiction) %>%
+#   mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 ```
