@@ -47,12 +47,12 @@ If this section doesn't apply for other regions, it should be easy enough to rem
 ```{r nhood-ctu-geo}
 
 # neighborhood
-minneap <- read_sf(paste0(here::here(), "/data-raw/minneapolis communities/Minneapolis_Communities.shp")) %>%
+minneap <- read_sf(paste0(here::here(), "/data-raw/minneapolis neighborhoods/Minneapolis_Communities.shp")) %>%
   rename(GEO_NAME = CommName) %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   mutate(city = "Minneapolis")
 
-stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul communities/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp")) %>%
+stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul neighborhoods/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp")) %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
   rename(GEO_NAME = name2) %>%
   mutate(city = "St. Paul") %>%
@@ -140,8 +140,7 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
                               # `...6`, `...7`,
                               sep = ", ")) %>%
   dplyr::select(bg_id, jurisdiction) %>%
-  mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", "")) %>%
-  rename(GEOID = bg_id)
+  mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 
 usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
