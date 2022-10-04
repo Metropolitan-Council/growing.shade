@@ -226,10 +226,6 @@ ndvi_allland <-
                        col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
   
-  # read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
-  #                   na = "No data",
-  #                      col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-  # dplyr::select(-`system:index`, -.geo, -Year)
 bg_ndvi <- ndvi_uncultivated %>%
   dplyr::select(GEOID, ndvi_uncultivated) %>%
   full_join(ndvi_allland %>%

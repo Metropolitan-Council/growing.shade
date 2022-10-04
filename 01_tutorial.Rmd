@@ -56,6 +56,7 @@ acs_year <- 2020 #The 2017-2021 ACS 5-year estimates are scheduled to be release
 census_year <- 2020
 
 process_demographics <- FALSE
+detailed_population_count <- FALSE #are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
 
 ```
 
@@ -89,9 +90,31 @@ Race variables come from the decennial 2020 census. Currently, the decennial cen
 
 ```{r decennial}
 if (process_demographics == TRUE) {
+  
+  
+  if(detailed_population_count == TRUE){
+    temp <- tempfile()
+    temp2 <- tempfile()
+    download.file(
+      "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_small_area_estimates/xlsx_society_small_area_estimates.zip",
+      destfile = temp)
+    unzip(zipfile = temp, exdir = temp2)
+    list.files(temp2)
+    
+    pop_count <- readxl::read_xlsx(paste0(temp2, pattern = "/SmallAreaEstimatesBlockGroup.xlsx")) %>%
+      rename(population_count = mc_poptot,
+             housing_units = mc_hutot)
+    files <- list.files(temp2, full.names = T)
+    file.remove(files)
+  }
+  
 census_api_key(Sys.getenv("CENSUS_KEY"))
 
-  race_var <- c(
+  # v2020 <- load_variables(census_year, "pl", cache = TRUE)
+  # View(v2020)# %>% filter(geography == "block group"))
+  
+  
+  decennial_var <- c(
     "P2_005N", # white nh
     "P2_006N", # black nh
     "P2_007N", # amin nh
@@ -99,12 +122,14 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
     "P2_009N", # hawaiian pi nh
     "P2_010N", # some other nh
     "P2_011N", # 2+ nh
-    "P2_002N" # hispanic
+    "P2_002N", # hispanic
+    
+    "H1_001N" #total housing units
   )
 
   decennial_data <- get_decennial(
       geography = "block group",
-      variables = race_var, 
+      variables = decennial_var, 
       summary_var = "P1_001N",
       year = census_year,
       state = state,
@@ -117,13 +142,43 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
     rename(whitenh = P2_005N,
         pblacknh = P2_006N,
         pamindnh = P2_007N,
-        phisppop = P2_002N) %>%
+        phisppop = P2_002N,
+        housing_units = H1_001N) %>%
     mutate(pothmultnh = (P2_010N + P2_011N),
            pasiannh = (P2_008N + P2_009N),
-           pbipoc = 1 - whitenh) %>%
+           pbipoc = 1 - whitenh,
+           population_count = summary_value) %>%
     select(-c(starts_with("P2"), summary_value, NAME))
   
-  save(file = paste0(here::here(), "/data-raw/decennial_data.rda"), decennial_data)
+  
+    decennial_metadata <- get_decennial(
+      geography = "county",
+      variables = decennial_var, 
+      summary_var = "P1_001N",
+      year = census_year,
+      state = state,
+      county = county,
+      geometry = F
+    )  %>%
+        add_column(geo = "region") %>%
+        group_by(geo, variable) %>%
+        summarise(value = sum(value),
+                  summary_value = sum(summary_value)) %>%
+        pivot_wider(names_from = variable, values_from = value) %>%
+    
+    mutate(across(starts_with("P2"), ~ .x / summary_value)) %>%
+    rename(whitenh = P2_005N,
+        pblacknh = P2_006N,
+        pamindnh = P2_007N,
+        phisppop = P2_002N,
+        housing_units = H1_001N) %>%
+    mutate(pothmultnh = (P2_010N + P2_011N),
+           pasiannh = (P2_008N + P2_009N),
+           pbipoc = 1 - whitenh,
+           population_count = summary_value) %>%
+    select(-c(starts_with("P2"), summary_value, geo))
+  
+  save(decennial_data, decennial_metadata, file = paste0(here::here(), "/data-raw/decennial_data.rda"))
 } else {
   load(paste0(here::here(), "/data-raw/decennial_data.rda"))
 }
@@ -157,8 +212,9 @@ if (process_demographics == TRUE) {
     paste0("C17002_00", c(1:6)) #poverty status
     )
   
- acs_data <-  get_acs(
-    geography = "block group",
+ acs_fxn <- function(.geo){
+   get_acs(
+    geography = .geo, #"block group",
     variables = acs_variables,
     survey = "acs5",
       state = state,
@@ -178,14 +234,60 @@ if (process_demographics == TRUE) {
        paste0("B01001_0", c(20:25, 44:49)) #over 65m, f
      ), na.rm = T))) %>%
    mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
-          sensage = under18 + over65,
+          sens_age = under18 + over65,
           pownhome = B25003_002 / B25003_001,
           pwk_nowork = B23025_007 / B23025_001,
           ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
    rename(hhincome = B19013_001) %>%
    select(c(GEOID, !starts_with(c("B", "C"))))
+ }
  
-  save(file = paste0(here::here(), "/data-raw/acs_data.rda"), acs_data)
+ acs_blockgroups <- acs_fxn(.geo = "block group") %>%
+   mutate(tract_id = substr(GEOID, start = 1, stop = 11))
+ 
+ acs_tracts <- acs_fxn(.geo = "tract") %>%
+   mutate(across(c(hhincome:ppov185), ~.x, .names = "tr_{.col}")) %>%
+   rename(tract_id = GEOID) %>%
+   select(starts_with("tr"))
+ 
+ ### 
+ # also want to get regional averages for metadata
+ ###
+ acs_metadata <- get_acs(
+    geography = "county",
+    variables = acs_variables,
+    survey = "acs5",
+      state = state,
+      county = county,
+    year = acs_year
+  ) %>%
+   add_column(geo = "region averages") %>%
+   group_by(geo, variable) %>%
+   summarise(estimate = sum(estimate)) %>%
+   pivot_wider(names_from = variable, values_from = estimate) %>%
+   
+   #process to useable forms of the data
+   mutate(
+     under18 = rowSums(across(c(
+       paste0("B01001_00", c(3:6)), #under18 m
+       paste0("B01001_0", c(27:30)) #under18 f
+       ), na.rm = T)),
+     over65 = rowSums(across(c(
+       paste0("B01001_0", c(20:25, 44:49)) #over 65m, f
+     ), na.rm = T))) %>%
+   mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
+          sens_age = under18 + over65,
+          pownhome = B25003_002 / B25003_001,
+          pwk_nowork = B23025_007 / B23025_001,
+          ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
+   rename(hhincome = B19013_001) %>% 
+   select(c(geo, !starts_with(c("B", "C"))))
+ 
+ ###
+ # save files
+ ###
+ 
+  save(acs_blockgroups, acs_tracts, acs_metadata, file = paste0(here::here(), "/data-raw/acs_data.rda"))
 } else {
   load(paste0(here::here(), "/data-raw/acs_data.rda"))
 }
@@ -240,7 +342,9 @@ crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fip
 
 ## translate health data into 2020 geographies
 health_data <- raw_health %>%
-  full_join(crosswalk, by = c("locationname" = "tr2010ge"))
+  full_join(crosswalk, by = c("locationname" = "tr2010ge")) %>%
+  rename(GEOID = bg2020ge) %>%
+  select(-locationname)
 
   save(file = paste0(here::here(), "/data-raw/health_data.rda"), health_data)
 } else {
@@ -283,7 +387,9 @@ In any case, the following files should exist in the `data` folder (again, the `
   - `GEO_NAME` (neighborhood name, e.g. "Powderhorn" or "Downtown")
   - `city` (core city in which neighborhood lies, e.g. "Minneapolis")
   - `bg_id` (block group id)
-- **wide_ctu_crosswalk**
+- **wide_ctu_crosswalk** indicates which city(ies) each block group belongs to. Column names:
+  - `bg_id` (block group id)
+  - `jurisdiction` (city or cities which the block group belongs to - where applicable cities should be separated by a ", "; i.e. "St. Francis, Bethel")
 
 
 ```{r, child = c('02_geographies.Rmd'), include=F, eval=F}
@@ -363,7 +469,8 @@ file.remove(files)
 ## translate into 2020 geographies
 cancer_data <- ejscreen %>%
   full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
-  rename(bg_id = bg2020ge)
+  rename(bg_id = bg2020ge) %>%
+  select(bg_id, CANCER)
 
   save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
 } else {
@@ -376,12 +483,12 @@ cancer_data <- ejscreen %>%
 
 This section relies on processing remote sensing data outside of R, and may require some specific processing to work for other regions. Here, the files created are as follow: 
 
-- **env_data** Column names should be as follows:
+- **env_data** Column names, as applicable, should be as follows:
   - `bg_id` (block group geo-identifier)
   - `avg_temp` (average land surface temperature during a heatwave)
   - `prim_flood` (amount of land susceptible to primary flooding)
 
-```{r matt-data}
+```{r environmental-data}
 env_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/CLIMATE_BG20.xlsx")) %>%
   transmute(bg_id = BG20,
             avg_temp = AVG_TEMP,
@@ -390,24 +497,26 @@ env_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/CLIMATE_BG20.xlsx"
 ```
 
 
-# Geographic overlay files
+# Other & geographic overlay files
 
 This may not be relevant for other regions, but here is the code.
 
 ## Redlining
 
-HOLC Redlining; this data was originally in equity considerations data set, but that data uses old 2010 geographies, so need to actually get the data.
+This data describes the amount of block groups which were redlined. 
 
-Remove open water. "all non residential"
 
-```{r}
+```{r holc-percents}
 holc_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/HOLC_BG20.xlsx")) %>%
   transmute(bg_id = BG20,
-            holc_pred = HOLC_4_RED)
-
+            holc_pred = HOLC_4_RED) %>%
+  right_join(bg_geo %>% st_drop_geometry() %>% transmute(bg_id = GEOID)) %>%
+  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) 
 ```
 
 ```{r holc-geography}
+#Remove open water. "all non residential"
+
 ## holc  ---------------
 # ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
 temp <- tempfile()
@@ -423,96 +532,53 @@ redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
 fs::file_delete("plan_historic_holc_appraisal.gpkg")
 ```
 
+## MPCA area of environmental justice concern
+
+```{r mpca}
+#nothing here yet; this seems to be out-of-date...but it could come from equity considerations data
+```
+
 # Combine all variables
 
 Merge demographic and environmental data
 
 ```{r combinedata}
-bg_growingshade_data_allMN <- 
+bg_growingshade_data <- 
   
-  #demographics
-  census_race %>%
-  full_join(bg_acs) %>%
-  full_join(tract_acs) %>%
-  # filter(bg20 == "270531016003") %>%
+  # direct-fetching data; exists for all regions/scale-able
+  acs_blockgroups %>%
+  full_join(decennial_data) %>%
+  full_join(health_data) %>%
+  full_join(cancer_data, by = c("GEOID" = "bg_id")) %>%
+  full_join(bg_geo %>% st_drop_geometry() %>% transmute(GEOID = GEOID, land = ALAND)) %>%
+  full_join(acs_tracts) %>% 
+  # deal with some non-residential blocks and insufficient data; demographics specific data
+      mutate(across(-c(GEOID, tract_id, land, starts_with("tr"), population_count), ~ if_else(population_count == 0, NA_real_, .x)),
+           under18 = if_else(is.nan(under18), tr_under18, under18),
+           over65 = if_else(is.nan(over65), tr_over65, over65),
+           sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
+           pownhome = if_else(is.nan(pownhome), tr_sens_age, pownhome),
+           ppov185 = if_else(is.nan(ppov185), tr_sens_age, ppov185),
+           hhincome = if_else(is.na(hhincome) & population_count > 0, tr_hhincome, hhincome),
+           pwk_nowork = if_else(is.na(pwk_nowork) & population_count > 0, tr_pwk_nowork, pwk_nowork)) %>%
+  select(!starts_with("tr")) %>%
+
+  # tree canopy data; needs to be prepared separately for different regions
+  full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>% 
+  full_join(bg_ndvi, by = c("GEOID" = "bg_id")) %>%
   
-  full_join(matt_data) %>% #equity_considerations
-  full_join(bg_health3) %>%
+  # other data; may not apply for other regions
+  full_join(env_data, by = c("GEOID" = "bg_id")) %>% #extreme heat, flood risk
+  full_join(holc_data, by = c("GEOID" = "bg_id")) %>%  #redlining
 
-  #environmental
-  full_join(bg_canopy) %>%
-  full_join(bg_ndvi) %>%
-  
-  #update some variables
-  # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
-  mutate(tr20 = substr(bg20, 1, 11)) %>% #this is the tract id
-
-
+  # start to process the data
   mutate(inverse_ndvi_uncultivated = ndvi_uncultivated,
          inverse_ndvi_land = ndvi_land,
-         canopy_percent2 = canopy_percent,
-         pop_density = poptot_mc / landacres,
-         housing_density = hutot_mc / landacres) %>%
-  rename(bg_string = bg20) %>%
-  rowwise() %>%
-  mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
+         inverse_canopy = canopy_percent,
+         pop_density = population_count / land * 4045.86,
+         housing_density = housing_units / land * 4045.86) %>%
+  rename(bg_string = GEOID) 
   
-    # deal with some non residential blocks and insufficent data
-    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
-           p_0017 = if_else(is.nan(p_0017), tr_p_0017, p_0017),
-           p_65up = if_else(is.nan(p_65up), tr_p_65up, p_65up),
-           sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
-           mdhhincnow = if_else(is.na(mdhhincnow), tr_medianhhinc, mdhhincnow),
-           phhi_qntl1 = if_else(is.na(phhi_qntl1), tr_phhi_qntl1, phhi_qntl1),
-           pwk_nowork = if_else(is.na(pwk_nowork), tr_pwk_nowork, pwk_nowork)) %>%
-  # mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
-  #        across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))
-  #        ) %>%
-  # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
-  dplyr::select(-c(pblacknh_acs:pbipoc_acs)) %>% 
-      # get rid of blocks where acs has no data
-    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.nan(sens_age) | is.na(sens_age), NA_real_, .x))) 
-  # filter(!is.na(sens_age), !is.nan(sens_age)) #get rid of block groups where there is no acs data
-
-
-#%>% #and for this project, I need to rename the tract variable
-  # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
-  
-bg_growingshade_data <- bg_growingshade_data_allMN %>%
-  filter(str_detect(bg_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
-
-filter(bg_growingshade_data_allMN, bg_string %in% c("270539800001")) #this has population, but no age component
-filter(bg_growingshade_data_allMN, poptotal <10 )
-filter(bg_growingshade_data_allMN, is.na(tr_medianhhinc))
-# temp <- tempfile()
-# download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
-#   destfile = temp
-# )
-
-# # tract variables of interest; some variables only exist at tract level
-# acs_bgtest <- readxl::read_xlsx(unzip(temp, "CensusACSBlockGroup.xlsx")) %>%
-#   janitor::clean_names()  %>%
-#   filter(geog_unit %in% c("270531263002", "270531007004"))#, "270017701001"))
-#   # transmute(bg20 = geog_unit,
-#   #           pd_any = anydis / cdenom,
-#   #           povdenom = povdenom)
-# acs_bgtest$ageunder18
-# acs_bgtest$age65up
-# 
-# acs_bgtest %>% filter(geog_unit %in% c("270531007004")) %>% dplyr::select(geog_unit, poptotal, meanhhinc, medianhhi)#, "270531007004"))
-# 
-# census_race %>% filter(bg20 %in% c("270531263002"))# %>% dplyr::select(geog_unit, meanhhinc, medianhhi, poptotal)#, "270531007004"))
-# acs_bgtest %>% filter(geog_unit %in% c("270531263002")) %>% dplyr::select(geog_unit, poptotal, meanhhinc, medianhhi)#, "270531007004"))
-# 
-# fs::file_delete("CensusACSTract.xlsx")
 ```
 
 # Metadata
@@ -520,7 +586,7 @@ filter(bg_growingshade_data_allMN, is.na(tr_medianhhinc))
 This is the most important file of all!
 
 ```{r make-metadata}
-gs_data_codes <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
+code_metadata <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
 ```
 
 Standardize and re-scale variables so we can create equally weighted priority scores. Do *not* include spatial data at this point, it should be joined after summarizing to save computational time.
@@ -528,7 +594,7 @@ Standardize and re-scale variables so we can create equally weighted priority sc
 ```{r standardize-rescale}
 
 bg_growingshade_main <- bg_growingshade_data %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string, tr20)) %>% #end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string)) %>% #end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(MEAN = mean(raw_value, na.rm = T),
          SD = sd(raw_value, na.rm = T),
@@ -537,7 +603,7 @@ bg_growingshade_main <- bg_growingshade_data %>%
          COUNT = as.numeric(sum(!is.na(raw_value))),
          z_score = (raw_value - MEAN)/SD) %>%
   
-  full_join(gs_data_codes, by = 'variable') %>%
+  full_join(code_metadata, by = 'variable') %>%
   
   #create nominal weights
   mutate(weights_nominal = case_when(interpret_high_value == "high_opportunity" ~ (raw_value - MIN) / (MAX - MIN) * 10,
@@ -559,14 +625,13 @@ bg_growingshade_main <- bg_growingshade_data %>%
                                   interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))))) %>%
   #clean
   dplyr::select(-MEAN, -SD, -MIN, -MAX)  %>%
-  full_join(wide_ctu_crosswalk %>% rename(tr20 = GEOID)) %>%
-  filter(!is.na(name))
+  full_join(wide_ctu_crosswalk, by = c("bg_string" = "bg_id")) %>%
+  filter(!is.na(name)) #remove variables which are NOT in the metadata list
 
 ########
 # save data
 ########
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-gs_data_codes %>% arrange(type, name)%>% dplyr::select(type, name)
 
 ```
 
@@ -575,6 +640,21 @@ gs_data_codes %>% arrange(type, name)%>% dplyr::select(type, name)
 ## Regional averages
 
 Create some regional averages. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income.
+
+
+```{r}
+acs_metadata
+decennial_metadata
+
+md1 <- bg_growingshade_main %>% 
+  group_by(variable) %>% 
+  summarise(MEANRAW = mean(raw_value, na.rm = T),
+            MEANSCALED = mean(weights_scaled, na.rm = T))
+
+code_metadata %>%
+  full_join(md1)
+
+```
 
 ```{r regional-averages}
 # ########
@@ -619,7 +699,7 @@ acs_tr2 %>% #use tracts becuase it has info about disability
 md_gee <- 
   tribble(~rgn, ~variable, ~MEANRAW2,
           "twin cities", "canopy_percent", ctu_list_raw$avgcanopy[1], 
-          "twin cities", "canopy_percent2", ctu_list_raw$avgcanopy[1]
+          "twin cities", "inverse_canopy", ctu_list_raw$avgcanopy[1]
   )
 
 metadata <- bg_growingshade_main %>%
