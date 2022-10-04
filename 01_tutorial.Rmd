@@ -296,11 +296,31 @@ This section *may* scale to other regions, but currently requires some initial p
 
 These are the resulting files which should exist:
 
-**still working on this**
-
-- tree canopy
-- NDVI
-
+- **bg_canopy** which has the tree canopy cover of every block group. Columns should be as follows:
+  - `bg_id` (block group identifier)
+  - `canopy_percent` (the percent tree canopy cover in the block group)
+  - `avgcanopy` (the average block group tree canopy cover; note, for the best comparative value, this avgcanopy variable should *not* be the regional average tree canopy (which would require incorporating the fact that all block groups are not the same area))
+- **ctu_list** which has information about the tree canopy at the city level. Columns:
+  - `GEO_NAME` (the name of the city/township)
+  - `canopy_percent` (the percent tree canopy cover in the city)
+  - `avgcanopy` (the average canopy cover of block groups within the city)
+  - `min` (the canopy cover value from the block group with the lowest tree cover in the city)
+  - `max` (the canopy cover value from the block group with the highest tree cover in the city)
+  - `n_blockgroups` (the number of block groups which fall inside the city)
+  - `geometry` (the spatial coordinates of the city polygon)
+- **nhood_list** which has information about the tree canopy at the neighborhood level. Columns:
+  - `GEO_NAME` (the name of the neighborhood)
+  - `city` (the city in which the neighborhood is located)
+  - `canopy_percent` (the percent tree canopy cover in the neighborhood)
+  - `avgcanopy` (the average canopy cover of block groups within the neighborhood)
+  - `min` (the canopy cover value from the block group with the lowest tree cover in the neighborhood)
+  - `max` (the canopy cover value from the block group with the highest tree cover in the neighborhood)
+  - `n_blockgroups` (the number of block groups which fall inside the neighborhood)
+  - `geometry` (the spatial coordinates of the neighborhood polygon)
+- **bg_ndvi** which has information about the greenness (as measured via NDVI, or normalized difference vegetation index) of block groups
+  - `bg_id` (block group identifier)
+  - `ndvi_uncultivated` (average NDVI over uncultivated land)
+  - `ndvi_land` (average NDVI over all land, including cropland)
 
 # Environmental data
 
@@ -495,7 +515,9 @@ filter(bg_growingshade_data_allMN, is.na(tr_medianhhinc))
 # fs::file_delete("CensusACSTract.xlsx")
 ```
 
-Add some metadata.
+# Metadata
+
+This is the most important file of all!
 
 ```{r make-metadata}
 gs_data_codes <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
@@ -821,6 +843,14 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 # #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
 
 ```
+
+# Running application
+
+If the follow steps have been followed, you should be able to navigate to the `./dev/run_dev.R` file, select all the code, and run! This should initiate a local version of Growing Shade for the customized region! 
+
+## Troubleshooting application
+
+The "report" section is quite detailed, and various sections may not work if all the data isn't there. For instance, if there isn't data on NDVI, the figure relating how greenness (trees) contribute to lower land surface temperatures won't work. 
 
 # block group issues
 
