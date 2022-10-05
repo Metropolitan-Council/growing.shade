@@ -568,6 +568,11 @@ if (regional_specific_data == FALSE) {
 }
 ```
 
+```{r}
+load(paste0(here::here(), "/data-raw/geography_data.rda"))
+usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+```
 
 # Remote sensing data
 
