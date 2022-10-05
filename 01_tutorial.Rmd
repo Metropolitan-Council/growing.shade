@@ -983,7 +983,11 @@ The block group geographies need some final adjustments before they are ready to
 ```{r bg_shapefiles_for_mapping, include = F}
 
 mn_bgs_raw <- bg_geo %>%
+<<<<<<< refs/remotes/origin/metcouncil-2021
   right_join(decennial_data %>% select(GEOID, fancyname)) %>%
+=======
+  right_join(bg_growingshade_data %>% select(bg_string, fancyname), by = c("GEOID" = "bg_string")) %>%
+>>>>>>> fix fancyname
   right_join(wide_ctu_crosswalk, by = c("GEOID" = "bg_id")) %>%
   full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>%
   full_join(priority_summary) %>%

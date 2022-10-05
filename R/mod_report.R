@@ -38,7 +38,7 @@ mod_report_ui <- function(id) {
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
-                              tract_selections,
+                              blockgroup_selections,
                               map_util) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -51,8 +51,8 @@ mod_report_server <- function(id,
         geo_selections$selected_area
       } else if (geo_selections$selected_geo == "nhood") {
         geo_selections$selected_area
-      } else if (geo_selections$selected_geo == "tracts") {
-        tract_selections$selected_tract
+      } else if (geo_selections$selected_geo == "blockgroups") {
+        blockgroup_selections$selected_blockgroup
       }
       return(TEST)
     })
@@ -71,14 +71,14 @@ mod_report_server <- function(id,
         sf::st_drop_geometry(ctu_list[ctu_list$GEO_NAME == param_area(), ])
       } else if (geo_selections$selected_geo == "nhood") {
         sf::st_drop_geometry(nhood_list[nhood_list$GEO_NAME == param_area(), ])
-      } else if (geo_selections$selected_geo == "tracts") {
+      } else if (geo_selections$selected_geo == "blockgroups") {
         sf::st_drop_geometry(mn_bgs[mn_bgs$GEOID == param_area(), ])
       }
       return(output)
     })
 
-    # the min/max/other data for all tracts within a given ctu/nhood/tract (n = 1 for tracts, n > 1 for most ctus/nhoods)
-    param_selectedtractvalues <- reactive({
+    # the min/max/other data for all blockgroups within a given ctu/nhood/blockgroup (n = 1 for blockgroups, n > 1 for most ctus/nhoods)
+    param_selectedblockgroupvalues <- reactive({
       req(TEST() != "")
       output <- filter(
         (map_util$map_data),
@@ -96,7 +96,7 @@ mod_report_server <- function(id,
     
     selected_length <- reactive({
       req(TEST() != "")
-      nrow(param_selectedtractvalues())
+      nrow(param_selectedblockgroupvalues())
     })
 
     # all data with flag for selected areas
@@ -109,7 +109,7 @@ mod_report_server <- function(id,
             c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$bg_id)
           } else if (geo_selections$selected_geo == "nhood") {
             c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$bg_id)
-          } else if (geo_selections$selected_geo == "tracts") {
+          } else if (geo_selections$selected_geo == "blockgroups") {
             c(param_area())
           },
         "selected", NA_character_
@@ -130,8 +130,7 @@ mod_report_server <- function(id,
       tagList(
         HTML(paste0(
           "<h2><section style='font-size:20pt'>Growing Shade report for ",
-          if (geo_selections$selected_geo == "tracts") {
-            # param_fancytract()
+          if (geo_selections$selected_geo == "blockgroups") {
             param_areasummary()$fancyname
           } else {
             param_area()
@@ -144,7 +143,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       tagList(HTML(
         paste0(
-          if (geo_selections$selected_geo == "tracts") {
+          if (geo_selections$selected_geo == "blockgroups") {
             paste0(
               param_areasummary()$fancyname, " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
               "% in 2021. Compared to other block groups across the region, the tree canopy in the selected block group is ",
@@ -204,7 +203,7 @@ mod_report_server <- function(id,
     report_tree_plot <- reactive({
       req(TEST() != "")
       set.seed(12345)
-      if (geo_selections$selected_geo != "tracts") {
+      if (geo_selections$selected_geo != "blockgroups") {
         canopyplot <-
           (as_tibble(if (geo_selections$selected_geo == "ctus") {
             ctu_list
@@ -230,7 +229,7 @@ mod_report_server <- function(id,
           rename(raw_value = canopy_percent)
       }
 
-      if (geo_selections$selected_geo != "tracts") {
+      if (geo_selections$selected_geo != "blockgroups") {
         plot <- ggplot() +
           councilR::theme_council() +
           theme(
@@ -360,10 +359,10 @@ mod_report_server <- function(id,
           "Using the ",
           tolower(map_selections$preset),
           " layer, ", #signing test
-          if (geo_selections$selected_geo == "tracts") {
+          if (geo_selections$selected_geo == "blockgroups") {
             paste0(
               param_areasummary()$fancyname, 
-              if(!is.na(param_selectedtractvalues()$MEAN)) {paste0(" has a score of ", round((param_selectedtractvalues()$MEAN), 2))} else {paste0("'s priority score cannot be computed due to insufficient data ")},
+              if(!is.na(param_selectedblockgroupvalues()$MEAN)) {paste0(" has a score of ", round((param_selectedblockgroupvalues()$MEAN), 2))} else {paste0("'s priority score cannot be computed due to insufficient data ")},
               " (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area and region-wide averages.<br>"
             )
@@ -372,7 +371,7 @@ mod_report_server <- function(id,
               "block groups within ",
               param_area(),
               " have priority scores ranging from ",
-              round(min(param_selectedtractvalues()$MEAN, na.rm = T), 2), " to ", round(max(param_selectedtractvalues()$MEAN, na.rm = T), 2),
+              round(min(param_selectedblockgroupvalues()$MEAN, na.rm = T), 2), " to ", round(max(param_selectedblockgroupvalues()$MEAN, na.rm = T), 2),
               "  (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area (average of ", param_areasummary()$n_blockgroups, " block group values) and region-wide averages.<br>"
             )
@@ -393,12 +392,12 @@ mod_report_server <- function(id,
       test2 <- if (map_selections$preset != "Custom") {
         tibble()
       } else {
-        param_selectedtractvalues() %>%
+        param_selectedblockgroupvalues() %>%
           # rename(score = MEAN) %>%
           mutate(priority = " Custom")
       }
 
-      test <- param_selectedtractvalues() %>%
+      test <- param_selectedblockgroupvalues() %>%
         st_drop_geometry() %>%
         dplyr::select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
         pivot_longer(names_to = "priority", values_to = "score", -GEO_NAME) %>%
@@ -552,7 +551,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       para <- HTML(paste0(
         "Research shows that trees are not distributed equitably across communities. Lower-income areas (<a href='https://doi.org/10.1371/journal.pone.0249715' target = '_blank'>McDonald et al. 2021</a>) and areas with more people identifying as persons of color (<a href = 'https://doi.org/10.1016/j.jenvman.2017.12.021' target='_blank'>Watkins and Gerris 2018</a>) have less tree canopy. Trends in our region are shown below; ",
-        if (geo_selections$selected_geo == "tracts") {
+        if (geo_selections$selected_geo == "blockgroups") {
           paste0(param_areasummary()$fancyname, " is ")
         } else {
           paste0(
@@ -586,7 +585,7 @@ mod_report_server <- function(id,
       req(TEST() != "")
       para <- HTML(paste0(
         "Trees and other green space help cool temperatures. Temperature differences between moderate and high amounts of green space can be up to 10 degrees. Adding green space can reduce hundreds of heat-related deaths (<a href='https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf' target = '_blank'>Sinha et al. 2021</a>). The impact of green space on temperature is shown below. ",
-        if (geo_selections$selected_geo == "tracts") {
+        if (geo_selections$selected_geo == "blockgroups") {
           paste0(param_areasummary()$fancyname, " is ")
         } else {
           paste0(
@@ -963,7 +962,7 @@ mod_report_server <- function(id,
                 `Number of block groups with data` = n
               ),
             "Selected Area" = 
-              (param_selectedtractvalues() %>%
+              (param_selectedblockgroupvalues() %>%
               select(
                 GEO_NAME, jurisdiction, canopy_percent, MEAN,
                 "Public health", Conservation, "Environmental justice", "Climate change"
@@ -1010,7 +1009,7 @@ mod_report_server <- function(id,
           name.zip  <- paste0(name.base, ".zip")
           
           if (length(Sys.glob(name.glob)) > 0) file.remove(Sys.glob(name.glob))
-          sf::st_write((param_selectedtractvalues() %>%
+          sf::st_write((param_selectedblockgroupvalues() %>%
                           select(
                             GEO_NAME, jurisdiction, canopy_percent, MEAN,
                             "Public health", Conservation, "Environmental justice", "Climate change"
