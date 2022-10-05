@@ -386,7 +386,7 @@ Growing Shade is set up to have data at the block group, neighborhood, and city/
 
 Getting these geography files is easy - just downloaded directly.
 
-```{r census-geography}
+```{r census-geography, include = F}
 bg_geo <- block_groups(state = state, 
                                     county = county,
                                     year = census_year) 
@@ -743,7 +743,7 @@ priority_summary <- priority_summary_1 %>%
 
 The block group geographies need some final adjustments before they are ready to go into the mapping application. 
 
-```{r bg_shapefiles_for_mapping}
+```{r bg_shapefiles_for_mapping, include = F}
 
 mn_bgs_raw <- bg_geo %>%
   right_join(decennial_data %>% select(GEOID, fancyname)) %>%
