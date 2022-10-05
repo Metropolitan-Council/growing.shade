@@ -96,7 +96,7 @@ summary(calibrate_lm2)$coefficients[,4] # p-value
 
 calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
 
-  save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
+  # save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
 
 
 calibrate_trees %>%
@@ -154,7 +154,7 @@ bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups
 ###
 # cities
 ###
-ctu_list <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year2021.csv"),
+ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year2021.csv"),
                    col_select = c(CTU_NAME, sq_miles),
                    col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
   mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME),
@@ -175,7 +175,7 @@ ctu_list <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year202
 ### 
 # neighborhoods
 ###
-nhood_list <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborhoods_year2021.csv"),
+nhood_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborhoods_year2021.csv"),
                          col_select = c(GEO_NAME, city, sq_miles), 
                          col_types = c("GEO_NAME" = "c")) %>%
   mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
@@ -200,10 +200,6 @@ nhood_list <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborho
   full_join(nhood_geo) %>%
   st_as_sf()
 
-
-usethis::use_data(bg_canopy, overwrite = TRUE)
-usethis::use_data(ctu_list, overwrite = TRUE)
-usethis::use_data(nhood_list, overwrite = TRUE)
 
 ```
 
@@ -232,6 +228,13 @@ bg_ndvi <- ndvi_uncultivated %>%
   dplyr::select(GEOID, ndvi_land)) %>%
     rename(bg_id = GEOID)
 
-usethis::use_data(bg_ndvi, overwrite = TRUE)
+```
+
+## Save data
+
+
+```{r}
+  save(bg_canopy, bg_ndvi, ctu_list_raw, nhood_list_raw, file = paste0(here::here(), "/data-raw/canopy_data.rda"))
 
 ```
+
