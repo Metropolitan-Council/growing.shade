@@ -52,7 +52,11 @@ This code is set up to use/process 2020-era census geographies at the block grou
 # Geography variables
 ####
 state <- c("MN")
+<<<<<<< refs/remotes/origin/metcouncil-2021
 county <- c("Anoka")#, "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+=======
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+>>>>>>> test different geographies
 
 #######
 # Demographic variables
@@ -61,7 +65,11 @@ acs_year <- 2020 # The 2017-2021 ACS 5-year estimates are scheduled to be releas
 census_year <- 2020
 
 process_demographics <- TRUE
+<<<<<<< refs/remotes/origin/metcouncil-2021
 detailed_population_count <- FALSE # are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
+=======
+detailed_population_count <- FALSE #are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
+>>>>>>> test different geographies
 
 ######
 # Tree canopy and/or geography files
@@ -1042,8 +1050,12 @@ speed_up <- function(x, smooth) {
     sf::st_transform(4326)
 }
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
+<<<<<<< refs/remotes/origin/metcouncil-2021
 ctu_list <- ctu_list_raw %>%
   speed_up(50)
+=======
+ctu_list <- ctu_list_raw
+>>>>>>> test different geographies
 usethis::use_data(ctu_list, overwrite = TRUE)
 
 nhood_list <- nhood_list_raw %>%
@@ -1054,12 +1066,21 @@ redline <- redline_raw %>%
   speed_up(50)
 usethis::use_data(redline, overwrite = TRUE)
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 mn_bgs <- mn_bgs_raw %>%
   speed_up(40) %>% # 25
   filter(!is.na(GEO_NAME)) %>%
   mutate(GEOID = GEO_NAME)
 usethis::use_data(mn_bgs, overwrite = TRUE)
 # object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
+=======
+mn_bgs <- mn_bgs_raw %>% 
+  speed_up(25) %>%
+  filter(!is.na(GEO_NAME)) %>%
+  mutate(GEOID = GEO_NAME)
+usethis::use_data(mn_bgs, overwrite = TRUE)
+object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
+>>>>>>> test different geographies
 
 bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
@@ -1165,6 +1186,19 @@ usethis::use_data(nhood_ui, overwrite = TRUE)
 There will likely be region-specific information that should be displayed alongside the data within the interactive application. Users should edit files within the "R" folder as prudent. 
 >>>>>>> generalize parameters
 
+## Using ArcGIS for processing
+
+If platforms other than R are used for processing data, there shouldn't be any problem! However, you may need to replace sections of the R processing code with code that reads in .shp files and saves them as .rda files. You'll also need to just ensure that the spatial projection is correct for the leaflet package, which is used to map everything. I would recommend placing the raw shapefiles inside the data-raw folder. Here is an example of some code:
+
+```{r ex-shapefile, include = F, eval = F}
+
+test <- sf::read_sf(paste0(here::here(), "/data-raw/your_shapefile_name_here.shp")) %>%
+  sf::st_transform(4326)
+usethis::use_data(test, overwrite = TRUE)
+
+```
+
+
 ## Troubleshooting application
 
 
@@ -1172,6 +1206,7 @@ There will likely be region-specific information that should be displayed alongs
 
 There will likely be region-specific information that should be displayed alongside the data within the interactive application. Users should edit files within the "R" folder as prudent. 
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 ## Using ArcGIS for processing
 
 If platforms other than R are used for processing data, there shouldn't be any problem! However, you may need to replace sections of the R processing code with code that reads in .shp files and saves them as .rda files. You'll also need to just ensure that the spatial projection is correct for the leaflet package, which is used to map everything. I would recommend placing the raw shapefiles inside the data-raw folder. Here is an example of some code:
@@ -1182,3 +1217,6 @@ test <- sf::read_sf(paste0(here::here(), "/data-raw/your_shapefile_name_here.shp
   sf::st_transform(4326)
 usethis::use_data(test, overwrite = TRUE)
 ```
+=======
+
+>>>>>>> test different geographies
