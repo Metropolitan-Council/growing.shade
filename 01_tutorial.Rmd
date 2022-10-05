@@ -138,6 +138,7 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
     ) %>%
       pivot_wider(names_from = variable, values_from = value) %>%
     
+    #process data
     mutate(across(starts_with("P2"), ~ .x / summary_value)) %>%
     rename(whitenh = P2_005N,
         pblacknh = P2_006N,
@@ -148,7 +149,12 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
            pasiannh = (P2_008N + P2_009N),
            pbipoc = 1 - whitenh,
            population_count = summary_value) %>%
-    select(-c(starts_with("P2"), summary_value, NAME))
+    select(-c(starts_with("P2"), summary_value)) %>%
+    
+    #get a nice name for tracts
+    separate(NAME, into = c("bg", "tract", "county", "state"), sep = ",") %>%
+    mutate(fancyname = paste0(county, " tract ", str_remove(tract, "Census Tract "), ", block group ", str_remove(bg, "Block Group "))) %>%
+    select(-bg, -tract, -county, -state)
   
   
     decennial_metadata <- get_decennial(
@@ -160,7 +166,7 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
       county = county,
       geometry = F
     )  %>%
-        add_column(geo = "region") %>%
+        add_column(geo = "region averages") %>%
         group_by(geo, variable) %>%
         summarise(value = sum(value),
                   summary_value = sum(summary_value)) %>%
@@ -195,6 +201,7 @@ if (process_demographics == TRUE) {
   census_api_key(Sys.getenv("CENSUS_KEY"))
 
   v20 <- load_variables(acs_year, "acs5", cache = TRUE)
+  View(v20 %>% filter(geography == "tract"))
   View(v20 %>% filter(geography == "block group"))
   #  you may need to access the table shells: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.html
   #  census reporter topics are also very useful! https://censusreporter.org/topics/
@@ -212,20 +219,22 @@ if (process_demographics == TRUE) {
     paste0("C17002_00", c(1:6)) #poverty status
     )
   
- acs_fxn <- function(.geo){
-   get_acs(
-    geography = .geo, #"block group",
-    variables = acs_variables,
+ acs_fxn <- function(.geo, .process = NULL, .extra_vars = NULL){
+   step1 <- get_acs(
+    geography = .geo,
+    variables = if(is.null(.extra_vars)) {acs_variables} else {.extra_vars},#c(acs_variables, .extra_vars),
     survey = "acs5",
       state = state,
       county = county,
     year = acs_year
   ) %>%
    select(-moe, -NAME) %>%
-   pivot_wider(names_from = variable, values_from = estimate)  %>%
+   pivot_wider(names_from = variable, values_from = estimate)  
    
    #process to useable forms of the data
-   mutate(
+   if(is.null(.process)) {
+     step2 <- step1 %>%
+     mutate(
      under18 = rowSums(across(c(
        paste0("B01001_00", c(3:6)), #under18 m
        paste0("B01001_0", c(27:30)) #under18 f
@@ -240,22 +249,34 @@ if (process_demographics == TRUE) {
           ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
    rename(hhincome = B19013_001) %>%
    select(c(GEOID, !starts_with(c("B", "C"))))
+   }
+   
+   if(is.null(.process)) {return (step2)} else {return (step1)}
  }
  
  acs_blockgroups <- acs_fxn(.geo = "block group") %>%
    mutate(tract_id = substr(GEOID, start = 1, stop = 11))
  
+ acs_disability <- acs_fxn(.geo = "tract",
+                           .process = "dont complete",
+                           .extra_vars = c(paste0("C18108_0", c("01", "05", "09", "13")))) %>%
+   mutate(nodisability = rowSums(across(c(paste0("C18108_0", c("05", "09", "13")))))) %>%
+     transmute(tract_id = GEOID,
+               pd_any = 1 - (nodisability / C18108_001))
+ 
  acs_tracts <- acs_fxn(.geo = "tract") %>%
+                       # .extra_variables = (paste0("C18108_0", c("01", "05", "09", "13"))))# %>% #disability status; only exists at tract level
    mutate(across(c(hhincome:ppov185), ~.x, .names = "tr_{.col}")) %>%
    rename(tract_id = GEOID) %>%
-   select(starts_with("tr"))
+   select(starts_with("tr")) %>%
+   full_join(acs_disability)
  
  ### 
  # also want to get regional averages for metadata
  ###
  acs_metadata <- get_acs(
     geography = "county",
-    variables = acs_variables,
+    variables = c(acs_variables, paste0("C18108_0", c("01", "05", "09", "13"))),
     survey = "acs5",
       state = state,
       county = county,
@@ -274,14 +295,16 @@ if (process_demographics == TRUE) {
        ), na.rm = T)),
      over65 = rowSums(across(c(
        paste0("B01001_0", c(20:25, 44:49)) #over 65m, f
-     ), na.rm = T))) %>%
+     ), na.rm = T)),
+     nodisability = rowSums(across(c(paste0("C18108_0", c("05", "09", "13")))))) %>%
    mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
           sens_age = under18 + over65,
           pownhome = B25003_002 / B25003_001,
           pwk_nowork = B23025_007 / B23025_001,
-          ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
+          ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001,
+          pd_any = 1 - (nodisability / C18108_001)) %>%
    rename(hhincome = B19013_001) %>% 
-   select(c(geo, !starts_with(c("B", "C"))))
+   select(c(geo, !starts_with(c("B", "C")), -nodisability))
  
  ###
  # save files
@@ -406,7 +429,7 @@ These are the resulting files which should exist:
   - `bg_id` (block group identifier)
   - `canopy_percent` (the percent tree canopy cover in the block group)
   - `avgcanopy` (the average block group tree canopy cover; note, for the best comparative value, this avgcanopy variable should *not* be the regional average tree canopy (which would require incorporating the fact that all block groups are not the same area))
-- **ctu_list** which has information about the tree canopy at the city level. Columns:
+- **ctu_list_raw** which has information about the tree canopy at the city level. Columns:
   - `GEO_NAME` (the name of the city/township)
   - `canopy_percent` (the percent tree canopy cover in the city)
   - `avgcanopy` (the average canopy cover of block groups within the city)
@@ -414,7 +437,7 @@ These are the resulting files which should exist:
   - `max` (the canopy cover value from the block group with the highest tree cover in the city)
   - `n_blockgroups` (the number of block groups which fall inside the city)
   - `geometry` (the spatial coordinates of the city polygon)
-- **nhood_list** which has information about the tree canopy at the neighborhood level. Columns:
+- **nhood_list_raw** which has information about the tree canopy at the neighborhood level. Columns:
   - `GEO_NAME` (the name of the neighborhood)
   - `city` (the city in which the neighborhood is located)
   - `canopy_percent` (the percent tree canopy cover in the neighborhood)
@@ -470,7 +493,10 @@ file.remove(files)
 cancer_data <- ejscreen %>%
   full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
   rename(bg_id = bg2020ge) %>%
-  select(bg_id, CANCER)
+  select(bg_id, CANCER) %>%
+  mutate(CANCER = if_else(is.na(CANCER), min(CANCER, na.rm = T), CANCER)) %>% #don't let there be NAs, fill with the minimum value
+  # filter(!is.na(bg_id)) %>%
+  rename(env_cancer = CANCER)
 
   save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
 } else {
@@ -540,20 +566,23 @@ fs::file_delete("plan_historic_holc_appraisal.gpkg")
 
 # Combine all variables
 
-Merge demographic and environmental data
+Merge demographic and environmental data. 
 
 ```{r combinedata}
+load(paste0(here::here(), "/data-raw/canopy_data.rda"))
+load(paste0(here::here(), "/data-raw/geography_data.rda"))
+
 bg_growingshade_data <- 
   
   # direct-fetching data; exists for all regions/scale-able
-  acs_blockgroups %>%
+  acs_blockgroups %>% 
   full_join(decennial_data) %>%
   full_join(health_data) %>%
   full_join(cancer_data, by = c("GEOID" = "bg_id")) %>%
   full_join(bg_geo %>% st_drop_geometry() %>% transmute(GEOID = GEOID, land = ALAND)) %>%
   full_join(acs_tracts) %>% 
   # deal with some non-residential blocks and insufficient data; demographics specific data
-      mutate(across(-c(GEOID, tract_id, land, starts_with("tr"), population_count), ~ if_else(population_count == 0, NA_real_, .x)),
+      mutate(across(-c(GEOID, fancyname, tract_id, land, starts_with("tr"), population_count), ~ if_else(population_count == 0, NA_real_, .x)),
            under18 = if_else(is.nan(under18), tr_under18, under18),
            over65 = if_else(is.nan(over65), tr_over65, over65),
            sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
@@ -562,6 +591,7 @@ bg_growingshade_data <-
            hhincome = if_else(is.na(hhincome) & population_count > 0, tr_hhincome, hhincome),
            pwk_nowork = if_else(is.na(pwk_nowork) & population_count > 0, tr_pwk_nowork, pwk_nowork)) %>%
   select(!starts_with("tr")) %>%
+  filter(!is.na(fancyname)) %>%
 
   # tree canopy data; needs to be prepared separately for different regions
   full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>% 
@@ -577,13 +607,12 @@ bg_growingshade_data <-
          inverse_canopy = canopy_percent,
          pop_density = population_count / land * 4045.86,
          housing_density = housing_units / land * 4045.86) %>%
-  rename(bg_string = GEOID) 
+  rename(bg_string = GEOID)
   
 ```
 
-# Metadata
 
-This is the most important file of all!
+Add the variable codes. 
 
 ```{r make-metadata}
 code_metadata <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
@@ -594,7 +623,7 @@ Standardize and re-scale variables so we can create equally weighted priority sc
 ```{r standardize-rescale}
 
 bg_growingshade_main <- bg_growingshade_data %>%
-  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string)) %>% #end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string, fancyname)) %>% #end the code after this line if you just want the reshaped data
   group_by(variable) %>%
   mutate(MEAN = mean(raw_value, na.rm = T),
          SD = sd(raw_value, na.rm = T),
@@ -628,11 +657,6 @@ bg_growingshade_main <- bg_growingshade_data %>%
   full_join(wide_ctu_crosswalk, by = c("bg_string" = "bg_id")) %>%
   filter(!is.na(name)) #remove variables which are NOT in the metadata list
 
-########
-# save data
-########
-usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-
 ```
 
 # Create independant files for export
@@ -643,58 +667,14 @@ Create some regional averages. While the average values for the block groups are
 
 
 ```{r}
-acs_metadata
-decennial_metadata
+demo_metadata <- acs_metadata %>%
+  full_join(decennial_metadata) %>%
+  pivot_longer(names_to = "variable", values_to = "MEANRAW2", -geo) 
 
 md1 <- bg_growingshade_main %>% 
   group_by(variable) %>% 
   summarise(MEANRAW = mean(raw_value, na.rm = T),
             MEANSCALED = mean(weights_scaled, na.rm = T))
-
-code_metadata %>%
-  full_join(md1)
-
-```
-
-```{r regional-averages}
-# ########
-# # create metadata
-# #########
-md1 <- bg_growingshade_main %>% 
-  group_by(variable) %>% 
-  summarise(MEANRAW = mean(raw_value, na.rm = T),
-            MEANSCALED = mean(weights_scaled, na.rm = T))
-
-temp <- tempfile()
-download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
-  destfile = temp
-)
-acs_tr2 <- readxl::read_xlsx(unzip(temp, "CensusACSTract.xlsx")) %>%
-  janitor::clean_names()
-
-acs_metadata <-
-acs_tr2 %>% #use tracts becuase it has info about disability
-    filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
-           year == 2020) %>% #just do metc region for now
-  dplyr::select(geoid, poptotal:pphother) %>%
-  pivot_longer(names_to = "variable", values_to = "values", -geoid) %>%
-  group_by(variable) %>%
-  summarise(SUM = sum(values, na.rm = T)) %>%
-  pivot_wider(names_from = variable, values_from = SUM) %>%
-  transmute(rgn = "twin cities",
-            ppov185 = (povertyn + poverty150 + pov150_185) / povdenom,
-            pbipoc = (poptotal - whitenh) / poptotal,
-            pamindnh = (amindnh) / poptotal,
-            phisppop = hisppop / poptotal,
-            pblacknh = blacknh / poptotal,
-            pasiannh = (asiannh + pacificnh) / poptotal,
-            pothmultnh = (othernh + multracenh) / poptotal,
-            pownhome = ownerocc / hutotal,
-            p_65up = age65up / poptotal,
-            p_0017 = ageunder18 / poptotal,
-            sens_age = (age65up + ageunder18) / poptotal,
-            pd_any = anydis / cdenom) %>%
-  pivot_longer(names_to = "variable", values_to = "MEANRAW2", -rgn)
 
 md_gee <- 
   tribble(~rgn, ~variable, ~MEANRAW2,
@@ -702,8 +682,9 @@ md_gee <-
           "twin cities", "inverse_canopy", ctu_list_raw$avgcanopy[1]
   )
 
+
 metadata <- bg_growingshade_main %>%
-  dplyr::group_by(type, name, variable, interpret_high_value, cc, ej, ph, cons) %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, climate_change, environmental_justice, public_health, conservation) %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
   full_join(md1) %>%
@@ -715,29 +696,30 @@ metadata <- bg_growingshade_main %>%
                                   variable == "inverse_ndvi_land" ~ "Higher values = higher priority",
                                   variable == "canopy_percent2" ~ "Higher values = higher priority",
                                   TRUE ~ "")) %>%
-  full_join(acs_metadata %>%
+  full_join(demo_metadata %>%
               bind_rows(md_gee)) %>%
   mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
-  dplyr::select(-MEANRAW2, -rgn)
+  dplyr::select(-MEANRAW2, -rgn, -geo) %>%
+  filter(!is.na(name))
 
 usethis::use_data(metadata, overwrite = TRUE)
 
 ```
+
 
 ## Highest priority for each block group
 
 For storymap and to make database.
 
 ```{r}
-highest_p <- function(x) {
-  test <- enquo(x)
-  
-   bg_growingshade_main %>%
-  filter(name %in% (metadata %>%
-                      filter(!!test == 1)))
-}
+# highest_p <- function(x) {
+#   test <- enquo(x)
+#   
+#    bg_growingshade_main %>%
+#   filter(name %in% (metadata %>%
+#                       filter(!!test == 1)))
+# }
 
-highest_p(ph)
 
 highest_p <- function(group_var) {
   selectedvars <- metadata %>%
@@ -749,10 +731,10 @@ highest_p <- function(group_var) {
       summarise(MEAN = mean(weights_scaled, na.rm = F)) #set to false so that public health or ej doesnt get calculated if it is a nonres area
 }
 
-priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
-  full_join(highest_p(cons) %>% rename(Conservation = MEAN)) %>%
-  full_join(highest_p(ej) %>% rename(`Environmental justice` = MEAN)) %>%
-  full_join(highest_p(cc) %>% rename(`Climate change` = MEAN)) %>%
+priority_summary_1 <-highest_p(public_health) %>% rename(`Public health` = MEAN) %>%
+  full_join(highest_p(conservation) %>% rename(Conservation = MEAN)) %>%
+  full_join(highest_p(environmental_justice) %>% rename(`Environmental justice` = MEAN)) %>%
+  full_join(highest_p(climate_change) %>% rename(`Climate change` = MEAN)) %>%
   pivot_longer(names_to = "preset", values_to = "score", -bg_string) 
 
 priority_summary <- priority_summary_1 %>%
@@ -762,47 +744,13 @@ priority_summary <- priority_summary_1 %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
 
-```
-
-highest priority all
-
-```{r include=F, eval = F}
-
-highest_p_all <- function(group_var) {
-  selectedvars <- metadata %>%
-    filter(!!enquo(group_var) == 1) %>%
+selectedvars <- metadata %>%
+    filter(public_health == 1) %>%
     .[,2]
-  bg_growingshade_main_allMN %>% 
+  bg_growingshade_main %>% 
     filter(name %in% selectedvars$name) %>%
       group_by(bg_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = F))
-}
-
-priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>%
-  full_join(highest_p_all(cons) %>% rename(Conservation = MEAN)) %>%
-  full_join(highest_p_all(ej) %>% rename(`Environmental justice` = MEAN)) %>%
-  full_join(highest_p_all(cc) %>% rename(`Climate change` = MEAN)) %>%
-  pivot_longer(names_to = "preset", values_to = "score", -bg_string) 
-
-priority_summary_all <- priority_summary_1_all %>%
-  pivot_wider(names_from = preset, values_from = score) %>%
-  left_join(bg_growingshade_main_allMN %>%
-  rename(scaled = weights_scaled,
-         raw = raw_value) %>%
-  # ungroup() %>%
-  dplyr::select(bg_string, variable, scaled, raw) %>%
-  pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
-  arrange(bg_string) %>%
-  rename(block_group_id_2010 = bg_string)
-
-
-
-bg_geo %>%
-  right_join(priority_summary_all, by = c("GEOID" = "block_group_id_2010")) %>%
-  filter(!is.na(`Environmental justice`)) %>%
-  ggplot() +
-  geom_sf(aes(fill = `Environmental justice`), lwd = 0) +
-  theme_minimal()
+      summarise(MEAN = mean(weights_scaled, na.rm = F)) 
 
 ```
 
@@ -811,40 +759,26 @@ bg_geo %>%
 ```{r bg_shapefiles_for_mapping}
 
 mn_bgs_raw <- bg_geo %>%
-  right_join(wide_ctu_crosswalk) %>%
-  full_join(bg_canopy %>% rename(GEOID = bg20)) %>%
+  right_join(wide_ctu_crosswalk, by = c("GEOID" = "bg_id")) %>%
+  full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>%
   full_join(priority_summary) %>%
   full_join(priority_summary_1 %>%
               group_by(preset) %>% 
-              # mutate(rank = rank(-score)) %>%
-              # dplyr::select(-score) %>%
-              pivot_wider(names_from = preset, values_from = score)#rank)
-            %>% rename(GEOID = bg_string)) %>%
+              pivot_wider(names_from = preset, values_from = score),
+            by = c("GEOID" = "bg_string")) %>%
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
-  dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
+  dplyr::select(-c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE, NAMELSAD, MTFCC, FUNCSTAT, INTPTLAT, INTPTLON)) %>%
   sf::st_as_sf() %>%
       sf::st_transform(4326) %>% 
-  filter(!is.na(highest_priority)) %>% #don't want greater mn in here
-    mutate(fancyname = case_when(substr(GEOID, 3, 5) == "053" ~ paste0("Hennepin County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "003" ~ paste0("Anoka County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "019" ~ paste0("Carver County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "037" ~ paste0("Dakota County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "123" ~ paste0("Ramsey County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "139" ~ paste0("Scott County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               substr(GEOID, 3, 5) == "163" ~ paste0("Washington County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
-                               TRUE ~ NA_character_)) 
+  filter(!is.na(highest_priority)) 
 
-# usethis::use_data(mn_bgs, overwrite = TRUE)
-filter(mn_bgs_raw, GEOID == "270539800001") #for na people blocks priority summary is giving two results; should only be one
-filter(priority_summary, GEOID == "270539800001")
-filter(priority_summary, GEOID == "270030501071")
-
-mncounties <- tigris::counties(state = "MN") %>%
-  filter(COUNTYFP %in% c("003", "019", "037", "053", "123", "139", "163"))
+mncounties <- tigris::counties(state = state) %>%
+  filter(NAME %in% county)
 metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
   sf::st_simplify(dTolerance = 400) %>%
   sf::st_transform(4326)
 usethis::use_data(metc_region, overwrite = TRUE)
+
 
 ```
 
@@ -871,50 +805,19 @@ redline <- redline_raw %>%
   speed_up(50)
 usethis::use_data(redline, overwrite = TRUE)
 
-# lakes <- river_lake_all %>%
-#   filter(SYSTEM %in% c("Lake"),
-#          AREA_ACRES > 10) %>% #these rivers are boundaries
-#   sf::st_transform(26915) %>%
-#   st_union() %>%
-#   st_buffer(-10) %>%
-#   # smoothr::smooth(method = "ksmooth") %>%
-#   sf::st_simplify(dTolerance = 50, preserveTopology = F) #There’s also a parameter preserveTopology which, when set to TRUE, makes sure that polygons are not reduced to lines or even removed, or that inner holes in them are removed during the simplification process.
-
-# temp <- tempfile()
-# download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_dot/trans_airports/gpkg_trans_airports.zip", destfile = temp)
-# airports <- sf::read_sf(unzip(temp, "trans_airports.gpkg"))  %>%
-#   st_buffer(dist = .$RUNWAY_WID) %>%
-#   st_union() %>%
-#   # ggplot() + geom_sf()
-#   # sf::st_simplify(dTolerance = 25, preserveTopology = F) %>%
-#   sf::st_transform(4326) 
-  
-
 mn_bgs <- mn_bgs_raw %>% 
-  # if I want to remove lakes; I don't love them removed tbh
-  # st_transform(26915) %>%
-  # st_erase(lakes) %>% 
-  # st_erase(airports) %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326) %>%
-  filter(!is.na(GEOID)) #%>%
-  # filter(GEOID != "270539800001") #remove airport
+  filter(!is.na(GEOID))
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
-
-# leaflet::leaflet() %>%
-#   leaflet::addPolygons(data = mn_bgs) %>%
-#   leaflet::addPolygons(data = mn_bgs5, color = "red")
-# object.size(mn_bgs) / 1e5
-# object.size(mn_bgs5) / 1e5
+object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
   filter(!is.na(bg_string))
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
-# eab <- eab %>% dplyr::select(geometry)
-# usethis::use_data(eab, overwrite = TRUE)
 
 # object.size(eab2) / 1e5
 # object.size(eab) / 1e5
