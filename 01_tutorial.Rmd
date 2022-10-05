@@ -443,11 +443,17 @@ Growing Shade is set up to have data at the block group, neighborhood, and city/
 Getting these geography files is easy - just downloaded directly.
 
 ```{r census-geography, include = F}
+<<<<<<< refs/remotes/origin/metcouncil-2021
 bg_geo <- block_groups(
   state = state,
   county = county,
   year = census_year
 )
+=======
+bg_geo <- block_groups(state = state, 
+                                    county = county,
+                                    year = census_year) 
+>>>>>>> knit rmd
 
 # sf::st_write(bg_geo, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/bg_geo.shp", append = FALSE)
 ```
@@ -1028,10 +1034,14 @@ priority_summary <- priority_summary_1 %>%
 The block group geographies need some final adjustments before they are ready to go into the mapping application. 
 
 <<<<<<< refs/remotes/origin/metcouncil-2021
+<<<<<<< refs/remotes/origin/metcouncil-2021
 ```{r bg_shapefiles_for_mapping, include = F}
 =======
 ```{r bg_shapefiles_for_mapping}
 >>>>>>> knit tutorial
+=======
+```{r bg_shapefiles_for_mapping, include = F}
+>>>>>>> knit rmd
 
 mn_bgs_raw <- bg_geo %>%
 <<<<<<< refs/remotes/origin/metcouncil-2021
