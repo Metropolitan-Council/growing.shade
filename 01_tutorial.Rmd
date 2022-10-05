@@ -20,7 +20,7 @@ The first time you run this code, it will be helpful to walk step-by-step throug
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
-                      cache = F)
+                      cache = F, progress = F)
 library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble); library(ggplot2)
 library(tigris)
 library(sf)
@@ -567,11 +567,17 @@ fs::file_delete("plan_historic_holc_appraisal.gpkg")
 
 ## MPCA area of environmental justice concern
 
+This data was used initially, but it seems as if MPCA has stopped updating the data, thus it no longer seems relevant.  
+
 ```{r mpca}
 #nothing here yet; this seems to be out-of-date...but it could come from equity considerations data
 ```
 
-# Combine all variables
+# Create final data pieces
+
+These steps outline how to finally create the final files which are needed to run the application. All of these files will go into the `data` folder.
+
+## Merge data variables
 
 Merge demographic and environmental data. Additionally, standardize and re-scale variables so we can create equally weighted priority scores. Do *not* include spatial data at this point, it should be joined after summarizing to save computational time.
 
@@ -655,11 +661,11 @@ bg_growingshade_main <-
 
 ```
 
-# Create independant files for export
+## Create regional averages
 
-## Regional averages
+For comparative purposes, regional averages need to be computed. While the average values for the block groups are needed to create z-scores in the scaling and standardizing steps, those averages are *not* the regional averages. For instance, the average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
 
-Create some regional averages. While the average values for the block groups are needed to create zscores, those averages are not the regional averages. Ex average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income.
+The regional average data mostly comes from data which has already been fetched from the census (either decennial or ACS). In other cases, you may wish to supplement with regional averages for other data pieces. 
 
 
 ```{r}
@@ -667,15 +673,15 @@ demo_metadata <- acs_metadata %>%
   full_join(decennial_metadata) %>%
   pivot_longer(names_to = "variable", values_to = "MEANRAW2", -geo) 
 
-md1 <- bg_growingshade_main %>% 
+bg_averages <- bg_growingshade_main %>% 
   group_by(variable) %>% 
   summarise(MEANRAW = mean(raw_value, na.rm = T),
             MEANSCALED = mean(weights_scaled, na.rm = T))
 
-md_gee <- 
-  tribble(~rgn, ~variable, ~MEANRAW2,
-          "twin cities", "canopy_percent", ctu_list_raw$avgcanopy[1], 
-          "twin cities", "inverse_canopy", ctu_list_raw$avgcanopy[1]
+canopy_avg <- 
+  tribble(~variable, ~MEANRAW2,
+          "canopy_percent", ctu_list_raw$avgcanopy[1], 
+          "inverse_canopy", ctu_list_raw$avgcanopy[1]
   )
 
 
@@ -683,7 +689,7 @@ metadata <- bg_growingshade_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, climate_change, environmental_justice, public_health, conservation) %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
-  full_join(md1) %>%
+  full_join(bg_averages) %>%
   mutate(niceinterp = 
                case_when(interpret_high_value == "high_opportunity" ~ "Higher",
                          TRUE ~ "Lower"),
@@ -693,9 +699,9 @@ metadata <- bg_growingshade_main %>%
                                   variable == "canopy_percent2" ~ "Higher values = higher priority",
                                   TRUE ~ "")) %>%
   full_join(demo_metadata %>%
-              bind_rows(md_gee)) %>%
+              bind_rows(canopy_avg)) %>%
   mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
-  dplyr::select(-MEANRAW2, -rgn, -geo) %>%
+  dplyr::select(-MEANRAW2, -geo) %>%
   filter(!is.na(name))
 
 usethis::use_data(metadata, overwrite = TRUE)
@@ -703,20 +709,11 @@ usethis::use_data(metadata, overwrite = TRUE)
 ```
 
 
-## Highest priority for each block group
+## Highest priority
 
-For storymap and to make database.
+Inside the final data base, the highest priority (among public health, environmental justice, climate change, and conservation priorities) in each block group is identified. 
 
 ```{r}
-# highest_p <- function(x) {
-#   test <- enquo(x)
-#   
-#    bg_growingshade_main %>%
-#   filter(name %in% (metadata %>%
-#                       filter(!!test == 1)))
-# }
-
-
 highest_p <- function(group_var) {
   selectedvars <- metadata %>%
     filter(!!enquo(group_var) == 1) %>%
@@ -740,17 +737,11 @@ priority_summary <- priority_summary_1 %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
 
-selectedvars <- metadata %>%
-    filter(public_health == 1) %>%
-    .[,2]
-  bg_growingshade_main %>% 
-    filter(name %in% selectedvars$name) %>%
-      group_by(bg_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = F)) 
-
 ```
 
 ## Core mapping data
+
+The block group geographies need some final adjustments before they are ready to go into the mapping application. 
 
 ```{r bg_shapefiles_for_mapping}
 
@@ -780,7 +771,9 @@ usethis::use_data(region_outline, overwrite = TRUE)
 
 ```
 
-# Simplify data for speed
+## Simplify data for speed
+
+Because all of the files inside the `data` folder need to be pushed up to the cloud in order to deploy the full version of Growing Shade, it is important to make the files as small as possible. This is very important to help loading speed of the application. In essence, most geographic files (polygons) can be simplified to some degree. All data files should only have the necessary columns for running the application, and extraneous columns should be removed. 
 
 ```{r}
 speed_up <- function(x, smooth){
@@ -808,7 +801,7 @@ mn_bgs <- mn_bgs_raw %>%
   filter(!is.na(GEO_NAME)) %>%
   mutate(GEOID = GEO_NAME)
 usethis::use_data(mn_bgs, overwrite = TRUE)
-object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
+# object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
@@ -824,7 +817,7 @@ If the follow steps have been followed, you should be able to navigate to the `.
 
 ## Set user interface parameters
 
-This is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
+Creating a `ui_params.rda` data set is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
 
 ```{r}
 map_centroid <- region_outline %>%
