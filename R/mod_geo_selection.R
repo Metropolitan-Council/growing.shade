@@ -47,7 +47,7 @@ fluidRow(column(width = 6,
           `live-search` = TRUE
         ),
         multiple = F,
-        selected = "Oakdale"
+        selected = ui_params$set[ui_params$param == "cityselected"]
       )
     ),
     conditionalPanel(
@@ -55,16 +55,13 @@ fluidRow(column(width = 6,
       condition = "input.geo == 'nhood'",
       shinyWidgets::pickerInput(ns("nhoodInput"),
         label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a neighborhood</span></h4>")),
-        choices = list(
-          Minneapolis = nhood_list$GEO_NAME[nhood_list$city == "Minneapolis"],
-          `St. Paul` = nhood_list$GEO_NAME[nhood_list$city == "St. Paul"]
-        ),
+        choices = nhood_ui,
         options = list(
-          title = "Pick a neighborhood in St. Paul or Minneapolis", size = 10,
+          title = NULL, size = 10,
           `live-search` = TRUE
         ),
         multiple = F,
-        selected = "Frogtown"
+        selected = ui_params$set[ui_params$param == "nhoodselected"]
       )
     ),
     conditionalPanel(
