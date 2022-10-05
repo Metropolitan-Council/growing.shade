@@ -889,7 +889,7 @@ mod_report_server <- function(id,
         # Set up parameters to pass to Rmd document
         params <- list(
           param_geo = geo_selections$selected_geo,
-          param_area = param_area(),
+          param_area = if (geo_selections$selected_geo == "blockgroups") {param_areasummary()$fancyname} else {param_area()},
           param_equitypara = tree_text(),
           param_treeplot = report_tree_plot(),
           param_ranktext = rank_text(),

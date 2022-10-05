@@ -39,21 +39,13 @@ library(tidyr)
 
 knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 
-fancyname <- if (params$param_geo == "blockgroups") {
-    if (substr(params$param_area, 3, 5) == "053") {paste0("Hennepin County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "003") {paste0("Anoka County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "019") {paste0("Carver County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "037") {paste0("Dakota County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "123") {paste0("Ramsey County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "139") {paste0("Scott County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-        } else if (substr(params$param_area, 3, 5) == "163") {paste0("Washington County tract ", as.numeric(substr(params$param_area, 6, 11))/100, ", block group ", as.numeric(substr(params$param_area, 12, 12)))
-          } } else {params$param_area}
+# fancyname <- params$param_area
 
 
 ```
 
 
-# Report for `r fancyname`
+# Report for `r params$param_area`
 
 
 ```{r map, echo = F, message = F, warning = F, fig.alt = "Outline of the Twin Cities region, the area which this report was made for is mapped in green.", fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
