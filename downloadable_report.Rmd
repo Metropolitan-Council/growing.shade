@@ -51,15 +51,15 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 ```{r map, echo = F, message = F, warning = F, fig.alt = "Outline of the Twin Cities region, the area which this report was made for is mapped in green.", fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
 if(params$param_geo == "blockgroups") {
-  entire_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
+  region_outline %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
     geom_sf(data = filter(mn_bgs, fancyname == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()
   } else if (params$param_geo == "ctus") {
-     entire_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
+     region_outline %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
     geom_sf(data = filter(ctu_list, GEO_NAME == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()
   } else if (params$param_geo == "nhood") {
-     entire_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
+     region_outline %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
     geom_sf(data = filter(nhood_list, GEO_NAME == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()}
 
