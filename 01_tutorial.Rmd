@@ -45,7 +45,7 @@ This code is set up to use/process 2020-era census geographies at the block grou
 # Geography variables
 ####
 state <- c("MN")
-county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+county <- c("Anoka")#, "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 
 process_geographies <- TRUE 
 
@@ -780,10 +780,10 @@ mn_bgs_raw <- bg_geo %>%
 
 mncounties <- tigris::counties(state = state) %>%
   filter(NAME %in% county)
-metc_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
+entire_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
   sf::st_simplify(dTolerance = 400) %>%
   sf::st_transform(4326)
-usethis::use_data(metc_region, overwrite = TRUE)
+usethis::use_data(entire_region, overwrite = TRUE)
 
 
 ```
@@ -830,6 +830,36 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 # Running application
 
 If the follow steps have been followed, you should be able to navigate to the `./dev/run_dev.R` file, select all the code, and run! This should initiate a local version of Growing Shade for the customized region! 
+
+
+## Set user interface parameters
+
+This is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
+
+```{r}
+map_centroid <- entire_region %>%
+  st_union() %>%
+  st_centroid()
+
+ui_params <- tribble(~param, ~set, ~number,
+                     "cityselected", "Oakdale", NA_real_,
+                     "nhoodselected", "Frogtown", NA_real_,
+                     "center_latitude", NA_character_, st_coordinates(map_centroid)[2], #44.963,
+                     "center_longitude", NA_character_, st_coordinates(map_centroid)[1], #-93.32,
+                     "center_zoom", NA_character_, 10,
+                     "tree_tile_location", "https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}", NA_real_)
+
+usethis::use_data(ui_params, overwrite = TRUE)
+
+nhood_ui <- list(Minneapolis = nhood_list$GEO_NAME[nhood_list$city == "Minneapolis"],
+          `St. Paul` = nhood_list$GEO_NAME[nhood_list$city == "St. Paul"])
+usethis::use_data(nhood_ui, overwrite = TRUE)
+
+```
+
+## Edit and add any region-specific language
+
+There will likely be region-specific information that should be displayed alongside the data within the interactive application. Users should edit files within the "R" folder as prudent. 
 
 ## Troubleshooting application
 
