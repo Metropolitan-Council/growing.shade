@@ -22,13 +22,13 @@ HTML("<h2><section style='font-size:20pt'>Geography</h2>"),
       # choices = c(
       #   "Cities and townships" = "ctus",
       #   "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
-      #   "A Census block group" = "tracts"
+      #   "A Census block group" = "blockgroups"
       # ), # multiple = F,
       choiceNames = list("Cities and townships", 
                          HTML("<section class='d-block d-lg-none'>Neighborhoods</section>
                               <section class='d-none d-lg-block'>Neighborhoods (Minneapolis and St.Paul only)</section>"), #desktop
                          "Census block group"),
-      choiceValues = list("ctus", "nhood", "tracts"),
+      choiceValues = list("ctus", "nhood", "blockgroups"),
       selected = "ctus",
       # inline = (shinybrowser::get_device() == "Mobile")
     ),
@@ -69,7 +69,7 @@ fluidRow(column(width = 6,
     ),
     conditionalPanel(
       ns = ns,
-      condition = "input.geo == 'tracts'",
+      condition = "input.geo == 'blockgroups'",
       HTML("Please click on an area within the map at right.")
     )
 ),

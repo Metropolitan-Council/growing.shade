@@ -46,7 +46,7 @@ app_server <- function(input, output, session) {
 #   observe({print(head(map_util$map_data2))}) #to check that data summary is working
 #   observe({print(head(map_util$map_data))}) #to check that plot summary is working
 # browser()
-  tract_selections <- callModule(mod_map_overview_server, "map_overview_ui_1",
+  blockgroup_selections <- callModule(mod_map_overview_server, "map_overview_ui_1",
     geo_selections = geo_selections,
     map_selections = map_selections,
     map_util = map_util,
@@ -54,14 +54,14 @@ app_server <- function(input, output, session) {
   )
   #
   # observe({
-  #   print(paste0("selected tract: ", (tract_selections$selected_tract)))
+  #   print(paste0("selected blockgroup: ", (blockgroup_selections$selected_blockgroup)))
   # }) # to check that selections are working
 
   mod_report_server(
     "report_ui_1",
     geo_selections,
     map_selections,
-    tract_selections,
+    blockgroup_selections,
     map_util
   )
 }
