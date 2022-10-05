@@ -52,7 +52,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
 if(params$param_geo == "blockgroups") {
   metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
-    geom_sf(data = filter(mn_bgs, GEOID == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
+    geom_sf(data = filter(mn_bgs, fancyname == params$param_area), color = councilR::colors$cdGreen, fill = councilR::colors$cdGreen) +
     theme_void()
   } else if (params$param_geo == "ctus") {
      metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
