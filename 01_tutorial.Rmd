@@ -53,7 +53,7 @@ county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washing
 acs_year <- 2020 #The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then. 
 census_year <- 2020
 
-process_demographics <- TRUE
+process_demographics <- FALSE
 detailed_population_count <- FALSE #are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
 
 ```
@@ -776,12 +776,12 @@ mn_bgs_raw <- bg_geo %>%
   filter(!is.na(highest_priority)) %>%
   rename(GEO_NAME = GEOID)
 
-mncounties <- tigris::counties(state = state) %>%
+county_outline <- tigris::counties(state = state) %>%
   filter(NAME %in% county)
-entire_region <- mncounties %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
+region_outline <- county_outline %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
   sf::st_simplify(dTolerance = 400) %>%
   sf::st_transform(4326)
-usethis::use_data(entire_region, overwrite = TRUE)
+usethis::use_data(region_outline, overwrite = TRUE)
 
 
 ```
@@ -797,7 +797,8 @@ speed_up <- function(x, smooth){
     
 }
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
-ctu_list <- ctu_list_raw
+ctu_list <- ctu_list_raw %>%
+  speed_up(50)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
 nhood_list <- nhood_list_raw %>% 
@@ -832,7 +833,7 @@ If the follow steps have been followed, you should be able to navigate to the `.
 This is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
 
 ```{r}
-map_centroid <- entire_region %>%
+map_centroid <- region_outline %>%
   st_union() %>%
   st_centroid()
 
