@@ -866,7 +866,7 @@ mod_report_server <- function(id,
     output$dl_report <- downloadHandler(
       filename = param_reportname, #paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html"), # ".docx"), # ".html"),
       content = function(file) {
-        tempReport <- file.path(tempdir(), "report_new.Rmd")
+        tempReport <- file.path(tempdir(), "downloadable_report.Rmd")
         tempCss <- file.path(tempdir(), "style.css")
         tempbdcn <- file.path(tempdir(), "helveticaneueltstd-bdcn-webfont.woff")
         tempcn <- file.path(tempdir(), "helveticaneueltstd-cn-webfont.woff")
@@ -874,7 +874,7 @@ mod_report_server <- function(id,
         tempmd <- file.path(tempdir(), "helveticaneueltstd-md-webfont.woff")
         tempmdcn <- file.path(tempdir(), "helveticaneueltstd-mdcn-webfont.woff")
         temproman <- file.path(tempdir(), "helveticaneueltstd-roman-webfont.woff")
-        file.copy("report_new.Rmd", tempReport, overwrite = TRUE)
+        file.copy("downloadable_report.Rmd", tempReport, overwrite = TRUE)
         file.copy("inst/app/www/style.css", tempCss, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-bdcn-webfont.woff", tempbdcn, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-cn-webfont.woff", tempcn, overwrite = TRUE)
