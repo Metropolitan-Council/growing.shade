@@ -19,6 +19,7 @@ This tutorial walks through how to grab and synthesize various data pieces which
 The first time you run this code, it will be helpful to walk step-by-step through the various pieces. There are several places where you'll get instructions to request and save API keys, or other manual steps which can't be automated. However, after you walk thorough it initially, in future runs (if needed) or for small data/geography adjustments, you can probably be successful running everything in one go!
 
 ```{r setup, include=FALSE}
+<<<<<<< refs/remotes/origin/metcouncil-2021
 knitr::opts_chunk$set(
   echo = F, message = F, warning = F,
   cache = F, progress = F
@@ -29,6 +30,11 @@ library(readr)
 library(stringr)
 library(tibble)
 library(ggplot2)
+=======
+knitr::opts_chunk$set(echo = F, message = F, warning = F,
+                      cache = F, progress = F)
+library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble); library(ggplot2)
+>>>>>>> knit tutorial
 library(tigris)
 library(sf)
 library(tidycensus)
@@ -914,6 +920,7 @@ demo_metadata <- acs_metadata %>%
   full_join(decennial_metadata) %>%
   pivot_longer(names_to = "variable", values_to = "MEANRAW2", -geo)
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 bg_averages <- bg_growingshade_main %>%
   group_by(variable) %>%
   summarise(
@@ -926,6 +933,17 @@ canopy_avg <-
     ~variable, ~MEANRAW2,
     "canopy_percent", ctu_list_raw$avgcanopy[1],
     "inverse_canopy", ctu_list_raw$avgcanopy[1]
+=======
+bg_averages <- bg_growingshade_main %>% 
+  group_by(variable) %>% 
+  summarise(MEANRAW = mean(raw_value, na.rm = T),
+            MEANSCALED = mean(weights_scaled, na.rm = T))
+
+canopy_avg <- 
+  tribble(~variable, ~MEANRAW2,
+          "canopy_percent", ctu_list_raw$avgcanopy[1], 
+          "inverse_canopy", ctu_list_raw$avgcanopy[1]
+>>>>>>> knit tutorial
   )
 
 
@@ -934,6 +952,7 @@ metadata <- bg_growingshade_main %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
   full_join(bg_averages) %>%
+<<<<<<< refs/remotes/origin/metcouncil-2021
   mutate(
     niceinterp =
       case_when(
@@ -950,6 +969,18 @@ metadata <- bg_growingshade_main %>%
   ) %>%
   full_join(demo_metadata %>%
     bind_rows(canopy_avg)) %>%
+=======
+  mutate(niceinterp = 
+               case_when(interpret_high_value == "high_opportunity" ~ "Higher",
+                         TRUE ~ "Lower"),
+         nicer_interp = case_when(niceinterp == "Lower" ~ "Lower values = higher priority", 
+                                  variable == "inverse_ndvi_uncultivated" ~ "Higher values = higher priority",
+                                  variable == "inverse_ndvi_land" ~ "Higher values = higher priority",
+                                  variable == "canopy_percent2" ~ "Higher values = higher priority",
+                                  TRUE ~ "")) %>%
+  full_join(demo_metadata %>%
+              bind_rows(canopy_avg)) %>%
+>>>>>>> knit tutorial
   mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
   dplyr::select(-MEANRAW2, -geo) %>%
   filter(!is.na(name))
@@ -986,13 +1017,21 @@ priority_summary <- priority_summary_1 %>%
   left_join(priority_summary_1) %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
+<<<<<<< refs/remotes/origin/metcouncil-2021
+=======
+
+>>>>>>> knit tutorial
 ```
 
 ## Core mapping data
 
 The block group geographies need some final adjustments before they are ready to go into the mapping application. 
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 ```{r bg_shapefiles_for_mapping, include = F}
+=======
+```{r bg_shapefiles_for_mapping}
+>>>>>>> knit tutorial
 
 mn_bgs_raw <- bg_geo %>%
 <<<<<<< refs/remotes/origin/metcouncil-2021
@@ -1092,8 +1131,12 @@ mn_bgs <- mn_bgs_raw %>%
   filter(!is.na(GEO_NAME)) %>%
   mutate(GEOID = GEO_NAME)
 usethis::use_data(mn_bgs, overwrite = TRUE)
+<<<<<<< refs/remotes/origin/metcouncil-2021
 object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
 >>>>>>> test different geographies
+=======
+# object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
+>>>>>>> knit tutorial
 
 bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
@@ -1109,6 +1152,7 @@ If the follow steps have been followed, you should be able to navigate to the `.
 
 ## Set user interface parameters
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 <<<<<<< refs/remotes/origin/metcouncil-2021
 Creating a `ui_params.rda` data set is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
 
@@ -1172,6 +1216,9 @@ run_app()
 ```
 =======
 This is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
+=======
+Creating a `ui_params.rda` data set is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
+>>>>>>> knit tutorial
 
 ```{r}
 map_centroid <- region_outline %>%
