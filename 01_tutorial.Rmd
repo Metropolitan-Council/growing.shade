@@ -418,6 +418,11 @@ In any case, the following files should exist in the `data` folder (again, the `
 ```{r, child = c('02_geographies.Rmd'), include=F, eval=F}
 ```
 
+```{r}
+load(paste0(here::here(), "/data-raw/geography_data.rda"))
+usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+```
 
 # Remote sensing data
 
@@ -570,7 +575,6 @@ Merge demographic and environmental data.
 
 ```{r combinedata}
 load(paste0(here::here(), "/data-raw/canopy_data.rda"))
-load(paste0(here::here(), "/data-raw/geography_data.rda"))
 
 bg_growingshade_data <- 
   
@@ -770,7 +774,8 @@ mn_bgs_raw <- bg_geo %>%
   dplyr::select(-c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE, NAMELSAD, MTFCC, FUNCSTAT, INTPTLAT, INTPTLON)) %>%
   sf::st_as_sf() %>%
       sf::st_transform(4326) %>% 
-  filter(!is.na(highest_priority)) 
+  filter(!is.na(highest_priority)) %>%
+  rename(GEO_NAME = GEOID)
 
 mncounties <- tigris::counties(state = state) %>%
   filter(NAME %in% county)
@@ -808,7 +813,8 @@ usethis::use_data(redline, overwrite = TRUE)
 mn_bgs <- mn_bgs_raw %>% 
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326) %>%
-  filter(!is.na(GEOID))
+  filter(!is.na(GEO_NAME)) %>%
+  mutate(GEOID = GEO_NAME)
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
@@ -817,13 +823,6 @@ bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
   filter(!is.na(bg_string))
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
-
-
-# object.size(eab2) / 1e5
-# object.size(eab) / 1e5
-# # ggplot() +
-# #   geom_sf(data = ctu_list) +
-# #   geom_sf(data = ctu_list2, col = "blue", fill = NA)
 
 ```
 
@@ -835,12 +834,4 @@ If the follow steps have been followed, you should be able to navigate to the `.
 
 The "report" section is quite detailed, and various sections may not work if all the data isn't there. For instance, if there isn't data on NDVI, the figure relating how greenness (trees) contribute to lower land surface temperatures won't work. 
 
-# block group issues
 
-the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: <https://gisdata.mn.gov/dataset/water-national-hydrography-data> (but need something from WI in there too)
-
-would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals.
-
-very slow when showing block groups across entire state
-
--- options: focus on statistical areas; some of this won't be super useful either since ag land focus on areas where population density is above some threshold
