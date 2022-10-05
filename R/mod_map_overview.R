@@ -54,7 +54,7 @@ mod_map_overview_ui <- function(id) {
       height = "88vh"
     ) # ,
 
-    # wellPanel(textOutput(ns("selected_tract")))
+    # wellPanel(textOutput(ns("selected_blockgroup")))
   )
 }
 
@@ -381,13 +381,13 @@ mod_map_overview_server <- function(input, output, session,
     }
   )
 
-  # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
+  # map click doesn't work so well with multiple geo options; ctu/blockgroups/neighborhoods
   ## jurisdiction outlines -----------
   observeEvent(
     ignoreInit = FALSE, # true
     geo_selections$selected_geo,
     {
-      if (geo_selections$selected_geo == "tracts") {
+      if (geo_selections$selected_geo == "blockgroups") {
         leafletProxy("map") %>%
           clearGroup("Jurisdiction outlines") %>%
           clearGroup("outline")
@@ -400,7 +400,7 @@ mod_map_overview_server <- function(input, output, session,
               ctu_list
             } else if (geo_selections$selected_geo == "nhood") {
               nhood_list
-            } else if (geo_selections$selected_geo == "tracts") {
+            } else if (geo_selections$selected_geo == "blockgroups") {
               mn_bgs
             },
             # data = if_else(geo_selections$selected_geo == 'ctus', ctu_list, nhood_list
@@ -413,7 +413,7 @@ mod_map_overview_server <- function(input, output, session,
             fill = F,
             opacity = 1,
             options = pathOptions(pane = "geooutline2"),
-            layerId = if (geo_selections$selected_geo == "tracts") {
+            layerId = if (geo_selections$selected_geo == "blockgroups") {
               NULL
             } else {
               ~GEO_NAME
@@ -427,7 +427,7 @@ mod_map_overview_server <- function(input, output, session,
 
   observeEvent(
     ignoreInit = FALSE, # TRUE,
-    req(geo_selections$selected_area != "tracts"),
+    req(geo_selections$selected_area != "blockgroups"),
     {
       if (geo_selections$selected_area == "") {
         leafletProxy("map") %>%
@@ -462,16 +462,16 @@ mod_map_overview_server <- function(input, output, session,
     }
   )
 
-  # # trees for tracts  --------------
-  toListen_clickytracts <- reactive({
+  # # trees for blockgroups  --------------
+  toListen_clickyblockgroups <- reactive({
     list(
-      req(geo_selections$selected_geo == "tracts"),
+      req(geo_selections$selected_geo == "blockgroups"),
       req(input$map_shape_click$id)
     )
   })
   observeEvent(
     ignoreInit = FALSE,
-    toListen_clickytracts(),
+    toListen_clickyblockgroups(),
     {
       if (input$map_shape_click$id == "") {
         leafletProxy("map") %>%
@@ -497,10 +497,10 @@ mod_map_overview_server <- function(input, output, session,
   # ### save map clicks -----------
   vals <- reactiveValues()
   observe({
-    req(geo_selections$selected_geo == "tracts")
+    req(geo_selections$selected_geo == "blockgroups")
     event <- input$map_shape_click
     vals$TEST <- event$id
-    vals$selected_tract <- (map_util$map_data2$bg_string[map_util$map_data2$bg_string == event$id])
+    vals$selected_blockgroup <- (map_util$map_data2$bg_string[map_util$map_data2$bg_string == event$id])
     # vals$clicked_geo <-  input$map_shape_click$id
   })
   return(vals)
