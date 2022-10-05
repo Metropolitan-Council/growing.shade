@@ -810,7 +810,7 @@ code_metadata <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
 
 bg_growingshade_main <-
   # direct-fetching data; exists for all regions/scale-able
-  acs_blockgroups %>%
+  acs_blockgroups %>% 
   full_join(decennial_data) %>%
   full_join(health_data) %>%
   full_join(cancer_data, by = c("GEOID" = "bg_id")) %>%

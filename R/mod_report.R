@@ -64,7 +64,7 @@ mod_report_server <- function(id,
     })
 
 
-    # the min, max, ntracts, eab, treeacres, landacres, canopypercent, avgcanopy for the selected geography
+    # the min, max, n_blockgroups, eab, treeacres, landacres, canopypercent, avgcanopy for the selected geography
     param_areasummary <- reactive({
       req(TEST() != "")
       output <- if (geo_selections$selected_geo == "ctus") {
@@ -84,9 +84,9 @@ mod_report_server <- function(id,
         (map_util$map_data),
         bg_string %in%
           if (geo_selections$selected_geo == "ctus") {
-            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$bg_id)
           } else if (geo_selections$selected_geo == "nhood") {
-            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$bg_id)
           } else {
             c(param_area())
           }
@@ -106,9 +106,9 @@ mod_report_server <- function(id,
       output <- bg_growingshade_main %>%
         mutate(flag = if_else(bg_string %in%
           if (geo_selections$selected_geo == "ctus") {
-            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$bg_id)
           } else if (geo_selections$selected_geo == "nhood") {
-            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$tract_id)
+            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$bg_id)
           } else if (geo_selections$selected_geo == "tracts") {
             c(param_area())
           },
@@ -119,7 +119,7 @@ mod_report_server <- function(id,
 
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
-        filter(variable %in% c("pbipoc", "canopy_percent", "mdhhincnow", "avg_temp", "ndvi_land")) %>%
+        filter(variable %in% c("pbipoc", "canopy_percent", "hhincome", "avg_temp", "ndvi_land")) %>%
         select(bg_string, variable, raw_value, flag) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
@@ -182,7 +182,7 @@ mod_report_server <- function(id,
               },
               " average (", round(param_areasummary()$avgcanopy * 100, 1), "%). ",
               "Within ", param_area(), ", there are ",
-              param_areasummary()$ntracts,
+              param_areasummary()$n_blockgroups,
               " Census block groups with tree canopy cover ranging from ",
               param_areasummary()$min,
               "% to ",
@@ -374,7 +374,7 @@ mod_report_server <- function(id,
               " have priority scores ranging from ",
               round(min(param_selectedtractvalues()$MEAN, na.rm = T), 2), " to ", round(max(param_selectedtractvalues()$MEAN, na.rm = T), 2),
               "  (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
-              tolower(map_selections$preset), " priority layer between the selected area (average of ", param_areasummary()$ntracts, " block group values) and region-wide averages.<br>"
+              tolower(map_selections$preset), " priority layer between the selected area (average of ", param_areasummary()$n_blockgroups, " block group values) and region-wide averages.<br>"
             )
           }
         )
@@ -609,7 +609,7 @@ mod_report_server <- function(id,
     report_equity_plot <- reactive({
       req(TEST() != "")
       df <- param_equity() %>%
-        select(flag, canopy_percent, mdhhincnow, pbipoc) %>%
+        select(flag, canopy_percent, hhincome, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(flag, canopy_percent)) %>%
         mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value))
 
@@ -631,7 +631,7 @@ mod_report_server <- function(id,
       #   }
       # }
       # df<-bg_growingshade_main %>%
-      #   filter(variable %in% c("canopy_percent", "pbipoc", "mdhhincnow")) %>%
+      #   filter(variable %in% c("canopy_percent", "pbipoc", "hhincome")) %>%
       #   select(bg_string, variable, raw_value) %>%
       #   pivot_wider(names_from = variable,values_from = raw_value) %>%
       #   pivot_longer(names_to = "names", values_to = "raw_value", -c(bg_string, canopy_percent))
@@ -651,7 +651,7 @@ mod_report_server <- function(id,
       #
       #   ) +
       #   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(.0,0)) +
-      #   scale_x_continuous(#breaks = as_labeller(pbipoc = seq(0, 1, .25), mdhhincnow = seq(0, 250000, 75000)),
+      #   scale_x_continuous(#breaks = as_labeller(pbipoc = seq(0, 1, .25), hhincome = seq(0, 250000, 75000)),
       #                        # as.vector(c(seq(0,1, .25), seq(0, 250000, 75000))),#(c(seq(0, 1, .25), seq(0, 250000, 75000))),#
       #                      # breaks = breaks_fun,
       #                      limits = c(0, NA),
@@ -661,7 +661,7 @@ mod_report_server <- function(id,
       #   labs(x = "", y = "Tree canopy\n (%)") +
       #   facet_wrap(~names,
       #              scales = "free_x", nrow = 2, strip.position = "bottom",
-      #              labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
+      #              labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", hhincome = "Median household\nincome ($)"))
       #   )
       #
 
@@ -726,7 +726,7 @@ mod_report_server <- function(id,
         ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
-          labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", mdhhincnow = "Median household\nincome ($)"))
+          labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", hhincome = "Median household\nincome ($)"))
         )
 
 

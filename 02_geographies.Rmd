@@ -142,9 +142,7 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
   dplyr::select(bg_id, jurisdiction) %>%
   mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 
-usethis::use_data(ctu_crosswalk, overwrite = TRUE)
-usethis::use_data(nhood_crosswalk, overwrite = TRUE)
-usethis::use_data(wide_ctu_crosswalk, overwrite = TRUE)
+  save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, file = paste0(here::here(), "/data-raw/geography_data.rda"))
 
 # library(tibble); library(dplyr); library(tidyr); library(stringr)
 # test <- tibble(id = c(1, 2, 3, 4, 5, 6),
