@@ -88,9 +88,9 @@ mod_map_overview_server <- function(input, output, session,
       attributionControl = FALSE
     )) %>%
       setView(
-        lat = 44.963,
-        lng = -93.32,
-        zoom = 10
+        lat = ui_params$number[ui_params$param == "center_latitude"],
+        lng = ui_params$number[ui_params$param == "center_longitude"],
+        zoom = ui_params$number[ui_params$param == "center_zoom"]
       ) %>%
       # add attribution
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
@@ -120,8 +120,7 @@ mod_map_overview_server <- function(input, output, session,
       # ) %>%
 
       # add tree tiles
-      # addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}",
-        addTiles("https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}",
+        addTiles(ui_params$set[ui_params$param == "tree_tile_location"],
              attribution = NULL,
         options = c(
           tileOptions(opacity = .6),
@@ -221,7 +220,7 @@ mod_map_overview_server <- function(input, output, session,
         layerId = ~GEO_NAME
       ) %>%
       addPolygons(
-        data = filter(ctu_list, GEO_NAME == "Oakdale"),
+        data = filter(ctu_list, GEO_NAME == ui_params$set[ui_params$param == "cityselected"]),
         stroke = TRUE,
         color = "#0073e0", # "blue",
         fill = NA,
@@ -403,8 +402,6 @@ mod_map_overview_server <- function(input, output, session,
             } else if (geo_selections$selected_geo == "blockgroups") {
               mn_bgs
             },
-            # data = if_else(geo_selections$selected_geo == 'ctus', ctu_list, nhood_list
-            #                  ),
             group = "Jurisdiction outlines",
             stroke = T,
             smoothFactor = 1,
