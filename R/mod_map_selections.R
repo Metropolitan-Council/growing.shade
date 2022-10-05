@@ -195,11 +195,11 @@ mod_map_selections_ui <- function(id) {
       ns = ns,
       condition = "input.preset == 'Custom'", # && input.onoff == 'On'",
 
-      shinyWidgets::pickerInput(ns("dollarInput"),
+      shinyWidgets::pickerInput(ns("economicsInput"),
         label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Socioeconomics</span></h4>")),
-        choices = dplyr::filter(metadata, type == "dollar") %>% .$name,
+        choices = dplyr::filter(metadata, type == "economics") %>% .$name,
         # choicesOpt = list(
-        #   subtext = paste0(filter(metadata, type == "dollar") %>% .$niceinterp,
+        #   subtext = paste0(filter(metadata, type == "economics") %>% .$niceinterp,
         #                    " values have higher priority scores")),
         options = list(
           `actions-box` = TRUE,
@@ -228,7 +228,7 @@ mod_map_selections_server <- function(input, output, session # ,
     input_values$allInputs <- as_tibble(input$peopleInput) %>%
       rbind(as_tibble(input$placeInput)) %>%
       rbind(as_tibble(input$healthInput)) %>%
-      rbind(as_tibble(input$dollarInput))
+      rbind(as_tibble(input$economicsInput))
 
     input_values$preset <- input$preset
   })
