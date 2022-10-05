@@ -5,6 +5,15 @@ date: "1/20/2022"
 output: html_document
 ---
 
+# block group issues
+
+the current watermask in gee is only for metcouncil area; this dataset probably works for rest of state: <https://gisdata.mn.gov/dataset/water-national-hydrography-data> (but need something from WI in there too)
+
+would want to focus only on residential area or city boundaries; ag land has different purposes/uses/challenges/sustainability goals.
+
+very slow when showing block groups across entire state
+
+-- options: focus on statistical areas; some of this won't be super useful either since ag land focus on areas where population density is above some threshold
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, message = F, warning = F,
