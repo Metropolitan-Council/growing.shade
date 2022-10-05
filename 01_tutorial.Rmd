@@ -763,6 +763,7 @@ selectedvars <- metadata %>%
 ```{r bg_shapefiles_for_mapping}
 
 mn_bgs_raw <- bg_geo %>%
+  right_join(bg_growingshade_data %>% select(bg_string, fancyname), by = c("GEOID" = "bg_string")) %>%
   right_join(wide_ctu_crosswalk, by = c("GEOID" = "bg_id")) %>%
   full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>%
   full_join(priority_summary) %>%
