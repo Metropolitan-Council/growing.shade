@@ -26,7 +26,7 @@ HTML("<h2><section style='font-size:20pt'>Geography</h2>"),
       # ), # multiple = F,
       choiceNames = list("Cities and townships", 
                          HTML("<section class='d-block d-lg-none'>Neighborhoods</section>
-                              <section class='d-none d-lg-block'>Neighborhoods (Minneapolis and St.Paul only)</section>"), #desktop
+                              <section class='d-none d-lg-block'>Neighborhoods</section>"), # (Minneapolis and St.Paul only)</section>"), #desktop
                          "Census block group"),
       choiceValues = list("ctus", "nhood", "blockgroups"),
       selected = "ctus",
