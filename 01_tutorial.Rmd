@@ -44,8 +44,8 @@ This code is set up to use/process 2020-era census geographies at the block grou
 #####
 # Geography variables
 ####
-state <- c("MN")
-county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+state <- c("WI")#c("MN")
+county <- c("Dane")#c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 
 #######
 # Demographic variables
@@ -53,8 +53,20 @@ county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washing
 acs_year <- 2020 #The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then. 
 census_year <- 2020
 
-process_demographics <- FALSE
+process_demographics <- TRUE
 detailed_population_count <- FALSE #are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
+
+######
+# remote sensing data
+######
+regional_specific_data <- FALSE #ndvi, tree canopy cover, etc
+
+
+######
+# city geo
+######
+regional_specific_geography <- FALSE 
+
 
 ```
 
@@ -417,18 +429,45 @@ In any case, the following files should exist in the `data` folder (again, the `
   - `jurisdiction` (city or cities which the block group belongs to - where applicable cities should be separated by a ", "; i.e. "St. Francis, Bethel")
 
 
-```{r, child = c('02_geographies.Rmd'), include=F, eval=F}
-```
-
 ```{r}
-load(paste0(here::here(), "/data-raw/geography_data.rda"))
+if (regional_specific_geography == FALSE) {
+cities <- tigris::county_subdivisions(
+  state = state,
+  county = county,
+  class = "sf"
+)
+ctu_crosswalk <- cities %>% select(NAME) %>%
+  st_transform(26915) %>%
+  st_buffer(-150) %>% #buffer the perimeter of the geography
+  st_intersection(bg_geo %>% 
+                    dplyr::select(GEOID) %>%
+                    st_transform(26915)) %>%
+  st_drop_geometry() %>%
+  rename(GEO_NAME = NAME,
+         bg_id = GEOID)
+
+wide_ctu_crosswalk <- ctu_crosswalk %>%
+  aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
+  rename(jurisdiction = GEO_NAME)
+
+nhood_crosswalk <- ctu_crosswalk %>%
+  mutate(city = "placeholder")
+
 usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+
+} else {
+  load(paste0(here::here(), "/data-raw/geography_data.rda"))
+  usethis::use_data(ctu_crosswalk, overwrite = TRUE)
+  usethis::use_data(nhood_crosswalk, overwrite = TRUE)
+}
+
 ```
+
 
 # Remote sensing data
 
-This section *may* scale to other regions, but currently requires some initial processing steps done *outside* of R, and hence the code has been moved into the `02_remotesensing.Rmd` script. 
+This section *may* scale to other regions, but currently requires some initial processing steps done *outside* of R, and hence the code has been moved into the `03_remotesensing.Rmd` script. 
 
 These are the resulting files which should exist:
 
@@ -457,6 +496,25 @@ These are the resulting files which should exist:
   - `bg_id` (block group identifier)
   - `ndvi_uncultivated` (average NDVI over uncultivated land)
   - `ndvi_land` (average NDVI over all land, including cropland)
+  
+```{r}
+if (regional_specific_data == FALSE) {
+bg_canopy <- bg_geo %>% 
+  st_drop_geometry() %>%
+  transmute(bg_id = GEOID,
+            canopy_percent = sample(10:60, n(), replace = T)/100,
+            avgcanopy = .3)
+
+bg_ndvi <- bg_geo %>% 
+  st_drop_geometry() %>%
+  transmute(bg_id = GEOID,
+            ndvi_uncultivated = sample(10:80, n(), replace = T)/100,
+            ndvi_land = sample(10:80, n(), replace = T)/100)
+  
+} else {
+  load(paste0(here::here(), "/data-raw/canopy_data.rda"))
+}
+```
 
 # Environmental data
 
@@ -522,10 +580,18 @@ This section relies on processing remote sensing data outside of R, and may requ
   - `prim_flood` (amount of land susceptible to primary flooding)
 
 ```{r environmental-data}
+if (regional_specific_data == FALSE) {
+  env_data <- bg_geo %>% 
+  st_drop_geometry() %>%
+  transmute(bg_id = GEOID,
+            avg_temp = sample(85:110, n(), replace = T),
+            prim_flood = sample(0:100, n(), replace = T)/100)
+} else {
 env_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/CLIMATE_BG20.xlsx")) %>%
   transmute(bg_id = BG20,
             avg_temp = AVG_TEMP,
             prim_flood = PRIM_FLOOD)
+}
 
 ```
 
@@ -540,11 +606,19 @@ This data describes the amount of block groups which were redlined.
 
 
 ```{r holc-percents}
+if (regional_specific_data == FALSE) {
+  holc_data <- bg_geo %>% 
+  st_drop_geometry() %>%
+  transmute(bg_id = GEOID,
+            holc_pred = 0)
+} else {
 holc_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/HOLC_BG20.xlsx")) %>%
   transmute(bg_id = BG20,
             holc_pred = HOLC_4_RED) %>%
   right_join(bg_geo %>% st_drop_geometry() %>% transmute(bg_id = GEOID)) %>%
   mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) 
+}
+
 ```
 
 ```{r holc-geography}
@@ -585,7 +659,6 @@ Additionally, please check (and double check if problems arise) the `data-raw/me
 
 ```{r combinedata}
 code_metadata <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
-load(paste0(here::here(), "/data-raw/canopy_data.rda"))
 
 bg_growingshade_main <- 
   
@@ -632,7 +705,7 @@ bg_growingshade_main <-
          MIN = min(raw_value, na.rm = T),
          MAX = max(raw_value, na.rm = T),
          COUNT = as.numeric(sum(!is.na(raw_value))),
-         z_score = (raw_value - MEAN)/SD) %>%
+         z_score = if_else(SD != 0, (raw_value - MEAN)/SD, 0)) %>%
   
   full_join(code_metadata, by = 'variable') %>%
   
