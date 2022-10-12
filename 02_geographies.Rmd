@@ -126,14 +126,16 @@ ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
 wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
-  group_by(bg_id) %>%
-  count() %>%
-  left_join(ctu_crosswalk) %>%
-  add_column(cities = 999) %>%
-  dplyr::select(bg_id, GEO_NAME, cities, n) %>%
-  # spread(cities, GEO_NAME)
-  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
-  unnest_wider(`999`) 
+    aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
+  rename(jurisdiction = GEO_NAME)
+  # group_by(bg_id) %>%
+  # count() %>%
+  # left_join(ctu_crosswalk) %>%
+  # add_column(cities = 999) %>%
+  # dplyr::select(bg_id, GEO_NAME, cities, n) %>%
+  # # spread(cities, GEO_NAME)
+  # pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
+  # unnest_wider(`999`) 
 
 wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
   mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`,# `...5`, 
