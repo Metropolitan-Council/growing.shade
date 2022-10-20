@@ -58,6 +58,7 @@ This code is set up to use/process 2020-era census geographies at the block grou
 # Geography variables
 ####
 <<<<<<< refs/remotes/origin/metcouncil-2021
+<<<<<<< refs/remotes/origin/metcouncil-2021
 state <- c("MN")
 <<<<<<< refs/remotes/origin/metcouncil-2021
 county <- c("Anoka")#, "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
@@ -68,6 +69,10 @@ county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washing
 state <- c("WI")#c("MN")
 county <- c("Dane")#c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 >>>>>>> further generalize code
+=======
+state <- c("MN")
+county <- NULL#c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+>>>>>>> make geography work for entire states
 
 #######
 # Demographic variables
@@ -75,6 +80,7 @@ county <- c("Dane")#c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott"
 acs_year <- 2020 # The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then.
 census_year <- 2020
 
+<<<<<<< refs/remotes/origin/metcouncil-2021
 <<<<<<< refs/remotes/origin/metcouncil-2021
 <<<<<<< refs/remotes/origin/metcouncil-2021
 <<<<<<< refs/remotes/origin/metcouncil-2021
@@ -91,6 +97,9 @@ process_demographics <- TRUE
 =======
 process_demographics <- FALSE
 >>>>>>> genearlize
+=======
+process_demographics <- TRUE
+>>>>>>> make geography work for entire states
 detailed_population_count <- FALSE #are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
 >>>>>>> test different geographies
 
@@ -1225,6 +1234,7 @@ mn_bgs_raw <- bg_geo %>%
 
 <<<<<<< refs/remotes/origin/metcouncil-2021
 <<<<<<< refs/remotes/origin/metcouncil-2021
+<<<<<<< refs/remotes/origin/metcouncil-2021
 region_outline <- if (is.null(county)) {
   county_outline %>%
     group_by(STATEFP) %>%
@@ -1246,8 +1256,23 @@ county_outline <- tigris::counties(state = state) %>%
 >>>>>>> Update 01_tutorial.Rmd
   filter(NAME %in% county)
 region_outline <- county_outline %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
+=======
+county_outline <- if (is.null(county)) {
+  tigris::counties(state = state)
+  } else {tigris::counties(state = state) %>%
+  filter(NAME %in% county)}
+
+region_outline <- if (is.null(county)) {
+  county_outline %>% group_by(STATEFP) %>%
+    summarise(geometry = sf::st_union(geometry)) %>%
   sf::st_simplify(dTolerance = 400) %>%
   sf::st_transform(4326)
+  } else {
+    county_outline %>% group_by(COUNTYFP) %>% summarise(geometry = sf::st_union(geometry)) %>%
+>>>>>>> make geography work for entire states
+  sf::st_simplify(dTolerance = 400) %>%
+  sf::st_transform(4326)
+  }
 usethis::use_data(region_outline, overwrite = TRUE)
 
 
