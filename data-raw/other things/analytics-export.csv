@@ -1,0 +1,465 @@
+# ----------------------------------------
+# Report CSV Export
+# Account: Shiny apps
+# Property: Growing Shade
+# ----------------------------------------
+# 
+# All Users
+# Start date: 20220101
+# End date: 20220316
+
+City,Users
+Saint Paul,99
+Minneapolis,98
+Cheyenne,86
+Maplewood,13
+Richfield,12
+Roseville,11
+Stillwater,11
+St. Louis Park,10
+Ashburn,7
+Des Moines,7
+Rush City,7
+Woodbury,7
+Chicago,6
+Eagan,6
+Bloomington,5
+Brooklyn Park,5
+Chanhassen,5
+Fridley,5
+Washington,5
+Boydton,4
+Eden Prairie,4
+Edina,4
+Farmington,4
+Golden Valley,4
+Minnetonka,4
+Oakdale,4
+Plymouth,4
+Portland,4
+San Antonio,4
+Atlanta,3
+Coon Rapids,3
+Inver Grove Heights,3
+Lake Elmo,3
+Mendota Heights,3
+New Brighton,3
+Prior Lake,3
+Rochester,3
+Saint Francis,3
+White Bear Lake,3
+Anoka,2
+Apple Valley,2
+Bemidji,2
+Brooklyn Center,2
+Burnsville,2
+Charlottesville,2
+Chaska,2
+Coffeyville,2
+Council Bluffs,2
+Crystal,2
+Des Plaines,2
+Duluth,2
+Grand Rapids,2
+Ives Estates,2
+Lakeville,2
+Madison,2
+Philadelphia,2
+Quincy,2
+San Jose,2
+Seattle,2
+Shoreview,2
+South Saint Paul,2
+Stockton,2
+West Saint Paul,2
+Wheaton,2
+Afton,1
+Arlington,1
+Aurora,1
+Austin,1
+Baltimore,1
+Baxter,1
+Belle Plaine,1
+Blaine,1
+Boston,1
+Britt,1
+Burlington,1
+Byron,1
+Centennial,1
+Clemson,1
+Cold Spring,1
+Columbia Heights,1
+Cottage Grove,1
+Denver,1
+Donalsonville,1
+Estes Park,1
+Eugene,1
+Fargo,1
+Fergus Falls,1
+Fort Wayne,1
+Gallup,1
+Gaylord,1
+Gladstone,1
+Guangzhou,1
+Hagerstown,1
+Hamilton Township,1
+Hialeah Gardens,1
+Hopkins,1
+Hudson,1
+Johnson City,1
+Jordan,1
+Lincoln,1
+Lino Lakes,1
+Lisbon,1
+Los Angeles,1
+Mahtomedi,1
+Maple Grove,1
+Marshall,1
+Maryville,1
+Milwaukee,1
+Minnetrista,1
+Montgomery,1
+Moscow,1
+Newburyport,1
+Oak Brook,1
+Oakland,1
+Oklahoma City,1
+Omaha,1
+Osceola,1
+Pagosa Springs,1
+Pasadena,1
+Pierz,1
+Ramsey,1
+Robbinsdale,1
+Rosemount,1
+San Francisco,1
+Savage,1
+Shakopee,1
+Shenzhen,1
+South Brunswick Township,1
+Stacy,1
+State College,1
+Temple Terrace,1
+Tigard,1
+Victoria,1
+Waltham,1
+Waseca,1
+Watertown,1
+Wausau,1
+Waverly,1
+West Chicago,1
+West Falls Church,1
+West Vancouver,1
+Wichita Falls,1
+Williston,1
+Winchester,1
+Winona,1
+Yonkers,1
+
+# Start date: 20220101
+# End date: 20220316
+City,Users,New users
+Saint Paul,99,88
+Minneapolis,98,93
+Cheyenne,86,107
+Maplewood,13,12
+Richfield,12,11
+Roseville,11,9
+Stillwater,11,9
+St. Louis Park,10,10
+Ashburn,7,7
+Des Moines,7,10
+Rush City,7,7
+Woodbury,7,4
+Chicago,6,5
+Eagan,6,6
+Bloomington,5,4
+Brooklyn Park,5,5
+Chanhassen,5,4
+Fridley,5,4
+Washington,5,5
+Boydton,4,6
+Eden Prairie,4,4
+Edina,4,3
+Farmington,4,4
+Golden Valley,4,4
+Minnetonka,4,5
+Oakdale,4,1
+Plymouth,4,2
+Portland,4,4
+San Antonio,4,6
+Atlanta,3,3
+Coon Rapids,3,2
+Inver Grove Heights,3,5
+Lake Elmo,3,0
+Mendota Heights,3,3
+New Brighton,3,3
+Prior Lake,3,3
+Rochester,3,3
+Saint Francis,3,1
+White Bear Lake,3,2
+Anoka,2,1
+Apple Valley,2,2
+Bemidji,2,2
+Brooklyn Center,2,0
+Burnsville,2,1
+Charlottesville,2,2
+Chaska,2,2
+Coffeyville,2,2
+Council Bluffs,2,1
+Crystal,2,1
+Des Plaines,2,2
+Duluth,2,2
+Grand Rapids,2,4
+Ives Estates,2,2
+Lakeville,2,1
+Madison,2,2
+Philadelphia,2,2
+Quincy,2,2
+San Jose,2,2
+Seattle,2,2
+Shoreview,2,0
+South Saint Paul,2,2
+Stockton,2,2
+West Saint Paul,2,2
+Wheaton,2,2
+Afton,1,1
+Arlington,1,1
+Aurora,1,1
+Austin,1,1
+Baltimore,1,1
+Baxter,1,1
+Belle Plaine,1,1
+Blaine,1,1
+Boston,1,1
+Britt,1,1
+Burlington,1,1
+Byron,1,1
+Centennial,1,1
+Clemson,1,1
+Cold Spring,1,1
+Columbia Heights,1,1
+Cottage Grove,1,1
+Denver,1,1
+Donalsonville,1,1
+Estes Park,1,0
+Eugene,1,1
+Fargo,1,0
+Fergus Falls,1,1
+Fort Wayne,1,1
+Gallup,1,1
+Gaylord,1,1
+Gladstone,1,1
+Guangzhou,1,1
+Hagerstown,1,2
+Hamilton Township,1,1
+Hialeah Gardens,1,1
+Hopkins,1,1
+Hudson,1,1
+Johnson City,1,1
+Jordan,1,1
+Lincoln,1,1
+Lino Lakes,1,1
+Lisbon,1,1
+Los Angeles,1,1
+Mahtomedi,1,1
+Maple Grove,1,1
+Marshall,1,1
+Maryville,1,1
+Milwaukee,1,1
+Minnetrista,1,1
+Montgomery,1,1
+Moscow,1,2
+Newburyport,1,1
+Oak Brook,1,2
+Oakland,1,1
+Oklahoma City,1,1
+Omaha,1,1
+Osceola,1,1
+Pagosa Springs,1,1
+Pasadena,1,1
+Pierz,1,0
+Ramsey,1,1
+Robbinsdale,1,0
+Rosemount,1,1
+San Francisco,1,1
+Savage,1,1
+Shakopee,1,1
+Shenzhen,1,1
+South Brunswick Township,1,1
+Stacy,1,1
+State College,1,1
+Temple Terrace,1,1
+Tigard,1,1
+Victoria,1,1
+Waltham,1,1
+Waseca,1,1
+Watertown,1,1
+Wausau,1,1
+Waverly,1,1
+West Chicago,1,2
+West Falls Church,1,1
+West Vancouver,1,1
+Wichita Falls,1,2
+Williston,1,1
+Winchester,1,1
+Winona,1,1
+Yonkers,1,1
+
+# All Users
+# Start date: 20220101
+# End date: 20220316
+
+City,Region,Users,New users,Engaged sessions,Engagement rate,Engaged sessions per user,Average engagement time,Event count,Conversions,Total revenue
+Saint Paul,Minnesota,99,88,103,0.4703196347031963,1.0404040404040404,216.06060606060606,1072,0,0
+Minneapolis,Minnesota,98,93,94,0.36293436293436293,0.9591836734693877,135.89795918367346,1262,0,0
+Cheyenne,Wyoming,86,107,6,0.06976744186046512,0.06976744186046512,3.941860465116279,437,0,0
+(not set),(not set),21,15,9,0.2903225806451613,0.42857142857142855,97.38095238095238,158,0,0
+Maplewood,Minnesota,13,12,69,0.575,5.3076923076923075,2809.923076923077,3581,0,0
+Richfield,Minnesota,12,11,10,0.5555555555555556,0.8333333333333334,152.66666666666666,80,0,0
+Roseville,Minnesota,11,9,6,0.3,0.5454545454545454,104.45454545454545,71,0,0
+Stillwater,Minnesota,11,9,15,0.38461538461538464,1.3636363636363635,118.0909090909091,194,0,0
+St. Louis Park,Minnesota,10,10,10,0.3225806451612903,1,235.8,124,0,0
+Ashburn,Virginia,7,7,1,0.14285714285714285,0.14285714285714285,2.5714285714285716,28,0,0
+Des Moines,Iowa,7,10,3,0.42857142857142855,0.42857142857142855,25.857142857142858,46,0,0
+Rush City,Minnesota,7,7,14,0.56,2,251.28571428571428,96,0,0
+Woodbury,Minnesota,7,4,8,0.6666666666666666,1.1428571428571428,266.7142857142857,62,0,0
+(not set),Minnesota,6,6,4,0.2857142857142857,0.6666666666666666,212.66666666666666,73,0,0
+Chicago,Illinois,6,5,2,0.2857142857142857,0.3333333333333333,39.333333333333336,28,0,0
+Eagan,Minnesota,6,6,8,0.47058823529411764,1.3333333333333333,192.16666666666666,69,0,0
+Bloomington,Minnesota,5,4,4,0.6666666666666666,0.8,166,30,0,0
+Brooklyn Park,Minnesota,5,5,5,0.5,1,843,59,0,0
+Chanhassen,Minnesota,5,4,5,0.4166666666666667,1,268.6,56,0,0
+Fridley,Minnesota,5,4,2,0.3333333333333333,0.4,17.2,23,0,0
+Washington,District of Columbia,5,5,3,0.42857142857142855,0.6,3.8,29,0,0
+Boydton,Virginia,4,6,3,0.75,0.75,35,28,0,0
+Eden Prairie,Minnesota,4,4,3,0.6,0.75,116.25,21,0,0
+Edina,Minnesota,4,3,5,0.29411764705882354,1.25,853.5,63,0,0
+Farmington,Minnesota,4,4,4,1,1,92.25,20,0,0
+Golden Valley,Minnesota,4,4,2,0.2,0.5,43.5,39,0,0
+Minnetonka,Minnesota,4,5,4,0.8,1,389.25,31,0,0
+Oakdale,Minnesota,4,1,19,0.475,4.75,1140,262,0,0
+Plymouth,Minnesota,4,2,2,0.3333333333333333,0.5,336.5,22,0,0
+Portland,Oregon,4,4,3,0.42857142857142855,0.75,125.5,34,0,0
+San Antonio,Texas,4,6,0,0,0,6.5,23,0,0
+(not set),Washington,3,2,0,0,0,0,11,0,0
+Atlanta,Georgia,3,3,3,0.75,1,29.666666666666668,18,0,0
+Coon Rapids,Minnesota,3,2,2,0.3333333333333333,0.6666666666666666,116.66666666666667,25,0,0
+Inver Grove Heights,Minnesota,3,5,2,0.3333333333333333,0.6666666666666666,203.66666666666666,39,0,0
+Lake Elmo,Minnesota,3,0,17,0.68,5.666666666666667,1159,145,0,0
+Mendota Heights,Minnesota,3,3,4,0.5714285714285714,1.3333333333333333,209.33333333333334,35,0,0
+New Brighton,Minnesota,3,3,3,0.5,1,203.66666666666666,29,0,0
+Prior Lake,Minnesota,3,3,2,0.6666666666666666,0.6666666666666666,629.6666666666666,17,0,0
+Rochester,Minnesota,3,3,1,0.2,0.3333333333333333,2.3333333333333335,18,0,0
+Saint Francis,Minnesota,3,1,2,0.25,0.6666666666666666,378,24,0,0
+White Bear Lake,Minnesota,3,2,2,0.6666666666666666,0.6666666666666666,286.3333333333333,14,0,0
+Anoka,Minnesota,2,1,1,0.5,0.5,57.5,8,0,0
+Apple Valley,Minnesota,2,2,2,1,1,88,17,0,0
+Bemidji,Minnesota,2,2,0,0,0,3.5,11,0,0
+Brooklyn Center,Minnesota,2,0,3,0.6,1.5,0,21,0,0
+Burnsville,Minnesota,2,1,2,0.6666666666666666,1,289.5,14,0,0
+Charlottesville,Virginia,2,2,2,1,1,17,13,0,0
+Chaska,Minnesota,2,2,2,0.6666666666666666,1,100,20,0,0
+Coffeyville,Kansas,2,2,2,1,1,0,8,0,0
+Council Bluffs,Iowa,2,1,2,0.5,1,21.5,18,0,0
+Crystal,Minnesota,2,1,0,0,0,1,6,0,0
+Des Plaines,Illinois,2,2,1,0.5,0.5,17.5,12,0,0
+Duluth,Minnesota,2,2,0,0,0,0,15,0,0
+Grand Rapids,Minnesota,2,4,1,0.5,0.5,20,18,0,0
+Ives Estates,Florida,2,2,1,0.5,0.5,0,8,0,0
+Lakeville,Minnesota,2,1,4,0.4,2,18,43,0,0
+Madison,Wisconsin,2,2,2,1,1,72.5,10,0,0
+Philadelphia,Pennsylvania,2,2,2,1,1,94,13,0,0
+Quincy,Washington,2,2,1,0.5,0.5,18,9,0,0
+San Jose,California,2,2,0,0,0,0,8,0,0
+Seattle,Washington,2,2,2,0.6666666666666666,1,323,14,0,0
+Shoreview,Minnesota,2,0,2,0.6666666666666666,1,70.5,12,0,0
+South Saint Paul,Minnesota,2,2,1,0.2,0.5,799,18,0,0
+Stockton,California,2,2,3,0.75,1.5,263,30,0,0
+West Saint Paul,Minnesota,2,2,1,0.3333333333333333,0.5,31,11,0,0
+Wheaton,Minnesota,2,2,4,1,2,95,25,0,0
+(not set),Georgia,1,1,0,0,0,1,4,0,0
+(not set),Kansas,1,1,0,0,0,0,4,0,0
+(not set),North Dakota,1,1,1,1,1,166,5,0,0
+Afton,Minnesota,1,1,1,1,1,4,7,0,0
+Arlington,Virginia,1,1,0,0,0,0,10,0,0
+Aurora,Illinois,1,1,0,0,0,0,4,0,0
+Austin,Texas,1,1,0,0,0,0,10,0,0
+Baltimore,Maryland,1,1,1,1,1,20,5,0,0
+Baxter,Minnesota,1,1,0,0,0,0,6,0,0
+Belle Plaine,Minnesota,1,1,0,0,0,0,7,0,0
+Blaine,Minnesota,1,1,1,1,1,234,5,0,0
+Boston,Massachusetts,1,1,1,1,1,117,5,0,0
+Britt,Iowa,1,1,1,1,1,458,8,0,0
+Burlington,Vermont,1,1,1,1,1,17,5,0,0
+Byron,Minnesota,1,1,0,0,0,0,7,0,0
+Centennial,Colorado,1,1,0,0,0,0,6,0,0
+Clemson,South Carolina,1,1,0,0,0,0,6,0,0
+Cold Spring,Minnesota,1,1,0,0,0,10,5,0,0
+Columbia Heights,Minnesota,1,1,0,0,0,5,5,0,0
+Cottage Grove,Minnesota,1,1,0,0,0,0,4,0,0
+Denver,Colorado,1,1,1,1,1,94,5,0,0
+Donalsonville,Georgia,1,1,0,0,0,0,4,0,0
+Estes Park,Colorado,1,0,1,1,1,6,8,0,0
+Eugene,Oregon,1,1,1,1,1,31,8,0,0
+Fargo,North Dakota,1,0,0,0,0,0,1,0,0
+Fergus Falls,Minnesota,1,1,1,1,1,37,10,0,0
+Fort Wayne,Indiana,1,1,1,0.3333333333333333,1,376,12,0,0
+Gallup,New Mexico,1,1,1,1,1,154,5,0,0
+Gaylord,Minnesota,1,1,2,1,2,1059,9,0,0
+Gladstone,Oregon,1,1,0,0,0,2,5,0,0
+Guangzhou,Guangdong Province,1,1,1,1,1,24,5,0,0
+Hagerstown,Maryland,1,2,0,0,0,0,8,0,0
+Hamilton Township,New Jersey,1,1,0,0,0,0,6,0,0
+Hialeah Gardens,Florida,1,1,0,0,0,0,4,0,0
+Hopkins,Minnesota,1,1,1,0.3333333333333333,1,10,10,0,0
+Hudson,Wisconsin,1,1,1,1,1,103,5,0,0
+Johnson City,Tennessee,1,1,1,1,1,366,5,0,0
+Jordan,Minnesota,1,1,1,1,1,48,5,0,0
+Lincoln,Nebraska,1,1,1,1,1,62,5,0,0
+Lino Lakes,Minnesota,1,1,1,1,1,17,6,0,0
+Lisbon,North Dakota,1,1,1,1,1,9,5,0,0
+Los Angeles,California,1,1,0,0,0,0,4,0,0
+Mahtomedi,Minnesota,1,1,1,1,1,44,5,0,0
+Maple Grove,Minnesota,1,1,0,0,0,0,13,0,0
+Marshall,Minnesota,1,1,1,1,1,383,5,0,0
+Maryville,Tennessee,1,1,0,0,0,0,6,0,0
+Milwaukee,Wisconsin,1,1,1,1,1,86,5,0,0
+Minnetrista,Minnesota,1,1,1,1,1,101,5,0,0
+Montgomery,Minnesota,1,1,1,1,1,261,5,0,0
+Moscow,Moscow,1,2,1,0.5,1,0,16,0,0
+Newburyport,Massachusetts,1,1,1,1,1,40,5,0,0
+Oak Brook,Illinois,1,2,0,0,0,0,8,0,0
+Oakland,California,1,1,1,0.3333333333333333,1,240,11,0,0
+Oklahoma City,Oklahoma,1,1,1,1,1,4,5,0,0
+Omaha,Nebraska,1,1,0,0,0,4,14,0,0
+Osceola,Wisconsin,1,1,1,1,1,144,7,0,0
+Pagosa Springs,Colorado,1,1,0,0,0,0,6,0,0
+Pasadena,California,1,1,1,1,1,163,5,0,0
+Pierz,Minnesota,1,0,1,0.5,1,21,10,0,0
+Ramsey,Minnesota,1,1,0,0,0,0,6,0,0
+Robbinsdale,Minnesota,1,0,0,0,0,0,1,0,0
+Rosemount,Minnesota,1,1,0,0,0,0,6,0,0
+San Francisco,California,1,1,1,1,1,84,5,0,0
+Savage,Minnesota,1,1,1,1,1,654,8,0,0
+Shakopee,Minnesota,1,1,1,1,1,129,5,0,0
+Shenzhen,Guangdong Province,1,1,1,1,1,129,11,0,0
+South Brunswick Township,New Jersey,1,1,0,0,0,0,4,0,0
+Stacy,Minnesota,1,1,1,1,1,146,5,0,0
+State College,Pennsylvania,1,1,1,1,1,18,5,0,0
+Temple Terrace,Florida,1,1,1,1,1,241,5,0,0
+Tigard,Oregon,1,1,1,1,1,183,5,0,0
+Victoria,Minnesota,1,1,1,1,1,219,5,0,0
+Waltham,Massachusetts,1,1,0,0,0,0,4,0,0
+Waseca,Minnesota,1,1,1,1,1,321,5,0,0
+Watertown,Massachusetts,1,1,1,1,1,23,5,0,0
+Wausau,Wisconsin,1,1,1,1,1,36,5,0,0
+Waverly,Iowa,1,1,1,1,1,265,5,0,0
+West Chicago,Illinois,1,2,1,1,1,204,10,0,0
+West Falls Church,Virginia,1,1,0,0,0,0,4,0,0
+West Vancouver,British Columbia,1,1,1,1,1,172,5,0,0
+Wichita Falls,Texas,1,2,0,0,0,0,8,0,0
+Williston,North Dakota,1,1,1,1,1,33,4,0,0
+Winchester,Kentucky,1,1,1,1,1,28,5,0,0
+Winona,Minnesota,1,1,1,1,1,810,9,0,0
+Yonkers,New York,1,1,1,1,1,219,5,0,0
