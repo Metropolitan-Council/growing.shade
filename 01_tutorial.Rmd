@@ -654,17 +654,17 @@ cities <- tigris::county_subdivisions(
   group_by(NAME) %>%
   summarise() %>%
   # summarize(geometry = st_union(geom)) %>%
-  arrange(NAME)
+  arrange(NAME) %>%
+  rename(GEO_NAME = NAME)
   
-ctu_crosswalk <- cities %>% select(NAME) %>%
+ctu_crosswalk <- cities %>% select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-150) %>% #buffer the perimeter of the geography
   st_intersection(bg_geo %>% 
                     dplyr::select(GEOID) %>%
                     st_transform(26915)) %>%
   st_drop_geometry() %>%
-  rename(GEO_NAME = NAME,
-         bg_id = GEOID)
+  rename(bg_id = GEOID)
 
 wide_ctu_crosswalk <- ctu_crosswalk %>%
   aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
