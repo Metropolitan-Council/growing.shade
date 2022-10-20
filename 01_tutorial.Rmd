@@ -67,6 +67,7 @@ This code is set up to use/process 2020-era census geographies at the block grou
 <<<<<<< refs/remotes/origin/metcouncil-2021
 state <- c("MN")
 <<<<<<< refs/remotes/origin/metcouncil-2021
+<<<<<<< refs/remotes/origin/metcouncil-2021
 county <- c("Anoka")#, "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 =======
 county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
@@ -83,6 +84,9 @@ county <- NULL#c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Wa
 =======
 county <- NULL # c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 >>>>>>> clean, styler
+=======
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+>>>>>>> Update 01_tutorial.Rmd
 
 #######
 # Demographic variables
