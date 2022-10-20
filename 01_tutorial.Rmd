@@ -397,7 +397,6 @@ bg_geo <- block_groups(state = state,
                                     year = census_year) 
 
 # sf::st_write(bg_geo, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/bg_geo.shp", append = FALSE)
-
 ```
 
 
@@ -405,8 +404,7 @@ bg_geo <- block_groups(state = state,
 
 Since we're going to be making a map which shows census tracts, cities, or neighborhoods depending on the user input, a crosswalk needs to be made which relates block groups to the city and neighborhood levels.
 
-This section doesn't seem to be easily scalable to other regions. As such, the code for this section will likely need to be customized, and processing will be done within the `02_geographies.Rmd` script. Further, if this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
-
+This section doesn't seem to be easily scalable to other regions **unless zip codes are an appropriate stand-in for neighborhoods**. As such, the code for this section will likely need to be customized, and processing will be done within the `02_geographies.Rmd` script. Further, if this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
 
 In any case, the following files should exist in the `data` folder (again, the `02_geographies.Rmd` script shows an example of creating these files for the Twin Cities region).
 
@@ -422,9 +420,12 @@ In any case, the following files should exist in the `data` folder (again, the `
   - `jurisdiction` (city or cities which the block group belongs to - where applicable cities should be separated by a ", "; i.e. "St. Francis, Bethel")
 
 
-```{r}
+```{r city-nhood-geometries}
 if (regional_specific_data == FALSE) {
   
+  #####
+  # cities
+  ####
   county_outline <- if (is.null(county)) {
   tigris::counties(state = state)
   } else {tigris::counties(state = state) %>%
@@ -455,8 +456,12 @@ ctu_crosswalk <- cities %>% select(GEO_NAME) %>%
   st_transform(26915) %>%
   st_buffer(-150) %>% #buffer the perimeter of the geography
   st_intersection(bg_geo %>% 
-                    dplyr::select(GEOID) %>%
+                    dplyr::select(GEOID, ALAND, AWATER) %>%
                     st_transform(26915)) %>%
+  # if less than 1% of block group falls within city boundary, don't assign it to the city
+  mutate(approx_area = as.numeric(st_area(.)),
+         percent = approx_area / (ALAND + AWATER)) %>%
+  filter(percent > .01) %>%
   st_drop_geometry() %>%
   rename(bg_id = GEOID)
 
@@ -464,9 +469,44 @@ wide_ctu_crosswalk <- ctu_crosswalk %>%
   aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
   rename(jurisdiction = GEO_NAME)
 
-nhood_crosswalk <- ctu_crosswalk %>%
-  mutate(city = "placeholder")
+###
+# neighorhoods / zip codes
+####
+ zips <-  tigris::zctas(state = state, year = 2010) 
 
+ elligible_nhoods <-  count(wide_ctu_crosswalk, jurisdiction) %>%
+    filter(n > 100) %>% #cities must have >100 census blocks in order to have "neighborhoods"
+    left_join(cities, by = c("jurisdiction" = "GEO_NAME")) %>%
+   st_as_sf()
+  
+ zip_list <- zips %>%
+   st_transform(26915) %>%
+   st_intersection(elligible_nhoods %>% 
+                     st_transform(26915) %>% 
+                     st_buffer(-200)) %>% #give some breathing room to reduce overlaps
+   st_drop_geometry()
+
+ nhoods <- zips %>%
+   filter(ZCTA5CE10 %in% zip_list$ZCTA5CE10) %>%
+   left_join(zip_list) %>%
+   transmute(GEO_NAME = ZCTA5CE10, 
+             city = jurisdiction)
+ 
+ nhood_crosswalk <- nhoods %>% 
+  st_transform(26915) %>%
+  st_buffer(-150) %>% #buffer the perimeter of the geography
+  st_intersection(bg_geo %>% 
+                    dplyr::select(GEOID, ALAND, AWATER) %>%
+                    st_transform(26915)) %>%
+  # if less than 1% of block group falls within city boundary, don't assign it to the city
+  mutate(approx_area = as.numeric(st_area(.)),
+         percent = approx_area / (ALAND + AWATER)) %>%
+  filter(percent > .01) %>%
+  st_drop_geometry() %>%
+  transmute(GEO_NAME = GEO_NAME,
+            city = city,
+            bg_id = GEOID)
+ 
 usethis::use_data(ctu_crosswalk, overwrite = TRUE)
 usethis::use_data(nhood_crosswalk, overwrite = TRUE)
 
@@ -511,7 +551,7 @@ These are the resulting files which should exist:
   - `ndvi_uncultivated` (average NDVI over uncultivated land)
   - `ndvi_land` (average NDVI over all land, including cropland)
   
-```{r}
+```{r remote-sensing-random-data}
 if (regional_specific_data == FALSE) {
 bg_canopy <- bg_geo %>% 
   st_drop_geometry() %>%
@@ -526,7 +566,7 @@ bg_ndvi <- bg_geo %>%
             ndvi_land = sample(10:80, n(), replace = T)/100)
 
 ctu_list_raw <- cities %>%
-  transmute(GEO_NAME = NAME,
+  transmute(GEO_NAME = GEO_NAME,
             canopy_percent = sample(10:60, n(), replace = T)/100,
             avgcanopy = .3) %>%
   full_join(left_join(ctu_crosswalk, bg_canopy) %>% 
@@ -539,8 +579,20 @@ ctu_list_raw <- cities %>%
   st_as_sf() %>%
   arrange(GEO_NAME)
 
-nhood_list_raw <- ctu_list_raw %>%
-  mutate(city = "placeholder")
+nhood_list_raw <- nhoods %>%
+  transmute(GEO_NAME = GEO_NAME,
+            city = city,
+            canopy_percent = sample(10:60, n(), replace = T)/100,
+            avgcanopy = .3) %>%
+  full_join(left_join(nhood_crosswalk, bg_canopy) %>% 
+  group_by(GEO_NAME, city) %>%
+  summarise(
+    min = round(min(canopy_percent) * 100, 1),
+    max = round(max(canopy_percent) * 100, 1),
+    n_blockgroups = n()
+  )) %>%
+  st_as_sf() %>%
+  arrange(GEO_NAME)
   
 } else {
   load(paste0(here::here(), "/data-raw/canopy_data.rda"))
@@ -921,24 +973,24 @@ usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
 
 ```{r}
-library(tidyverse); library(sf)
-ua <- tigris::urban_areas() %>% 
-  filter(stringr::str_detect((NAME10), state)) 
-
-# ua %>% #filter(LSAD10 == 76) %>%
-#   # filter(UATYP10 == "C") %>%
-#   ggplot()+
-#   geom_sf()
-
-mapview::mapview(ua)
-
-count(st_drop_geometry(ua), LSAD10) #75 = Urbanized Area; 76 = Urban Cluster
-count(st_drop_geometry(ua), UATYP10) #Census urban area type; U = Urbanized Area; C = Urban Cluster 
-
-# Counties can be categorized into levels of rurality based on the percentage of the decennial census population living in the rural areas. Using 2010 Census data, counties were classified as "mostly urban" (less than 50 percent of the population lived in rural areas), "mostly rural" (50 to 99.9 percent of the population lived in rural areas), and "completely rural" (100 percent of the population lived in rural areas)
-
-# county_subdivisions
-# zctas
+# library(tidyverse); library(sf)
+# ua <- tigris::urban_areas() %>% 
+#   filter(stringr::str_detect((NAME10), state)) 
+# 
+# # ua %>% #filter(LSAD10 == 76) %>%
+# #   # filter(UATYP10 == "C") %>%
+# #   ggplot()+
+# #   geom_sf()
+# 
+# mapview::mapview(ua)
+# 
+# count(st_drop_geometry(ua), LSAD10) #75 = Urbanized Area; 76 = Urban Cluster
+# count(st_drop_geometry(ua), UATYP10) #Census urban area type; U = Urbanized Area; C = Urban Cluster 
+# 
+# # Counties can be categorized into levels of rurality based on the percentage of the decennial census population living in the rural areas. Using 2010 Census data, counties were classified as "mostly urban" (less than 50 percent of the population lived in rural areas), "mostly rural" (50 to 99.9 percent of the population lived in rural areas), and "completely rural" (100 percent of the population lived in rural areas)
+# 
+# # county_subdivisions
+# # zctas
 ```
 
 # Running application
@@ -967,11 +1019,16 @@ ui_params <- tribble(~param, ~set, ~number,
 
 usethis::use_data(ui_params, overwrite = TRUE)
 
-nhood_ui <- list(Minneapolis = nhood_list$GEO_NAME[nhood_list$city == "Minneapolis"],
-          `St. Paul` = nhood_list$GEO_NAME[nhood_list$city == "St. Paul"])
+# nhood_ui <- list(Minneapolis = nhood_list$GEO_NAME[nhood_list$city == "Minneapolis"],
+#           `St. Paul` = nhood_list$GEO_NAME[nhood_list$city == "St. Paul"])
+gs <- st_drop_geometry(nhood_list) %>% select(city, GEO_NAME) %>% group_by(city)
+nhood_ui <- group_split(gs, city, keep = F) %>% purrr::flatten()#set_names(group_keys(gs))
+names(nhood_ui) <- c(group_keys(gs))[[1]]
+
 usethis::use_data(nhood_ui, overwrite = TRUE)
 
 ```
+
 
 ## Run application!
 
