@@ -52,7 +52,7 @@ This code is set up to use/process 2020-era census geographies at the block grou
 # Geography variables
 ####
 state <- c("MN")
-county <- NULL # c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 
 #######
 # Demographic variables
