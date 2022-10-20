@@ -12,33 +12,26 @@ mod_geo_selection_ui <- function(id) {
   ns <- NS(id)
   tagList(
     # waiter::useWaitress(),
-HTML("<h2><section style='font-size:20pt'>Geography</h2>
-     </section><p><section style='font-weight: normal;' >Make a selection to create a custom report. <strong>Scoll down to read and download the report.</strong></section></p>"),
-# fluidRow(
-  shinyWidgets::pickerInput(ns("geoRegion"),
-                                          label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a region</span></h4>")),
-                                          choices = c("Twin Cities region", "Duluth region", "Rochester region"
-                                          ),
-                                          options = list(
-                                            title = "Pick a geographic region", size = 10,
-                                            `live-search` = TRUE
-                                          ),
-                                          multiple = F,
-                            width = "80%", inline = F,
-                                          selected = "Twin Cities region"
-                ),
+    # shinybrowser::detect(),
+    
+HTML("<h2><section style='font-size:20pt'>Geography</h2>"),
     radioButtons(
       ns("geo"),
       # h4("Report area"),
-      label = NULL,
-      choices = c(
-        "Cities and townships" = "ctus",
-        "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
-        "A Census block group" = "tracts"
-      ), # multiple = F,
-      selected = "ctus"
-    # )
-  ),
+      label = HTML("</section><p><section style='font-weight: normal;' class='d-none d-lg-block'>Make a selection to create a custom report. <strong>Scoll down to read and download the report.</strong></section></p>"),
+      # choices = c(
+      #   "Cities and townships" = "ctus",
+      #   "Neighborhoods (Minneapolis and St.Paul only)" = "nhood",
+      #   "A Census block group" = "blockgroups"
+      # ), # multiple = F,
+      choiceNames = list("Cities and townships", 
+                         HTML("<section class='d-block d-lg-none'>Neighborhoods</section>
+                              <section class='d-none d-lg-block'>Neighborhoods</section>"), # (Minneapolis and St.Paul only)</section>"), #desktop
+                         "Census block group"),
+      choiceValues = list("ctus", "nhood", "blockgroups"),
+      selected = "ctus",
+      # inline = (shinybrowser::get_device() == "Mobile")
+    ),
     # hr(),
 
     # uiOutput(ns("geodropdowns"))
@@ -54,7 +47,7 @@ fluidRow(column(width = 6,
           `live-search` = TRUE
         ),
         multiple = F,
-        selected = "Oakdale"
+        selected = ui_params$set[ui_params$param == "cityselected"]
       )
     ),
     conditionalPanel(
@@ -62,21 +55,18 @@ fluidRow(column(width = 6,
       condition = "input.geo == 'nhood'",
       shinyWidgets::pickerInput(ns("nhoodInput"),
         label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Pick a neighborhood</span></h4>")),
-        choices = list(
-          Minneapolis = nhood_list$GEO_NAME[nhood_list$city == "Minneapolis"],
-          `St. Paul` = nhood_list$GEO_NAME[nhood_list$city == "St. Paul"]
-        ),
+        choices = nhood_ui,
         options = list(
-          title = "Pick a neighborhood in St. Paul or Minneapolis", size = 10,
+          title = NULL, size = 10,
           `live-search` = TRUE
         ),
         multiple = F,
-        selected = "Frogtown"
+        selected = ui_params$set[ui_params$param == "nhoodselected"]
       )
     ),
     conditionalPanel(
       ns = ns,
-      condition = "input.geo == 'tracts'",
+      condition = "input.geo == 'blockgroups'",
       HTML("Please click on an area within the map at right.")
     )
 ),

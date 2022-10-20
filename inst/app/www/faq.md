@@ -1,10 +1,10 @@
 FAQ
 ================
 
-Please refer to the
+Please refer to a
+<a href="https://youtu.be/3SKC-29AwME?t=252" target="_blank">recorded
+webinar</a> or the
 <a href="www/Growing Shade User Guide (January 2022).pdf" target="_blank">text
-user guide</a> or the
-<a href="https://www.youtube.com/watch?v=R3Qbhaq4gWs" target="_blank">video
 user guide</a> for help using the tool. Short answers to frequently
 asked questions can be found below. <br>
 
@@ -71,7 +71,7 @@ re-scaled our data using this relationship to improve the clarity of
 messaging. More information is given in the “methods” tab.
 
 There is
-<a href = "https://www.americanforests.org/blog/no-longer-recommend-40-percent-urban-tree-canopy-goal/" target = "_blank">not
+<a href = "https://www.americanforests.org/article/why-we-no-longer-recommend-a-40-percent-urban-tree-canopy-goal/" target = "_blank">not
 a universal optimal percentage of tree canopy cover</a> for goal
 setting. Within the 7-county metro area, it is estimated that the
 <a href = "https://files.dnr.state.mn.us/eco/mcbs/natural_vegetation_of_mn.pdf" target = "_blank">natural
@@ -83,7 +83,11 @@ from 10-70% tree cover</a>. Thus, total tree cover across the 7-county
 region may have been as low as 34.6% (using an estimate of 10% tree
 cover in oak woodlands) or as high as 59.0% (using an estimate of 70%
 tree cover in oak woodlands). The average of these values is 46.8% which
-we have rounded to our goal of 45% tree canopy cover.
+we have rounded to our goal of 45% tree canopy cover. Note that native
+tallgrass prairie occurs throughout our region. Native prairie provides
+many important benefits, and lower tree coverage in areas dominated by
+tallgrass prairie should not be penalized, nor should prairie be
+converted into forest.
 
 **Q. Why doesn’t the tool show trees where there are trees? Why does the
 tool show trees where there are not trees?** <span

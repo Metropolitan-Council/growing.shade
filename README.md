@@ -1,71 +1,53 @@
 README
 ================
 Ellen Esch
-25 January 2022
+03 October 2022
 
--   [Overview](#overview)
--   [Evolution of the project](#evolution-of-the-project)
+-   <a href="#overview" id="toc-overview">Overview</a>
+-   <a href="#getting-started" id="toc-getting-started">Getting started</a>
 
 ## Overview
 
-Growing Shade is a new tool for improving the equity and sustainability
-of the Twin Cities region through tree canopy enhancement and
-preservation. Equity and sustainability are two outcomes of the Thrive
-2040 regional policy plan which Growing Shade makes actionable. Growing
-Shade can be accessed at:
+Growing Shade is a prioritization tool for tree canopy enhancement and
+preservation. Growing Shade was conceptualized by the Metropolitan
+Council, Tree Trust, and The Nature Conservancy with a focus on the Twin
+Cities (Minnesota) area. All analyses and code were developed by Ellen
+Esch. The Twin Cities version of Growing Shade can be accessed at:
+www.growingshade.com or
 <https://metrotransitmn.shinyapps.io/growing-shade/>.
 
-Growing Shade is predicated on the fact that trees help the region
-thrive. Benefits from trees include cooler temperatures, improved air
-quality, cleaner stormwater, improved mental health, and enhanced
-biodiversity. Enhancing and preserving tree canopy cover is an
-actionable step to create healthy and resilient places.
+The components of Growing Shade relevant to population demographics
+(i.e., determining environmental justice priority areas) can be scaled
+to any area within the United States. The components relevant to the
+tree canopy have been parameterized to the Twin Cities region, but
+should work pretty well in other temperate areas with deciduous and
+coniferous trees.
 
-Trees additionally connect to regional issues and priorities. Public
-health, environmental justice, climate change, and natural resource
-conservation all intersect with the tree canopy. Growing Shade provides
-tree planting efforts and ongoing maintenance with new perspectives,
-rigorous science, and thoughtful synthesis.
+**This repository walks through the creation and aggregation of data
+used in interactive mapping tool.**
 
-Growing Shade combines local **stories** and an **interactive mapping
-tool** to inform tree canopy enhancement and preservation.
+## Getting started
 
--   Local stories educate and explain considerations for enhancing and
-    preserving the tree canopy. The following stories are profiled.
-    -   Equity. Frogtown Green advocates for environmental justice
-        through tree planting.
-    -   Restoration. Lower Phalen Creek Project is healing Dakota
-        culture and land through restoration.
-    -   Preservation. Washington Conservation District works to preserve
-        and restore forests.
-    -   Education. Brooklyn Center Community Schools engage youth in
-        creating greenspace.
-    -   Maintenance. Tree Trust emphasizes the importance of tree care
-        and maintenance.
--   The interactive mapping tool uses priority layers to synthesize data
-    and identify areas where planting, preserving, and maintaining trees
-    can yield multiple benefits in the community. Customizable reports
-    for cities, townships, unorganized territories, neighborhoods, and
-    individual census block groups contain the following information:
-    -   Tree canopy status. Compare the tree canopy within a selected
-        area to the region average.
-    -   Prioritization. Understand that the benefits of planting a tree
-        depend on its location.
-    -   Race and income disparities. Contextualize the inequitable
-        distribution of trees.
-    -   Temperature. Learn about the potential for cooling summer
-        temperatures with trees.
+The `01_tutorial.Rmd` script walks through the steps to get a working
+versions for different areas. Depending on what data is available for
+various regions, the `02_geographies.Rmd` and `03_treecanopy.Rmd`
+scripts may also be needed (although this data can be created through
+other methods).
 
-## Evolution of the project
+Most packages are available on CRAN, so can be downloaded through
+standard procedures. There are two specific packages which should be
+downloaded from GitHub versions.
 
-Growing shade concept is a merger of:
+``` r
+devtools::install_github("eclarke/ggbeeswarm")
+```
 
--   NDVI-based green space analyses and remote sensing (for technical
-    tree parameters and data)
--   Conversations with advisory group for Growing Shade Project (for
-    concept and framing)
--   The Economic Values Atlas project in collaboration with Brookings
-    Institution (for methods of synthesizing disparate data)
+    ## Skipping install of 'ggbeeswarm' from a github remote, the SHA1 (a7e38d33) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
 
-An interactive version of this analysis currently lives at:
-<https://metrotransitmn.shinyapps.io/growing-shade/>
+``` r
+devtools::install_github("Metropolitan-Council/councilR")
+```
+
+    ## Skipping install of 'councilR' from a github remote, the SHA1 (059f15b5) has not changed since last install.
+    ##   Use `force = TRUE` to force installation

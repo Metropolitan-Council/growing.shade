@@ -1,2 +1,0 @@
-0 black
-1 blue

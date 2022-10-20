@@ -23,8 +23,10 @@ us</a> if you have questions or feedback.
 Priority variables were sourced from several locations including:
 
 -   Demographic and socioeconomic information comes from the
+    <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census2020population' target = '_blank'>2020
+    decennial census</a>,
     <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American
-    Community Survey 5-Year Summary File</a> (2015-2019) and the
+    Community Survey 5-Year Summary File</a> (2016-2020), and the
     <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity
     Considerations data</a> published by the Metropolitan Council.
     Census block group data is used.
