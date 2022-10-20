@@ -428,7 +428,10 @@ cities_raw <- tigris::county_subdivisions(
   state = state,
   county = county,
   class = "sf"
-) 
+) %>%
+  mutate(NAME = case_when(LSAD == 44 ~  paste(NAME, "Twp."), 
+                          LSAD == 46 ~ paste(NAME, "(unorg.)"),
+                          TRUE ~ NAME))
 
 cities <- st_drop_geometry(cities_raw) %>% 
   group_by(NAME) %>% #pick the biggest geography if there are city/town/township issues with the same name. 
@@ -912,6 +915,28 @@ bg_growingshade_main <- bg_growingshade_main %>%
   filter(!is.na(bg_string))
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 
+```
+
+
+```{r}
+library(tidyverse); library(sf)
+ua <- tigris::urban_areas() %>% 
+  filter(stringr::str_detect((NAME10), state)) 
+
+# ua %>% #filter(LSAD10 == 76) %>%
+#   # filter(UATYP10 == "C") %>%
+#   ggplot()+
+#   geom_sf()
+
+mapview::mapview(ua)
+
+count(st_drop_geometry(ua), LSAD10) #75 = Urbanized Area; 76 = Urban Cluster
+count(st_drop_geometry(ua), UATYP10) #Census urban area type; U = Urbanized Area; C = Urban Cluster 
+
+# Counties can be categorized into levels of rurality based on the percentage of the decennial census population living in the rural areas. Using 2010 Census data, counties were classified as "mostly urban" (less than 50 percent of the population lived in rural areas), "mostly rural" (50 to 99.9 percent of the population lived in rural areas), and "completely rural" (100 percent of the population lived in rural areas)
+
+# county_subdivisions
+# zctas
 ```
 
 # Running application
