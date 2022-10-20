@@ -44,8 +44,7 @@ After the raw geographies are downloaded, then you need to make a crosswalk whic
 If this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
 
 
-```{r nhood-ctu-geo}
-
+```{r nhood-geo}
 # neighborhood
 minneap <- read_sf(paste0(here::here(), "/data-raw/minneapolis neighborhoods/Minneapolis_Communities.shp")) %>%
   rename(GEO_NAME = CommName) %>%
@@ -69,34 +68,42 @@ stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul neighborhoods/geo_expor
 
 nhood_geo <- bind_rows(minneap, stpaul) %>%
   select(GEO_NAME, city)
+```
 
-#### ctus -----------
-temp <- tempfile()
-temp2 <- tempfile()
-download.file(
-  "https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/bdry_metro_counties_and_ctus/shp_bdry_metro_counties_and_ctus.zip",
-  destfile = temp
-)
-unzip(zipfile = temp, exdir = temp2)
-list.files(temp2)
-
-ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
-  transmute(GEO_NAME = CTU_NAME) 
-
-files <- list.files(temp2, full.names = T)
-file.remove(files)
+```{r ctu-geo}
+cities <- tigris::county_subdivisions(
+  state = "MN",
+  county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"),
+  class = "sf"
+) %>%
+  mutate(NAME = case_when(LSAD == 44 ~  paste(NAME, "Twp."), 
+                          LSAD == 46 ~ paste(NAME, "(unorg.)"),
+                          TRUE ~ NAME)) %>%
+  group_by(NAME) %>%
+  mutate(n = n()) %>%
+  left_join(st_drop_geometry(county_outline) %>%
+              transmute(COUNTYFP = COUNTYFP, 
+                        CONAME = NAME)) %>%
+  mutate(NAME = case_when(n > 1 & LSAD != 25 ~ paste0(NAME, " - ", CONAME, " Co."), #cities dont get merged 
+                          TRUE ~ NAME)) %>%
+  group_by(NAME) %>%
+  summarise() %>%
+  # summarize(geometry = st_union(geom)) %>%
+  arrange(NAME) %>%
+  rename(GEO_NAME = NAME)
 
 ```
 
 ```{r ctu-nhood-crosswalk}
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
-
-river_lake_all <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) 
+# sf::st_layers(paste0(here::here(), "/water_lakes_rivers.gpkg"))
 
 # river layer to erase major boundary rivers-------
-river_lake_buffer <- river_lake_all %>%
-  filter(NAME_DNR %in% c("Mississippi", "Minnesota", "St. Croix")) #%>% #these rivers are boundaries
+river_lake_buffer <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg"),
+                              query = "select *
+                              FROM \"LakesAndRivers\"
+                              WHERE NAME_DNR IN ('Mississippi', 'Minnesota', 'St. Croix')") 
 
 
 # fxns to make easy -----
@@ -123,40 +130,13 @@ ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
                    TRUE ~ "keep")) %>%
   filter(flag != "remove") %>% 
   dplyr::select(-flag)
+
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
-wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
+wide_ctu_crosswalk <- ctu_crosswalk %>%
     aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
   rename(jurisdiction = GEO_NAME)
-  # group_by(bg_id) %>%
-  # count() %>%
-  # left_join(ctu_crosswalk) %>%
-  # add_column(cities = 999) %>%
-  # dplyr::select(bg_id, GEO_NAME, cities, n) %>%
-  # # spread(cities, GEO_NAME)
-  # pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
-  # unnest_wider(`999`) 
-
-wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
-  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`,# `...5`, 
-                              # `...6`, `...7`,
-                              sep = ", ")) %>%
-  dplyr::select(bg_id, jurisdiction) %>%
-  mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 
   save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, file = paste0(here::here(), "/data-raw/geography_data.rda"))
 
-# library(tibble); library(dplyr); library(tidyr); library(stringr)
-# test <- tibble(id = c(1, 2, 3, 4, 5, 6),
-#                city = c("a", "a", "b", "c", "c", "c"))
-# 
-# count(test, city) %>%
-#   left_join(test) %>%
-#   add_column(junk = NA_real_) %>%
-#   pivot_wider(names_from = junk, values_from = id, values_fn = list) %>%
-#   unnest_wider(`NA`) %>%
-#   mutate(jurisdiction = paste(`...1`, `...2`, `...3`,
-#                               collapse = ", ")) %>%
-#   dplyr::select(city, jurisdiction) %>%
-#   mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 ```
