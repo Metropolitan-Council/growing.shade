@@ -424,25 +424,32 @@ In any case, the following files should exist in the `data` folder (again, the `
 
 ```{r}
 if (regional_specific_data == FALSE) {
-cities_raw <- tigris::county_subdivisions(
+  
+  county_outline <- if (is.null(county)) {
+  tigris::counties(state = state)
+  } else {tigris::counties(state = state) %>%
+  filter(NAME %in% county)}
+  
+cities <- tigris::county_subdivisions(
   state = state,
   county = county,
   class = "sf"
 ) %>%
   mutate(NAME = case_when(LSAD == 44 ~  paste(NAME, "Twp."), 
                           LSAD == 46 ~ paste(NAME, "(unorg.)"),
-                          TRUE ~ NAME))
-
-cities <- st_drop_geometry(cities_raw) %>% 
-  group_by(NAME) %>% #pick the biggest geography if there are city/town/township issues with the same name. 
-  mutate(n = n(),
-         maxaland = max(ALAND)) %>%
-  arrange(NAME) %>%
-  mutate(drop = if_else(n > 1 & maxaland != ALAND, "drop", "keep")) %>%
-  filter(drop == "keep") %>%
-  left_join(cities_raw) %>%
-  st_as_sf()
-
+                          TRUE ~ NAME)) %>%
+  group_by(NAME) %>%
+  mutate(n = n()) %>%
+  left_join(st_drop_geometry(county_outline) %>%
+              transmute(COUNTYFP = COUNTYFP, 
+                        CONAME = NAME)) %>%
+  mutate(NAME = case_when(n > 1 & LSAD != 25 ~ paste0(NAME, " - ", CONAME, " Co."), #cities dont get merged 
+                          TRUE ~ NAME)) %>%
+  group_by(NAME) %>%
+  summarise() %>%
+  # summarize(geometry = st_union(geom)) %>%
+  arrange(NAME)
+  
 ctu_crosswalk <- cities %>% select(NAME) %>%
   st_transform(26915) %>%
   st_buffer(-150) %>% #buffer the perimeter of the geography
@@ -857,11 +864,6 @@ mn_bgs_raw <- bg_geo %>%
       sf::st_transform(4326) %>% 
   filter(!is.na(highest_priority)) %>%
   rename(GEO_NAME = GEOID)
-
-county_outline <- if (is.null(county)) {
-  tigris::counties(state = state)
-  } else {tigris::counties(state = state) %>%
-  filter(NAME %in% county)}
 
 region_outline <- if (is.null(county)) {
   county_outline %>% group_by(STATEFP) %>%
