@@ -21,6 +21,8 @@ mod_report_ui <- function(id) {
     fluidRow(uiOutput(ns("priority_box"))),
     fluidRow(uiOutput(ns("disparity_box"))),
     fluidRow(uiOutput(ns("temp_box"))), 
+    fluidRow(uiOutput(ns("change_box"))),
+    fluidRow(uiOutput(ns("economic_box"))),
     fluidRow(uiOutput(ns("download_box")))
   )
 }
@@ -565,6 +567,24 @@ mod_report_server <- function(id,
       return(para)
     })
 
+    change_text <- reactive({
+      ns <- session$ns
+      req(TEST() != "")
+      para <- HTML(paste0(
+        "Over time the tree canopy in X has change. Biodiversity buffers against Future threats, climate change, invasion, etc. Historic tree cover. Anthropogenic tree cover (not necessarily return to historic vegetation in urban areas). Non-urban areas = absolutely native vegetation (prairie, etc).<br><br>"
+      ))
+      return(para)
+    })
+    
+    economic_text <- reactive({
+      ns <- session$ns
+      req(TEST() != "")
+      para <- HTML(paste0(
+        "Increasing tree canopy to X% has these benefits.<br><br>"
+      ))
+      return(para)
+    })
+    
     # output$equity_para <- renderUI({
     #   req(TEST() != "")
     #   (equity_text())
@@ -1147,6 +1167,42 @@ mod_report_server <- function(id,
             # }
         )
         # uiOutput(ns("get_temp_plot"))
+      )
+    })
+    
+    output$change_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Change over time",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        change_text()#, 
+        # fluidRow(
+        #   align = "center",
+        #   if(shinybrowser::get_device() == "Mobile") {
+        #     renderPlot(report_equity_plot())
+        #   } else {
+        #     imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
+        # )
+      )
+    })
+    
+    output$economic_box <- renderUI({
+      req(TEST() != "")
+      
+      shinydashboard::box(
+        title = "Economic potential",
+        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", solidHeader = F, collapsible = TRUE,
+        economic_text()#, 
+        # fluidRow(
+        #   align = "center",
+        #   if(shinybrowser::get_device() == "Mobile") {
+        #     renderPlot(report_equity_plot())
+        #   } else {
+        #     imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
+        # )
       )
     })
     
