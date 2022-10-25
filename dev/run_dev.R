@@ -25,3 +25,9 @@ run_app()
 #   )
 # })
                                                                                        
+# library(leaflet); library(tidyverse); library(sf)
+# test <- mn_bgs %>%
+#   filter(GEOID =="270531044003") %>% st_transform(4326)
+# leaflet() %>%
+#   addTiles() %>%
+#   addPolygons(data = test)

@@ -1,5 +1,5 @@
 Package: planting.shade
-Title: Tree Planting Prioritization tool for the Twin Cities
+Title: Tree planting and preservation prioritization tool
 Version: 0.0.0.9001
 Authors@R: c(
     person("Metropolitan Council", role = "cph"),

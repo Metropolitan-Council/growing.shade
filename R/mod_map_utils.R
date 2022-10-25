@@ -26,34 +26,34 @@ mod_map_utils_server <- function(input, output, session,
     faststep <- if (map_selections$preset == "Climate change") {
       mn_bgs %>%
         mutate(
-          tract_string = GEOID,
+          bg_string = GEOID,
           MEAN = `Climate change`
         )
     } else if (map_selections$preset == "Conservation") {
       mn_bgs %>%
         mutate(
-          tract_string = GEOID,
+          bg_string = GEOID,
           MEAN = `Conservation`
         )
     } else if (map_selections$preset == "Environmental justice") {
       mn_bgs %>%
         mutate(
-          tract_string = GEOID,
+          bg_string = GEOID,
           MEAN = `Environmental justice`
         )
     } else if (map_selections$preset == "Public health") {
       mn_bgs %>%
         mutate(
-          tract_string = GEOID,
+          bg_string = GEOID,
           MEAN = `Public health`
         )
     } else if (map_selections$preset == "Custom") {
       bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value) %>%
-        group_by(tract_string) %>%
+        group_by(bg_string) %>%
         summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
         # mutate(RANK = min_rank(desc(MEAN))) %>%
-        left_join(mn_bgs, by = c("tract_string" = "GEOID")) %>%
+        left_join(mn_bgs, by = c("bg_string" = "GEOID")) %>%
         st_as_sf()
     }
     

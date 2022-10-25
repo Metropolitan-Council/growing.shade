@@ -54,7 +54,7 @@ mod_map_overview_ui <- function(id) {
       height = "88vh"
     ) # ,
 
-    # wellPanel(textOutput(ns("selected_tract")))
+    # wellPanel(textOutput(ns("selected_blockgroup")))
   )
 }
 
@@ -88,9 +88,9 @@ mod_map_overview_server <- function(input, output, session,
       attributionControl = FALSE
     )) %>%
       setView(
-        lat = 44.963,
-        lng = -93.32,
-        zoom = 10
+        lat = ui_params$number[ui_params$param == "center_latitude"],
+        lng = ui_params$number[ui_params$param == "center_longitude"],
+        zoom = ui_params$number[ui_params$param == "center_zoom"]
       ) %>%
       # add attribution
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
@@ -120,8 +120,7 @@ mod_map_overview_server <- function(input, output, session,
       # ) %>%
 
       # add tree tiles
-      # addTiles("https://metropolitan-council.github.io/treeraster/tiles/{z}/{x}/{y}",
-        addTiles("https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}",
+        addTiles(ui_params$set[ui_params$param == "tree_tile_location"],
              attribution = NULL,
         options = c(
           tileOptions(opacity = .6),
@@ -221,7 +220,7 @@ mod_map_overview_server <- function(input, output, session,
         layerId = ~GEO_NAME
       ) %>%
       addPolygons(
-        data = filter(ctu_list, GEO_NAME == "Oakdale"),
+        data = filter(ctu_list, GEO_NAME == ui_params$set[ui_params$param == "cityselected"]),
         stroke = TRUE,
         color = "#0073e0", # "blue",
         fill = NA,
@@ -332,7 +331,7 @@ mod_map_overview_server <- function(input, output, session,
             weight = 0.5, # 0.25,
             fillOpacity = 0.5,
             smoothFactor = 0.2,
-            label = ~ (paste0("Priority score: ", round(map_util$map_data2$MEAN, 3))),
+            label = ~ (paste0("Priority score: ", ifelse(!is.na(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"))),
             highlightOptions = highlightOptions(
               stroke = TRUE,
               color = "white",
@@ -341,19 +340,19 @@ mod_map_overview_server <- function(input, output, session,
               opacity = 1
             ),
             fillColor = ~ colorNumeric(
-              n = 5,
+              # n = 5,
               palette = "YlOrBr", # "YlOrRd", #"Oranges",
-              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
+              domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]], na.color = "#fff"
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
-              "Geographic ID: ", map_util$map_data2$tract_string,
+              "Geographic ID: ", map_util$map_data2$bg_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
-              "<br>Priority score: ", round(map_util$map_data2$MEAN, 3),
+              "<br>Priority score: ",  ifelse(!is.na(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"),
               # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
               "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
             options = pathOptions(pane = "Priority score"),
-            layerId = ~tract_string
+            layerId = ~bg_string
           ) %>%
           # maybe want to add this: https://stackoverflow.com/questions/42245302/shiny-leaflet-highlight-polygon
           addLegend(
@@ -363,9 +362,10 @@ mod_map_overview_server <- function(input, output, session,
             group = "Priority score",
             layerId = "score",
             pal = colorNumeric(
-              n = 5,
+              # n = 5,
               palette = "YlOrBr", #"YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
+              # ,na.color="#03fc13"
             ),
             values = (map_util$map_data2 %>% select("MEAN") %>% .[[1]])
           ) %>%
@@ -380,13 +380,13 @@ mod_map_overview_server <- function(input, output, session,
     }
   )
 
-  # map click doesn't work so well with multiple geo options; ctu/tracts/neighborhoods
+  # map click doesn't work so well with multiple geo options; ctu/blockgroups/neighborhoods
   ## jurisdiction outlines -----------
   observeEvent(
     ignoreInit = FALSE, # true
     geo_selections$selected_geo,
     {
-      if (geo_selections$selected_geo == "tracts") {
+      if (geo_selections$selected_geo == "blockgroups") {
         leafletProxy("map") %>%
           clearGroup("Jurisdiction outlines") %>%
           clearGroup("outline")
@@ -399,11 +399,9 @@ mod_map_overview_server <- function(input, output, session,
               ctu_list
             } else if (geo_selections$selected_geo == "nhood") {
               nhood_list
-            } else if (geo_selections$selected_geo == "tracts") {
+            } else if (geo_selections$selected_geo == "blockgroups") {
               mn_bgs
             },
-            # data = if_else(geo_selections$selected_geo == 'ctus', ctu_list, nhood_list
-            #                  ),
             group = "Jurisdiction outlines",
             stroke = T,
             smoothFactor = 1,
@@ -412,7 +410,7 @@ mod_map_overview_server <- function(input, output, session,
             fill = F,
             opacity = 1,
             options = pathOptions(pane = "geooutline2"),
-            layerId = if (geo_selections$selected_geo == "tracts") {
+            layerId = if (geo_selections$selected_geo == "blockgroups") {
               NULL
             } else {
               ~GEO_NAME
@@ -426,7 +424,7 @@ mod_map_overview_server <- function(input, output, session,
 
   observeEvent(
     ignoreInit = FALSE, # TRUE,
-    req(geo_selections$selected_area != "tracts"),
+    req(geo_selections$selected_area != "blockgroups"),
     {
       if (geo_selections$selected_area == "") {
         leafletProxy("map") %>%
@@ -461,16 +459,16 @@ mod_map_overview_server <- function(input, output, session,
     }
   )
 
-  # # trees for tracts  --------------
-  toListen_clickytracts <- reactive({
+  # # trees for blockgroups  --------------
+  toListen_clickyblockgroups <- reactive({
     list(
-      req(geo_selections$selected_geo == "tracts"),
+      req(geo_selections$selected_geo == "blockgroups"),
       req(input$map_shape_click$id)
     )
   })
   observeEvent(
     ignoreInit = FALSE,
-    toListen_clickytracts(),
+    toListen_clickyblockgroups(),
     {
       if (input$map_shape_click$id == "") {
         leafletProxy("map") %>%
@@ -496,10 +494,10 @@ mod_map_overview_server <- function(input, output, session,
   # ### save map clicks -----------
   vals <- reactiveValues()
   observe({
-    req(geo_selections$selected_geo == "tracts")
+    req(geo_selections$selected_geo == "blockgroups")
     event <- input$map_shape_click
     vals$TEST <- event$id
-    vals$selected_tract <- (map_util$map_data2$tract_string[map_util$map_data2$tract_string == event$id])
+    vals$selected_blockgroup <- (map_util$map_data2$bg_string[map_util$map_data2$bg_string == event$id])
     # vals$clicked_geo <-  input$map_shape_click$id
   })
   return(vals)
