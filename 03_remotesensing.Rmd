@@ -1,0 +1,240 @@
+---
+title: "Tree canopy processing"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  github_document:
+    toc: true
+always_allow_html: true
+urlcolor: blue
+---
+
+For the Twin Cities, Growing Shade nests block groups (the core level of analyses) into larger neighborhood and city-level geographies. This step is not easily applied to other regions, so will likely need to be specifically tailored if applying the methods elsewhere. 
+
+**NOTE:** this script **DOES** rely on some parameters found inside the "global" `01_tutorial.Rmd` script, so please be sure to run that before running this script! It is okay if the tutorial script encounters an error and can't run all the way through, you'll still be saving information about which state/counties to use here!
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F, warning = F,
+                      cache = F)
+library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble); library(ggplot2)
+library(tigris)
+library(sf)
+library(tidycensus)
+library(ggbeeswarm)
+library(RSocrata)
+library(here)
+
+
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+`%not_in%` <- Negate(`%in%`)
+```
+
+
+
+# Remote sensing data 
+
+These items come out of Google Earth Engine analyses. Some files need to be created/exported (and then imported into GEE), and all GEE exports need to be pulled in to this code.
+
+
+## Tree canopy data
+
+There are many ways of measuring the tree canopy, and each method has pros/cons. 
+
+
+### Calibrate tree canopy coverage
+
+Growing Shade prioritizes temporal accuracy for tree canopy data. While some trade-offs come with prioritizing temporal accuracy over spatial accuracy, it is essential for this project to capture on-the-ground, real-time dynamics of how Emerald Ash Borer, development patterns, and recent tree planting programs among others are changing the tree canopy.
+
+Sentinel-2 is currently the most spatially accurate and publicly accessible remote sensing platform. However, the 10 meter squared spatial resolution of Sentinel is larger than a lot of individual tree canopies. In exploring the data, it appears as if the canopy coverage from Sentinel is little higher than what it should be (based on aerial imagery). I've chosen to calibrate the Sentinel data with the (outdated) UMN 1 meter squared land use file.
+
+I created a grid (n = 1015) across the region, and created a model to compare the amount of trees detected with the Sentinel 2 and with the UMN 1 meter data set (for the later, the tree area is the summation of all areas which identified as coniferous trees, deciduous trees, and forested wetland).
+
+The final calibration coefficient (at least for 2021 tree canopy) is 0.885246, meaning that Sentinel sees about 11% more trees in areas. Another way to think about this is that Sentinel detects area with at least 89% tree canopy coverage (i.e., if Sentinel sees 1,000 acres of trees, UMN sees more like 885 acres).
+
+In other temperate, upper Midwest areas, the .88 coefficient is probably sufficient. Otherwise, figuring out and adjusting a calibration coefficient for another area likely requires some pretty bespoke analyses and has specific data set needs which may not be widely available. 
+
+
+```{r, calibrate-tree-cover}
+
+# ######
+# # Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
+# # In most instances, there is no need to run this gridding step more than once
+# #####
+# wholearea <- metc_region %>%
+#   summarise(st_union(.))
+# 
+# # make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
+# g = st_make_grid(wholearea,
+#                  n = c(36, 36)) %>% 
+#   st_intersection(wholearea) 
+# 
+# geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
+# df <- st_sf(id = 1:length(g), geometry = g)
+# 
+# # ggplot() +
+# #   geom_sf(data = wholearea) +
+# #   geom_sf(data = df,
+# #           fill = "transparent")
+# 
+# sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+
+calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
+  rename(umn = `1`) %>%
+  full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcres_metcgrid_year2021.csv")) %>%
+              rename(sentinel = `1`),
+            by = 'id')
+
+calibrate_lm <- (lm(umn ~ sentinel, data = calibrate_trees))
+calibrate_lm2 <- (lm(umn ~ 0 + sentinel, data = calibrate_trees))
+calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
+calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
+anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
+
+# AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3); AIC(calibrate_lm4)
+
+summary(calibrate_lm2)$r.squared # r2
+summary(calibrate_lm2)$coefficients[,4] # p-value
+
+calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
+
+  # save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
+
+
+calibrate_trees %>%
+  ggplot(aes(x = (umn), y = (sentinel * calib_coeff))) +
+  geom_point(alpha = .5) +
+  geom_abline(slope=1, intercept=0, col = 'blue', lwd = 1) +
+  theme_minimal()  +
+  labs( x = "UMN tree acres", y = "Calibrated Sentinel tree acres")
+```
+
+### Process tree canopy cover at various geographies
+
+-   process GEE code to link canopy with geography
+    -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+    -   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
+
+
+
+```{r gee-canopy-fxn}
+# function for processing gee data
+process_gee <- function(x, .group = NULL){
+  x %>%
+  mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
+
+  separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
+  mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
+         trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
+         treeless = if_else(ALAND == 0, 0, as.numeric(treeless)),
+         trees = if_else(ALAND == 0, 0, as.numeric(trees)),
+         canopy_percent = trees / (trees + treeless) * calib_coeff, #using the calibration coefficient is important for twin cities
+         canopy_percent = if_else(is.na(canopy_percent), 0, canopy_percent)) %>%
+    filter(ALAND != 0) %>% #new 2020 block groups sometimes are only water
+    group_by(!!enquo(.group)) %>%
+    mutate(avgcanopy = mean(canopy_percent)) %>%
+    # mutate(sum_trees = sum(trees, na.rm = T),
+    #        sum_treeless = sum(treeless, na.rm = T),
+    #        avgcanopy = sum_trees / (sum_trees + sum_treeless) * calib_coeff) %>%
+    select(-ALAND, -trees, -treeless)
+}
+
+```
+
+
+```{r canopy-processing}
+###
+# block groups
+###
+bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups2020_year2021.csv"),
+                 col_select = c(GEOID, sq_miles), col_types = c("GEOID" = "c")) %>%
+  left_join(bg_geo %>% st_drop_geometry() %>% select(GEOID, ALAND)) %>%
+  rename(GEO_NAME = GEOID) %>%
+  process_gee() %>%
+  rename(bg_id = GEO_NAME)
+
+###
+# cities
+###
+ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year2021.csv"),
+                   col_select = c(CTU_NAME, sq_miles),
+                   col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
+  mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME),
+         ALAND = 99) %>% #ALAND doesn't matter here, so just set it to a random number
+  rename(GEO_NAME = CTU_NAME) %>%
+  process_gee() %>%
+  full_join(left_join(ctu_crosswalk, bg_canopy) %>% 
+  group_by(GEO_NAME) %>%
+  summarise(
+    min = round(min(canopy_percent) * 100, 1),
+    max = round(max(canopy_percent) * 100, 1),
+    n_blockgroups = n()
+  )) %>%
+  arrange(GEO_NAME) %>%
+  full_join(ctu_geo) %>%
+  st_as_sf()
+
+### 
+# neighborhoods
+###
+nhood_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborhoods_year2021.csv"),
+                         col_select = c(GEO_NAME, city, sq_miles), 
+                         col_types = c("GEO_NAME" = "c")) %>%
+  mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
+                              GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
+                              GEO_NAME == "West Side Community Organization" ~ "West Side",
+                              GEO_NAME == "West 7th Federation/Fort Road" ~ "West 7th-Fort Road",
+                              GEO_NAME == "Highland" ~ "Highland Park",
+                              GEO_NAME == "Summit Hill Association" ~ "Summit Hill",
+                              GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
+                              GEO_NAME == "The Greater East Side" ~ "Greater East Side",
+                              GEO_NAME == "Como" ~ "Como Park",
+                              TRUE ~ GEO_NAME),
+         ALAND = 99) %>% #again, just a random number here
+  process_gee(.group = city) %>%
+  full_join(left_join(nhood_crosswalk, bg_canopy) %>% 
+  group_by(GEO_NAME, city) %>%
+  summarise(
+    min = round(min(canopy_percent) * 100, 1),
+    max = round(max(canopy_percent) * 100, 1),
+    n_blockgroups = n()
+  )) %>%
+  full_join(nhood_geo) %>%
+  st_as_sf()
+
+
+```
+
+
+
+## Greenness (NDVI) Data
+
+We do this for all land (no water!) and non-cultivated land (excluding crops/ag land).
+
+```{r ndvi_bgs}
+ndvi_uncultivated <- 
+  read_csv(paste0(here::here(), "/data-raw/uncultivatedNDVI_blockgroups2020_year2021.csv"),
+                    na = "No data",
+                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+  rename(GEOID = GEOID)
+
+ndvi_allland <- 
+  read_csv(paste0(here::here(), "/data-raw/landNDVI_blockgroups2020_year2021.csv"),
+                    na = "No data",
+                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+  rename(GEOID = GEOID)
+  
+bg_ndvi <- ndvi_uncultivated %>%
+  dplyr::select(GEOID, ndvi_uncultivated) %>%
+  full_join(ndvi_allland %>%
+  dplyr::select(GEOID, ndvi_land)) %>%
+    rename(bg_id = GEOID)
+
+```
+
+## Save data
+
+
+```{r}
+  save(bg_canopy, bg_ndvi, ctu_list_raw, nhood_list_raw, file = paste0(here::here(), "/data-raw/canopy_data.rda"))
+
+```
+

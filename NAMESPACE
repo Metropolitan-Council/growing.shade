@@ -3,6 +3,7 @@
 export("%>%")
 export(render_guides)
 export(run_app)
+import(councilR)
 import(dplyr)
 import(ggbeeswarm)
 import(ggplot2)

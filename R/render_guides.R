@@ -50,61 +50,6 @@ render_guides <- function(.output_dir = "inst/app/www",
     )
   )
 
-  # rmarkdown::render("./inst/guides/LineplotHelp.Rmd",
-  #   output_format = "github_document", # -----
-  #   output_file = "LineplotHelp.md",
-  #   output_dir = .output_dir,
-  #   params = list(
-  #     actor_id = "esch",
-  #     data_date = Sys.Date(),
-  #     sha = system("git rev-parse --short HEAD",
-  #       intern = TRUE
-  #     )
-  #   )
-  # )
-
-  # rmarkdown::render("./inst/guides/RankHelp.Rmd",
-  #   output_format = "github_document", # -----
-  #   output_file = "RankHelp.md",
-  #   output_dir = .output_dir,
-  #   params = list(
-  #     actor_id = "esch",
-  #     data_date = Sys.Date(),
-  #     sha = system("git rev-parse --short HEAD",
-  #       intern = TRUE
-  #     )
-  #   )
-  # )
-
-
-  # rmarkdown::render("./inst/guides/PriorityHelp.Rmd",
-  #   output_format = "github_document", # -----
-  #   output_file = "PriorityHelp.md",
-  #   output_dir = .output_dir,
-  #   params = list(
-  #     actor_id = "esch",
-  #     data_date = Sys.Date(),
-  #     sha = system("git rev-parse --short HEAD",
-  #       intern = TRUE
-  #     )
-  #   )
-  # )
-
-
-
-  # rmarkdown::render("./inst/guides/intro.Rmd",
-  #                   output_format = "github_document", # -----
-  #                   output_file = "intro.md",
-  #                   output_dir = .output_dir,
-  #                   params = list(
-  #                     actor_id = .actor_id,
-  #                     data_date = Sys.Date(),
-  #                     sha = system("git rev-parse --short HEAD",
-  #                                  intern = TRUE
-  #                     )
-  #                   )
-  # )
-
   rmarkdown::render("./inst/guides/otherresources.Rmd",
     output_format = "github_document", # -----
     output_file = "otherresources.md",

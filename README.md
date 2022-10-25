@@ -1,56 +1,53 @@
 README
 ================
 Ellen Esch
-05 July 2022
+03 October 2022
 
--   [Overview](#overview)
--   [Scaling to other regions](#scaling-to-other-regions)
--   [Evolution of the project](#evolution-of-the-project)
+-   <a href="#overview" id="toc-overview">Overview</a>
+-   <a href="#getting-started" id="toc-getting-started">Getting started</a>
 
 ## Overview
 
-Growing Shade is a new tool for improving the equity and sustainability
-of the Twin Cities region through tree canopy enhancement and
-preservation. Equity and sustainability are two outcomes of the Thrive
-2040 regional policy plan which Growing Shade makes actionable. Growing
-Shade can be accessed at: www.growingshade.com or
+Growing Shade is a prioritization tool for tree canopy enhancement and
+preservation. Growing Shade was conceptualized by the Metropolitan
+Council, Tree Trust, and The Nature Conservancy with a focus on the Twin
+Cities (Minnesota) area. All analyses and code were developed by Ellen
+Esch. The Twin Cities version of Growing Shade can be accessed at:
+www.growingshade.com or
 <https://metrotransitmn.shinyapps.io/growing-shade/>.
 
-Growing Shade is predicated on the fact that trees help the region
-thrive. Benefits from trees include cooler temperatures, improved air
-quality, cleaner stormwater, improved mental health, and enhanced
-biodiversity. Enhancing and preserving tree canopy cover is an
-actionable step to create healthy and resilient places.
-
-Trees additionally connect to regional issues and priorities. Public
-health, environmental justice, climate change, and natural resource
-conservation all intersect with the tree canopy. Growing Shade provides
-tree planting efforts and ongoing maintenance with new perspectives,
-rigorous science, and thoughtful synthesis.
-
-Growing Shade combines local **stories** and an **interactive mapping
-tool** to inform tree canopy enhancement and preservation.
+The components of Growing Shade relevant to population demographics
+(i.e., determining environmental justice priority areas) can be scaled
+to any area within the United States. The components relevant to the
+tree canopy have been parameterized to the Twin Cities region, but
+should work pretty well in other temperate areas with deciduous and
+coniferous trees.
 
 **This repository walks through the creation and aggregation of data
 used in interactive mapping tool.**
 
-## Scaling to other regions
+## Getting started
 
-I have tried to make an RShiny application that is highly portable, well
-documented, and requires minimal coding in order to lower the bar for
-other regions who might like to implement this type of “growing shade”
-analysis. Everything is open source!
+The `01_tutorial.Rmd` script walks through the steps to get a working
+versions for different areas. Depending on what data is available for
+various regions, the `02_geographies.Rmd` and `03_treecanopy.Rmd`
+scripts may also be needed (although this data can be created through
+other methods).
 
-Please navigate to the `Tutorial.Rmd` script to begin processing data
-for other regions.
+Most packages are available on CRAN, so can be downloaded through
+standard procedures. There are two specific packages which should be
+downloaded from GitHub versions.
 
-## Evolution of the project
+``` r
+devtools::install_github("eclarke/ggbeeswarm")
+```
 
-Growing shade concept is a merger of:
+    ## Skipping install of 'ggbeeswarm' from a github remote, the SHA1 (a7e38d33) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
 
--   Fundamental ecological principles coupled with remote sensing (for
-    technical tree parameters, data, and metrics)
--   Conversations with advisory group for Growing Shade Project (for
-    concept and framing)
--   The Economic Values Atlas project in collaboration with Brookings
-    Institution (for methods of synthesizing demographic data)
+``` r
+devtools::install_github("Metropolitan-Council/councilR")
+```
+
+    ## Skipping install of 'councilR' from a github remote, the SHA1 (059f15b5) has not changed since last install.
+    ##   Use `force = TRUE` to force installation

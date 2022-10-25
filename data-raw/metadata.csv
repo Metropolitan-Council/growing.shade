@@ -1,0 +1,31 @@
+variable,name,type,interpret_high_value,climate_change,environmental_justice,public_health,conservation
+pop_density,Population density (persons / acre),people,high_opportunity,0,0,0,0
+housing_density,Housing unit density (units / acre),people,high_opportunity,0,0,0,0
+ppov185,% people with income <185% of the poverty threshold,economics,high_opportunity,0,1,0,0
+prim_flood,% developed acres in primary flood zone,environment,high_opportunity,1,0,0,0
+pbipoc,"Race, % people of color",people,high_opportunity,0,1,0,0
+under18,"Age, % under age 18",people,high_opportunity,0,0,0,0
+over65,"Age, % age 65 or older",people,high_opportunity,0,0,0,0
+avg_temp,Temperature on hot summer day,environment,high_opportunity,1,0,1,0
+env_cancer,Lifetime cancer risk from air toxics,health,high_opportunity,0,0,1,0
+ndvi_uncultivated,"Greenness, uncultivated land (2021 NDVI)",environment,low_opportunity,1,0,1,0
+inverse_ndvi_uncultivated,"Greenness, uncultivated land (2021 NDVI) - for conservation",environment,high_opportunity,0,0,0,1
+ndvi_land,"Greenness, all land (2021 NDVI)",environment,low_opportunity,1,0,1,0
+inverse_ndvi_land,"Greenness, all land (2021 NDVI) - for conservation",environment,high_opportunity,0,0,0,0
+holc_pred,% of block group's land acreage redlined,environment,high_opportunity,0,0,0,0
+canopy_percent,Tree canopy in 2021 (%),environment,low_opportunity,1,0,1,0
+inverse_canopy,Tree canopy in 2021 (%) - for conservation,environment,high_opportunity,0,0,0,1
+hhincome,Median household income,economics,low_opportunity,0,0,0,0
+sens_age,"Age, % under age 18 or 65+",people,high_opportunity,0,0,1,0
+pd_any,"Disability, % any disability",people,high_opportunity,0,0,0,0
+pblacknh,"Race, % Black or African American",people,high_opportunity,0,0,0,0
+pothmultnh,"Race, % Multiracial or other",people,high_opportunity,0,0,0,0
+pasiannh,"Race, % Asian or Pacific Islander",people,high_opportunity,0,0,0,0
+phisppop,"Race, % Hispanic or Latino",people,high_opportunity,0,0,0,0
+pamindnh,"Race, % Indigenous",people,high_opportunity,0,0,0,0
+pwk_nowork,% of unemployed residents,economics,high_opportunity,0,0,0,0
+pownhome,% of residents who own their home,economics,high_opportunity,0,0,0,0
+MHLTH,Mental health not good for >=14 days among adults (%),health,high_opportunity,0,0,0,0
+PHLTH,Physical health not good for >=14 days among adults (%),health,high_opportunity,0,0,0,0
+COPD,Chronic obstructive pulmonary disease among adults (%),health,high_opportunity,0,0,0,0
+CASTHMA,Asthma among adults (%),health,high_opportunity,0,0,0,0
