@@ -39,6 +39,24 @@ These items come out of Google Earth Engine analyses. Some files need to be crea
 
 There are many ways of measuring the tree canopy, and each method has pros/cons. 
 
+### Create ML training/testing dataset
+
+```{r}
+train <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train.csv")) %>%
+  mutate(class = if_else(!is.na(updated_class), updated_class, class),
+         latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
+         longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
+  select(class, latitude, longitude) %>%
+  write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train_gee.csv"))
+
+test <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test.csv")) %>%
+  mutate(#class = if_else(is.na(updated_class), class, updated_class))#,
+         latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
+         longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
+  select(class, latitude, longitude) %>%
+  write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test_gee.csv"))
+
+```
 
 ### Calibrate tree canopy coverage
 
