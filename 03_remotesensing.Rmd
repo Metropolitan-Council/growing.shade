@@ -41,22 +41,79 @@ There are many ways of measuring the tree canopy, and each method has pros/cons.
 
 ### Create ML training/testing dataset
 
-```{r}
-train <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train.csv")) %>%
-  mutate(class = if_else(!is.na(updated_class), updated_class, class),
-         latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
-         longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
-  select(class, latitude, longitude) %>%
-  write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train_gee.csv"))
+Stratified random sample of points from the TC 1 m2 land cover dataset were taken. Then points were verified using 2022 imagery in Google Earth (points were either moved to align with the class, or if no nearby accurate class could be found they were deleted). Seventy five percent of identified points were used for training the classification algorithm and 25% of the points were reserved for testing the classification. 
 
-test <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test.csv")) %>%
-  mutate(#class = if_else(is.na(updated_class), class, updated_class))#,
-         latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
-         longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
-  select(class, latitude, longitude) %>%
-  write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test_gee.csv"))
+```{r, split-train-test}
+# ### only need to run this once!
+# newfor22 <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/LandcoverSample22.csv")) %>%
+#   rename(latitude = Y,
+#          longitude = X)  %>% #this uses the classes from TC1 m2 land cover (1 = grass/shrub; 2 = bare; 3 = buildings; 4 = roads/paved; 5 = lakes/ponds; 6 = deciduous; 7 = coniferous; 8 = ag; 9 = emergent wetland; 10 = forested wetland; 11 = river; 12 = extraction)
+#   mutate(otherc = case_when(b1 == 1 ~ "grass",
+#                             b1 == 2 ~ "bare",
+#                             b1 == 3 ~ "bldg",
+#                             b1 == 4 ~ "paved",
+#                             b1 == 5 ~ "water",
+#                             b1 == 6 ~ "decid",
+#                             b1 == 7 ~ "conif",
+#                             b1 == 8 ~ "ag",
+#                             b1 == 9 ~ "wet",
+#                             b1 == 10 ~ "fwet",
+#                             b1 == 11 ~ "water",
+#                             b1 == 12 ~ "ext")) %>%
+#   mutate(class = case_when(otherc == "conif" ~ 1,
+#                            otherc == "decid" ~ 2,
+#                            otherc == "grass" ~ 3,
+#                            otherc == "fwet" ~ 4,
+#                            otherc == "wet" ~5,
+#                            otherc == "water" ~ 6,
+#                            otherc == "ag" ~ 7,
+#                            otherc == "paved" ~ 8,
+#                            otherc == "bldg" ~ 9,
+#                            otherc == "ext" ~ 10,
+#                            otherc == "bare" ~ 11)) %>%
+#   select(-b1)
+# 
+# # old train/testing uses a different scheme (1 = coniferous; 2 = deciduous; 3 = grass/shrub; 4 = forested wetland; 5 = emergent wetland; 6 = lakes/ponds AND RIVER; 7 = ag; 8 = roads/paved; 9 = buildings; 10 = extraction; 11 = bare)
+# 
+# train21 <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train.csv")) %>%
+#   mutate(class = if_else(!is.na(updated_class), updated_class, class),
+#          latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
+#          longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
+#   select(class, latitude, longitude) #%>%
+#   # write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022train_gee.csv"))
+# 
+# test21 <- read_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test.csv")) %>%
+#   mutate(#class = if_else(is.na(updated_class), class, updated_class))#,
+#          latitude = if_else(!is.na(updated_lat), updated_lat, latitude),
+#          longitude = if_else(!is.na(updated_long), updated_long, longitude)) %>%
+#   select(class, latitude, longitude)# %>%
+#   # write_csv(file.path(here::here(), "data-raw/training data for tree classifier/Nov2022test_gee.csv"))
+# 
+# traintest22 <- bind_rows(newfor22, train21) %>%
+#   bind_rows(test21) %>%
+#   #note extractive and bare ground seem to change a lot (related to construction, etc)
+#   rowid_to_column("index")
+# 
+# # split train / test data
+# train22 <- traintest22 %>%
+#   group_by(class) %>%
+#   slice_sample(prop = .75, replace = F) %>%
+#   arrange(index)
+# 
+# test22 <- traintest22 %>%
+#   filter(index %not_in% train22$index) %>%
+#   arrange(index)
+# 
+# train22 %>% count(class)
+# test22 %>% count(class)
+# 
+# write_csv(train22, file.path(here::here(), "data-raw/training data for tree classifier/train22_gee.csv"))
+# write_csv(test22, file.path(here::here(), "data-raw/training data for tree classifier/test22_gee.csv"))
 
 ```
+
+
+
 
 ### Calibrate tree canopy coverage
 
@@ -132,31 +189,77 @@ calibrate_trees %>%
     -   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
 
 
+bare ground is hard becuase it's often associated with (ephemeral) construction projects :/ 
 
 ```{r gee-canopy-fxn}
 # function for processing gee data
 process_gee <- function(x, .group = NULL){
-  x %>%
-  mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
-
-  separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
-  mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
+  canopy_percent <- x %>%
+    mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
+    separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
+    mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
          trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
          treeless = if_else(ALAND == 0, 0, as.numeric(treeless)),
          trees = if_else(ALAND == 0, 0, as.numeric(trees)),
          canopy_percent = trees / (trees + treeless) * calib_coeff, #using the calibration coefficient is important for twin cities
          canopy_percent = if_else(is.na(canopy_percent), 0, canopy_percent)) %>%
-    filter(ALAND != 0) %>% #new 2020 block groups sometimes are only water
-    group_by(!!enquo(.group)) %>%
-    mutate(avgcanopy = mean(canopy_percent)) %>%
-    # mutate(sum_trees = sum(trees, na.rm = T),
-    #        sum_treeless = sum(treeless, na.rm = T),
-    #        avgcanopy = sum_trees / (sum_trees + sum_treeless) * calib_coeff) %>%
-    select(-ALAND, -trees, -treeless)
+    filter(ALAND != 0)  #new 2020 block groups sometimes are only water
+    
+  # avg <- canopy_percent %>%
+  #   filter(COUNTYFP != "131") %>% #exclude rice county from metro average (new step with adding northfield)
+  #   group_by(!!enquo(.group)) %>%
+  #   mutate(avgcanopy = mean(canopy_percent)) %>%
+  #   # mutate(sum_trees = sum(trees, na.rm = T),
+  #   #        sum_treeless = sum(treeless, na.rm = T),
+  #   #        avgcanopy = sum_trees / (sum_trees + sum_treeless) * calib_coeff) %>%
+  #   select(-ALAND, -trees, -treeless, -COUNTYFP)
+  avg <- canopy_percent %>%
+    filter(COUNTYFP != "131") %>%
+    group_by(Year) %>%
+    summarise(avgcanopy = mean(canopy_percent))
+  
+  return(canopy_percent %>% 
+           select(-c(ALAND, COUNTYFP, trees, treeless)) %>%
+           full_join(avg))
 }
+
 
 ```
 
+#### Block groups
+
+```{r}
+bg_canopy <- read_csv(
+  file.path(here::here(), "data-raw/tree canopy cover", list.files(file.path(here::here(), "data-raw/tree canopy cover"), pattern = "TreeMilesIncAg")),
+  col_select = c(GEOID, Year, sq_miles, ALAND, COUNTYFP),
+  col_types = c("GEOID" = "c", "COUNTYFP" = "c")
+  ,id = "filename"
+  )  %>%
+  # left_join(bg_geo %>% st_drop_geometry() %>% select(GEOID, ALAND)) %>% #this is already included in processing file from gee
+  rename(GEO_NAME = GEOID) %>%
+  process_gee() %>%
+  rename(bg_id = GEO_NAME) %>%
+  filter(!str_detect(filename, "updated")) %>% 
+  mutate(Year = case_when(str_detect(filename, "updated") ~ Year+.1,#updated train and test data
+                          str_detect(filename, "pheno") ~ Year+.5,#year specific phenology
+                          str_detect(filename, "mean") ~ Year+.75,#switching greenest to mean ndvi
+                          TRUE ~ Year)) %>% select(-filename)
+
+
+bg_wide <- bg_canopy %>%
+  select(-c(avgcanopy)) %>%
+  pivot_wider(names_from = Year, values_from = canopy_percent) %>%
+  mutate(base21 = `2021`) %>%
+  pivot_longer(names_to = "year", values_to = "canopy", -c(bg_id, base21))
+
+bg_wide %>%
+  ggplot(aes(x = base21, y = canopy)) +
+  geom_point(alpha = .1) +
+  facet_wrap(~year) +
+  theme_minimal()
+# bg_wide %>% filter(`2021` > .4, `2022` < .2)
+
+```
 
 ```{r canopy-processing}
 ###
@@ -187,7 +290,7 @@ ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_yea
     n_blockgroups = n()
   )) %>%
   arrange(GEO_NAME) %>%
-  full_join(ctu_geo) %>%
+  full_join(cities) %>%
   st_as_sf()
 
 ### 
@@ -229,13 +332,13 @@ We do this for all land (no water!) and non-cultivated land (excluding crops/ag 
 
 ```{r ndvi_bgs}
 ndvi_uncultivated <- 
-  read_csv(paste0(here::here(), "/data-raw/uncultivatedNDVI_blockgroups2020_year2021.csv"),
+  read_csv(filte.path(here::here(), "data-raw/uncultivatedNDVI_blockgroups2020_year2022.csv"), #year2021.csv"),
                     na = "No data",
                        col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
 
 ndvi_allland <- 
-  read_csv(paste0(here::here(), "/data-raw/landNDVI_blockgroups2020_year2021.csv"),
+  read_csv(filte.path(here::here(), "data-raw/landNDVI_blockgroups2020_year2022.csv"), #year2021.csv"),
                     na = "No data",
                        col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
@@ -247,6 +350,21 @@ bg_ndvi <- ndvi_uncultivated %>%
     rename(bg_id = GEOID)
 
 ```
+
+
+## Extreme heat
+
+During July 22, 2016. Land surface temperature from Landsat 8. I've taken the mean LST over land (i.e., excluding temperatures over water).
+
+```{r heat}
+heat <- read_csv(file.path(here::here(), "data-raw/ExtremeHeat2016_blockgroups2020.csv"),
+                 col_select = c(GEOID, mean_LST)) %>%
+  mutate(mean_LST = as.numeric(str_remove_all(mean_LST, "\\{LST=|\\}")))
+
+heat
+```
+
+
 
 ## Save data
 
