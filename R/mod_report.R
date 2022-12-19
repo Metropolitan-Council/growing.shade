@@ -22,7 +22,7 @@ mod_report_ui <- function(id) {
     fluidRow(uiOutput(ns("disparity_box"))),
     fluidRow(uiOutput(ns("temp_box"))), 
     fluidRow(uiOutput(ns("change_box"))),
-    fluidRow(uiOutput(ns("economic_box"))),
+    # fluidRow(uiOutput(ns("economic_box"))),
     fluidRow(uiOutput(ns("download_box")))
   )
 }
@@ -148,7 +148,7 @@ mod_report_server <- function(id,
           if (geo_selections$selected_geo == "blockgroups") {
             paste0(
               param_areasummary()$fancyname, " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
-              "% in 2021. Compared to other block groups across the region, the tree canopy in the selected block group is ",
+              "% in 2022. Compared to other block groups across the region, the tree canopy in the selected block group is ",
               if (param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {
                 "above"
               } else if (param_areasummary()$canopy_percent < (param_areasummary()$avgcanopy - .02)) {
@@ -163,7 +163,7 @@ mod_report_server <- function(id,
             paste0(
               param_area(),
               " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 1),
-              "% in 2021. Compared to other ", if (geo_selections$selected_geo == "ctus") {
+              "% in 2022. Compared to other ", if (geo_selections$selected_geo == "ctus") {
                 "cities and townships"
               } else {
                 "neighborhoods"
@@ -257,7 +257,7 @@ mod_report_server <- function(id,
           ) +
           labs(
             y = "", x = "Tree canopy cover (%)",
-            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)"
+            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2022)"
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
@@ -303,7 +303,7 @@ mod_report_server <- function(id,
 
           labs(
             y = "", x = "Tree canopy cover (%)",
-            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)"
+            caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2022)"
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = 1),
@@ -438,7 +438,7 @@ mod_report_server <- function(id,
       ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year estimates (2016-2020),\ndecennial census (2020), and CDC PLACES data (2020)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2022), ACS 5-year estimates (2016-2020),\ndecennial census (2020), and CDC PLACES data (2022)"
         )
       return(plot)
     })
@@ -581,20 +581,20 @@ mod_report_server <- function(id,
                           " maintained / increased the tree canopy cover to 45%",
                           ", this would likely lead to community benefits. For instance, ",
                           "Z",
-                          "excess deaths could be reduced (modified from Sinha et al), in addition to ...",
+                          " excess deaths could be reduced (modified from Sinha et al), in addition to ...",
         "Biodiversity buffers against Future threats, climate change, invasion, etc. Historic tree cover. Anthropogenic tree cover (not necessarily return to historic vegetation in urban areas). Non-urban areas = absolutely native vegetation (prairie, etc).<br><br>"
       ))
       return(para)
     })
     
-    economic_text <- reactive({
-      ns <- session$ns
-      req(TEST() != "")
-      para <- HTML(paste0(
-        "Increasing tree canopy to X% has these benefits.<br><br>"
-      ))
-      return(para)
-    })
+    # economic_text <- reactive({
+    #   ns <- session$ns
+    #   req(TEST() != "")
+    #   para <- HTML(paste0(
+    #     "Increasing tree canopy to X% has these benefits.<br><br>"
+    #   ))
+    #   return(para)
+    # })
     
     # output$equity_para <- renderUI({
     #   req(TEST() != "")
@@ -752,7 +752,7 @@ mod_report_server <- function(id,
         labs(
           x = "", y = "Tree\ncanopy\n (%)",
           caption = # expression(italic(
-          "Source: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year \nestimates (2016-2020), and decennial census (2020)" # ))
+          "Source: Analysis of Sentinel-2 satellite imagery (2022), ACS 5-year \nestimates (2017-2021), and decennial census (2020)" # ))
         ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",
@@ -822,7 +822,7 @@ mod_report_server <- function(id,
         councilR::theme_council() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2022)\nand Landsat 8 satellite imagery (2016)"
         ) +
         theme(
           panel.grid.minor = element_blank(),
@@ -1199,23 +1199,23 @@ mod_report_server <- function(id,
       )
     })
     
-    output$economic_box <- renderUI({
-      req(TEST() != "")
-      
-      shinydashboard::box(
-        title = "Economic potential",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = F, collapsible = TRUE,
-        economic_text()#, 
-        # fluidRow(
-        #   align = "center",
-        #   if(shinybrowser::get_device() == "Mobile") {
-        #     renderPlot(report_equity_plot())
-        #   } else {
-        #     imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
-        # )
-      )
-    })
+    # output$economic_box <- renderUI({
+    #   req(TEST() != "")
+    #   
+    #   shinydashboard::box(
+    #     title = "Economic potential",
+    #     width = 12, collapsed = shinybrowser::get_device() == "Mobile",
+    #     status = "danger", solidHeader = F, collapsible = TRUE,
+    #     economic_text()#, 
+    #     # fluidRow(
+    #     #   align = "center",
+    #     #   if(shinybrowser::get_device() == "Mobile") {
+    #     #     renderPlot(report_equity_plot())
+    #     #   } else {
+    #     #     imageOutput(ns("equity_plot"), height = "100%", width = "100%")}
+    #     # )
+    #   )
+    # })
     
     output$download_box <- renderUI({
       req(TEST() != "")
