@@ -71,27 +71,44 @@ nhood_geo <- bind_rows(minneap, stpaul) %>%
 ```
 
 ```{r ctu-geo}
-cities <- tigris::county_subdivisions(
-  state = "MN",
-  county = c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington"),
-  class = "sf"
-) %>%
-  mutate(NAME = case_when(LSAD == 44 ~  paste(NAME, "Twp."), 
-                          LSAD == 46 ~ paste(NAME, "(unorg.)"),
-                          TRUE ~ NAME)) %>%
-  group_by(NAME) %>%
-  mutate(n = n()) %>%
-  left_join(st_drop_geometry(county_outline) %>%
-              transmute(COUNTYFP = COUNTYFP, 
-                        CONAME = NAME)) %>%
-  mutate(NAME = case_when(n > 1 & LSAD != 25 ~ paste0(NAME, " - ", CONAME, " Co."), #cities dont get merged 
-                          TRUE ~ NAME)) %>%
-  group_by(NAME) %>%
-  summarise() %>%
-  # summarize(geometry = st_union(geom)) %>%
-  arrange(NAME) %>%
-  rename(GEO_NAME = NAME)
+county_outline <- 
+    tigris::counties(state = state) %>%
+      filter(NAME %in% county)
 
+cities <- tigris::county_subdivisions(
+    state = state,
+    county = county,
+    class = "sf"
+  ) %>%
+    mutate(NAME = case_when(
+      LSAD == 44 ~ paste(NAME, "Twp."),
+      LSAD == 46 ~ paste(NAME, "(unorg.)"),
+      TRUE ~ NAME
+    )) %>%
+    group_by(NAME) %>%
+    mutate(n = n()) %>%
+    left_join(st_drop_geometry(county_outline) %>%
+      transmute(
+        COUNTYFP = COUNTYFP,
+        CONAME = NAME
+      )) %>%
+  #keep northfield, but drop the rest of rice county
+  mutate(keep = case_when(NAME == "Northfield" & COUNTYFP == "131" ~ "keep",
+                          COUNTYFP == "131" ~ "remove",
+                          TRUE ~ "keep")) %>%
+  filter(keep == "keep") %>%
+    mutate(NAME = case_when(
+      n > 1 & LSAD != 25 ~ paste0(NAME, " - ", CONAME, " Co."), # cities dont get merged
+      TRUE ~ NAME
+    )) %>%
+    group_by(NAME) %>%
+    summarise() %>%
+    arrange(NAME) %>%
+    rename(GEO_NAME = NAME)
+
+
+county_outline <- county_outline %>%
+  filter(NAME != "Rice") 
 ```
 
 ```{r ctu-nhood-crosswalk}
@@ -125,7 +142,7 @@ find_crosswalks <- function(x) {
   return(crosswalk)
 }
 
-ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
+ctu_crosswalk <- find_crosswalks(cities) %>%
   mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & bg_id != "271390813001" ~ "remove", #minnesota river is squirrely
                    TRUE ~ "keep")) %>%
   filter(flag != "remove") %>% 
@@ -136,7 +153,12 @@ nhood_crosswalk <- find_crosswalks(nhood_geo)
 wide_ctu_crosswalk <- ctu_crosswalk %>%
     aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
   rename(jurisdiction = GEO_NAME)
+```
 
-  save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, file = paste0(here::here(), "/data-raw/geography_data.rda"))
+
+```{r}
+  save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, 
+       cities, county_outline, 
+       file = paste0(here::here(), "/data-raw/geography_data.rda"))
 
 ```
