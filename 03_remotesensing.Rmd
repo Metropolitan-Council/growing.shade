@@ -239,25 +239,34 @@ bg_canopy <- read_csv(
   rename(GEO_NAME = GEOID) %>%
   process_gee() %>%
   rename(bg_id = GEO_NAME) %>%
-  filter(!str_detect(filename, "updated")) %>% 
-  mutate(Year = case_when(str_detect(filename, "updated") ~ Year+.1,#updated train and test data
-                          str_detect(filename, "pheno") ~ Year+.5,#year specific phenology
-                          str_detect(filename, "mean") ~ Year+.75,#switching greenest to mean ndvi
+  # filter(!str_detect(filename, "updated")) %>% 
+  mutate(Year = case_when(str_detect(filename, "updated") ~ Year+.1,#updated train and test data; some small differences but not huge
+                          str_detect(filename, "pheno") ~ Year+.5,#year specific phenology; this looks good but can we improve?
+                          str_detect(filename, "mean2") ~ Year+.75,#switching JUST A FEW greenest to mean ndvi!
+                          # str_detect(filename, "mean") ~ Year+.75,#switching greenest to mean ndvi; blah! deleted
                           TRUE ~ Year)) %>% select(-filename)
 
 
 bg_wide <- bg_canopy %>%
   select(-c(avgcanopy)) %>%
   pivot_wider(names_from = Year, values_from = canopy_percent) %>%
-  mutate(base21 = `2021`) %>%
-  pivot_longer(names_to = "year", values_to = "canopy", -c(bg_id, base21))
+  mutate(base21 = `2021`,
+         new21 = `2021.5`) %>%
+  pivot_longer(names_to = "year", values_to = "canopy", -c(bg_id, base21, new21))
 
 bg_wide %>%
   ggplot(aes(x = base21, y = canopy)) +
   geom_point(alpha = .1) +
   facet_wrap(~year) +
   theme_minimal()
-# bg_wide %>% filter(`2021` > .4, `2022` < .2)
+
+# bg_wide %>%
+#   ggplot(aes(x = new21, y = canopy)) +
+#   geom_point(alpha = .1) +
+#   facet_wrap(~year) +
+#   theme_minimal()
+# # bg_wide %>% filter(`2021` > .4, `2022` < .2)
+# bg_wide %>% filter(year == 2021.1)
 
 ```
 
@@ -267,7 +276,7 @@ bg_wide %>%
 ###
 bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups2020_year2021.csv"),
                  col_select = c(GEOID, sq_miles), col_types = c("GEOID" = "c")) %>%
-  left_join(bg_geo %>% st_drop_geometry() %>% select(GEOID, ALAND)) %>%
+  left_join(bg_geo %>% sf::st_drop_geometry() %>% select(GEOID, ALAND)) %>%
   rename(GEO_NAME = GEOID) %>%
   process_gee() %>%
   rename(bg_id = GEO_NAME)
@@ -332,13 +341,13 @@ We do this for all land (no water!) and non-cultivated land (excluding crops/ag 
 
 ```{r ndvi_bgs}
 ndvi_uncultivated <- 
-  read_csv(filte.path(here::here(), "data-raw/uncultivatedNDVI_blockgroups2020_year2022.csv"), #year2021.csv"),
+  read_csv(file.path(here::here(), "data-raw/uncultivatedNDVI_blockgroups2020_year2021.csv"), #year2021.csv"),
                     na = "No data",
                        col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
 
 ndvi_allland <- 
-  read_csv(filte.path(here::here(), "data-raw/landNDVI_blockgroups2020_year2022.csv"), #year2021.csv"),
+  read_csv(file.path(here::here(), "data-raw/landNDVI_blockgroups2020_year2021.csv"), #year2021.csv"),
                     na = "No data",
                        col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
@@ -358,12 +367,40 @@ During July 22, 2016. Land surface temperature from Landsat 8. I've taken the me
 
 ```{r heat}
 heat <- read_csv(file.path(here::here(), "data-raw/ExtremeHeat2016_blockgroups2020.csv"),
-                 col_select = c(GEOID, mean_LST)) %>%
+                 col_select = c(GEOID, mean_LST),
+                 col_types = cols(GEOID = "c")) %>%
   mutate(mean_LST = as.numeric(str_remove_all(mean_LST, "\\{LST=|\\}")))
 
 heat
 ```
 
+## Deaths avoided
+
+
+```{r}
+df <- heat %>%
+  full_join(ndvi_uncultivated %>% rename(ndvi = 4)) %>%
+  # full_join(ndvi_allland %>% rename(ndvi = 4)) %>%
+  select(GEOID, mean_LST, ndvi) %>%
+  filter(!is.na(ndvi)) 
+
+df %>%
+  ggplot(aes(x = ndvi, y = mean_LST)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = y ~ I(x^2))
+
+summary(lm(mean_LST ~ ndvi, data = df))
+summary(lm(mean_LST ~ I(ndvi ^ 2), data = df)) #y = (ndvi^2)*(-54.5571) + 126.8190
+summary(lm(log(mean_LST) ~ ndvi, data = df))
+
+df %>%
+  mutate(mean_AirTemp = mean_LST * (.90),
+         current_trees = sample(15:60, n(), replace = T) / 100,
+         goal_trees = .45,
+         change_trees = flo
+         temp_change = ndvi)
+
+```
 
 
 ## Save data
