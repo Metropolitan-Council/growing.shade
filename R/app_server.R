@@ -10,6 +10,20 @@ app_server <- function(input, output, session) {
   # options(shiny.usecairo = T)
 
   # waitress <- waiter::Waitress$new("nav", theme = "overlay", min = 0, max = 10)
+  
+  showModal(
+    modalDialog(
+      easyClose = TRUE,
+      size = "l",
+      title = "New data update!",
+      HTML("Growing Shade has been updated with new data (December 20, 2022). 
+      Please view the 'methods' tab for more information. <br>
+      <li>We have incorporated the latest demographic and health data newly released by Census, CDC, and EPA.</li>
+      <li>We are now mapping the 2022 tree canopy instead of 2021 canopy. </li>
+      <li>New information shows how the tree canopy has changed-over-time.</li>
+      <li>There more options for you to give feedback on this application.</li>")
+    )
+  )
 
   mod_storymap_server("storymap_ui_1")
   mod_faq_server("faq_ui_1")
