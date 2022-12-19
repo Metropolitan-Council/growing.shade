@@ -570,8 +570,19 @@ mod_report_server <- function(id,
     change_text <- reactive({
       ns <- session$ns
       req(TEST() != "")
-      para <- HTML(paste0(
-        "Over time the tree canopy in X has change. Biodiversity buffers against Future threats, climate change, invasion, etc. Historic tree cover. Anthropogenic tree cover (not necessarily return to historic vegetation in urban areas). Non-urban areas = absolutely native vegetation (prairie, etc).<br><br>"
+      para <- HTML(paste0(param_area(), "'s tree canopy has ", 
+                          "remained relatively constant / increased / decreased", 
+                          " over the last six years. However, ",
+                          "X",
+                          " block groups have seen increases in canopy while ",
+                          "Y",
+                          " have seen decreases in canopy. <br><br> If ",
+                          param_area(), 
+                          " maintained / increased the tree canopy cover to 45%",
+                          ", this would likely lead to community benefits. For instance, ",
+                          "Z",
+                          "excess deaths could be reduced (modified from Sinha et al), in addition to ...",
+        "Biodiversity buffers against Future threats, climate change, invasion, etc. Historic tree cover. Anthropogenic tree cover (not necessarily return to historic vegetation in urban areas). Non-urban areas = absolutely native vegetation (prairie, etc).<br><br>"
       ))
       return(para)
     })
