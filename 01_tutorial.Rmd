@@ -39,6 +39,12 @@ library(here)
 
 st_erase <- function(x, y) st_difference(x, st_union(st_combine(y)))
 `%not_in%` <- Negate(`%in%`)
+source_rmd = function(file, ...) {
+  tmp_file = tempfile(fileext=".R")
+  on.exit(unlink(tmp_file), add = TRUE)
+  knitr::purl(file, output=tmp_file)
+  source(file = tmp_file, ...)
+  }
 ```
 
 # Set parameters
@@ -52,21 +58,22 @@ This code is set up to use/process 2020-era census geographies at the block grou
 # Geography variables
 ####
 state <- c("MN")
-county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington", "Rice") # either type in specific county names, or for all counties within a state assign `county <- NULL`
 
 #######
 # Demographic variables
 ######
-acs_year <- 2020 # The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then.
+acs_year <- 2021 # The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then.
 census_year <- 2020
 
-process_demographics <- TRUE
+process_demographics <- FALSE
 detailed_population_count <- FALSE # are there more accurate counts of total population and housing units available (for calculating density)? If so, bring those in
 
 ######
 # Tree canopy and/or geography files
 ######
-regional_specific_data <- FALSE # go to 02_geographies.Rmd and 03_remotesensing.Rmd scripts to process/make these files, as applicable
+regional_specific_geographies <- TRUE # go to 02_geographies.Rmd to process/make these files, as applicable
+regional_specific_remotesensing <- FALSE # go to 03_remotesensing.Rmd to process/make these files, as applicable
 ```
 
 # Process demographic data
@@ -363,6 +370,8 @@ Also, because this CDC data currently uses old census geographies, you will need
 # CDC health data
 #########
 # variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
+# last updated Dec 6, 2022, but still using 2010 census geographies
+# https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh
 
 if (process_demographics == TRUE) {
   raw_health <- read.socrata(
@@ -380,7 +389,7 @@ if (process_demographics == TRUE) {
       "Chronic obstructive pulmonary disease among adults aged >=18 years",
       "Mental health not good for >=14 days among adults aged >=18 years",
       "Physical health not good for >=14 days among adults aged >=18 years"
-    )) %>%
+    ))  %>%
     dplyr::select(locationname, measureid, data_value) %>%
     mutate(data_value = as.numeric(data_value) / 100) %>% # change to fraction
     pivot_wider(names_from = measureid, values_from = data_value)
@@ -414,6 +423,7 @@ if (process_demographics == TRUE) {
 } else {
   load(paste0(here::here(), "/data-raw/health_data.rda"))
 }
+
 ```
 
 # Process geographies
@@ -425,7 +435,7 @@ Growing Shade is set up to have data at the block group, neighborhood, and city/
 Getting these geography files is easy - just downloaded directly.
 
 ```{r census-geography, include = F}
-bg_geo <- block_groups(
+bg_geo <- tigris::block_groups(
   state = state,
   county = county,
   year = census_year
@@ -439,7 +449,7 @@ bg_geo <- block_groups(
 
 Since we're going to be making a map which shows census tracts, cities, or neighborhoods depending on the user input, a crosswalk needs to be made which relates block groups to the city and neighborhood levels.
 
-This section doesn't seem to be easily scalable to other regions **unless zip codes are an appropriate stand-in for neighborhoods**. As such, the code for this section will likely need to be customized, and processing will be done within the `02_geographies.Rmd` script. Further, if this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
+This section doesn't seem to be easily scalable to other regions **unless zip codes are an appropriate stand-in for neighborhoods**. This "out-of-the-box" script breaks cities with >100 census blocks into "neighborhoods" using zip-codes. However, if true neighborhoods are desired, the code for this section will need to be customized (processing will be done within the `02_geographies.Rmd` script).
 
 In any case, the following files should exist in the `data` folder (again, the `02_geographies.Rmd` script shows an example of creating these files for the Twin Cities region).
 
@@ -456,7 +466,7 @@ In any case, the following files should exist in the `data` folder (again, the `
 
 
 ```{r city-nhood-geometries}
-if (regional_specific_data == FALSE) {
+if (regional_specific_geographies == FALSE) {
 
   #####
   # cities
@@ -562,6 +572,9 @@ if (regional_specific_data == FALSE) {
   usethis::use_data(ctu_crosswalk, overwrite = TRUE)
   usethis::use_data(nhood_crosswalk, overwrite = TRUE)
 } else {
+  
+  source_rmd(file.path(here::here(), "02_geographies.Rmd"))
+
   load(paste0(here::here(), "/data-raw/geography_data.rda"))
   usethis::use_data(ctu_crosswalk, overwrite = TRUE)
   usethis::use_data(nhood_crosswalk, overwrite = TRUE)
@@ -602,7 +615,7 @@ These are the resulting files which should exist:
   - `ndvi_land` (average NDVI over all land, including cropland)
   
 ```{r remote-sensing-random-data}
-if (regional_specific_data == FALSE) {
+if (regional_specific_remotesensing == FALSE) {
   bg_canopy <- bg_geo %>%
     st_drop_geometry() %>%
     transmute(
@@ -652,6 +665,7 @@ if (regional_specific_data == FALSE) {
     st_as_sf() %>%
     arrange(GEO_NAME)
 } else {
+    source_rmd(file.path(here::here(), "03_remotesensing.Rmd"))
   load(paste0(here::here(), "/data-raw/canopy_data.rda"))
 }
 ```
@@ -672,41 +686,56 @@ Additionally, please note that the 2021 EJSCREEN data is using old (2010-vintage
 if (process_demographics == TRUE) {
   temp <- tempfile()
   temp2 <- tempfile()
-  download.file(
-    "https://gaftp.epa.gov/EJSCREEN/2021/EJSCREEN_2021_USPR_Tracts.csv.zip",
-    destfile = temp
-  )
-  unzip(zipfile = temp, exdir = temp2)
-  list.files(temp2)
+  # download.file(
+  #   "https://gaftp.epa.gov/EJSCREEN/2021/EJSCREEN_2021_USPR_Tracts.csv.zip",
+  #   destfile = temp
+  # )
+  # unzip(zipfile = temp, exdir = temp2)
+  # list.files(temp2)
+  # 
+  #   ejscreen <- read_csv(paste0(temp2, pattern = "/EJSCREEN_2021_USPR_Tracts.csv"),
+  #   col_select = c(ST_ABBREV, CANCER, ID)
+  # ) %>%
+  #   filter(ST_ABBREV == state)
+  # 
+  #   files <- list.files(temp2, full.names = T)
+  # file.remove(files)
+  # 
+  #   ## translate into 2020 geographies
+  # cancer_data <- ejscreen %>%
+  #   full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
+  #   rename(bg_id = bg2020ge) %>%
+  #   select(bg_id, CANCER) %>%
+  #   mutate(CANCER = if_else(is.na(CANCER), min(CANCER, na.rm = T), CANCER)) %>% # don't let there be NAs, fill with the minimum value
+  #   # filter(!is.na(bg_id)) %>%
+  #   rename(env_cancer = CANCER)
 
-  ejscreen <- read_csv(paste0(temp2, pattern = "/EJSCREEN_2021_USPR_Tracts.csv"),
-    col_select = c(ST_ABBREV, CANCER, ID)
-  ) %>%
-    filter(ST_ABBREV == state)
 
-  # #ejscreen is still using 2010 geographies
-  # ejscreen %>% left_join(bg_geo %>%
-  #                          mutate(ID = substr(GEOID, start = 1, stop = 11))) %>%
-  #   st_as_sf() %>%
-  #   ggplot() +
-  #   geom_sf(aes(fill = CANCER))
+  # EJ screen updated 2022-11-21; now available at the block group level and uses 2020 census geographies
+#   st_drop_geometry(bg20) %>% transmute(geoid = GEOID, `2020` = T) %>%
+#   full_join(st_drop_geometry(bg10) %>% transmute(geoid = GEOID10, `2010` = T)) %>%
+#   filter(is.na(`2010`))
+# 
+# filter(ejscreen, ID == "271630705013")
 
-  files <- list.files(temp2, full.names = T)
-  file.remove(files)
+    ej_url <- "https://gaftp.epa.gov/EJSCREEN/2022/EJSCREEN_2022_StatePct_with_AS_CNMI_GU_VI.csv.zip"
+    download.file(ej_url, file.path(tempdir(), basename(ej_url)))
+    unzip(zipfile = file.path(tempdir(), basename(ej_url)), exdir = tempdir())
+    
+    ejscreen <- readr::read_csv(file.path(tempdir(), stringr::str_remove(basename(ej_url), ".zip")),
+                         col_select = c(ST_ABBREV, CANCER, ID)) %>%
+      filter(ST_ABBREV == state)
 
-  ## translate into 2020 geographies
-  cancer_data <- ejscreen %>%
-    full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
-    rename(bg_id = bg2020ge) %>%
-    select(bg_id, CANCER) %>%
-    mutate(CANCER = if_else(is.na(CANCER), min(CANCER, na.rm = T), CANCER)) %>% # don't let there be NAs, fill with the minimum value
-    # filter(!is.na(bg_id)) %>%
-    rename(env_cancer = CANCER)
 
+    cancer_data <- ejscreen %>%
+      transmute(bg_id = ID,
+                env_cancer = CANCER)
+    
   save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
 } else {
   load(paste0(here::here(), "/data-raw/cancer_data.rda"))
 }
+
 ```
 
 ## Climate vulnerability - temperature & flooding
