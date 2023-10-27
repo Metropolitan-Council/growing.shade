@@ -13,7 +13,7 @@ mod_report_ui <- function(id) {
     # shinyjs::useShinyjs(),
     shinybrowser::detect(),
     
-    shinyWidgets::useShinydashboard(),
+    useShinydashboard(),
     # ,
     (uiOutput(ns("geoarea"))),
     br(),
