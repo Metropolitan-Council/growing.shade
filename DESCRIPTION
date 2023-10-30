@@ -15,7 +15,8 @@ Depends:
     R (>= 2.10)
 Imports: 
     config (>= 0.3),
-    councilR (>= 0.1.1.9000),
+    councilR,
+    cowplot (>= 1.1.0),
     dplyr (>= 1.0.0),
     forcats (>= 0.5.1),
     ggbeeswarm (>= 0.7.0.9000),
