@@ -31,3 +31,8 @@ run_app()
 # leaflet() %>%
 #   addTiles() %>%
 #   addPolygons(data = test)
+  
+# remotes::install_github("tidyverse/ggplot2@v3.3.5")
+# remotes::install_github("mjskay/ggdist@v3.0.1")
+# remotes::install_github("Metropolitan-Council/councilR@v0.1.5", force = TRUE)
+
