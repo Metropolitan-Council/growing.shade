@@ -10,7 +10,7 @@
 #' @import waiter
 mod_map_overview_ui <- function(id) {
   ns <- NS(id)
-  
+
   js_map <- "@media (max-width: 765px) {
    /* #map {width: 50% !important;} */
    div#map_overview_ui_1-map {
@@ -30,7 +30,7 @@ mod_map_overview_ui <- function(id) {
   }
 
   "
-  
+
   # .leaflet-pane leaflet-map-pane{
   #   transform: translate3d(-6.75px, -71.1px, 0px)'
   #  }
@@ -39,21 +39,21 @@ mod_map_overview_ui <- function(id) {
   #  }
   # }
   tagList(
-    tags$style(type = "text/css", "#map {width; 100%;}"), #works
+    tags$style(type = "text/css", "#map {width; 100%;}"), # works
     tags$style(HTML(js_map)),
-    #doesnt work
+    # doesnt work
     # tags$style(class = "d-none d-lg-block", #desktop
     #            type = "text/css", "#map {width; 100% !important;}"), # height: calc(100vh - 200px) !important;}"),
     # tags$style(class = "d-block d-lg-none",#mobile
     #            type = "text/css", "#map {width; 95% !important;}"),
     useWaiter(),
     # waiter::useWaitress(color = "blue"),
-    
+
     leafletOutput(ns("map"),
-                  # width="100%", height="100%"
-                  height = "88vh"
+      # width="100%", height="100%"
+      height = "88vh"
     ) # ,
-    
+
     # wellPanel(textOutput(ns("selected_blockgroup")))
   )
 }
@@ -68,14 +68,14 @@ mod_map_overview_server <- function(input, output, session,
                                     map_util,
                                     current_tab) {
   ns <- session$ns
-  
-  
+
+
   waitertest <- Waiter$new(ns("map"),
-                           html = waiter::spin_loader(), # spin_fading_circles(),
-                           color = "rgba(255,255,255,.5)"
+    html = waiter::spin_loader(), # spin_fading_circles(),
+    color = "rgba(255,255,255,.5)"
   ) # , transparent(alpha = .5))
-  
-  
+
+
   #### question ----
   # # if the radio buttons change, can I reset the input????
   # observeEvent(geo_selections$selected_geo, {
@@ -94,7 +94,7 @@ mod_map_overview_server <- function(input, output, session,
       ) %>%
       # add attribution
       leaflet.extras::addFullscreenControl(position = "topleft", pseudoFullscreen = TRUE) %>%
-      addMapPane(name = "Stamen Toner", zIndex = 100) %>%
+      addMapPane(name = "Carto Positron", zIndex = 100) %>%
       addMapPane(name = "Map", zIndex = 100) %>%
       addMapPane(name = "Aerial Imagery", zIndex = 100) %>%
       addMapPane(name = "Satellite", zIndex = 100) %>%
@@ -118,15 +118,15 @@ mod_map_overview_server <- function(input, output, session,
       # # title = "<strong>Opacity control</strong>",
       # # renderOnLayerAdd = TRUE
       # ) %>%
-      
+
       # add tree tiles
       addTiles(ui_params$set[ui_params$param == "tree_tile_location"],
-               attribution = NULL,
-               options = c(
-                 tileOptions(opacity = .6),
-                 pathOptions(pane = "Trees")
-               ),
-               group = "Trees"
+        attribution = NULL,
+        options = c(
+          tileOptions(opacity = .6),
+          pathOptions(pane = "Trees")
+        ),
+        group = "Trees"
       ) %>%
       #  #aerial with roads
       addProviderTiles(
@@ -139,16 +139,17 @@ mod_map_overview_server <- function(input, output, session,
       ) %>%
       # Satellite") %>%
       addProviderTiles(
-        providers$Stadia.StamenTonerLabels,
+        providers$CartoDB.PositronOnlyLabels,
         options = c(
           providerTileOptions(maxZoom = 18),
           pathOptions(pane = "labels")
-        ), # pathOptions(pane = "Stamen Toner"),
+        ), # pathOptions(pane = "Carto Positron"),
         group = "Satellite"
       ) %>%
       addProviderTiles(
-        providers$Stadia.StamenTonerLabels,
-        options = providerTileOptions(maxZoom = 18), # pathOptions(pane = "Stamen Toner"),
+        providers$CartoDB.PositronOnlyLabels,
+        options = providerTileOptions(maxZoom = 18),
+        # pathOptions(pane = "Carto Positron"),
         group = "Map"
       ) %>%
       addProviderTiles(
@@ -172,33 +173,33 @@ mod_map_overview_server <- function(input, output, session,
       #   color = "black",
       #   fillColor = "black",
       #   options = pathOptions(pane = "trans")
-    # ) %>%
-    # addCircles(
-    #   data = eab,
-    #   group = "Emerald ash borer",
-    #   # layerId = NULL,
-    #   radius = 15,
-    #   fill = T,
-    #   stroke = TRUE,
-    #   weight = 4,
-    #   opacity = 1,
-    #   fillOpacity = .8,
-    #   color = "#6a3d9a",
-    #   fillColor = "white",
-    #   options = pathOptions(pane = "EAB"),
-    #   label = "EAB infested tree"
-    # ) %>%
-    addPolygons(
-      data = redline,
-      group = "Historically redlined areas",
-      stroke = T,
-      smoothFactor = 1,
-      color = "black",
-      fill = FALSE,
-      fillColor = "#ED1B2E",
-      fillOpacity = 1,
-      options = pathOptions(pane = "redline")
-    ) %>%
+      # ) %>%
+      # addCircles(
+      #   data = eab,
+      #   group = "Emerald ash borer",
+      #   # layerId = NULL,
+      #   radius = 15,
+      #   fill = T,
+      #   stroke = TRUE,
+      #   weight = 4,
+      #   opacity = 1,
+      #   fillOpacity = .8,
+      #   color = "#6a3d9a",
+      #   fillColor = "white",
+      #   options = pathOptions(pane = "EAB"),
+      #   label = "EAB infested tree"
+      # ) %>%
+      addPolygons(
+        data = redline,
+        group = "Historically redlined areas",
+        stroke = T,
+        smoothFactor = 1,
+        color = "black",
+        fill = FALSE,
+        fillColor = "#ED1B2E",
+        fillOpacity = 1,
+        options = pathOptions(pane = "redline")
+      ) %>%
       addPolygons(
         data = redline,
         group = "Historically redlined areas",
@@ -244,42 +245,42 @@ mod_map_overview_server <- function(input, output, session,
       #   options = pathOptions(pane = "geooutline"),
       #   layerId = ~GEO_NAME
       # ) %>%
-    # addPolygons(
-    #   data = ctu_list,
-    #   group = "Jurisdiction outlines",
-    #   stroke = T,
-    #   smoothFactor = 1,
-    #   color = "black",
-    #   fill = F,
-    #   opacity = 1,
-    #   options = pathOptions(pane = "geooutline2"),
-    # ) %>%
-    
-    ### add layer control
-    addLayersControl(
-      position = "bottomright",
-      baseGroups = c(
-        "Map",
-        "Satellite"
-      ),
-      overlayGroups = c(
-        "Priority score",
-        "Trees",
-        # "Water",
-        # "Active transit stops",
-        "Road outlines",
-        "Historically redlined areas",
-        # "Emerald ash borer",
-        "Jurisdiction outlines" # ,
-      ),
-      options = layersControlOptions(collapsed = T)
-    ) %>%
+      # addPolygons(
+      #   data = ctu_list,
+      #   group = "Jurisdiction outlines",
+      #   stroke = T,
+      #   smoothFactor = 1,
+      #   color = "black",
+      #   fill = F,
+      #   opacity = 1,
+      #   options = pathOptions(pane = "geooutline2"),
+      # ) %>%
+
+      ### add layer control
+      addLayersControl(
+        position = "bottomright",
+        baseGroups = c(
+          "Map",
+          "Satellite"
+        ),
+        overlayGroups = c(
+          "Priority score",
+          "Trees",
+          # "Water",
+          # "Active transit stops",
+          "Road outlines",
+          "Historically redlined areas",
+          # "Emerald ash borer",
+          "Jurisdiction outlines" # ,
+        ),
+        options = layersControlOptions(collapsed = T)
+      ) %>%
       hideGroup(c(
         # "Active transit stops",
         # "Emerald ash borer",
         "Historically redlined areas",
         "Road outlines"
-      )) #%>%
+      )) # %>%
     # groupOptions(
     #   group = "Trees",
     #   zoomLevels = 15:18
@@ -289,7 +290,7 @@ mod_map_overview_server <- function(input, output, session,
     #       zoomLevels = 13:13# 13:18
     #     )
   })
-  
+
   # this is GOOD, but I'm less into it now...
   #   groupOptions(
   #     group = "Map",
@@ -299,9 +300,9 @@ mod_map_overview_server <- function(input, output, session,
   #     group = "Satellite",
   #     zoomLevels = 13:18
   #   ) #%>%
-  
-  
-  
+
+
+
   #### changing priority score --------------
   toListen_mainleaflet <- reactive({
     list(
@@ -310,7 +311,7 @@ mod_map_overview_server <- function(input, output, session,
       map_util$map_data2
     )
   })
-  
+
   observeEvent(
     ignoreInit = TRUE, # TRUE,
     toListen_mainleaflet(),
@@ -335,7 +336,10 @@ mod_map_overview_server <- function(input, output, session,
             weight = 0.5, # 0.25,
             fillOpacity = 0.5,
             smoothFactor = 0.2,
-            label = ~ (paste0("Priority score: ", ifelse(!is.na(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"))),
+            label = ~ (paste0("Priority score: ", ifelse(!is.na(map_util$map_data2$MEAN),
+              round(map_util$map_data2$MEAN, 3),
+              "NA, this is a non-residential area"
+            ))),
             highlightOptions = highlightOptions(
               stroke = TRUE,
               color = "white",
@@ -351,7 +355,9 @@ mod_map_overview_server <- function(input, output, session,
             popup = ~ paste0(
               "Geographic ID: ", map_util$map_data2$bg_string,
               "<br>City: ", map_util$map_data2$jurisdiction,
-              "<br>Priority score: ",  ifelse(!is.na(map_util$map_data2$MEAN), round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"),
+              "<br>Priority score: ", ifelse(!is.na(map_util$map_data2$MEAN),
+                round(map_util$map_data2$MEAN, 3), "NA, this is a non-residential area"
+              ),
               # "<br>Rank of score: ", map_util$map_data2$RANK, " out of ", nrow(map_util$map_data2),
               "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
@@ -367,7 +373,7 @@ mod_map_overview_server <- function(input, output, session,
             layerId = "score",
             pal = colorNumeric(
               # n = 5,
-              palette = "YlOrBr", #"YlOrRd", #"Oranges",
+              palette = "YlOrBr", # "YlOrRd", #"Oranges",
               domain = map_util$map_data2 %>% select("MEAN") %>% .[[1]]
               # ,na.color="#03fc13"
             ),
@@ -383,7 +389,7 @@ mod_map_overview_server <- function(input, output, session,
       }
     }
   )
-  
+
   # map click doesn't work so well with multiple geo options; ctu/blockgroups/neighborhoods
   ## jurisdiction outlines -----------
   observeEvent(
@@ -423,9 +429,9 @@ mod_map_overview_server <- function(input, output, session,
       }
     }
   )
-  
+
   # trees for city/nhood ------
-  
+
   observeEvent(
     ignoreInit = FALSE, # TRUE,
     req(geo_selections$selected_area != "blockgroups"),
@@ -462,7 +468,7 @@ mod_map_overview_server <- function(input, output, session,
       }
     }
   )
-  
+
   # # trees for blockgroups  --------------
   toListen_clickyblockgroups <- reactive({
     list(
@@ -483,7 +489,7 @@ mod_map_overview_server <- function(input, output, session,
           addPolygons(
             data = mn_bgs %>% filter(GEO_NAME == input$map_shape_click$id),
             stroke = TRUE,
-            color = "#0073e0", #"blue",
+            color = "#0073e0", # "blue",
             fill = NA,
             opacity = 1,
             group = "outline",
@@ -493,8 +499,8 @@ mod_map_overview_server <- function(input, output, session,
       }
     }
   )
-  
-  
+
+
   # ### save map clicks -----------
   vals <- reactiveValues()
   observe({
