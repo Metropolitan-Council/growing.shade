@@ -32,7 +32,7 @@ run_app()
 #   addTiles() %>%
 #   addPolygons(data = test)
   
-# remotes::install_github("tidyverse/ggplot2@v3.3.5")
-# remotes::install_github("mjskay/ggdist@v3.0.1")
+# remotes::install_github("tidyverse/ggplot2@v3.3.6", upgrade = "never")
+# remotes::install_github("mjskay/ggdist@v3.2.0", upgrade = "never")
 # remotes::install_github("Metropolitan-Council/councilR@v0.2.2", force = TRUE, upgrade = "never")
 
