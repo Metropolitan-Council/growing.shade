@@ -122,7 +122,6 @@ theme_council_growing <- function(
                        legend_title = base_size, legend_text = ggplot2::rel(0.8), 
                        caption = ggplot2::rel(0.8), strip = ggplot2::rel(0.8))
   }
-  browser()
   half_line <- base_size/2
   t <- ggplot2::theme(
     line = ggplot2::element_line(colour = colors$suppBlack, 
