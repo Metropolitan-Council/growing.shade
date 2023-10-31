@@ -44,7 +44,7 @@ mod_report_server <- function(id,
     ns <- session$ns
     
     library(councilR)
-
+    
     ####### things to export
     TEST <- reactive({
       TEST <- if (geo_selections$selected_geo == "ctus") {
@@ -56,14 +56,14 @@ mod_report_server <- function(id,
       }
       return(TEST)
     })
-
+    
     param_area <- reactive({
       req(TEST() != "")
       output <- TEST()
       return(output)
     })
-
-
+    
+    
     # the min, max, n_blockgroups, eab, treeacres, landacres, canopypercent, avgcanopy for the selected geography
     param_areasummary <- reactive({
       req(TEST() != "")
@@ -76,7 +76,7 @@ mod_report_server <- function(id,
       }
       return(output)
     })
-
+    
     # the min/max/other data for all blockgroups within a given ctu/nhood/blockgroup (n = 1 for blockgroups, n > 1 for most ctus/nhoods)
     param_selectedblockgroupvalues <- reactive({
       req(TEST() != "")
@@ -98,33 +98,36 @@ mod_report_server <- function(id,
       req(TEST() != "")
       nrow(param_selectedblockgroupvalues())
     })
-
+    
     # all data with flag for selected areas
     param_dl_data <- reactive({
       req(TEST() != "")
-
+      
+      geo_strings <- if (geo_selections$selected_geo == "ctus") {
+        c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$bg_id)
+      } else if (geo_selections$selected_geo == "nhood") {
+        c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$bg_id)
+      } else if (geo_selections$selected_geo == "blockgroups") {
+        c(param_area())
+      }
+      
       output <- bg_growingshade_main %>%
-        mutate(flag = if_else(bg_string %in%
-          if (geo_selections$selected_geo == "ctus") {
-            c(ctu_crosswalk[ctu_crosswalk$GEO_NAME == param_area(), ]$bg_id)
-          } else if (geo_selections$selected_geo == "nhood") {
-            c(nhood_crosswalk[nhood_crosswalk$GEO_NAME == param_area(), ]$bg_id)
-          } else if (geo_selections$selected_geo == "blockgroups") {
-            c(param_area())
-          },
-        "selected", NA_character_
+        mutate(flag = if_else(
+          bg_string %in% geo_strings,
+          "selected", NA_character_
         ))
       return(output)
     })
-
+    
     param_equity <- reactive({
       equityplot <- param_dl_data() %>%
-        filter(variable %in% c("pbipoc", "canopy_percent", "hhincome", "avg_temp", "ndvi_land")) %>%
+        filter(variable %in% c("pbipoc", "canopy_percent",
+                               "hhincome", "avg_temp", "ndvi_land")) %>%
         select(bg_string, variable, raw_value, flag) %>%
         pivot_wider(names_from = variable, values_from = raw_value)
       return(equityplot)
     })
-
+    
     output$geoarea <- renderUI({
       ns <- session$ns
       tagList(
@@ -138,7 +141,7 @@ mod_report_server <- function(id,
         ))
       )
     })
-
+    
     tree_text <- reactive({
       req(TEST() != "")
       tagList(HTML(
@@ -192,43 +195,43 @@ mod_report_server <- function(id,
         )
       ))
     })
-
+    
     # output$tree_para <- renderUI({
     #   req(TEST() != "")
     #   (tree_text())
     #   # HTML(paste0(tree_text(), " Read the methods in the 'other resources' tab to understand why our canopy cover numbers may differ from other tools."))
     # })
-
-
+    
+    
     report_tree_plot <- reactive({
       req(TEST() != "")
       set.seed(12345)
-      if (geo_selections$selected_geo != "blockgroups") {
-        canopyplot <-
-          (as_tibble(if (geo_selections$selected_geo == "ctus") {
-            ctu_list
-          } else {
-            nhood_list
-          }) %>%
+      canopy_plot <- if (geo_selections$selected_geo != "blockgroups") {
+        (
+          as_tibble(
+            ifelse(geo_selections$selected_geo == "ctus",
+                   ctu_list,
+                   nhood_list)) %>%
             mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
             rename(bg_string = GEO_NAME) %>%
             select(bg_string, canopy_percent, flag) %>%
-            mutate(type = if (geo_selections$selected_geo == "ctus") {
-              "Cities across\nthe region"
-            } else {
-              paste0("Neighborhoods across\n", param_areasummary()$city)
-            })) %>%
-          bind_rows(filter(param_equity(), flag == "selected") %>%
-            mutate(
-              t2 = "block groups",
-              type = paste0(" Block groups\nwithin ", param_area())
+            mutate(type = ifelse(geo_selections$selected_geo == "ctus",
+                                 "Cities across\nthe region",
+                                 paste0("Neighborhoods across\n", param_areasummary()$city)),
             )) %>%
+          bind_rows(
+            filter(
+              param_equity(), flag == "selected") %>%
+              mutate(
+                t2 = "block groups",
+                type = paste0(" Block groups\nwithin ", param_area())
+              )) %>%
           rename(raw_value = canopy_percent)
       } else {
-        canopyplot <- param_equity() %>%
+        param_equity() %>%
           rename(raw_value = canopy_percent)
       }
-
+      
       if (geo_selections$selected_geo != "blockgroups") {
         plot <- ggplot() +
           theme_council_growing() +
@@ -259,11 +262,11 @@ mod_report_server <- function(id,
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = type),
-            fill = councilR::colors$cdGreen,
-            size = 4, col = "black", pch = 21, stroke = 1, 
-            data = filter(canopyplot, flag == "selected", is.na(t2))
+                     fill = councilR::colors$cdGreen,
+                     size = 4, col = "black", pch = 21, stroke = 1, 
+                     data = filter(canopyplot, flag == "selected", is.na(t2))
           ) +
-
+          
           ggbeeswarm::geom_beeswarm(aes(x = raw_value, y = type),
                                     cex = if (selected_length() > 100) {2} else {3}, 
                                     stroke = if(selected_length() > 100) {0} else {1},
@@ -298,46 +301,46 @@ mod_report_server <- function(id,
             data = filter(canopyplot, is.na(flag)),
             na.rm = T
           ) +
-
+          
           labs(
             y = "", x = "Tree canopy cover (%)",
             caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)"
           ) +
           scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
           geom_point(aes(x = raw_value, y = 1),
-            fill = councilR::colors$cdGreen,
-            size = 5, col = "black", pch = 21, stroke = 1, 
-            data = filter(canopyplot, flag == "selected"),
-            na.rm = T
+                     fill = councilR::colors$cdGreen,
+                     size = 5, col = "black", pch = 21, stroke = 1, 
+                     data = filter(canopyplot, flag == "selected"),
+                     na.rm = T
           )
       }
       return(plot)
     })
-
+    
     # output$tree_plot <- renderPlot(
     #   {
     #     req(TEST() != "")
     #     report_tree_plot()
     #   } # , res = 150)
     # )
-
+    
     output$tree_plot <- renderImage(
       {
         req(TEST() != "")
-
+        
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext = ".png")
-
+        
         # Generate the PNG
         png(outfile,
-          width = 500 * 2,
-          height = 300 * 2,
-          res = 72 * 2
+            width = 500 * 2,
+            height = 300 * 2,
+            res = 72 * 2
         )
         print(report_tree_plot())
         dev.off()
-
+        
         # Return a list containing the filename
         list(
           src = outfile,
@@ -349,9 +352,9 @@ mod_report_server <- function(id,
       },
       deleteFile = TRUE
     )
-
+    
     # ranking section ------------
-
+    
     rank_text <- reactive({
       req(TEST() != "")
       tagList(HTML(
@@ -379,13 +382,13 @@ mod_report_server <- function(id,
         )
       ))
     })
-
+    
     # output$rank_para <- renderUI({
     #   ns <- session$ns
     #   req(TEST() != "")
     #   rank_text()
     # })
-
+    
     report_rank_plot <- reactive({
       req(TEST() != "")
       set.seed(12345)
@@ -396,13 +399,13 @@ mod_report_server <- function(id,
           # rename(score = MEAN) %>%
           mutate(priority = " Custom")
       }
-
+      
       test <- param_selectedblockgroupvalues() %>%
         st_drop_geometry() %>%
         dplyr::select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
         pivot_longer(names_to = "priority", values_to = "score", -GEO_NAME) %>%
         bind_rows(test2)
-
+      
       plot <-
         ggplot() +
         theme_council_growing() +
@@ -422,43 +425,43 @@ mod_report_server <- function(id,
           breaks = c(0, 2.5, 5, 7.5, 10),
           labels = c("0 (lowest\npriority)", 2.5, 5, 7.5, "10 (highest\npriority)")
         ) +
-      ggbeeswarm::geom_beeswarm(aes(x = score, y = forcats::fct_rev(priority)),
-                                   # groupOnX = F, varwidth = T,
-                                   cex = if (selected_length() > 100) {2} else {3}, 
-                                stroke = if(selected_length() > 100) {0} else {1},
-                                size = if (selected_length() > 100) {2} else {3},
-                                corral = "wrap", corral.width = 0.7,
-                                   fill = councilR::colors$cdGreen, 
-                                   col = "black", pch = 21, alpha = .8,
-                                   data = test,
-                                method = "compactswarm",
-                                   na.rm = T
-      ) +
+        ggbeeswarm::geom_beeswarm(aes(x = score, y = forcats::fct_rev(priority)),
+                                  # groupOnX = F, varwidth = T,
+                                  cex = if (selected_length() > 100) {2} else {3}, 
+                                  stroke = if(selected_length() > 100) {0} else {1},
+                                  size = if (selected_length() > 100) {2} else {3},
+                                  corral = "wrap", corral.width = 0.7,
+                                  fill = councilR::colors$cdGreen, 
+                                  col = "black", pch = 21, alpha = .8,
+                                  data = test,
+                                  method = "compactswarm",
+                                  na.rm = T
+        ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
           caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year estimates (2016-2020),\ndecennial census (2020), and CDC PLACES data (2020)"
         )
       return(plot)
     })
-
-
+    
+    
     output$rank_plot <- renderImage(
       {
         req(TEST() != "")
-
+        
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext = ".png")
-
+        
         # Generate the PNG
         png(outfile,
-          width = 500 * 2,
-          height = 300 * 2,
-          res = 72 * 2
+            width = 500 * 2,
+            height = 300 * 2,
+            res = 72 * 2
         )
         print(report_rank_plot())
         dev.off()
-
+        
         # Return a list containing the filename
         list(
           src = outfile,
@@ -470,25 +473,26 @@ mod_report_server <- function(id,
       },
       deleteFile = TRUE
     )
-
+    
     # priority section -----------
-
+    
     report_priority_table <- reactive({
       req(TEST() != "")
-
+      preset_name_filter <-
+        if (map_selections$preset == "Environmental justice") {
+        metadata[metadata$environmental_justice == 1, ]$name
+      } else if (map_selections$preset == "Climate change") {
+        metadata[metadata$climate_change == 1, ]$name
+      } else if (map_selections$preset == "Public health") {
+        metadata[metadata$public_health == 1, ]$name
+      } else if (map_selections$preset == "Conservation") {
+        metadata[metadata$conservation == 1, ]$name
+      } else if (map_selections$preset == "Custom") {
+        c(map_selections$allInputs$value)
+      }
+      
       step1 <- param_dl_data() %>%
-        filter(name %in%
-          if (map_selections$preset == "Environmental justice") {
-            metadata[metadata$environmental_justice == 1, ]$name
-          } else if (map_selections$preset == "Climate change") {
-            metadata[metadata$climate_change == 1, ]$name
-          } else if (map_selections$preset == "Public health") {
-            metadata[metadata$public_health == 1, ]$name
-          } else if (map_selections$preset == "Conservation") {
-            metadata[metadata$conservation == 1, ]$name
-          } else if (map_selections$preset == "Custom") {
-            c(map_selections$allInputs$value)
-          }) %>%
+        filter(name %in% preset_name_filter) %>%
         filter(flag == "selected") %>%
         add_column(order = 2) %>%
         # filter(!is.na(raw_value)) %>%
@@ -499,29 +503,18 @@ mod_report_server <- function(id,
           RAW = mean(raw_value, na.rm = T),
           SE = sd(raw_value, na.rm = T) / sqrt(n())
         )
-
+      
       x <- step1 %>%
         full_join(metadata %>%
-          filter(name %in%
-            if (map_selections$preset == "Environmental justice") {
-              metadata[metadata$environmental_justice == 1, ]$name
-            } else if (map_selections$preset == "Climate change") {
-              metadata[metadata$climate_change == 1, ]$name
-            } else if (map_selections$preset == "Public health") {
-              metadata[metadata$public_health == 1, ]$name
-            } else if (map_selections$preset == "Conservation") {
-              metadata[metadata$conservation == 1, ]$name
-            } else {
-              c(map_selections$allInputs$value)
-            }) %>%
-          # full_join(tibble(name = "Aggregated priority score"),
-          #           MEANSCALED = NA, by = 'name') %>%
-          add_column(
-            grouping = "Region average",
-            order = 2
-          ) %>%
-          rename(RAW = MEANRAW),
-        by = c("grouping", "name", "order", "RAW")
+                    filter(name %in% preset_name_filter) %>%
+                    # full_join(tibble(name = "Aggregated priority score"),
+                    #           MEANSCALED = NA, by = 'name') %>%
+                    add_column(
+                      grouping = "Region average",
+                      order = 2
+                    ) %>%
+                    rename(RAW = MEANRAW),
+                  by = c("grouping", "name", "order", "RAW")
         ) %>%
         ungroup() %>%
         select(grouping, name, RAW) %>%
@@ -537,15 +530,15 @@ mod_report_server <- function(id,
           str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
           TRUE ~ as.character(round(`Selected area`, 2))
         ))
-
+      
       return(x)
     })
-
+    
     output$priority_table <- renderTable(striped = TRUE, {
       req(TEST() != "")
       report_priority_table()
     })
-
+    
     equity_text <- reactive({
       ns <- session$ns
       req(TEST() != "")
@@ -564,12 +557,12 @@ mod_report_server <- function(id,
       ))
       return(para)
     })
-
+    
     # output$equity_para <- renderUI({
     #   req(TEST() != "")
     #   (equity_text())
     # })
-
+    
     # output$download_para <- renderUI({
     #   ns <- session$ns
     #   req(TEST() != "")
@@ -578,8 +571,8 @@ mod_report_server <- function(id,
     #   )
     #   return(para)
     # })
-
-
+    
+    
     heat_text <- reactive({
       ns <- session$ns
       req(TEST() != "")
@@ -598,20 +591,20 @@ mod_report_server <- function(id,
       ))
       return(para)
     })
-
-
+    
+    
     # output$heat_para <- renderUI({
     #   req(TEST() != "")
     #   heat_text()
     # })
-
+    
     report_equity_plot <- reactive({
       req(TEST() != "")
       df <- param_equity() %>%
         select(flag, canopy_percent, hhincome, pbipoc) %>%
         pivot_longer(names_to = "names", values_to = "raw_value", -c(flag, canopy_percent)) %>%
         mutate(raw_value = if_else(names == "pbipoc", raw_value * 100, raw_value))
-
+      
       # breaks_fun <- function(x) {
       #   if (max(x) < 101) {
       #   # if(name(x))
@@ -663,7 +656,7 @@ mod_report_server <- function(id,
       #              labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", hhincome = "Median household\nincome ($)"))
       #   )
       #
-
+      
       fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
         geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
@@ -674,9 +667,9 @@ mod_report_server <- function(id,
           data = filter(df, names != "pbipoc")
         ) +
         geom_smooth( method = "lm",
-          formula = "y ~ x",
-          fill = NA, col = councilR::colors$councilBlue, na.rm = T,
-          data = filter(df, names == "pbipoc")
+                     formula = "y ~ x",
+                     fill = NA, col = councilR::colors$councilBlue, na.rm = T,
+                     data = filter(df, names == "pbipoc")
         ) +
         geom_point(fill = councilR::colors$cdGreen, 
                    # size = 4, 
@@ -721,39 +714,42 @@ mod_report_server <- function(id,
         labs(
           x = "", y = "Tree\ncanopy\n (%)",
           caption = # expression(italic(
-          "Source: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year \nestimates (2016-2020), and decennial census (2020)" # ))
+            "Source: Analysis of Sentinel-2 satellite imagery (2021), 
+          ACS 5-year \nestimates (2016-2020), and decennial census (2020)" # ))
         ) +
         facet_wrap(~names,
-          scales = "free_x", nrow = 2, strip.position = "bottom",
-          labeller = as_labeller(c(pbipoc = "Population identifying as\nperson of color (%)", hhincome = "Median household\nincome ($)"))
+                   scales = "free_x", nrow = 2, strip.position = "bottom",
+                   labeller = as_labeller(c(pbipoc = 
+                                              "Population identifying as\nperson of color (%)",
+                                            hhincome = "Median household\nincome ($)"))
         )
-
-
+      
+      
       return(fig_equity)
     })
-
+    
     # output$equity_plot <- renderPlot({
     #   req(TEST() != "")
     #   report_equity_plot()
     # })
-
+    
     output$equity_plot <- renderImage(
       {
         req(TEST() != "")
-
+        
         # A temp file to save the output.
         # This file will be removed later by renderImage
         outfile <- tempfile(fileext = ".png")
-
+        
         # Generate the PNG
         png(outfile,
-          width = 400 * 4,
-          height = 450 * 4,
-          res = 72 * 4
+            width = 400 * 4,
+            height = 450 * 4,
+            res = 72 * 4
         )
         print(report_equity_plot())
         dev.off()
-
+        
         # Return a list containing the filename
         list(
           src = outfile,
@@ -765,29 +761,34 @@ mod_report_server <- function(id,
       },
       deleteFile = TRUE
     )
-
-
+    
+    
     ndvilabs <- c(
       "<img src='inst/app/www/NDVI_.17.png' height='75' /><br>Low<br>green space",
       "<img src='inst/app/www/NDVI_.42.png' height='75' /><br>Moderate<br>green space",
       "<img src='inst/app/www/NDVI_.67.png' height='75' /><br>High<br>green space"
     )
-
-
+    
+    
     report_temp_plot <- reactive({
       req(TEST() != "")
-
+      
+      browser()
       df <- param_equity() %>%
-        select(flag, avg_temp, ndvi_land)
-
-      plot <- ggplot(aes(x = ndvi_land, y = avg_temp), data = df) +
-        geom_point(col = "grey40", alpha = .2, data = filter(df, is.na(flag)), na.rm = T) +
-        geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
+        select(flag, avg_temp, ndvi_land) %>% 
+        ungroup()
+      
+      plot <- ggplot(aes(x = ndvi_land, y = avg_temp), 
+                     data = df) +
+        geom_point(col = "grey40", alpha = .2,
+                   data = filter(df, is.na(flag))) +
+        geom_smooth(method = "lm", formula = "y ~ x + I(x^2)",
+                    fill = NA, col = councilR::colors$councilBlue) +
         geom_point(fill = councilR::colors$cdGreen, 
-                   stroke = if(selected_length() > 100) {.5} else {1},
-                   size = if (selected_length() > 100) {2} else {4},
-                   
-                   col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
+                   stroke = ifelse(selected_length() > 100, .5 ,1),
+                   size = ifelse(selected_length() > 100, 2, 4),
+                   col = "black", pch = 21, 
+                   data = filter(df, flag == "selected"), na.rm = T) +
         theme_council_growing() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
@@ -819,18 +820,18 @@ mod_report_server <- function(id,
           position = "bottom"
         )
       # return(plot)
-
+      
       outfile <- tempfile(fileext = ".png")
-
+      
       # Generate the PNG
       png(outfile,
-        width = 400 * 2,
-        height = 350 * 2,
-        res = 72 * 2
+          width = 400 * 2,
+          height = 350 * 2,
+          res = 72 * 2
       )
       print(plot)
       dev.off()
-
+      
       #     fig <- list(src = outfile,
       #          contentType = 'image/png',
       #          width = 400,
@@ -840,7 +841,7 @@ mod_report_server <- function(id,
       # return(fig)
       return(outfile)
     })
-
+    
     output$temp_plot <- renderImage(
       {
         req(TEST() != "")
@@ -854,15 +855,15 @@ mod_report_server <- function(id,
       },
       deleteFile = FALSE
     )
-
-# 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
-
+    
+    # 'Other' species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). "
+    
     param_reportname <- reactive({
       req(TEST() != "")
       paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html")
     })
-
-
+    
+    
     output$dl_report <- downloadHandler(
       filename = param_reportname, #paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".html"), # ".docx"), # ".html"),
       content = function(file) {
@@ -882,14 +883,15 @@ mod_report_server <- function(id,
         file.copy("inst/app/www/helveticaneueltstd-md-webfont.woff", tempmd, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-mdcn-webfont.woff", tempmdcn, overwrite = TRUE)
         file.copy("inst/app/www/helveticaneueltstd-roman-webfont.woff", temproman, overwrite = TRUE)
-
+        
         imgOne <- file.path(tempdir(), "test.png")
         file.copy(report_temp_plot(), imgOne, overwrite = TRUE)
-
+        
         # Set up parameters to pass to Rmd document
         params <- list(
           param_geo = geo_selections$selected_geo,
-          param_area = if (geo_selections$selected_geo == "blockgroups") {param_areasummary()$fancyname} else {param_area()},
+          param_area = ifelse(geo_selections$selected_geo == "blockgroups",
+                              param_areasummary()$fancyname, param_area()),
           param_equitypara = tree_text(),
           param_treeplot = report_tree_plot(),
           param_ranktext = rank_text(),
@@ -899,7 +901,7 @@ mod_report_server <- function(id,
           param_equityplot = report_equity_plot(),
           param_tempplot = imgOne, # report_temp_plot(),
           # param_otherparea = report_other_para(),
-
+          
           para_heattext = heat_text()
         )
         # Knit the document, passing in the `params` list, and eval it in a
@@ -907,27 +909,27 @@ mod_report_server <- function(id,
         # from the code in this app).
         # testcss <- file.path("style.css")
         rmarkdown::render(tempReport,
-          output_file = file,
-          params = params,
-          envir = new.env(parent = globalenv()),
-          # output_format = "pdf_document", #"html_document",
-          output_format = "html_document",
-          # output_format = "word_document", #word/pdf not yet accessible:https://www.rstudio.com/blog/knitr-fig-alt/
-          output_options = list(
-            html_preview = FALSE,
-            toc = TRUE,
-            # theme = "cosmo",
-            toc_depth = 2,
-            fig_caption = TRUE,
-            # css = testcss
-            css = tempCss
-          )
+                          output_file = file,
+                          params = params,
+                          envir = new.env(parent = globalenv()),
+                          # output_format = "pdf_document", #"html_document",
+                          output_format = "html_document",
+                          # output_format = "word_document", #word/pdf not yet accessible:https://www.rstudio.com/blog/knitr-fig-alt/
+                          output_options = list(
+                            html_preview = FALSE,
+                            toc = TRUE,
+                            # theme = "cosmo",
+                            toc_depth = 2,
+                            fig_caption = TRUE,
+                            # css = testcss
+                            css = tempCss
+                          )
         )
       }
     )
-
-
-
+    
+    
+    
     output$dl_data <- downloadHandler(
       filename = function() {
         paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".xlsx")
@@ -963,24 +965,24 @@ mod_report_server <- function(id,
               ),
             "Selected Area" = 
               (param_selectedblockgroupvalues() %>%
-              select(
-                GEO_NAME, jurisdiction, canopy_percent, MEAN,
-                "Public health", Conservation, "Environmental justice", "Climate change"
-              ) %>%
-              rename(
-                GEO_ID = GEO_NAME,
-                `Selected priority score` = MEAN,
-                `Climate change priority score` = `Climate change`,
-                `Conservation priority score` = `Conservation`,
-                `Environmental justice priority score` = `Environmental justice`,
-                `Public health priority score` = `Public health`,
-                `Percent tree cover` = canopy_percent
-              ) %>%
-              left_join(bg_growingshade_main %>%
-                          select(bg_string, variable, raw_value) %>%
-                          pivot_wider(names_from = variable, values_from = raw_value) %>%
-                          rename(GEO_ID = bg_string), by = c("GEO_ID"))) 
-               ,
+                 select(
+                   GEO_NAME, jurisdiction, canopy_percent, MEAN,
+                   "Public health", Conservation, "Environmental justice", "Climate change"
+                 ) %>%
+                 rename(
+                   GEO_ID = GEO_NAME,
+                   `Selected priority score` = MEAN,
+                   `Climate change priority score` = `Climate change`,
+                   `Conservation priority score` = `Conservation`,
+                   `Environmental justice priority score` = `Environmental justice`,
+                   `Public health priority score` = `Public health`,
+                   `Percent tree cover` = canopy_percent
+                 ) %>%
+                 left_join(bg_growingshade_main %>%
+                             select(bg_string, variable, raw_value) %>%
+                             pivot_wider(names_from = variable, values_from = raw_value) %>%
+                             rename(GEO_ID = bg_string), by = c("GEO_ID"))) 
+            ,
             "Entire Region" = bg_growingshade_main %>%
               select(bg_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
@@ -990,10 +992,10 @@ mod_report_server <- function(id,
         )
       }
     )
-
+    
     
     output$shapefile_dl <- downloadHandler(
-
+      
       filename <- function() {
         paste0("GrowingShade_", param_area(), "_", Sys.Date(), ".zip")
       },
@@ -1040,35 +1042,35 @@ mod_report_server <- function(id,
         })
       }  
     )
-
+    
     ####### put things into reactive uis ----------
-
-
-
+    
+    
+    
     # output$get_tree_plot <- renderUI({
     #   req(TEST() != "")
     #   plotOutput(ns("tree_plot"), "200px", width = "100%") %>%
     #     shinyhelper::helper(type = "markdown", content = "LineplotHelp", size = "m")
     # })
-
+    
     # output$get_rank_plot <- renderUI({
     #   req(TEST() != "")
     #   plotOutput(ns("rank_plot"), "300px", width = "100%") %>%
     #     shinyhelper::helper(type = "markdown", content = "RankHelp", size = "m")
     # })
-
-
+    
+    
     # output$get_equity_plot <- renderUI({
     #   req(TEST() != "")
     #   plotOutput(ns("equity_plot"), height = "400px", width = "80%")
     # })
-
+    
     # output$get_temp_plot <- renderUI({
     #   req(TEST() != "")
     #   plotOutput(ns("temp_plot"), "200px", width = "80%")
     # })
-
-
+    
+    
     # output$get_other_plot <- renderUI({
     #   req(TEST() != "")
     #   plotOutput(ns("other_plot"), "300px", width = "80%")
@@ -1086,7 +1088,7 @@ mod_report_server <- function(id,
           align = "center",
           if(shinybrowser::get_device() == "Mobile") {
             renderPlot(report_tree_plot())
-             #plotOutput(ns("tree_plot"), "200px", width = "100%") #renderPlot, plotOutput
+            #plotOutput(ns("tree_plot"), "200px", width = "100%") #renderPlot, plotOutput
           } else {imageOutput(ns("tree_plot"), height = "100%", width = "100%")}
         ))
     })
@@ -1103,8 +1105,8 @@ mod_report_server <- function(id,
           align = "center",
           if(shinybrowser::get_device() == "Mobile") {
             renderPlot(report_rank_plot())
-            } else {
-              imageOutput(ns("rank_plot"), height = "100%", width = "100%") }
+          } else {
+            imageOutput(ns("rank_plot"), height = "100%", width = "100%") }
         ),
         br(),
         tableOutput(ns("priority_table"))
@@ -1113,7 +1115,7 @@ mod_report_server <- function(id,
     
     output$disparity_box <- renderUI({
       req(TEST() != "")
-
+      
       shinydashboard::box(
         title = "Race & income disparities",
         width = 12, collapsed = shinybrowser::get_device() == "Mobile",
@@ -1141,10 +1143,10 @@ mod_report_server <- function(id,
         fluidRow(
           align = "center",
           # if(shinybrowser::get_device() == "Mobile") {
-            # renderPlot(report_temp_plot())
+          # renderPlot(report_temp_plot())
           # } else {
-            imageOutput(ns("temp_plot"), height = "100%", width = "100%")
-            # }
+          imageOutput(ns("temp_plot"), height = "100%", width = "100%")
+          # }
         )
         # uiOutput(ns("get_temp_plot"))
       )
@@ -1170,19 +1172,19 @@ mod_report_server <- function(id,
         )
       )
     })
-
-
+    
+    
     # output$get_the_report <- renderUI({
     #   req(TEST() != "")
     #   downloadButton(ns("dl_report"), label = "Text report")
     # })
-
-
+    
+    
     # output$get_the_data <- renderUI({
     #   req(TEST() != "")
     #   downloadButton(ns("dl_data"), label = "Raw data")
     # })
-
+    
     
     
     # output$get_shape_data <- renderUI({
@@ -1190,8 +1192,8 @@ mod_report_server <- function(id,
     #   downloadButton(ns("shapefile_dl"), label = "Shapefile")
     # })
     
-
-
+    
+    
     # ######## make figs expand on click
     # shinyjs::onclick(('tree_plot'), #print("test"),
     #                  showModal(modalDialog(
