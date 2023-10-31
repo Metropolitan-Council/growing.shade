@@ -98,3 +98,7 @@ storymap-info/shapefiles/highestpriority.shx
 storymap-info/shapefiles/highestpriority.zip
 storymap-info/shapefiles/highestp.zip
 .Rhistory
+
+data-raw/test-data-diff.R
+
+nhgis_bg2020_tr2010_27.zip

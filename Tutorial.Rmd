@@ -49,7 +49,7 @@ process_geographies <- TRUE
 #######
 # Demographic variables
 ######
-acs_year <- 2020 #The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then. 
+acs_year <- 2021 #The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then. 
 census_year <- 2020
 
 process_demographics <- FALSE
@@ -78,8 +78,8 @@ You will need an app token from CDC:
 
 -   [Request an app token](https://chronicdata.cdc.gov/profile/edit/developer_settings)
 -   You may have to create an account with Tyler Data & Insights ID
-    -   More information about "app tokens" and metadata are on the [PLACES data overview](https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh)
-    -   Note that CDC has APIs and app tokens. It's a bit confusing, but be sure you are looking at the app token for this.
+-   More information about "app tokens" and metadata are on the [PLACES data overview](https://dev.socrata.com/foundry/chronicdata.cdc.gov/cwsq-ngmh)
+-   Note that CDC has APIs and app tokens. It's a bit confusing, but be sure you are looking at the app token for this.
 -   Enter in the console: `usethis::edit_r_environ()`
 -   When the `.Renviron` file comes up in the editor, type: - `CDC_KEY="APP TOKEN GOES HERE, INSIDE QUOTES"` - `CDC_EMAIL="email you signed up with goes here, inside quotes"`
 -   `CDC_PASSWORD="password you used to signup with goes here, inside quotes"`
@@ -92,8 +92,8 @@ Race variables come from the decennial 2020 census. Currently, the decennial cen
 
 ```{r decennial}
 if (process_demographics == TRUE) {
-census_api_key(Sys.getenv("CENSUS_KEY"))
-
+  census_api_key(Sys.getenv("CENSUS_KEY"))
+  
   race_var <- c(
     "P2_005N", # white nh
     "P2_006N", # black nh
@@ -104,23 +104,23 @@ census_api_key(Sys.getenv("CENSUS_KEY"))
     "P2_011N", # 2+ nh
     "P2_002N" # hispanic
   )
-
+  
   decennial_data <- get_decennial(
-      geography = "block group",
-      variables = race_var, 
-      summary_var = "P1_001N",
-      year = census_year,
-      state = state,
-      county = county,
-      geometry = F
-    ) %>%
-      pivot_wider(names_from = variable, values_from = value) %>%
+    geography = "block group",
+    variables = race_var, 
+    summary_var = "P1_001N",
+    year = census_year,
+    state = state,
+    county = county,
+    geometry = F
+  ) %>%
+    pivot_wider(names_from = variable, values_from = value) %>%
     
     mutate(across(starts_with("P2"), ~ .x / summary_value)) %>%
     rename(whitenh = P2_005N,
-        pblacknh = P2_006N,
-        pamindnh = P2_007N,
-        phisppop = P2_002N) %>%
+           pblacknh = P2_006N,
+           pamindnh = P2_007N,
+           phisppop = P2_002N) %>%
     mutate(pothmultnh = (P2_010N + P2_011N),
            pasiannh = (P2_008N + P2_009N),
            pbipoc = 1 - whitenh) %>%
@@ -141,12 +141,12 @@ Check what is the most [recent year of ACS data here](https://api.census.gov/dat
 ```{r acs}
 if (process_demographics == TRUE) {
   census_api_key(Sys.getenv("CENSUS_KEY"))
-
+  
   v20 <- load_variables(acs_year, "acs5", cache = TRUE)
   View(v20 %>% filter(geography == "block group"))
   #  you may need to access the table shells: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.html
   #  census reporter topics are also very useful! https://censusreporter.org/topics/
-
+  
   acs_variables <- c(
     "B01001_001", #poptotal
     paste0("B01001_00", c(3:6)), #under18 m
@@ -158,41 +158,44 @@ if (process_demographics == TRUE) {
     "B23025_001", #employment status denominator
     "B23025_007", #unemployed
     paste0("C17002_00", c(1:6)) #poverty status
-    )
+  )
   
- acs_data <-  get_acs(
+  acs_data <-  get_acs(
     geography = "block group",
     variables = acs_variables,
     survey = "acs5",
-      state = state,
-      county = county,
+    state = state,
+    county = county,
     year = acs_year
   ) %>%
-   select(-moe, -NAME) %>%
-   pivot_wider(names_from = variable, values_from = estimate)  %>%
-   
-   #process to useable forms of the data
-   mutate(
-     under18 = rowSums(across(c(
-       paste0("B01001_00", c(3:6)), #under18 m
-       paste0("B01001_0", c(27:30)) #under18 f
-       ), na.rm = T)),
-     over65 = rowSums(across(c(
-       paste0("B01001_0", c(20:25, 44:49)) #over 65m, f
-     ), na.rm = T))) %>%
-   mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
-          sensage = under18 + over65,
-          pownhome = B25003_002 / B25003_001,
-          pwk_nowork = B23025_007 / B23025_001,
-          ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
-   rename(hhincome = B19013_001) %>%
-   select(c(GEOID, !starts_with(c("B", "C"))))
- 
+    select(-moe, -NAME) %>%
+    pivot_wider(names_from = variable, values_from = estimate)  %>%
+    rowwise() %>% 
+    #process to useable forms of the data
+    mutate(
+      under18 = 
+        sum(c(B01001_003, B01001_004, B01001_005,
+              B01001_006, B01001_027, 
+              B01001_028, B01001_029, B01001_030),
+            na.rm = T),
+      over65 = sum(c(B01001_020, B01001_021, B01001_022, 
+                     B01001_023, B01001_024, 
+                     B01001_025, B01001_044, B01001_045,
+                     B01001_046, B01001_047, 
+                     B01001_048, B01001_049), na.rm = T)) %>% 
+    mutate(across(c(under18, over65), ~.x / B01001_001),  #, .names = "{.col}_percent"),
+           sensage = under18 + over65,
+           pownhome = B25003_002 / B25003_001,
+           pwk_nowork = B23025_007 / B23025_001,
+           ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001) %>%
+    rename(hhincome = B19013_001) %>%
+    select(c(GEOID, !starts_with(c("B", "C"))))
+  
   save(file = paste0(here::here(), "/data-raw/acs_data.rda"), acs_data)
 } else {
   load(paste0(here::here(), "/data-raw/acs_data.rda"))
 }
- 
+
 ```
 
 ## PLACES health data
@@ -208,43 +211,43 @@ Also, because this CDC data currently uses old census geographies, you will need
 # variable options are documented here: https://www.cdc.gov/places/measure-definitions/index.html
 
 if (process_demographics == TRUE) {
-
-raw_health <- read.socrata(
-  # "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
- paste0("https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('", state, "')"),
-  app_token = Sys.getenv("CDC_KEY"), 
-  email     = Sys.getenv("CDC_EMAIL"), 
-  password  = Sys.getenv("CDC_PASSWORD")) %>%
-
-  #get the columns of interest. there are more variables as an fyi though!
-# names(bg_health)
-# levels(as.factor(bg_health$measure))
-  filter(measure %in% c("Current asthma among adults aged >=18 years",
-                        "Chronic obstructive pulmonary disease among adults aged >=18 years",
-                        "Mental health not good for >=14 days among adults aged >=18 years",
-                        "Physical health not good for >=14 days among adults aged >=18 years")) %>%
-  dplyr::select(locationname, measureid, data_value) %>%
-  mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
-  pivot_wider(names_from = measureid, values_from = data_value)
-
-fips <- tigris::lookup_code(state = state) %>%
-  stringr::str_split("'", simplify = T)
-
-crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[,2], ".csv"),
-                      col_types = c('tr2010ge' = 'c',
-                                    "bg2020ge" = "c")) %>%
-  select(tr2010ge,#census geoid for 2010
-         bg2020ge,#census geoid for 2020
-         wt_pop) %>% #use weighted population crosswalk
-  group_by(bg2020ge) %>%
-  slice(which.max(wt_pop)) %>% # just get the crosswalk for where most people live. it's oversimplified, but pretty decent esp since block groups generally nest nicely into tracts across census geographies
-  select(-wt_pop)
-
-
-## translate health data into 2020 geographies
-health_data <- raw_health %>%
-  full_join(crosswalk, by = c("locationname" = "tr2010ge"))
-
+  
+  raw_health <- read.socrata(
+    # "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
+    paste0("https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('", state, "')"),
+    app_token = Sys.getenv("CDC_KEY"), 
+    email     = Sys.getenv("CDC_EMAIL"), 
+    password  = Sys.getenv("CDC_PASSWORD")) %>%
+    
+    #get the columns of interest. there are more variables as an fyi though!
+    # names(bg_health)
+    # levels(as.factor(bg_health$measure))
+    filter(measure %in% c("Current asthma among adults aged >=18 years",
+                          "Chronic obstructive pulmonary disease among adults aged >=18 years",
+                          "Mental health not good for >=14 days among adults aged >=18 years",
+                          "Physical health not good for >=14 days among adults aged >=18 years")) %>%
+    dplyr::select(locationname, measureid, data_value) %>%
+    mutate(data_value = as.numeric(data_value) / 100) %>% #change to fraction
+    pivot_wider(names_from = measureid, values_from = data_value)
+  
+  fips <- tigris::lookup_code(state = state) %>%
+    stringr::str_split("'", simplify = T)
+  
+  crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[,2], ".csv"),
+                        col_types = c('tr2010ge' = 'c',
+                                      "bg2020ge" = "c")) %>%
+    select(tr2010ge,#census geoid for 2010
+           bg2020ge,#census geoid for 2020
+           wt_pop) %>% #use weighted population crosswalk
+    group_by(bg2020ge) %>%
+    slice(which.max(wt_pop)) %>% # just get the crosswalk for where most people live. it's oversimplified, but pretty decent esp since block groups generally nest nicely into tracts across census geographies
+    select(-wt_pop)
+  
+  
+  ## translate health data into 2020 geographies
+  health_data <- raw_health %>%
+    full_join(crosswalk, by = c("locationname" = "tr2010ge"))
+  
   save(file = paste0(here::here(), "/data-raw/health_data.rda"), health_data)
 } else {
   load(paste0(here::here(), "/data-raw/health_data.rda"))
@@ -262,8 +265,8 @@ Getting these geography files is easy - just downloaded directly.
 
 ```{r census-geography}
 bg_geo <- block_groups(state = state, 
-                                    county = county,
-                                    year = census_year) 
+                       county = county,
+                       year = census_year) 
 
 # sf::st_write(bg_geo, "/Users/escheh/Documents/GitHub/planting.shade/storymap-info/shapefiles/bg_geo.shp", append = FALSE)
 
@@ -344,24 +347,24 @@ river_lake_buffer <- river_lake_all %>%
 # find crosswalks
 find_crosswalks <- function(x) {
   crosswalk <- x %>%
-  st_transform(26915) %>%
-  st_buffer(-150) %>% #buffer the perimeter of the geography
-  st_erase(river_lake_buffer %>%
-             st_buffer(200) %>% #buffer out rivers
-             st_union() %>% 
-             st_buffer(0)) %>% 
-  st_intersection(bg_geo %>% 
-                    dplyr::select(GEOID) %>%
-                    rename(tract_id = GEOID) %>%
-                    st_transform(26915)) %>%
-  st_drop_geometry()
-    
+    st_transform(26915) %>%
+    st_buffer(-150) %>% #buffer the perimeter of the geography
+    st_erase(river_lake_buffer %>%
+               st_buffer(200) %>% #buffer out rivers
+               st_union() %>% 
+               st_buffer(0)) %>% 
+    st_intersection(bg_geo %>% 
+                      dplyr::select(GEOID) %>%
+                      rename(tract_id = GEOID) %>%
+                      st_transform(26915)) %>%
+    st_drop_geometry()
+  
   return(crosswalk)
 }
 
 ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
   mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & tract_id != "271390813001" ~ "remove", #minnesota river is squirrely
-                   TRUE ~ "keep")) %>%
+                          TRUE ~ "keep")) %>%
   filter(flag != "remove") %>% 
   dplyr::select(-flag)
 nhood_crosswalk <- find_crosswalks(nhood_geo)
@@ -411,7 +414,7 @@ Remove open water. "all non residential"
 # ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip
 temp <- tempfile()
 download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/plan_historic_holc_appraisal/gpkg_plan_historic_holc_appraisal.zip",
-  destfile = temp
+              destfile = temp
 )
 
 redline_raw <- sf::read_sf(unzip(temp, "plan_historic_holc_appraisal.gpkg")) %>%
@@ -444,47 +447,47 @@ In other temperate, upper Midwest areas, the .88 coefficient is probably suffici
 ```{r, calibrate-tree-cover}
 
 if (calibrate_trees == TRUE){
-# ######
-# # Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
-# # In most instances, there is no need to run this gridding step more than once
-# #####
-# wholearea <- metc_region %>%
-#   summarise(st_union(.))
-# 
-# # make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
-# g = st_make_grid(wholearea,
-#                  n = c(36, 36)) %>% 
-#   st_intersection(wholearea) 
-# 
-# geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
-# df <- st_sf(id = 1:length(g), geometry = g)
-# 
-# # ggplot() +
-# #   geom_sf(data = wholearea) +
-# #   geom_sf(data = df,
-# #           fill = "transparent")
-# 
-# sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
-
-calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
-  rename(umn = `1`) %>%
-  full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv")) %>%
-              rename(sentinel = `1`),
-            by = 'id')
-
-calibrate_lm <- (lm(umn ~ sentinel, data = calibrate_trees))
-calibrate_lm2 <- (lm(umn ~ 0 + sentinel, data = calibrate_trees))
-calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
-calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
-anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
-
-# AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3); AIC(calibrate_lm4)
-
-summary(calibrate_lm2)$r.squared # r2
-summary(calibrate_lm2)$coefficients[,4] # p-value
-
-calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
-
+  # ######
+  # # Create a gridded area across the region to calibrate sentinel tree cover with 1m2 land cover tree data
+  # # In most instances, there is no need to run this gridding step more than once
+  # #####
+  # wholearea <- metc_region %>%
+  #   summarise(st_union(.))
+  # 
+  # # make a equal area grid; there are 704 tracts, so I want to make at least 1000 grids I think?
+  # g = st_make_grid(wholearea,
+  #                  n = c(36, 36)) %>% 
+  #   st_intersection(wholearea) 
+  # 
+  # geometry = st_sfc(lapply(1:length(g), function(x) st_geometrycollection()))
+  # df <- st_sf(id = 1:length(g), geometry = g)
+  # 
+  # # ggplot() +
+  # #   geom_sf(data = wholearea) +
+  # #   geom_sf(data = df,
+  # #           fill = "transparent")
+  # 
+  # sf::st_write(df, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/metc_grid.shp", append = FALSE)
+  
+  calibrate_trees <- read_csv(paste0(here::here(), "/data-raw/TreeAcresCART/UMNTreeAcres_metcgrid_scale1_year2021.csv")) %>% 
+    rename(umn = `1`) %>%
+    full_join(read_csv(paste0(here::here(),"/data-raw/TreeAcresCART/TreeAcres_metcgrid_year2021.csv")) %>%
+                rename(sentinel = `1`),
+              by = 'id')
+  
+  calibrate_lm <- (lm(umn ~ sentinel, data = calibrate_trees))
+  calibrate_lm2 <- (lm(umn ~ 0 + sentinel, data = calibrate_trees))
+  calibrate_lm3 <- (lm(umn ~ I(sentinel ^ 2), data = calibrate_trees))
+  calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
+  anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
+  
+  # AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3); AIC(calibrate_lm4)
+  
+  summary(calibrate_lm2)$r.squared # r2
+  summary(calibrate_lm2)$coefficients[,4] # p-value
+  
+  calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
+  
   save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
 } else {
   load(paste0(here::here(), "/data-raw/calib_coeff.rda"))
@@ -503,9 +506,9 @@ calibrate_trees %>%
 ```{r}
 
 bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_mnwi_blockgroups_year2021.csv"),
-                 col_select = c(GEO_NAME, sq_miles, ALAND), col_types = c("GEO_NAME" = "c")) %>%
+                      col_select = c(GEO_NAME, sq_miles, ALAND), col_types = c("GEO_NAME" = "c")) %>%
   mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
-
+  
   separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
   mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
          trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
@@ -519,8 +522,8 @@ bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_mnwi_blockg
 ```
 
 -   process GEE code to link canopy with geography
-    -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
-    -   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
+-   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+-   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
 -   bind everything together for city and nhood
 
 ```{r tree-canopy-summaries}
@@ -532,14 +535,14 @@ tree_summary <- function(.geo_file,
     full_join(
       .crosswalk_file %>%
         left_join(bg_canopy %>%
-                rename(tract_id = bg20),
-              by = "tract_id") %>%
+                    rename(tract_id = bg20),
+                  by = "tract_id") %>%
         group_by(GEO_NAME) %>%
         summarise(min = round(min(canopy_percent)*100, 1),
-              max = round(max(canopy_percent)*100, 1),
-              ntracts = n())) %>%
-
-  full_join(.canopy_file) #%>%
+                  max = round(max(canopy_percent)*100, 1),
+                  ntracts = n())) %>%
+    
+    full_join(.canopy_file) #%>%
   # arrange(!!!.group_factor, GEO_NAME)# %>%
   # # st_transform(4326) %>%
   # group_by(!!.group_factor) %>%
@@ -547,19 +550,19 @@ tree_summary <- function(.geo_file,
 }
 
 nhood_list_raw <- tree_summary(.geo_file = nhood_geo,
-                         .crosswalk_file = nhood_crosswalk,
-                         .canopy_file = canopy_nhood) %>%
+                               .crosswalk_file = nhood_crosswalk,
+                               .canopy_file = canopy_nhood) %>%
   arrange(city, GEO_NAME) %>%
   # st_transform(4326) %>%
   group_by(city) %>%  
   mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
 
 ctu_list_raw <- tree_summary(.geo_file = ctu_geo,
-                         .crosswalk_file = ctu_crosswalk,
-                         .canopy_file = canopy_ctu) %>%
+                             .crosswalk_file = ctu_crosswalk,
+                             .canopy_file = canopy_ctu) %>%
   arrange(GEO_NAME) %>%
   mutate(avgcanopy = (sum(treeacres) / sum(landacres) * calib_coeff))
-  
+
 # sf::st_write(ctu_list, "~/Documents/GitHub/planting.shade/storymap-info/shapefiles/ctu_list.shp", append = FALSE)
 ```
 
@@ -570,25 +573,25 @@ We do this for all land (no water!) and non-cultivated land (excluding crops/ag 
 ```{r ndvi_bgs}
 ndvi_uncultivated <- 
   read_csv("./TreeAcresCART/uncultivatedNDVI_blockgroups2020_year2021.csv",
-                    na = "No data",
-                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+           na = "No data",
+           col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
 
 ndvi_allland <- 
   read_csv("../data-raw/TreeAcresCART/landNDVI_blockgroups2020_year2021.csv",
-                    na = "No data",
-                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+           na = "No data",
+           col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
-  
-  # read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
-  #                   na = "No data",
-  #                      col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
-  # dplyr::select(-`system:index`, -.geo, -Year)
+
+# read_csv("../data-raw/TreeAcres/meanNDVI_mnwi_blockgroups_year2021.csv",
+#                   na = "No data",
+#                      col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd', ndvi = 'd', `.geo` = 'c')) %>%
+# dplyr::select(-`system:index`, -.geo, -Year)
 bg_ndvi <- ndvi_uncultivated %>%
   dplyr::select(GEOID, ndvi_uncultivated) %>%
   full_join(ndvi_allland %>%
-  dplyr::select(GEOID, ndvi_land)) %>%
-    rename(bg20 = GEOID)
+              dplyr::select(GEOID, ndvi_land)) %>%
+  rename(bg20 = GEOID)
 ```
 
 # Demographic variables
@@ -604,17 +607,17 @@ matt_data <-
             env_cancer = ENV_CANCER) %>%
   
   full_join(
-readxl::read_xlsx("./HOLC_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            holc_pred = HOLC_4_RED)) %>%
-
+    readxl::read_xlsx("./HOLC_BG20.xlsx") %>%
+      transmute(bg20 = BG20,
+                holc_pred = HOLC_4_RED)) %>%
+  
   full_join(
-readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
-  transmute(bg20 = BG20,
-            avg_temp = AVG_TEMP,
-            prim_flood = PRIM_FLOOD,
-            green_roof = GREEN_ROOF
-            ))
+    readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
+      transmute(bg20 = BG20,
+                avg_temp = AVG_TEMP,
+                prim_flood = PRIM_FLOOD,
+                green_roof = GREEN_ROOF
+      ))
 
 # some issues with blocks not having flood information?
 readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
@@ -622,7 +625,7 @@ readxl::read_xlsx("./CLIMATE_BG20.xlsx") %>%
             avg_temp = AVG_TEMP,
             prim_flood = PRIM_FLOOD,
             green_roof = GREEN_ROOF
-            ) %>%
+  ) %>%
   filter(bg20 == "270530117035")
 
 ```
@@ -642,7 +645,7 @@ bg_growingshade_data_allMN <-
   
   full_join(matt_data) %>% #equity_considerations
   full_join(bg_health3) %>%
-
+  
   #environmental
   full_join(bg_canopy) %>%
   full_join(bg_ndvi) %>%
@@ -650,8 +653,8 @@ bg_growingshade_data_allMN <-
   #update some variables
   # filter(str_detect(bg10, "27003|27019|27037|27053|27123|27139|27163")) %>%
   mutate(tr20 = substr(bg20, 1, 11)) %>% #this is the tract id
-
-
+  
+  
   mutate(inverse_ndvi_uncultivated = ndvi_uncultivated,
          inverse_ndvi_land = ndvi_land,
          canopy_percent2 = canopy_percent,
@@ -661,35 +664,35 @@ bg_growingshade_data_allMN <-
   rowwise() %>%
   mutate(holc_pred = if_else(is.na(holc_pred), 0, holc_pred)) %>%
   
-    # deal with some non residential blocks and insufficent data
-    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
-           p_0017 = if_else(is.nan(p_0017), tr_p_0017, p_0017),
-           p_65up = if_else(is.nan(p_65up), tr_p_65up, p_65up),
-           sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
-           mdhhincnow = if_else(is.na(mdhhincnow), tr_medianhhinc, mdhhincnow),
-           phhi_qntl1 = if_else(is.na(phhi_qntl1), tr_phhi_qntl1, phhi_qntl1),
-           pwk_nowork = if_else(is.na(pwk_nowork), tr_pwk_nowork, pwk_nowork)) %>%
+  # deal with some non residential blocks and insufficent data
+  mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal == 0, NA_real_, .x)),
+         p_0017 = if_else(is.nan(p_0017), tr_p_0017, p_0017),
+         p_65up = if_else(is.nan(p_65up), tr_p_65up, p_65up),
+         sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
+         mdhhincnow = if_else(is.na(mdhhincnow), tr_medianhhinc, mdhhincnow),
+         phhi_qntl1 = if_else(is.na(phhi_qntl1), tr_phhi_qntl1, phhi_qntl1),
+         pwk_nowork = if_else(is.na(pwk_nowork), tr_pwk_nowork, pwk_nowork)) %>%
   # mutate(across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(poptotal < 10, NA_real_, .x)),
   #        across(c(poptotal:pwk_nowork, pd_any:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.na(mdhhincnow), NA_real_, .x))
   #        ) %>%
   # mutate(across(c(pblacknh:pbipoc, phhi_qntl1, pwk_nowork, env_cancer, mdhhincnow), ~ if_else((is.nan(.x) | is.na(.x)) & poptotal == 0, NA_real_, .x))) %>%
   dplyr::select(-c(pblacknh_acs:pbipoc_acs)) %>% 
-      # get rid of blocks where acs has no data
-    mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.nan(sens_age) | is.na(sens_age), NA_real_, .x))) 
-  # filter(!is.na(sens_age), !is.nan(sens_age)) #get rid of block groups where there is no acs data
+  # get rid of blocks where acs has no data
+  mutate(across(c(poptotal:pwk_nowork, pd_any, env_cancer:holc_pred, CASTHMA:PHLTH, pop_density:housing_density), ~ if_else(is.nan(sens_age) | is.na(sens_age), NA_real_, .x))) 
+# filter(!is.na(sens_age), !is.nan(sens_age)) #get rid of block groups where there is no acs data
 
 
 #%>% #and for this project, I need to rename the tract variable
-  # add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
-             # tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
-  
+# add_column(avg_temp = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# env_cancer = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# green_roof = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# holc_pred = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# luse_green = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# phhi_qntl1 = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# prim_flood = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# pwk_nowork = sample(100, size = nrow(bg_canopy), replace = TRUE),
+# tr_ej = sample(100, size = nrow(bg_canopy), replace = TRUE)) %>%
+
 bg_growingshade_data <- bg_growingshade_data_allMN %>%
   filter(str_detect(bg_string, "27003|27019|27037|27053|27123|27139|27163")) #just do metc region for now
 
@@ -723,41 +726,41 @@ Add some metadata.
 
 ```{r make-metadata}
 gs_data_codes <- tribble(~variable, ~name, ~type, ~interpret_high_value, ~cc, ~ej, ~ph, ~cons,
-                          "pop_density", "Population density (persons / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
-                          "housing_density", "Housing unit density (units / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
-                          "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
-                          "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 0, 0, 0,
-                          "pbipoc", "Race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
-                          "p_0017", "Age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
-                          "p_65up", "Age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
-                          "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 0, 1, 0,
-                          "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 0, 1,  0,
-
-                          "ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
-                          "inverse_ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
-                          
-                          "ndvi_land", "Greenness, all land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
-                          "inverse_ndvi_land", "Greenness, all land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
-                          
-                          "tr_ej", "MPCA area of environmental justice concern", "environment", "high_opportunity", 0, 0, 0, 0,
-                          "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
-                          "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
-                          "canopy_percent2", "Tree canopy in 2021 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
-                          "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, 
-                          "sens_age", "Age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
-                          "pd_any", "Disability, % any disability", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pblacknh", "Race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pothmultnh", "Race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pasiannh", "Race, % Asian or Pacific Islander", "people", "high_opportunity", 0, 0, 0, 0,
-                          "phisppop", "Race, % Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pamindnh", "Race, % Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
-                          "pwk_nowork", "% of unemployed residents", "dollar", "high_opportunity", 0, 0, 0, 0, # age 16-64 who did not work in past 12 months
-                          "pownhome", "% of residents who own their home", "dollar", "high_opportunity", 0,0,0,0,
-                          "MHLTH", "Mental health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
-                          "PHLTH", "Physical health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
-                          "COPD", "Chronic obstructive pulmonary disease among adults (%)", "health", "high_opportunity", 0,0,0,0,
-                          "CASTHMA", "Asthma among adults (%)", "health", "high_opportunity", 0,0,0,0
-                          )
+                         "pop_density", "Population density (persons / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
+                         "housing_density", "Housing unit density (units / acre)", "people",  "high_opportunity", 0, 0, 0,  0,
+                         "ppov185",	"% people with income <185% of the poverty threshold", "dollar", "high_opportunity", 0, 1, 0, 0,
+                         "prim_flood", "% developed acres in primary flood zone", "environment", "high_opportunity", 1, 0, 0, 0,
+                         "pbipoc", "Race, % people of color", "people", "high_opportunity", 0, 1, 0, 0,
+                         "p_0017", "Age, % under age 18", "people",  "high_opportunity", 0, 0, 0, 0, 
+                         "p_65up", "Age, % age 65 or older", "people",  "high_opportunity", 0, 0, 0,  0,
+                         "avg_temp", "Temperature on hot summer day", "environment",  "high_opportunity", 1, 0, 1, 0,
+                         "env_cancer", "Lifetime cancer risk from air toxics", "health", "high_opportunity", 0, 0, 1,  0,
+                         
+                         "ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                         "inverse_ndvi_uncultivated", "Greenness, uncultivated land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                         
+                         "ndvi_land", "Greenness, all land (2021 NDVI)", "environment", "low_opportunity", 1, 0, 1,  0,
+                         "inverse_ndvi_land", "Greenness, all land (2021 NDVI) - for conservation", "environment", "high_opportunity", 0, 0, 0, 0,
+                         
+                         "tr_ej", "MPCA area of environmental justice concern", "environment", "high_opportunity", 0, 0, 0, 0,
+                         "holc_pred", "% of block group's land acreage redlined", "environment", "high_opportunity", 0, 0, 0, 0,
+                         "canopy_percent", "Tree canopy in 2021 (%)", "environment", "low_opportunity", 1, 0, 1, 0,
+                         "canopy_percent2", "Tree canopy in 2021 (%) - for conservation", "environment", "high_opportunity", 0, 0, 0, 1,
+                         "mdhhincnow", "Median household income", "dollar", "low_opportunity", 0, 0, 0, 0, 
+                         "sens_age", "Age, % under age 18 or 65+", "people", "high_opportunity", 0,0,1,0,
+                         "pd_any", "Disability, % any disability", "people", "high_opportunity", 0, 0, 0, 0,
+                         "pblacknh", "Race, % Black or African American", "people", "high_opportunity", 0, 0, 0, 0,
+                         "pothmultnh", "Race, % Multiracial or other", "people", "high_opportunity", 0, 0, 0, 0,
+                         "pasiannh", "Race, % Asian or Pacific Islander", "people", "high_opportunity", 0, 0, 0, 0,
+                         "phisppop", "Race, % Hispanic or Latino", "people", "high_opportunity", 0, 0, 0, 0,
+                         "pamindnh", "Race, % Indigenous", "people", "high_opportunity", 0, 0, 0, 0,
+                         "pwk_nowork", "% of unemployed residents", "dollar", "high_opportunity", 0, 0, 0, 0, # age 16-64 who did not work in past 12 months
+                         "pownhome", "% of residents who own their home", "dollar", "high_opportunity", 0,0,0,0,
+                         "MHLTH", "Mental health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                         "PHLTH", "Physical health not good for >=14 days among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                         "COPD", "Chronic obstructive pulmonary disease among adults (%)", "health", "high_opportunity", 0,0,0,0,
+                         "CASTHMA", "Asthma among adults (%)", "health", "high_opportunity", 0,0,0,0
+)
 ```
 
 Standardize and re-scale variables so we can create equally weighted priority scores. Do *not* include spatial data at this point, it should be joined after summarizing to save computational time.
@@ -824,15 +827,15 @@ md1 <- bg_growingshade_main %>%
 
 temp <- tempfile()
 download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/society_census_acs/xlsx_society_census_acs.zip",
-  destfile = temp
+              destfile = temp
 )
 acs_tr2 <- readxl::read_xlsx(unzip(temp, "CensusACSTract.xlsx")) %>%
   janitor::clean_names()
 
 acs_metadata <-
-acs_tr2 %>% #use tracts becuase it has info about disability
-    filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
-           year == 2020) %>% #just do metc region for now
+  acs_tr2 %>% #use tracts becuase it has info about disability
+  filter(str_detect(geoid, "27003|27019|27037|27053|27123|27139|27163"),
+         year == 2020) %>% #just do metc region for now
   dplyr::select(geoid, poptotal:pphother) %>%
   pivot_longer(names_to = "variable", values_to = "values", -geoid) %>%
   group_by(variable) %>%
@@ -865,8 +868,8 @@ metadata <- bg_growingshade_main %>%
   dplyr::ungroup() %>%
   full_join(md1) %>%
   mutate(niceinterp = 
-               case_when(interpret_high_value == "high_opportunity" ~ "Higher",
-                         TRUE ~ "Lower"),
+           case_when(interpret_high_value == "high_opportunity" ~ "Higher",
+                     TRUE ~ "Lower"),
          nicer_interp = case_when(niceinterp == "Lower" ~ "Lower values = higher priority", 
                                   variable == "inverse_ndvi_uncultivated" ~ "Higher values = higher priority",
                                   variable == "inverse_ndvi_land" ~ "Higher values = higher priority",
@@ -889,9 +892,9 @@ For storymap and to make database.
 highest_p <- function(x) {
   test <- enquo(x)
   
-   bg_growingshade_main %>%
-  filter(name %in% (metadata %>%
-                      filter(!!test == 1)))
+  bg_growingshade_main %>%
+    filter(name %in% (metadata %>%
+                        filter(!!test == 1)))
 }
 
 highest_p(ph)
@@ -902,8 +905,8 @@ highest_p <- function(group_var) {
     .[,2]
   bg_growingshade_main %>% 
     filter(name %in% selectedvars$name) %>%
-      group_by(bg_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = F)) #set to false so that public health or ej doesnt get calculated if it is a nonres area
+    group_by(bg_string) %>%
+    summarise(MEAN = mean(weights_scaled, na.rm = F)) #set to false so that public health or ej doesnt get calculated if it is a nonres area
 }
 
 priority_summary_1 <-highest_p(ph) %>% rename(`Public health` = MEAN) %>%
@@ -931,8 +934,8 @@ highest_p_all <- function(group_var) {
     .[,2]
   bg_growingshade_main_allMN %>% 
     filter(name %in% selectedvars$name) %>%
-      group_by(bg_string) %>%
-      summarise(MEAN = mean(weights_scaled, na.rm = F))
+    group_by(bg_string) %>%
+    summarise(MEAN = mean(weights_scaled, na.rm = F))
 }
 
 priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>%
@@ -944,11 +947,11 @@ priority_summary_1_all <-highest_p_all(ph) %>% rename(`Public health` = MEAN) %>
 priority_summary_all <- priority_summary_1_all %>%
   pivot_wider(names_from = preset, values_from = score) %>%
   left_join(bg_growingshade_main_allMN %>%
-  rename(scaled = weights_scaled,
-         raw = raw_value) %>%
-  # ungroup() %>%
-  dplyr::select(bg_string, variable, scaled, raw) %>%
-  pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
+              rename(scaled = weights_scaled,
+                     raw = raw_value) %>%
+              # ungroup() %>%
+              dplyr::select(bg_string, variable, scaled, raw) %>%
+              pivot_wider(names_from = variable, values_from = c(scaled, raw))) %>%
   arrange(bg_string) %>%
   rename(block_group_id_2010 = bg_string)
 
@@ -980,9 +983,9 @@ mn_bgs_raw <- bg_geo %>%
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
   dplyr::select(-STATEFP, -COUNTYFP, -TRACTCE, -BLKGRPCE, -NAMELSAD, -MTFCC, -FUNCSTAT, -INTPTLAT, -INTPTLON) %>%
   sf::st_as_sf() %>%
-      sf::st_transform(4326) %>% 
+  sf::st_transform(4326) %>% 
   filter(!is.na(highest_priority)) %>% #don't want greater mn in here
-    mutate(fancyname = case_when(substr(GEOID, 3, 5) == "053" ~ paste0("Hennepin County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
+  mutate(fancyname = case_when(substr(GEOID, 3, 5) == "053" ~ paste0("Hennepin County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "003" ~ paste0("Anoka County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "019" ~ paste0("Carver County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
                                substr(GEOID, 3, 5) == "037" ~ paste0("Dakota County tract ", as.numeric(substr(GEOID, 6, 11))/100, ", block group ", as.numeric(substr(GEOID, 12, 12))),
@@ -1010,10 +1013,10 @@ usethis::use_data(metc_region, overwrite = TRUE)
 ```{r}
 speed_up <- function(x, smooth){
   x %>%
-  sf::st_transform(26915) %>%
-  sf::st_simplify(dTolerance = smooth, preserveTopology = T) %>%
-  sf::st_transform(4326)
-    
+    sf::st_transform(26915) %>%
+    sf::st_simplify(dTolerance = smooth, preserveTopology = T) %>%
+    sf::st_transform(4326)
+  
 }
 # nhood_list <- nhood_list %>% st_make_valid() %>% st_simplify(dTolerance = 100) %>% st_as_sf()
 ctu_list <- ctu_list_raw %>%
@@ -1045,7 +1048,7 @@ usethis::use_data(redline, overwrite = TRUE)
 #   # ggplot() + geom_sf()
 #   # sf::st_simplify(dTolerance = 25, preserveTopology = F) %>%
 #   sf::st_transform(4326) 
-  
+
 
 mn_bgs <- mn_bgs_raw %>% 
   # if I want to remove lakes; I don't love them removed tbh
@@ -1055,7 +1058,7 @@ mn_bgs <- mn_bgs_raw %>%
   sf::st_simplify(dTolerance = 25, preserveTopology = T) %>%
   sf::st_transform(4326) %>%
   filter(!is.na(GEOID)) #%>%
-  # filter(GEOID != "270539800001") #remove airport
+# filter(GEOID != "270539800001") #remove airport
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 
