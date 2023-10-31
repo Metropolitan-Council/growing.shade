@@ -10,10 +10,10 @@
 mod_storymap_ui <- function(id) {
   ns <- NS(id)
 
-  
+
   tagList(
-      br(class="d-none d-lg-block"),
-      htmlOutput(ns("storymap"))
+    br(class = "d-none d-lg-block"),
+    htmlOutput(ns("storymap"))
   )
 }
 
