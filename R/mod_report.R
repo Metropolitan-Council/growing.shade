@@ -206,19 +206,22 @@ mod_report_server <- function(id,
     report_tree_plot <- reactive({
       req(TEST() != "")
       set.seed(12345)
-      canopy_plot <- if (geo_selections$selected_geo != "blockgroups") {
-        (
-          as_tibble(
-            ifelse(geo_selections$selected_geo == "ctus",
-                   ctu_list,
-                   nhood_list)) %>%
-            mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
-            rename(bg_string = GEO_NAME) %>%
-            select(bg_string, canopy_percent, flag) %>%
-            mutate(type = ifelse(geo_selections$selected_geo == "ctus",
-                                 "Cities across\nthe region",
-                                 paste0("Neighborhoods across\n", param_areasummary()$city)),
-            )) %>%
+      
+      geo_list <- if(geo_selections$selected_geo == "ctus"){
+        ctu_list
+      } else {
+        nhood_list
+      }
+      
+       if (geo_selections$selected_geo != "blockgroups") {
+       canopy_plot <- as_tibble(geo_list) %>%
+          mutate(flag = if_else(GEO_NAME == param_area(), "selected", NA_character_)) %>%
+          rename(bg_string = GEO_NAME) %>%
+          select(bg_string, canopy_percent, flag) %>%
+          mutate(type = ifelse(geo_selections$selected_geo == "ctus",
+                               "Cities across\nthe region",
+                               paste0("Neighborhoods across\n", param_areasummary()$city)),
+          ) %>%
           bind_rows(
             filter(
               param_equity(), flag == "selected") %>%
@@ -228,7 +231,7 @@ mod_report_server <- function(id,
               )) %>%
           rename(raw_value = canopy_percent)
       } else {
-        param_equity() %>%
+        canopy_plot <- param_equity() %>%
           rename(raw_value = canopy_percent)
       }
       
@@ -253,7 +256,7 @@ mod_report_server <- function(id,
             method = "compactswarm",
             col = "grey40",
             aes(x = raw_value, y = type),
-            data = filter(canopyplot, is.na(flag)),
+            data = filter(canopy_plot, is.na(flag)),
             na.rm = T
           ) +
           labs(
@@ -264,17 +267,17 @@ mod_report_server <- function(id,
           geom_point(aes(x = raw_value, y = type),
                      fill = councilR::colors$cdGreen,
                      size = 4, col = "black", pch = 21, stroke = 1, 
-                     data = filter(canopyplot, flag == "selected", is.na(t2))
+                     data = filter(canopy_plot, flag == "selected", is.na(t2))
           ) +
           
           ggbeeswarm::geom_beeswarm(aes(x = raw_value, y = type),
-                                    cex = if (selected_length() > 100) {2} else {3}, 
-                                    stroke = if(selected_length() > 100) {0} else {1},
-                                    size = if (selected_length() > 100) {2} else {3},
+                                    cex = ifelse(selected_length() > 100, 2, 3), 
+                                    stroke = ifelse(selected_length() > 100, 0, 1),
+                                    size = ifelse(selected_length() > 100, 2, 3),
                                     corral = "wrap", corral.width = 0.7,
                                     fill = councilR::colors$cdGreen, 
                                     col = "black", pch = 21, alpha = .8,
-                                    data = filter(canopyplot, flag == "selected", t2 == "block groups"),
+                                    data = filter(canopy_plot, flag == "selected", t2 == "block groups"),
                                     method = "compactswarm",
                                     na.rm = T
           ) 
@@ -316,13 +319,6 @@ mod_report_server <- function(id,
       }
       return(plot)
     })
-    
-    # output$tree_plot <- renderPlot(
-    #   {
-    #     req(TEST() != "")
-    #     report_tree_plot()
-    #   } # , res = 150)
-    # )
     
     output$tree_plot <- renderImage(
       {
@@ -480,16 +476,16 @@ mod_report_server <- function(id,
       req(TEST() != "")
       preset_name_filter <-
         if (map_selections$preset == "Environmental justice") {
-        metadata[metadata$environmental_justice == 1, ]$name
-      } else if (map_selections$preset == "Climate change") {
-        metadata[metadata$climate_change == 1, ]$name
-      } else if (map_selections$preset == "Public health") {
-        metadata[metadata$public_health == 1, ]$name
-      } else if (map_selections$preset == "Conservation") {
-        metadata[metadata$conservation == 1, ]$name
-      } else if (map_selections$preset == "Custom") {
-        c(map_selections$allInputs$value)
-      }
+          metadata[metadata$environmental_justice == 1, ]$name
+        } else if (map_selections$preset == "Climate change") {
+          metadata[metadata$climate_change == 1, ]$name
+        } else if (map_selections$preset == "Public health") {
+          metadata[metadata$public_health == 1, ]$name
+        } else if (map_selections$preset == "Conservation") {
+          metadata[metadata$conservation == 1, ]$name
+        } else if (map_selections$preset == "Custom") {
+          c(map_selections$allInputs$value)
+        }
       
       step1 <- param_dl_data() %>%
         filter(name %in% preset_name_filter) %>%
@@ -773,7 +769,6 @@ mod_report_server <- function(id,
     report_temp_plot <- reactive({
       req(TEST() != "")
       
-      browser()
       df <- param_equity() %>%
         select(flag, avg_temp, ndvi_land) %>% 
         ungroup()
