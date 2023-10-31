@@ -1,6 +1,4 @@
 ---
-title: "README"
-author: "Ellen Esch"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   github_document:
@@ -12,7 +10,6 @@ css: "./inst/app/www/stye.css"
 
 ```{r setup, include=FALSE, eval = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = F, warning = F)
-
 ```
 
 ## Overview
@@ -28,8 +25,3 @@ The components of Growing Shade relevant to population demographics (i.e., deter
 The `01_tutorial.Rmd` script walks through the steps to get a working versions for different areas. Depending on what data is available for various regions, the `02_geographies.Rmd` and `03_treecanopy.Rmd` scripts may also be needed (although this data can be created through other methods).
 
 Most packages are available on CRAN, so can be downloaded through standard procedures. There are two specific packages which should be downloaded from GitHub versions.
-
-```{r}
-devtools::install_github("eclarke/ggbeeswarm")
-devtools::install_github("Metropolitan-Council/councilR")
-```
