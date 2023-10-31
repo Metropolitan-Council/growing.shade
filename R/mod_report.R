@@ -231,7 +231,7 @@ mod_report_server <- function(id,
 
       if (geo_selections$selected_geo != "blockgroups") {
         plot <- ggplot() +
-          councilR::theme_council() +
+          theme_council_growing() +
           theme(
             plot.title = element_text(size = 16),
             panel.grid.minor = element_blank(),
@@ -278,7 +278,7 @@ mod_report_server <- function(id,
         
       } else {
         plot <- ggplot() +
-          councilR::theme_council() +
+          theme_council_growing() +
           theme(
             panel.grid.minor = element_blank(),
             panel.grid.major.y = element_blank(),
@@ -405,7 +405,7 @@ mod_report_server <- function(id,
 
       plot <-
         ggplot() +
-        councilR::theme_council() +
+        theme_council_growing() +
         theme(
           axis.title.y = element_blank(),
           panel.grid.minor = element_blank(),
@@ -637,7 +637,7 @@ mod_report_server <- function(id,
       #
       #   ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
       #   geom_point(col = "grey40", alpha = .3,  na.rm = T) +
-      #   councilR::theme_council() +
+      #   theme_council_growing() +
       #   theme(
       #     panel.grid.minor = element_blank(),
       #     panel.grid.major = element_blank(),
@@ -687,7 +687,7 @@ mod_report_server <- function(id,
                    pch = 21, 
                    data = filter(df, flag == "selected"), 
                    na.rm = T) +
-        councilR::theme_council() +
+        theme_council_growing() +
         theme(
           panel.grid.minor = element_blank(),
           panel.grid.major = element_blank(),
@@ -788,7 +788,7 @@ mod_report_server <- function(id,
                    size = if (selected_length() > 100) {2} else {4},
                    
                    col = "black", pch = 21, data = filter(df, flag == "selected"), na.rm = T) +
-        councilR::theme_council() +
+        theme_council_growing() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
           caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
