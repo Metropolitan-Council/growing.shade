@@ -5,14 +5,14 @@
 # re-install it with GitHub so RStudio records the appropriate source
 # otherwise it tries to find councilR on CRAN 
 pkgload::load_all()
-if(
-  grepl(
-    "Github", 
-    package_info("councilR") %>% 
-    filter(package == "councilR") %>% 
-    magrittr::extract2("source")) == FALSE){
-  remotes::install_github("Metropolitan-Council/councilR")
-}
+# if(
+#   grepl(
+#     "Github", 
+#     package_info("councilR") %>% 
+#     filter(package == "councilR") %>% 
+#     magrittr::extract2("source")) == FALSE){
+#   remotes::install_github("Metropolitan-Council/councilR")
+# }
 
 # Delete src files
 # these will be re-built when you next build the package locally
