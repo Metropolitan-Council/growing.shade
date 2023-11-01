@@ -19,6 +19,14 @@ library(here)
 
 st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 
+state <- c("MN")
+county <- c("Anoka", "Carver", "Dakota", "Hennepin", "Ramsey", "Scott", "Washington") # either type in specific county names, or for all counties within a state assign `county <- NULL`
+# state <- c("WI")#c("MN")
+
+# Demographic variables
+acs_year <- 2021 # The 2017-2021 ACS 5-year estimates are scheduled to be released on December 8, 2022. So this can be updated with "2021" then.
+census_year <- 2020
+
 ```
 
 # Process geographies
@@ -43,6 +51,13 @@ After the raw geographies are downloaded, then you need to make a crosswalk whic
 
 If this section doesn't apply for other regions, it should be easy enough to remove elements in the user-interface of the application.
 
+```{r block-group-geo}
+bg_geo <- block_groups(
+  state = state,
+  county = county,
+  year = census_year
+)
+```
 
 ```{r nhood-ctu-geo}
 
@@ -50,7 +65,8 @@ If this section doesn't apply for other regions, it should be easy enough to rem
 minneap <- read_sf(paste0(here::here(), "/data-raw/minneapolis neighborhoods/Minneapolis_Communities.shp")) %>%
   rename(GEO_NAME = CommName) %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
-  mutate(city = "Minneapolis")
+  mutate(city = "Minneapolis") %>% 
+  st_transform(4326)
 
 stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul neighborhoods/geo_export_0c076f52-d6ff-4546-b9fa-bd9980de6e8a.shp")) %>%
   mutate(Shape_Area = as.numeric(st_area(.))) %>%
@@ -65,7 +81,9 @@ stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul neighborhoods/geo_expor
                               GEO_NAME == "Eastview-Conway-Battle Creek-Highwood Hills" ~ "Battle Creek-Conway-Eastview-Highwood Hills",
                               GEO_NAME == "The Greater East Side" ~ "Greater East Side",
                               GEO_NAME == "Como" ~ "Como Park",
-                              TRUE ~ GEO_NAME))
+                              TRUE ~ GEO_NAME)) %>% 
+    st_transform(4326)
+
 
 nhood_geo <- bind_rows(minneap, stpaul) %>%
   select(GEO_NAME, city)
@@ -90,7 +108,8 @@ file.remove(files)
 
 ```{r ctu-nhood-crosswalk}
 temp <- tempfile()
-download.file("ftp://ftp.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+download.file("https://resources.gisdata.mn.gov/pub/gdrs/data/pub/us_mn_state_metc/water_lakes_rivers/gpkg_water_lakes_rivers.zip", destfile = temp)
+
 
 river_lake_all <- sf::read_sf(unzip(temp, "water_lakes_rivers.gpkg")) 
 
@@ -119,26 +138,28 @@ find_crosswalks <- function(x) {
 }
 
 ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
-  mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & bg_id != "271390813001" ~ "remove", #minnesota river is squirrely
+  mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & bg_id != "271390813001" ~ "remove",
+                          # minnesota river is squirrely
                    TRUE ~ "keep")) %>%
   filter(flag != "remove") %>% 
   dplyr::select(-flag)
+
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
 wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
     aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
-  rename(jurisdiction = GEO_NAME)
-  # group_by(bg_id) %>%
-  # count() %>%
-  # left_join(ctu_crosswalk) %>%
-  # add_column(cities = 999) %>%
-  # dplyr::select(bg_id, GEO_NAME, cities, n) %>%
-  # # spread(cities, GEO_NAME)
-  # pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
-  # unnest_wider(`999`) 
+  rename(jurisdiction = GEO_NAME) %>% 
+  group_by(bg_id) %>%
+  count() %>%
+  left_join(ctu_crosswalk) %>%
+  add_column(cities = 999) %>%
+  dplyr::select(bg_id, GEO_NAME, cities, n) %>%
+  # spread(cities, GEO_NAME)
+  pivot_wider(names_from = cities, values_from = GEO_NAME, values_fn = list) %>% #filter(bg_id == "270030501082") %>% unlist()
+  unnest_wider(`999`, names_sep = ",")
 
 wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
-  mutate(jurisdiction = paste(`...1`, `...2`, `...3`, `...4`,# `...5`, 
+  mutate(jurisdiction = paste(`999,1`, `999,2`, `999,3`, `999,4`,# `...5`, 
                               # `...6`, `...7`,
                               sep = ", ")) %>%
   dplyr::select(bg_id, jurisdiction) %>%
