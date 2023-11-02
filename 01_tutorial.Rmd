@@ -901,26 +901,41 @@ Merge demographic and environmental data. Additionally, standardize and re-scale
 
 Additionally, please check (and double check if problems arise) the `data-raw/metadata.csv` file. If you wish to exclude variables (which have been processed in steps above), simply remove the variable row from the metadata file. If you have added variables in the steps above, please make sure that those new variables appear in the metadata (or else the variables still will not appear in the final data).
 
+```{r}
+nrow(decennial_data)
+nrow(bg_canopy)
+nrow(health_data)
+nrow(cancer_data)
+nrow(acs_blockgroups)
+nrow(acs_disability)
+```
+
+
 ```{r combinedata}
 code_metadata <- read_csv(paste0(here::here(), "/data-raw/metadata.csv"))
 
 bg_growingshade_main <-
   # direct-fetching data; exists for all regions/scale-able
   acs_blockgroups %>% 
+  ungroup() %>% 
   full_join(decennial_data) %>%
   full_join(health_data) %>%
-  full_join(cancer_data, by = c("GEOID" = "bg_id")) %>%
+  full_join(cancer_data) %>%
   full_join(bg_geo %>% st_drop_geometry() %>% transmute(GEOID = GEOID, land = ALAND)) %>%
   full_join(acs_tracts) %>%
+  ungroup() %>% 
   # deal with some non-residential blocks and insufficient data; demographics specific data
-  mutate(across(-c(GEOID, fancyname, tract_id, land, starts_with("tr"), population_count), ~ if_else(population_count == 0, NA_real_, .x)),
-         under18 = if_else(is.nan(under18), tr_under18, under18),
-         over65 = if_else(is.nan(over65), tr_over65, over65),
-         sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
-         pownhome = if_else(is.nan(pownhome), tr_sens_age, pownhome),
-         ppov185 = if_else(is.nan(ppov185), tr_sens_age, ppov185),
-         hhincome = if_else(is.na(hhincome) & population_count > 0, tr_hhincome, hhincome),
-         pwk_nowork = if_else(is.na(pwk_nowork) & population_count > 0, tr_pwk_nowork, pwk_nowork)
+  mutate(
+    across(-c(GEOID, fancyname, tract_id, land, starts_with("tr"), 
+              population_count),
+           ~ if_else(population_count == 0, NA_real_, .x)),
+    under18 = if_else(is.nan(under18), tr_under18, under18),
+    over65 = if_else(is.nan(over65), tr_over65, over65),
+    sens_age = if_else(is.nan(sens_age), tr_sens_age, sens_age),
+    pownhome = if_else(is.nan(pownhome), tr_sens_age, pownhome),
+    ppov185 = if_else(is.nan(ppov185), tr_sens_age, ppov185),
+    hhincome = if_else(is.na(hhincome) & population_count > 0, tr_hhincome, hhincome),
+    pwk_nowork = if_else(is.na(pwk_nowork) & population_count > 0, tr_pwk_nowork, pwk_nowork)
   ) %>%
   select(!starts_with("tr")) %>%
   filter(!is.na(fancyname)) %>%
@@ -930,18 +945,21 @@ bg_growingshade_main <-
   # other data; may not apply for other regions
   full_join(env_data, by = c("GEOID" = "bg_id")) %>% # extreme heat, flood risk
   full_join(holc_data, by = c("GEOID" = "bg_id")) %>% # redlining
-  
   # start to process the data
+  ungroup() %>% 
   mutate(
     inverse_ndvi_uncultivated = ndvi_uncultivated,
     inverse_ndvi_land = ndvi_land,
     inverse_canopy = canopy_percent,
-    pop_density = population_count / land * 4045.86,
-    housing_density = housing_units / land * 4045.86
+    pop_density = (population_count / land) * 4045.86,
+    housing_density = (housing_units / land) * 4045.86
   ) %>%
   rename(bg_string = GEOID) %>%
   # standardize and rescale
-  pivot_longer(names_to = "variable", values_to = "raw_value", -c(bg_string, fancyname)) %>% # end the code after this line if you just want the reshaped data
+  pivot_longer(names_to = "variable",
+               values_to = "raw_value",
+               -c(bg_string, fancyname)) %>% # end the code after this line if you just want the reshaped data
+  # only group by VARIABLE, not bg_id
   group_by(variable) %>%
   mutate(
     MEAN = mean(raw_value, na.rm = T),
@@ -953,37 +971,42 @@ bg_growingshade_main <-
   ) %>%
   full_join(code_metadata, by = "variable") %>%
   # create nominal weights
-  mutate(weights_nominal = case_when(
-    interpret_high_value == "high_opportunity" ~ (raw_value - MIN) / (MAX - MIN) * 10,
-    interpret_high_value == "low_opportunity" ~ 10 - (raw_value - MIN) / (MAX - MIN) * 10,
-    TRUE ~ NA_real_
-  )) %>%
+  mutate(
+    weights_nominal = case_when(
+      interpret_high_value == "high_opportunity" ~ (raw_value - MIN) / (MAX - MIN) * 10,
+      interpret_high_value == "low_opportunity" ~ 10 - (raw_value - MIN) / (MAX - MIN) * 10,
+      TRUE ~ NA_real_
+    )) %>%
   # Weights Standard Score
-  mutate(weights_scaled = case_when(
-    interpret_high_value == "high_opportunity" ~ pnorm(z_score) * 10,
-    interpret_high_value == "low_opportunity" ~ (10 - pnorm(z_score) * 10),
-    TRUE ~ NA_real_
-  )) %>%
+  mutate(
+    weights_scaled = case_when(
+      interpret_high_value == "high_opportunity" ~ pnorm(z_score) * 10,
+      interpret_high_value == "low_opportunity" ~ (10 - pnorm(z_score) * 10),
+      TRUE ~ NA_real_
+    )) %>%
   # weights rank
-  mutate(weights_rank = case_when(
-    interpret_high_value == "high_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
-    interpret_high_value == "low_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
-    TRUE ~ NA_real_
-  )) %>%
+  mutate(
+    weights_rank = case_when(
+      interpret_high_value == "high_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
+      interpret_high_value == "low_opportunity" ~ min_rank(desc(weights_nominal)) / COUNT * 10,
+      TRUE ~ NA_real_
+    )) %>%
   # rank
-  mutate(overall_rank = case_when(
-    interpret_high_value == "high_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))),
-    interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal)))
-  )) %>%
+  mutate(
+    overall_rank = case_when(
+      interpret_high_value == "high_opportunity" ~ min_rank(desc(as.numeric(weights_nominal))),
+      interpret_high_value == "low_opportunity" ~ min_rank(desc(as.numeric(weights_nominal)))
+    )) %>%
   # clean
   dplyr::select(-MEAN, -SD, -MIN, -MAX) %>%
   full_join(wide_ctu_crosswalk, by = c("bg_string" = "bg_id")) %>%
-  filter(!is.na(name)) # remove variables which are NOT in the metadata list
+  filter(!is.na(name)) %>%  # remove variables which are NOT in the metadata list
+  unique()
 ```
 
 ## Create regional averages
 
-For comparative purposes, regional averages need to be computed. While the average values for the block groups are needed to create z-scores in the scaling and standardizing steps, those averages are *not* the regional averages. For instance, the average median income of block groups might be 60,000 but the regional average might be lower if there are more people living in ares with lower income. 
+For comparative purposes, regional averages need to be computed. While the average values for the block groups are needed to create z-scores in the scaling and standardizing steps, those averages are *not* the regional averages. For instance, the average median income of block groups might be $60,000 but the regional average might be lower if there are more people living in areas with lower income. 
 
 The regional average data mostly comes from data which has already been fetched from the census (either decennial or ACS). In other cases, you may wish to supplement with regional averages for other data pieces. 
 
@@ -991,14 +1014,16 @@ The regional average data mostly comes from data which has already been fetched 
 ```{r}
 demo_metadata <- acs_metadata %>%
   full_join(decennial_metadata) %>%
-  pivot_longer(names_to = "variable", values_to = "MEANRAW2", -geo)
+  pivot_longer(names_to = "variable", 
+               values_to = "MEANRAW2", -geo)
 
 bg_averages <- bg_growingshade_main %>%
   group_by(variable) %>%
   summarise(
     MEANRAW = mean(raw_value, na.rm = T),
     MEANSCALED = mean(weights_scaled, na.rm = T)
-  )
+  ) %>% 
+  ungroup()
 
 canopy_avg <-
   tribble(
@@ -1009,7 +1034,8 @@ canopy_avg <-
 
 
 metadata <- bg_growingshade_main %>%
-  dplyr::group_by(type, name, variable, interpret_high_value, climate_change, environmental_justice, public_health, conservation) %>%
+  dplyr::group_by(type, name, variable, interpret_high_value, climate_change, 
+                  environmental_justice, public_health, conservation) %>%
   dplyr::count() %>%
   dplyr::ungroup() %>%
   full_join(bg_averages) %>%
@@ -1029,18 +1055,18 @@ metadata <- bg_growingshade_main %>%
   ) %>%
   full_join(demo_metadata %>%
               bind_rows(canopy_avg)) %>%
-  mutate(MEANRAW = if_else(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
+  mutate(MEANRAW = ifelse(!is.na(MEANRAW2), MEANRAW2, MEANRAW)) %>%
   dplyr::select(-MEANRAW2, -geo) %>%
   filter(!is.na(name))
 
 usethis::use_data(metadata, overwrite = TRUE)
 ```
-    
-    
+
+
 ## Highest priority
 
 Inside the final data base, the highest priority (among public health, environmental justice, climate change, and conservation priorities) in each block group is identified. 
-    
+
 ```{r}
 highest_p <- function(group_var) {
   selectedvars <- metadata %>%
@@ -1066,15 +1092,17 @@ priority_summary <- priority_summary_1 %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
 ```
-    
+
 ## Core mapping data
-    
+
 The block group geographies need some final adjustments before they are ready to go into the mapping application. 
 
 ```{r bg_shapefiles_for_mapping}
-
 mn_bgs_raw <- bg_geo %>%
-  right_join(bg_growingshade_main %>% select(bg_string, fancyname),
+  right_join(bg_growingshade_main %>% 
+               ungroup() %>% 
+               select(bg_string, fancyname) %>% 
+               unique(),
              by = c("GEOID" = "bg_string")) %>%
   right_join(wide_ctu_crosswalk, by = c("GEOID" = "bg_id")) %>%
   full_join(bg_canopy, by = c("GEOID" = "bg_id")) %>%
@@ -1084,13 +1112,15 @@ mn_bgs_raw <- bg_geo %>%
               pivot_wider(names_from = preset, values_from = score),
             by = c("GEOID" = "bg_string")
   ) %>%
+  ungroup() %>% 
   mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
   dplyr::select(-c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE, NAMELSAD,
                    MTFCC, FUNCSTAT, INTPTLAT, INTPTLON)) %>%
   sf::st_as_sf() %>%
   sf::st_transform(4326) %>%
   filter(!is.na(highest_priority)) %>%
-  rename(GEO_NAME = GEOID)
+  rename(GEO_NAME = GEOID) %>% 
+  unique()
 
 region_outline <- if (is.null(county)) {
   county_outline %>%
@@ -1108,11 +1138,11 @@ region_outline <- if (is.null(county)) {
 
 usethis::use_data(region_outline, overwrite = TRUE)
 ```
-    
+
 ## Simplify data for speed
-    
+
 Because all of the files inside the `data` folder need to be pushed up to the cloud in order to deploy the full version of Growing Shade, it is important to make the files as small as possible. This is very important to help loading speed of the application. In essence, most geographic files (polygons) can be simplified to some degree. All data files should only have the necessary columns for running the application, and extraneous columns should be removed. 
-    
+
 ```{r}
 speed_up <- function(x, smooth) {
   x %>%
@@ -1120,7 +1150,9 @@ speed_up <- function(x, smooth) {
     sf::st_simplify(dTolerance = smooth, preserveTopology = T) %>%
     sf::st_transform(4326)
 }
+
 ctu_list <- ctu_list_raw %>%
+  st_transform(4326) %>% 
   speed_up(50)
 usethis::use_data(ctu_list, overwrite = TRUE)
 
@@ -1136,34 +1168,31 @@ mn_bgs <- mn_bgs_raw %>%
   speed_up(40) %>% # 25
   filter(!is.na(GEO_NAME)) %>%
   mutate(GEOID = GEO_NAME)
-usethis::use_data(mn_bgs, overwrite = TRUE)
-# object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
-mn_bgs <- mn_bgs_raw %>% 
-  speed_up(40) %>% #25
-  filter(!is.na(GEO_NAME)) %>%
-  mutate(GEOID = GEO_NAME)
+
 usethis::use_data(mn_bgs, overwrite = TRUE)
 
 object.size(mn_bgs_raw) / 1e5 ; object.size(mn_bgs) / 1e5
 
 bg_growingshade_main <- bg_growingshade_main %>%
   dplyr::select(bg_string, name, weights_scaled, raw_value) %>%
-  filter(!is.na(bg_string))
-
+  filter(!is.na(bg_string)) %>% 
+  arrange(bg_string) %>% 
+  ungroup() %>% 
+  select(variable, bg_string, name, weights_scaled, raw_value)
 
 usethis::use_data(bg_growingshade_main, overwrite = TRUE)
 ```
-    
-    
+
+
 # Running application
-    
+
 If the follow steps have been followed, you should be able to navigate to the `./dev/run_dev.R` file, select all the code, and run! This should initiate a local version of Growing Shade for the customized region! 
-    
-    
+
+
 ## Set user interface parameters
-    
+
 Creating a `ui_params.rda` data set is the easiest solutions that I can (currently!) think of which allows for site-specific parameters to be set *outside* of the main application code. For instance, other regions are unlikely to have a city called "Oakdale," but regardless a starting city needs to be identified in order for the map to render correctly. 
-    
+
 ```{r}
 map_centroid <- region_outline %>%
   sf::st_union() %>%
@@ -1182,7 +1211,9 @@ ui_params <- tribble(
   "center_latitude", NA_character_, st_coordinates(map_centroid)[2], # 44.963,
   "center_longitude", NA_character_, st_coordinates(map_centroid)[1], #-93.32,
   "center_zoom", NA_character_, 10,
-  "tree_tile_location", "https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}", NA_real_
+  "tree_tile_location", 
+  "https://metropolitan-council.github.io/treeraster-2021/GrowingShadeTealTrees_2021_toCloud/{z}/{x}/{y}", 
+  NA_real_
 )
 
 usethis::use_data(ui_params, overwrite = TRUE)
@@ -1197,48 +1228,48 @@ names(nhood_ui) <- c(group_keys(gs))[[1]]
 
 usethis::use_data(nhood_ui, overwrite = TRUE)
 ```
-    
-    
+
+
 ## Run application!
-    
+
 Please note that this application should run even if no region-specific data is added; it will just get filled in with random data. So please make sure that all random data is replaced BEFORE production. 
-    
+
 ```{r, message = F, warning = F, eval=FALSE}
-options(
-  shiny.launch.browser = TRUE,
-  scipen = 9999,
-  warn = -1,
-  verbose = FALSE,
-  golem.app.prod = FALSE
-) # TRUE = production mode, FALSE = development mode
-
-# Detach all loaded packages and clean your environment
-golem::detach_all_attached()
-
-# Document and reload your package
-golem::document_and_reload()
-planting.shade::render_guides()
-
-# Run the application
-run_app()
+# options(
+#   shiny.launch.browser = TRUE,
+#   scipen = 9999,
+#   warn = -1,
+#   verbose = FALSE,
+#   golem.app.prod = FALSE
+# ) # TRUE = production mode, FALSE = development mode
+# 
+# # Detach all loaded packages and clean your environment
+# golem::detach_all_attached()
+# 
+# # Document and reload your package
+# golem::document_and_reload()
+# planting.shade::render_guides()
+# 
+# # Run the application
+# run_app()
 ```
 
 
-    
+
 ## Troubleshooting application
-  
-    
+
+
 ## Edit and add any region-specific language
-    
+
 There will likely be region-specific information that should be displayed alongside the data within the interactive application. Users should edit files within the "R" folder as prudent. 
-    
+
 ## Using ArcGIS for processing
-    
+
 If platforms other than R are used for processing data, there shouldn't be any problem! However, you may need to replace sections of the R processing code with code that reads in .shp files and saves them as .rda files. You'll also need to just ensure that the spatial projection is correct for the leaflet package, which is used to map everything. I would recommend placing the raw shapefiles inside the data-raw folder. Here is an example of some code:
-    
+
 ```{r ex-shapefile, include = F, eval = F}
-test <- sf::read_sf(paste0(here::here(), "/data-raw/your_shapefile_name_here.shp")) %>%
-  sf::st_transform(4326)
-usethis::use_data(test, overwrite = TRUE)
+# test <- sf::read_sf(paste0(here::here(), "/data-raw/your_shapefile_name_here.shp")) %>%
+#   sf::st_transform(4326)
+# usethis::use_data(test, overwrite = TRUE)
 ```
-    
+
