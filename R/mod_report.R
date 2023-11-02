@@ -538,14 +538,14 @@ mod_report_server <- function(id,
         pivot_wider(names_from = grouping, values_from = RAW) %>%
         rename(Variable = name) %>%
         mutate(`Region average` = case_when(
-          str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 2), "%"),
-          str_detect(`Variable`, "income") ~ scales::dollar(`Region average`, scale = 1),
-          TRUE ~ as.character(round(`Region average`, 2))
+          str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 1), "%"),
+          str_detect(`Variable`, "income") ~ scales::dollar(`Region average`, accuracy = 1),
+          TRUE ~ as.character(round(`Region average`, 1))
         )) %>%
         mutate(`Selected area` = case_when(
-          str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
-          str_detect(`Variable`, "income") ~ scales::dollar(`Selected area`, scale = 1),
-          TRUE ~ as.character(round(`Selected area`, 2))
+          str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 1), "%"),
+          str_detect(`Variable`, "income") ~ scales::dollar(`Selected area`, accuracy = 1),
+          TRUE ~ as.character(round(`Selected area`, 1))
         ))
 
       return(x)
@@ -743,7 +743,7 @@ mod_report_server <- function(id,
           x = "", y = "Tree\ncanopy\n (%)",
           caption = # expression(italic(
             "Source: Analysis of Sentinel-2 satellite imagery (2021),
-          ACS 5-year \nestimates (2016-2020), and decennial census (2020)" # ))
+          ACS 5-year \nestimates (2017-2021), and decennial census (2020)" # ))
         ) +
         facet_wrap(~names,
           scales = "free_x", nrow = 2, strip.position = "bottom",

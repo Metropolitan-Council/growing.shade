@@ -26,14 +26,14 @@ Priority variables were sourced from several locations including:
   <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census2020population' target = '_blank'>2020
   decennial census</a>,
   <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American
-  Community Survey 5-Year Summary File</a> (2016-2020), and the
+  Community Survey 5-Year Summary File</a> (2017-2021), and the
   <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity
   Considerations data</a> published by the Metropolitan Council. Census
   block group data is used.
 - Health information comes from the
   <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES
-  dataset</a> published by the Center of Disease Control and Prevention.
-  PLACES data is reported by census tract.
+  dataset</a> published by the Center of Disease Control and Prevention
+  (2023). PLACES data is reported by census tract.
 - Tree canopy and green space information is obtained from the
   <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Copernicus
   Sentinel-2 satellite mission</a>.
