@@ -45,6 +45,12 @@ testthat::test_that("bg_growingshade_main data is valid", {
     testthat::expect_equal(0.14,
                            tolerance = 0.01)
   
+  metadata %>% 
+    filter(variable == "COPD") %>% 
+    magrittr::extract2("MEANRAW") %>% 
+    testthat::expect_equal(0.429,
+                           tolerance = 0.01)
+  
   
   metadata %>% 
     filter(variable == "canopy_percent") %>% 
@@ -64,4 +70,13 @@ testthat::test_that("bg_growingshade_main data is valid", {
     unique() %>% 
     testthat::expect_equal(2586)
   
+  
+  nhood_list %>% 
+    nrow() %>% 
+    testthat::expect_equal(28)
+  
+  
+  ctu_list %>% 
+    nrow() %>% 
+    testthat::expect_equal(186)
 })
