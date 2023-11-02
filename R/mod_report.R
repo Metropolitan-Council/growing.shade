@@ -149,7 +149,9 @@ mod_report_server <- function(id,
         paste0(
           if (geo_selections$selected_geo == "blockgroups") {
             paste0(
-              param_areasummary()$fancyname, " has an existing tree canopy coverage of ", round(param_areasummary()$canopy_percent * 100, 2),
+              param_areasummary()$fancyname, 
+              " has an existing tree canopy coverage of ", 
+              round(param_areasummary()$canopy_percent * 100, 1),
               "% in 2021. Compared to other block groups across the region, the tree canopy in the selected block group is ",
               if (param_areasummary()$canopy_percent > (param_areasummary()$avgcanopy + .02)) {
                 "above"
@@ -537,10 +539,12 @@ mod_report_server <- function(id,
         rename(Variable = name) %>%
         mutate(`Region average` = case_when(
           str_detect(`Variable`, "%") ~ paste0(round(`Region average` * 100, 2), "%"),
+          str_detect(`Variable`, "income") ~ scales::dollar(`Region average`, scale = 1),
           TRUE ~ as.character(round(`Region average`, 2))
         )) %>%
         mutate(`Selected area` = case_when(
           str_detect(`Variable`, "%") ~ paste0(round(`Selected area` * 100, 2), "%"),
+          str_detect(`Variable`, "income") ~ scales::dollar(`Selected area`, scale = 1),
           TRUE ~ as.character(round(`Selected area`, 2))
         ))
 
