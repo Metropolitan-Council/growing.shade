@@ -311,18 +311,23 @@ if (process_demographics == TRUE) {
   ###
   # also want to get regional averages for metadata
   ###
-  acs_metadata <- get_acs(
+  acs_county <- get_acs(
     geography = "county",
-    variables = c(acs_variables, paste0("C18108_0", c("01", "05", "09", "13"))),
+    variables = c(acs_variables,
+                  paste0("C18108_0", c("01", "05", "09", "13"))),
     survey = "acs5",
     state = state,
     county = county,
     year = acs_year
-  ) %>%
-    add_column(geo = "region averages") %>%
+  ) %>% 
+    add_column(geo = "region averages")
+  
+  
+  acs_metadata <- acs_county %>% 
     group_by(geo, variable) %>%
     summarise(estimate = sum(estimate)) %>%
     pivot_wider(names_from = variable, values_from = estimate) %>%
+    ungroup() %>% 
     # process to useable forms of the data
     mutate(
       
@@ -346,8 +351,12 @@ if (process_demographics == TRUE) {
            ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001,
            pd_any = 1 - (nodisability / C18108_001)
     ) %>%
-    rename(hhincome = B19013_001) %>%
-    select(c(geo, !starts_with(c("B", "C")), -nodisability))
+    select(c(geo, !starts_with(c("B", "C")), -nodisability)) %>% 
+    left_join(acs_county %>% 
+                filter(variable == "B19013_001") %>% 
+                group_by(geo) %>% 
+                summarise(hhincome = mean(estimate)),
+              by = "geo")
   
   ###
   # save files
