@@ -7,7 +7,6 @@ always_allow_html: yes
 urlcolor: blue
 css: "./inst/app/www/stye.css"
 ---
-
 ```{r setup, include=FALSE, eval = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = F, warning = F)
 ```
