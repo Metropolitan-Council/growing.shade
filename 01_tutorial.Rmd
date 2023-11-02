@@ -1028,10 +1028,9 @@ bg_averages <- bg_growingshade_main %>%
 canopy_avg <-
   tribble(
     ~variable, ~MEANRAW2,
-    "canopy_percent", ctu_list_raw$avgcanopy[1],
-    "inverse_canopy", ctu_list_raw$avgcanopy[1]
+    "canopy_percent", bg_canopy$avgcanopy[1],
+    "inverse_canopy", bg_canopy$avgcanopy[1]
   )
-
 
 metadata <- bg_growingshade_main %>%
   dplyr::group_by(type, name, variable, interpret_high_value, climate_change, 
