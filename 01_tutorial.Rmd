@@ -376,6 +376,31 @@ if (process_demographics == TRUE) {
 }
 ```
 
+## Essential geographic data
+
+```{r}
+fips <- tigris::lookup_code(state = state) %>%
+  stringr::str_split("'", simplify = T)
+
+crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[, 2], ".csv"),
+                      col_types = c(
+                        "tr2010ge" = "c",
+                        "bg2020ge" = "c"
+                      )
+) %>%
+  select(
+    tr2010ge, # census geoid for 2010
+    bg2020ge, # census geoid for 2020
+    wt_pop
+  ) %>% # use weighted population crosswalk
+  group_by(bg2020ge) %>%
+  slice(which.max(wt_pop)) %>% # just get the crosswalk for where most people live. it's oversimplified, but pretty decent esp since block groups generally nest nicely into tracts across census geographies
+  select(-wt_pop)
+
+
+```
+
+
 ## PLACES health data
 
 PLACES data was last updated August 25, 2023
