@@ -82,7 +82,7 @@ stpaul <- read_sf(paste0(here::here(), "/data-raw/stpaul neighborhoods/geo_expor
                               GEO_NAME == "The Greater East Side" ~ "Greater East Side",
                               GEO_NAME == "Como" ~ "Como Park",
                               TRUE ~ GEO_NAME)) %>% 
-    st_transform(4326)
+  st_transform(4326)
 
 
 nhood_geo <- bind_rows(minneap, stpaul) %>%
@@ -122,32 +122,32 @@ river_lake_buffer <- river_lake_all %>%
 # find crosswalks
 find_crosswalks <- function(x) {
   crosswalk <- x %>%
-  st_transform(26915) %>%
-  st_buffer(-150) %>% #buffer the perimeter of the geography
-  st_erase(river_lake_buffer %>%
-             st_buffer(200) %>% #buffer out rivers
-             st_union() %>% 
-             st_buffer(0)) %>% 
-  st_intersection(bg_geo %>% 
-                    dplyr::select(GEOID) %>%
-                    rename(bg_id = GEOID) %>%
-                    st_transform(26915)) %>%
-  st_drop_geometry()
-    
+    st_transform(26915) %>%
+    st_buffer(-150) %>% #buffer the perimeter of the geography
+    st_erase(river_lake_buffer %>%
+               st_buffer(200) %>% #buffer out rivers
+               st_union() %>% 
+               st_buffer(0)) %>% 
+    st_intersection(bg_geo %>% 
+                      dplyr::select(GEOID) %>%
+                      rename(bg_id = GEOID) %>%
+                      st_transform(26915)) %>%
+    st_drop_geometry()
+  
   return(crosswalk)
 }
 
 ctu_crosswalk <- find_crosswalks(ctu_geo) %>%
   mutate(flag = case_when(GEO_NAME == "Blakeley Twp." & bg_id != "271390813001" ~ "remove",
                           # minnesota river is squirrely
-                   TRUE ~ "keep")) %>%
+                          TRUE ~ "keep")) %>%
   filter(flag != "remove") %>% 
   dplyr::select(-flag)
 
 nhood_crosswalk <- find_crosswalks(nhood_geo)
 
 wide_ctu_crosswalk_1 <- ctu_crosswalk %>%
-    aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
+  aggregate(GEO_NAME ~ bg_id, paste, collapse = ", ") %>%
   rename(jurisdiction = GEO_NAME) %>% 
   group_by(bg_id) %>%
   count() %>%
@@ -165,7 +165,7 @@ wide_ctu_crosswalk <- wide_ctu_crosswalk_1 %>%
   dplyr::select(bg_id, jurisdiction) %>%
   mutate(jurisdiction = str_replace_all(jurisdiction, ", NA", ""))
 
-  save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, file = paste0(here::here(), "/data-raw/geography_data.rda"))
+save(ctu_crosswalk, nhood_crosswalk, wide_ctu_crosswalk, file = paste0(here::here(), "/data-raw/geography_data.rda"))
 
 # library(tibble); library(dplyr); library(tidyr); library(stringr)
 # test <- tibble(id = c(1, 2, 3, 4, 5, 6),

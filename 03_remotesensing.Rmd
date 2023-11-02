@@ -90,13 +90,13 @@ calibrate_lm4 <- (lm(log(umn) ~ sentinel, data = calibrate_trees))
 anova(calibrate_lm, calibrate_lm2, calibrate_lm3, calibrate_lm4) # the middle model is best!
 
 # AIC(calibrate_lm); AIC(calibrate_lm2); AIC(calibrate_lm3); AIC(calibrate_lm4)
-
+summary(calibrate_lm2)
 summary(calibrate_lm2)$r.squared # r2
 summary(calibrate_lm2)$coefficients[,4] # p-value
 
 calib_coeff <- summary(calibrate_lm2)$coefficients[,1] # coefficient
 
-  # save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
+# save(file = paste0(here::here(), "/data-raw/calib_coeff.rda"), calib_coeff)
 
 
 calibrate_trees %>%
@@ -110,8 +110,8 @@ calibrate_trees %>%
 ### Process tree canopy cover at various geographies
 
 -   process GEE code to link canopy with geography
-    -   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
-    -   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
+-   GEE data is in repo "users/ehe/MetCoucil/GrowingShade_CanopyCoverage"
+-   <https://code.earthengine.google.com/a0da66053ecb26b668df4297c4ebed59>
 
 
 
@@ -119,15 +119,15 @@ calibrate_trees %>%
 # function for processing gee data
 process_gee <- function(x, .group = NULL){
   x %>%
-  mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
-
-  separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
-  mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
-         trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
-         treeless = if_else(ALAND == 0, 0, as.numeric(treeless)),
-         trees = if_else(ALAND == 0, 0, as.numeric(trees)),
-         canopy_percent = trees / (trees + treeless) * calib_coeff, #using the calibration coefficient is important for twin cities
-         canopy_percent = if_else(is.na(canopy_percent), 0, canopy_percent)) %>%
+    mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>%
+    separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
+    mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
+           trees = stringr::str_remove_all(trees, "\\{classification=1, sum=|\\}\\]\\}"),
+           treeless = if_else(ALAND == 0, 0, as.numeric(treeless)),
+           trees = if_else(ALAND == 0, 0, as.numeric(trees)),
+           canopy_percent = trees / (trees + treeless) * calib_coeff, 
+           # using the calibration coefficient is important for twin cities
+           canopy_percent = if_else(is.na(canopy_percent), 0, canopy_percent)) %>%
     filter(ALAND != 0) %>% #new 2020 block groups sometimes are only water
     group_by(!!enquo(.group)) %>%
     mutate(avgcanopy = mean(canopy_percent)) %>%
@@ -145,7 +145,7 @@ process_gee <- function(x, .group = NULL){
 # block groups
 ###
 bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups2020_year2021.csv"),
-                 col_select = c(GEOID, sq_miles), col_types = c("GEOID" = "c")) %>%
+                      col_select = c(GEOID, sq_miles), col_types = c("GEOID" = "c")) %>%
   left_join(bg_geo %>% st_drop_geometry() %>% select(GEOID, ALAND)) %>%
   rename(GEO_NAME = GEOID) %>%
   process_gee() %>%
@@ -155,19 +155,21 @@ bg_canopy <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_blockgroups
 # cities
 ###
 ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_year2021.csv"),
-                   col_select = c(CTU_NAME, sq_miles),
-                   col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
+                         col_select = c(CTU_NAME, sq_miles),
+                         col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
   mutate(CTU_NAME = if_else(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME),
+         CTU_NAME = if_else(CTU_NAME == "Empire Twp.", "Empire", CTU_NAME),
          ALAND = 99) %>% #ALAND doesn't matter here, so just set it to a random number
   rename(GEO_NAME = CTU_NAME) %>%
   process_gee() %>%
-  full_join(left_join(ctu_crosswalk, bg_canopy) %>% 
-  group_by(GEO_NAME) %>%
-  summarise(
-    min = round(min(canopy_percent) * 100, 1),
-    max = round(max(canopy_percent) * 100, 1),
-    n_blockgroups = n()
-  )) %>%
+  full_join(
+    left_join(ctu_crosswalk, bg_canopy) %>% 
+      group_by(GEO_NAME) %>%
+      summarise(
+        min = round(min(canopy_percent) * 100, 1),
+        max = round(max(canopy_percent) * 100, 1),
+        n_blockgroups = n()
+      )) %>%
   arrange(GEO_NAME) %>%
   full_join(ctu_geo) %>%
   st_as_sf()
@@ -176,8 +178,8 @@ ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_yea
 # neighborhoods
 ###
 nhood_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighborhoods_year2021.csv"),
-                         col_select = c(GEO_NAME, city, sq_miles), 
-                         col_types = c("GEO_NAME" = "c")) %>%
+                           col_select = c(GEO_NAME, city, sq_miles), 
+                           col_types = c("GEO_NAME" = "c")) %>%
   mutate(GEO_NAME = case_when(GEO_NAME == "CapitolRiver Council" ~ "Downtown",
                               GEO_NAME == "Thomas-Dale/Frogtown" ~ "Frogtown",
                               GEO_NAME == "West Side Community Organization" ~ "West Side",
@@ -191,12 +193,12 @@ nhood_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_neighb
          ALAND = 99) %>% #again, just a random number here
   process_gee(.group = city) %>%
   full_join(left_join(nhood_crosswalk, bg_canopy) %>% 
-  group_by(GEO_NAME, city) %>%
-  summarise(
-    min = round(min(canopy_percent) * 100, 1),
-    max = round(max(canopy_percent) * 100, 1),
-    n_blockgroups = n()
-  )) %>%
+              group_by(GEO_NAME, city) %>%
+              summarise(
+                min = round(min(canopy_percent) * 100, 1),
+                max = round(max(canopy_percent) * 100, 1),
+                n_blockgroups = n()
+              )) %>%
   full_join(nhood_geo) %>%
   st_as_sf()
 
@@ -212,21 +214,21 @@ We do this for all land (no water!) and non-cultivated land (excluding crops/ag 
 ```{r ndvi_bgs}
 ndvi_uncultivated <- 
   read_csv(paste0(here::here(), "/data-raw/uncultivatedNDVI_blockgroups2020_year2021.csv"),
-                    na = "No data",
-                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+           na = "No data",
+           col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
 
 ndvi_allland <- 
   read_csv(paste0(here::here(), "/data-raw/landNDVI_blockgroups2020_year2021.csv"),
-                    na = "No data",
-                       col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
+           na = "No data",
+           col_types = cols(GEOID = "c", `system:index` = "c", Year = 'd',  `.geo` = 'c')) %>%
   rename(GEOID = GEOID)
-  
+
 bg_ndvi <- ndvi_uncultivated %>%
   dplyr::select(GEOID, ndvi_uncultivated) %>%
   full_join(ndvi_allland %>%
-  dplyr::select(GEOID, ndvi_land)) %>%
-    rename(bg_id = GEOID)
+              dplyr::select(GEOID, ndvi_land)) %>%
+  rename(bg_id = GEOID)
 
 ```
 
@@ -234,7 +236,6 @@ bg_ndvi <- ndvi_uncultivated %>%
 
 
 ```{r}
-  save(bg_canopy, bg_ndvi, ctu_list_raw, nhood_list_raw, file = paste0(here::here(), "/data-raw/canopy_data.rda"))
-
+save(bg_canopy, bg_ndvi, ctu_list_raw, nhood_list_raw, file = paste0(here::here(), "/data-raw/canopy_data.rda"))
 ```
 
