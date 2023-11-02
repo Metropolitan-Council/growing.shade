@@ -353,10 +353,17 @@ if (process_demographics == TRUE) {
     ) %>%
     select(c(geo, !starts_with(c("B", "C")), -nodisability)) %>% 
     left_join(acs_county %>% 
-                filter(variable == "B19013_001") %>% 
+                filter(variable %in% c("B19013_001",
+                                       "B01001_001")) %>% 
+                select(-moe) %>% 
+                pivot_wider(names_from = variable, values_from = estimate) %>%
                 group_by(geo) %>% 
-                summarise(hhincome = mean(estimate)),
+                # hhincome is the mean county median hh income, 
+                # weighted by population
+                summarise(hhincome = weighted.mean(B19013_001, B01001_001)),
               by = "geo")
+  
+  
   
   ###
   # save files
