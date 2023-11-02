@@ -378,6 +378,8 @@ if (process_demographics == TRUE) {
 
 ## PLACES health data
 
+PLACES data was last updated August 25, 2023
+
 Health metrics come from [PLACES: Local Data for Better Health, Census Tract Data](https://chronicdata.cdc.gov/500-Cities-Places/PLACES-Local-Data-for-Better-Health-Census-Tract-D/cwsq-ngmh). I am not aware that there is a way to use a "health_year" parameter to get a specific timestamp of the data, so please just double check that the most recent data is being used! CDC has indicated that they *might* soon be switching over to using 2020-vintage census geographies rather than the old 2010 geographies, so the processing will get simplified at that point.
 
 Also, because this CDC data currently uses old census geographies, you will need to download a crosswalk - Download the state-specific crosswalk of ["Block Groups --\> Census Tracts" for year "2010 --\> 2020" from NHGIS](https://www.nhgis.org/geographic-crosswalks#download-from-block-groups) - Place the resultant file in the data-raw folder
