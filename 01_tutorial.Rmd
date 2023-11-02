@@ -415,7 +415,6 @@ Also, because this CDC data currently uses old census geographies, you will need
 
 if (process_demographics == TRUE) {
   raw_health <- read.socrata(
-    # "https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('MN', 'WI')",
     paste0("https://chronicdata.cdc.gov/resource/cwsq-ngmh.json?$where=stateabbr in('", state, "')"),
     app_token = Sys.getenv("CDC_KEY"),
     email = Sys.getenv("CDC_EMAIL"),
@@ -430,34 +429,19 @@ if (process_demographics == TRUE) {
       "Mental health not good for >=14 days among adults aged >=18 years",
       "Physical health not good for >=14 days among adults aged >=18 years"
     )) %>%
-    dplyr::select(locationname, measureid, data_value) %>%
+    dplyr::select(
+      # health_data_year = year,
+      locationname, measureid, data_value) %>%
     mutate(data_value = as.numeric(data_value) / 100) %>% # change to fraction
     pivot_wider(names_from = measureid, values_from = data_value)
-  
-  fips <- tigris::lookup_code(state = state) %>%
-    stringr::str_split("'", simplify = T)
-  
-  crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[, 2], ".csv"),
-                        col_types = c(
-                          "tr2010ge" = "c",
-                          "bg2020ge" = "c"
-                        )
-  ) %>%
-    select(
-      tr2010ge, # census geoid for 2010
-      bg2020ge, # census geoid for 2020
-      wt_pop
-    ) %>% # use weighted population crosswalk
-    group_by(bg2020ge) %>%
-    slice(which.max(wt_pop)) %>% # just get the crosswalk for where most people live. it's oversimplified, but pretty decent esp since block groups generally nest nicely into tracts across census geographies
-    select(-wt_pop)
   
   
   ## translate health data into 2020 geographies
   health_data <- raw_health %>%
     full_join(crosswalk, by = c("locationname" = "tr2010ge")) %>%
     rename(GEOID = bg2020ge) %>%
-    select(-locationname)
+    select(-locationname) %>% 
+    unique()
   
   save(file = paste0(here::here(), "/data-raw/health_data.rda"), health_data)
 } else {
@@ -750,10 +734,10 @@ if (regional_specific_data == FALSE) {
   load(paste0(here::here(), "/data-raw/canopy_data.rda"))
 }
 ```
-  
+
 # Environmental data
-  
-  
+
+
 ## Lifetime cancer risk from air toxins
 
 The EPA's 2021 EJSCREEN data release can be downloaded automatically and filtered for the region of interest. Interestingly, the 2021 EJSCREEN data uses 2017 AirToxScreen data, even though there does appear to be a more recent, [2018 AirToxScreen file](https://www.epa.gov/AirToxScreen/2018-airtoxscreen-assessment-results) as of October 3, 2022. 
