@@ -828,7 +828,7 @@ mod_report_server <- function(id,
         theme_council_growing() +
         labs(
           x = "Amount of green space", y = "Summer\nland surface\ntemperature\n(°F)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 8 satellite imagery (2016)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021)\nand Landsat 9 satellite imagery (2022)"
         ) +
         theme(
           panel.grid.minor = element_blank(),
