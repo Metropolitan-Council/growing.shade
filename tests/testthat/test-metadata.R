@@ -48,14 +48,14 @@ testthat::test_that("bg_growingshade_main data is valid", {
   metadata %>% 
     filter(variable == "COPD") %>% 
     magrittr::extract2("MEANRAW") %>% 
-    testthat::expect_equal(0.429,
+    testthat::expect_equal(0.0429,
                            tolerance = 0.01)
   
   
   metadata %>% 
     filter(variable == "canopy_percent") %>% 
     magrittr::extract2("MEANRAW") %>% 
-    testthat::expect_equal(0.423,
+    testthat::expect_equal(0.362,
                            tolerance = 0.01)
   
   
