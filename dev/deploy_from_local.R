@@ -14,9 +14,6 @@ pkgload::load_all()
 #   remotes::install_github("Metropolitan-Council/councilR")
 # }
 
-# Delete src files
-# these will be re-built when you next build the package locally
-# but will cause errors if they are floating around when you deploy
 
 library(rsconnect)
 options(rsconnect.packrat = TRUE)
