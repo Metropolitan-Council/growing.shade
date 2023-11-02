@@ -760,21 +760,25 @@ The EPA's 2021 EJSCREEN data release can be downloaded automatically and filtere
 
 It is my recommendation to use the EJSCREEN data because the process can be automated, and then just [check back to see when this data gets updated for future years](https://gaftp.epa.gov/EJSCREEN). Hopefully the 2018 AirToxScreen data will be incorporated soon. 
 
-Additionally, please note that the 2021 EJSCREEN data is using old (2010-vintage) Census geographies (at the tract level). Fortunately, the crosswalk downloaded to process the PLACES health data will additionally work here. 
+<!-- Additionally, please note that the 2021 EJSCREEN data is using old (2010-vintage) Census geographies (at the tract level). Fortunately, the crosswalk downloaded to process the PLACES health data will additionally work here.  -->
 
+UPDATE: 2023 EJSCREEN data was released in September 2023. Commented out sections note the more up to date datasets 
 
 ```{r air-toxins}
 if (process_demographics == TRUE) {
   temp <- tempfile()
   temp2 <- tempfile()
   download.file(
-    "https://gaftp.epa.gov/EJSCREEN/2021/EJSCREEN_2021_USPR_Tracts.csv.zip",
+    "https://gaftp.epa.gov/EJScreen/2023/2.22_September_UseMe/EJSCREEN_2023_Tracts_with_AS_CNMI_GU_VI.csv.zip",
+    # "https://gaftp.epa.gov/EJSCREEN/2021/EJSCREEN_2021_USPR_Tracts.csv.zip",
     destfile = temp
   )
   unzip(zipfile = temp, exdir = temp2)
   list.files(temp2)
   
-  ejscreen <- read_csv(paste0(temp2, pattern = "/EJSCREEN_2021_USPR_Tracts.csv"),
+  ejscreen <- read_csv(paste0(temp2, 
+                              pattern = "/EJSCREEN_2023_Tracts_with_AS_CNMI_GU_VI.csv"),
+                              # pattern = "/EJSCREEN_2021_USPR_Tracts.csv"),
                        col_select = c(ST_ABBREV, CANCER, ID)
   ) %>%
     filter(ST_ABBREV == state)
@@ -791,13 +795,13 @@ if (process_demographics == TRUE) {
   
   ## translate into 2020 geographies
   cancer_data <- ejscreen %>%
-    full_join(crosswalk, by = c("ID" = "tr2010ge")) %>%
-    rename(bg_id = bg2020ge) %>%
-    select(bg_id, CANCER) %>%
-    mutate(CANCER = if_else(is.na(CANCER), min(CANCER, na.rm = T), CANCER)) %>% # don't let there be NAs, fill with the minimum value
-    # filter(!is.na(bg_id)) %>%
-    rename(env_cancer = CANCER)
-  
+    mutate(tract_id = ID) %>% 
+    left_join(bg_geo %>% 
+                mutate(tract_id = stringr::str_sub(GEOID, end = 11))) %>% 
+        select(GEOID, CANCER) %>% 
+    filter(!is.na(CANCER),
+           !is.na(GEOID))
+    
   save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
 } else {
   load(paste0(here::here(), "/data-raw/cancer_data.rda"))
