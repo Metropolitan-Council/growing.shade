@@ -304,7 +304,8 @@ if (process_demographics == TRUE) {
     )
   
   acs_tracts <- acs_fxn(.geo = "tract") %>%
-    # .extra_variables = (paste0("C18108_0", c("01", "05", "09", "13"))))# %>% #disability status; only exists at tract level
+    # .extra_variables = (paste0("C18108_0", c("01", "05", "09", "13"))))
+    # # %>% #disability status; only exists at tract level
     mutate(across(c(hhincome:ppov185), ~.x, .names = "tr_{.col}")) %>%
     rename(tract_id = GEOID) %>%
     select(starts_with("tr")) %>%
@@ -345,7 +346,7 @@ if (process_demographics == TRUE) {
       nodisability = sum(c(C18108_005, C18108_009, C18108_013),
                          na.rm = TRUE)
     ) %>%
-    mutate(across(c(under18, over65), ~ .x / B01001_001), # , .names = "{.col}_percent"),
+    mutate(across(c(under18, over65), ~ .x / B01001_001), 
            sens_age = under18 + over65,
            pownhome = B25003_002 / B25003_001,
            pwk_nowork = B23025_007 / B23025_001,
@@ -353,16 +354,18 @@ if (process_demographics == TRUE) {
            pd_any = 1 - (nodisability / C18108_001)
     ) %>%
     select(c(geo, !starts_with(c("B", "C")), -nodisability)) %>% 
-    left_join(acs_county %>% 
-                filter(variable %in% c("B19013_001",
-                                       "B01001_001")) %>% 
-                select(-moe) %>% 
-                pivot_wider(names_from = variable, values_from = estimate) %>%
-                group_by(geo) %>% 
-                # hhincome is the mean county median hh income, 
-                # weighted by population
-                summarise(hhincome = weighted.mean(B19013_001, B01001_001)),
-              by = "geo")
+    left_join(
+      # hhincomme is not summed
+      acs_county %>% 
+        filter(variable %in% c("B19013_001",
+                               "B01001_001")) %>% 
+        select(-moe) %>% 
+        pivot_wider(names_from = variable, values_from = estimate) %>%
+        group_by(geo) %>% 
+        # hhincome is the mean county median hh income, 
+        # weighted by population
+        summarise(hhincome = weighted.mean(B19013_001, B01001_001)),
+      by = "geo")
   
   
   
