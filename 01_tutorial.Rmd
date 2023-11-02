@@ -20,8 +20,8 @@ The first time you run this code, it will be helpful to walk step-by-step throug
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = F, message = F, 
-  warning = F,
+  echo = F, message = TRUE, 
+  warning = TRUE,
   cache = F, progress = F
 )
 library(dplyr)
@@ -274,7 +274,8 @@ if (process_demographics == TRUE) {
                sens_age = under18 + over65,
                pownhome = B25003_002 / B25003_001,
                pwk_nowork = B23025_007 / B23025_001,
-               ppov185 = (C17002_002 + C17002_003 + C17002_004 + C17002_005 + C17002_006) / C17002_001
+               ppov185 = (C17002_002 + C17002_003 + C17002_004 +
+                            C17002_005 + C17002_006) / C17002_001
         ) %>%
         rename(hhincome = B19013_001) %>%
         select(c(GEOID, !starts_with(c("B", "C"))))
@@ -293,9 +294,10 @@ if (process_demographics == TRUE) {
   acs_disability <- acs_fxn(
     .geo = "tract",
     .process = "dont complete",
-    .extra_vars = c(paste0("C18108_0", c("01", "05", "09", "13")))
+    .extra_vars = c("C18108_001", "C18108_005", "C18108_009", "C18108_013")
   ) %>%
-    mutate(nodisability = rowSums(across(c(paste0("C18108_0", c("05", "09", "13")))))) %>%
+    rowwise() %>% 
+    mutate(nodisability = sum(c(C18108_005, C18108_009, C18108_013))) %>%
     transmute(
       tract_id = GEOID,
       pd_any = 1 - (nodisability / C18108_001)
@@ -330,7 +332,6 @@ if (process_demographics == TRUE) {
     ungroup() %>% 
     # process to useable forms of the data
     mutate(
-      
       under18 = 
         sum(c(B01001_003, B01001_004, B01001_005,
               B01001_006, B01001_027, 
