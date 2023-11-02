@@ -302,7 +302,7 @@ mod_report_server <- function(id,
             alpha = .3,
             col = "grey40",
             aes(x = raw_value, y = 1),
-            data = filter(canopyplot, is.na(flag)),
+            data = filter(canopy_plot, is.na(flag)),
             na.rm = T
           ) +
           labs(
@@ -313,7 +313,7 @@ mod_report_server <- function(id,
           geom_point(aes(x = raw_value, y = 1),
             fill = councilR::colors$cdGreen,
             size = 5, col = "black", pch = 21, stroke = 1,
-            data = filter(canopyplot, flag == "selected"),
+            data = filter(canopy_plot, flag == "selected"),
             na.rm = T
           )
       }
