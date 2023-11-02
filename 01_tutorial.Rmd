@@ -697,6 +697,7 @@ This section *may* scale to other regions, but currently requires some initial p
 
 ```{r remote-sensing-random-data}
 if (regional_specific_data == FALSE) {
+  cli::cli_alert_warning("Generating random data")
   bg_canopy <- bg_geo %>%
     st_drop_geometry() %>%
     transmute(
@@ -814,6 +815,7 @@ This section relies on processing remote sensing data outside of R, and may requ
 
 ```{r environmental-data}
 if (regional_specific_data == FALSE) {
+  cli::cli_alert_warning("Generating random sample data")
   env_data <- bg_geo %>%
     st_drop_geometry() %>%
     transmute(
