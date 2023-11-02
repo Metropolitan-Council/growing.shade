@@ -782,8 +782,8 @@ if (process_demographics == TRUE) {
     mutate(tract_id = ID) %>% 
     left_join(bg_geo %>% 
                 mutate(tract_id = stringr::str_sub(GEOID, end = 11))) %>% 
-        select(GEOID, CANCER) %>% 
-    filter(!is.na(CANCER),
+        select(GEOID, env_cancer = CANCER) %>% 
+    filter(!is.na(env_cancer),
            !is.na(GEOID))
     
   save(file = paste0(here::here(), "/data-raw/cancer_data.rda"), cancer_data)
