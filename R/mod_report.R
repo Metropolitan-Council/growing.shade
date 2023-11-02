@@ -451,7 +451,7 @@ mod_report_server <- function(id,
         ) +
         labs(
           x = "Block group priority scores\n(where 10 indicates highest priority)",
-          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year estimates (2016-2020),\ndecennial census (2020), and CDC PLACES data (2020)"
+          caption = "\nSource: Analysis of Sentinel-2 satellite imagery (2021), ACS 5-year estimates (2017-2021),\ndecennial census (2020), and CDC PLACES data (2021)"
         )
       return(plot)
     })
