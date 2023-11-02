@@ -812,12 +812,27 @@ if (regional_specific_data == FALSE) {
       prim_flood = sample(0:100, n(), replace = T) / 100
     )
 } else {
+
+  # raw_bg_heat20 <- read_csv("https://raw.githubusercontent.com/Metropolitan-Council/extreme.heat/main/r_postprocessing/data-raw/ExtremeHeat2022_blockgroups2020.csv") %>%
+  #   select(GEOID,mean_LST) %>%
+  #   mutate(mean_numeric = gsub("[^0-9.-]", "", mean_LST) %>% as.numeric())
+
+  
+  load("data-raw/heat.rda")
+  # https://github.com/Metropolitan-Council/extreme.heat/blob/main/r_postprocessing/R/heat.R
   env_data <- readxl::read_xlsx(paste0(here::here(), "/data-raw/CLIMATE_BG20.xlsx")) %>%
     transmute(
       bg_id = BG20,
       avg_temp = AVG_TEMP,
       prim_flood = PRIM_FLOOD
-    )
+    ) %>% 
+    full_join(heat,
+              by = c("bg_id" = "bg20")) %>% 
+    mutate(avg_temp = heat2022) %>% 
+    select(-heat2022)
+  
+  # flood data has not changed
+  # 
 }
 ```
 
