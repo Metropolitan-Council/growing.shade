@@ -50,16 +50,13 @@ mod_map_utils_server <- function(input, output, session,
       bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value) %>%
         group_by(bg_string) %>%
-        summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-        # mutate(RANK = min_rank(desc(MEAN))) %>%
+        summarise(MEAN = round(mean(weights_scaled, na.rm = TRUE), 3)) %>%
         left_join(mn_bgs, by = c("bg_string" = "GEOID")) %>%
         st_as_sf()
     }
 
     return(faststep)
-  }) # %>%
-  # bindCache(map_selections$preset,
-  #           map_selections$allInputs$value)
+  })
 
   make_map_data_filter <- reactive({
     filterstep <- if (geo_selections$mapfilter == "above4") {
@@ -81,7 +78,6 @@ mod_map_utils_server <- function(input, output, session,
     return(filterstep)
   })
 
-  #------- reactive things
 
   vals <- reactiveValues()
 
@@ -90,9 +86,6 @@ mod_map_utils_server <- function(input, output, session,
     vals$map_data2 <- make_map_data_filter()
   })
 
-  # observe({
-  #   vals$canopycov <- make_ccp()
-  # })
 
   return(vals)
 }

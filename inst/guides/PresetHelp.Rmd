@@ -29,7 +29,7 @@ output:
 
 
 
-```{r message = F, warning=F, echo = F}
+```{r message = FALSE, warning=F, echo = FALSE}
 # library(tidyverse)
 # # library(dplyr)
 # 
@@ -51,9 +51,9 @@ output:
 # 
 # 
 # exp_table <- kableExtra::kbl(plotthis,
-#                booktabs = T) %>%
+#                booktabs = TRUE) %>%
 #   kableExtra::kable_styling(#latex_options = "striped",
-#                             full_width = F) %>%
+#                             full_width = FALSE) %>%
 #   kableExtra::column_spec(1, width = "20em") %>%
 #   kableExtra::column_spec(2, width = "5em") %>%
 #   kableExtra::column_spec(3, width = "5em") %>%

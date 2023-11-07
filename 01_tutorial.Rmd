@@ -20,9 +20,9 @@ The first time you run this code, it will be helpful to walk step-by-step throug
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = F, message = TRUE, 
+  echo = FALSE, message = TRUE, 
   warning = TRUE,
-  cache = F, progress = F
+  cache = FALSE, progress = FALSE
 )
 library(dplyr)
 library(tidyr)
@@ -113,7 +113,7 @@ if (process_demographics == TRUE) {
         population_count = POP_EST,
         housing_units = HU_EST
       )
-    files <- list.files(temp2, full.names = T)
+    files <- list.files(temp2, full.names = TRUE)
     file.remove(files)
   }
   
@@ -143,7 +143,7 @@ if (process_demographics == TRUE) {
     year = census_year,
     state = state,
     county = county,
-    geometry = F
+    geometry = FALSE
   ) %>%
     pivot_wider(names_from = variable, values_from = value) %>%
     # process data
@@ -177,7 +177,7 @@ if (process_demographics == TRUE) {
     year = census_year,
     state = state,
     county = county,
-    geometry = F
+    geometry = FALSE
   ) %>%
     add_column(geo = "region averages") %>%
     group_by(geo, variable) %>%
@@ -264,12 +264,12 @@ if (process_demographics == TRUE) {
             sum(c(B01001_003, B01001_004, B01001_005,
                   B01001_006, B01001_027, 
                   B01001_028, B01001_029, B01001_030),
-                na.rm = T),
+                na.rm = TRUE),
           over65 = sum(c(B01001_020, B01001_021, B01001_022, 
                          B01001_023, B01001_024, 
                          B01001_025, B01001_044, B01001_045,
                          B01001_046, B01001_047, 
-                         B01001_048, B01001_049), na.rm = T)) %>%
+                         B01001_048, B01001_049), na.rm = TRUE)) %>%
         mutate(across(c(under18, over65), ~ .x / B01001_001), # , .names = "{.col}_percent"),
                sens_age = under18 + over65,
                pownhome = B25003_002 / B25003_001,
@@ -337,12 +337,12 @@ if (process_demographics == TRUE) {
         sum(c(B01001_003, B01001_004, B01001_005,
               B01001_006, B01001_027, 
               B01001_028, B01001_029, B01001_030),
-            na.rm = T),
+            na.rm = TRUE),
       over65 = sum(c(B01001_020, B01001_021, B01001_022, 
                      B01001_023, B01001_024, 
                      B01001_025, B01001_044, B01001_045,
                      B01001_046, B01001_047, 
-                     B01001_048, B01001_049), na.rm = T),
+                     B01001_048, B01001_049), na.rm = TRUE),
       nodisability = sum(c(C18108_005, C18108_009, C18108_013),
                          na.rm = TRUE)
     ) %>%
@@ -383,7 +383,7 @@ if (process_demographics == TRUE) {
 
 ```{r}
 fips <- tigris::lookup_code(state = state) %>%
-  stringr::str_split("'", simplify = T)
+  stringr::str_split("'", simplify = TRUE)
 
 crosswalk <- read_csv(paste0(here::here(), "/data-raw/nhgis_bg2020_tr2010_", fips[, 2], ".csv"),
                       col_types = c(
@@ -460,7 +460,7 @@ Growing Shade is set up to have data at the block group, neighborhood, and city/
 
 Getting these geography files is easy - just downloaded directly.
 
-```{r census-geography, include = F}
+```{r census-geography, include = FALSE}
 bg_geo <- block_groups(
   state = state,
   county = county,
@@ -689,7 +689,7 @@ if (regional_specific_data == FALSE) {
     st_drop_geometry() %>%
     transmute(
       bg_id = GEOID,
-      canopy_percent = sample(10:60, n(), replace = T) / 100,
+      canopy_percent = sample(10:60, n(), replace = TRUE) / 100,
       avgcanopy = .3
     )
   
@@ -697,14 +697,14 @@ if (regional_specific_data == FALSE) {
     st_drop_geometry() %>%
     transmute(
       bg_id = GEOID,
-      ndvi_uncultivated = sample(10:80, n(), replace = T) / 100,
-      ndvi_land = sample(10:80, n(), replace = T) / 100
+      ndvi_uncultivated = sample(10:80, n(), replace = TRUE) / 100,
+      ndvi_land = sample(10:80, n(), replace = TRUE) / 100
     )
   
   ctu_list_raw <- cities %>%
     transmute(
       GEO_NAME = GEO_NAME,
-      canopy_percent = sample(10:60, n(), replace = T) / 100,
+      canopy_percent = sample(10:60, n(), replace = TRUE) / 100,
       avgcanopy = .3
     ) %>%
     full_join(left_join(ctu_crosswalk, bg_canopy) %>%
@@ -721,7 +721,7 @@ if (regional_specific_data == FALSE) {
     transmute(
       GEO_NAME = GEO_NAME,
       city = city,
-      canopy_percent = sample(10:60, n(), replace = T) / 100,
+      canopy_percent = sample(10:60, n(), replace = TRUE) / 100,
       avgcanopy = .3
     ) %>%
     full_join(left_join(nhood_crosswalk, bg_canopy) %>%
@@ -777,7 +777,7 @@ if (process_demographics == TRUE) {
   #   ggplot() +
   #   geom_sf(aes(fill = CANCER))
   
-  files <- list.files(temp2, full.names = T)
+  files <- list.files(temp2, full.names = TRUE)
   file.remove(files)
   
   ## translate into 2020 geographies
@@ -811,8 +811,8 @@ if (regional_specific_data == FALSE) {
     st_drop_geometry() %>%
     transmute(
       bg_id = GEOID,
-      avg_temp = sample(85:110, n(), replace = T),
-      prim_flood = sample(0:100, n(), replace = T) / 100
+      avg_temp = sample(85:110, n(), replace = TRUE),
+      prim_flood = sample(0:100, n(), replace = TRUE) / 100
     )
 } else {
 
@@ -965,10 +965,10 @@ bg_growingshade_main <-
   # only group by VARIABLE, not bg_id
   group_by(variable) %>%
   mutate(
-    MEAN = mean(raw_value, na.rm = T),
-    SD = sd(raw_value, na.rm = T),
-    MIN = min(raw_value, na.rm = T),
-    MAX = max(raw_value, na.rm = T),
+    MEAN = mean(raw_value, na.rm = TRUE),
+    SD = sd(raw_value, na.rm = TRUE),
+    MIN = min(raw_value, na.rm = TRUE),
+    MAX = max(raw_value, na.rm = TRUE),
     COUNT = as.numeric(sum(!is.na(raw_value))),
     z_score = if_else(SD != 0, (raw_value - MEAN) / SD, 0)
   ) %>%
@@ -1023,8 +1023,8 @@ demo_metadata <- acs_metadata %>%
 bg_averages <- bg_growingshade_main %>%
   group_by(variable) %>%
   summarise(
-    MEANRAW = mean(raw_value, na.rm = T),
-    MEANSCALED = mean(weights_scaled, na.rm = T)
+    MEANRAW = mean(raw_value, na.rm = TRUE),
+    MEANSCALED = mean(weights_scaled, na.rm = TRUE)
   ) %>% 
   ungroup()
 
@@ -1077,7 +1077,7 @@ highest_p <- function(group_var) {
   bg_growingshade_main %>%
     filter(name %in% selectedvars$name) %>%
     group_by(bg_string) %>%
-    summarise(MEAN = mean(weights_scaled, na.rm = F)) # set to false so that public health or ej doesnt get calculated if it is a nonres area
+    summarise(MEAN = mean(weights_scaled, na.rm = FALSE)) # set to false so that public health or ej doesnt get calculated if it is a nonres area
 }
 
 priority_summary_1 <- highest_p(public_health) %>%
@@ -1089,7 +1089,7 @@ priority_summary_1 <- highest_p(public_health) %>%
 
 priority_summary <- priority_summary_1 %>%
   group_by(bg_string) %>%
-  summarise(score = max(score, na.rm = T)) %>%
+  summarise(score = max(score, na.rm = TRUE)) %>%
   left_join(priority_summary_1) %>%
   rename(highest_priority = preset) %>%
   rename(GEOID = bg_string)
@@ -1115,7 +1115,7 @@ mn_bgs_raw <- bg_geo %>%
             by = c("GEOID" = "bg_string")
   ) %>%
   ungroup() %>% 
-  mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
+  mutate(avgcanopy = mean(canopy_percent, na.rm = TRUE)) %>%
   dplyr::select(-c(STATEFP, COUNTYFP, TRACTCE, BLKGRPCE, NAMELSAD,
                    MTFCC, FUNCSTAT, INTPTLAT, INTPTLON)) %>%
   sf::st_as_sf() %>%
@@ -1149,7 +1149,7 @@ Because all of the files inside the `data` folder need to be pushed up to the cl
 speed_up <- function(x, smooth) {
   x %>%
     sf::st_transform(26915) %>%
-    sf::st_simplify(dTolerance = smooth, preserveTopology = T) %>%
+    sf::st_simplify(dTolerance = smooth, preserveTopology = TRUE) %>%
     sf::st_transform(4326)
 }
 
@@ -1225,7 +1225,7 @@ usethis::use_data(ui_params, overwrite = TRUE)
 gs <- st_drop_geometry(nhood_list) %>%
   select(city, GEO_NAME) %>%
   group_by(city)
-nhood_ui <- group_split(gs, city, keep = F) %>% purrr::flatten() # set_names(group_keys(gs))
+nhood_ui <- group_split(gs, city, keep = FALSE) %>% purrr::flatten() # set_names(group_keys(gs))
 names(nhood_ui) <- c(group_keys(gs))[[1]]
 
 usethis::use_data(nhood_ui, overwrite = TRUE)
@@ -1236,7 +1236,7 @@ usethis::use_data(nhood_ui, overwrite = TRUE)
 
 Please note that this application should run even if no region-specific data is added; it will just get filled in with random data. So please make sure that all random data is replaced BEFORE production. 
 
-```{r, message = F, warning = F, eval=FALSE}
+```{r, message = FALSE, warning = FALSE, eval=FALSE}
 # options(
 #   shiny.launch.browser = TRUE,
 #   scipen = 9999,
@@ -1269,7 +1269,7 @@ There will likely be region-specific information that should be displayed alongs
 
 If platforms other than R are used for processing data, there shouldn't be any problem! However, you may need to replace sections of the R processing code with code that reads in .shp files and saves them as .rda files. You'll also need to just ensure that the spatial projection is correct for the leaflet package, which is used to map everything. I would recommend placing the raw shapefiles inside the data-raw folder. Here is an example of some code:
 
-```{r ex-shapefile, include = F, eval = F}
+```{r ex-shapefile, include = FALSE, eval = FALSE}
 # test <- sf::read_sf(paste0(here::here(), "/data-raw/your_shapefile_name_here.shp")) %>%
 #   sf::st_transform(4326)
 # usethis::use_data(test, overwrite = TRUE)

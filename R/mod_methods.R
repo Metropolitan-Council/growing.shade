@@ -10,8 +10,7 @@
 mod_methods_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    # br(class="d-none d-lg-block"), br(class="d-none d-lg-block"),
-    br(), br(),
+    rep_br(2),
     shiny::div(
       id = "methods",
       includeMarkdown(system.file("app/www/methods.md", package = "planting.shade"))

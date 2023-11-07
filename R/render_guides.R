@@ -37,7 +37,7 @@ render_guides <- function(.output_dir = "inst/app/www",
     )
   )
 
-  rmarkdown::render("./inst/guides/PresetHelp.Rmd", # "inst/app/www/PresetHelp.Rmd",
+  rmarkdown::render("./inst/guides/PresetHelp.Rmd",
     output_format = "github_document", # -----
     output_file = "PresetHelp.md",
     output_dir = .output_dir,

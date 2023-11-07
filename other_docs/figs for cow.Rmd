@@ -16,7 +16,7 @@ very slow when showing block groups across entire state
 -- options: focus on statistical areas; some of this won't be super useful either since ag land focus on areas where population density is above some threshold
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F,
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
                       cache = TRUE,
                       cache.path = "cache/")
 library(tidyverse)
@@ -44,10 +44,10 @@ df <- df1 %>%
 
 fig_equity <-
         ggplot(aes(x = raw_value, y = canopy_percent), data = df) +
-        geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = T, size = .7) +
+        geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = TRUE, size = .7) +
         geom_smooth( # method = "lm",
           method = "gam", formula = y ~ s(x, bs = "cs"),
-          fill = NA, col = councilR::colors$councilBlue, na.rm = T
+          fill = NA, col = councilR::colors$councilBlue, na.rm = TRUE
         ) +
         councilR::council_theme()  +
         facet_wrap(~names,
@@ -184,7 +184,7 @@ df <- df1 %>%
         select(avg_temp, ndvi)
 
       tempplot <- ggplot(aes(x = ndvi, y = avg_temp), data = df) +
-        geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = T) +
+        geom_point(col = "grey40", alpha = .2, data = filter(df), na.rm = TRUE) +
         geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA, col = councilR::colors$councilBlue) +
         councilR::council_theme() +
         labs(
@@ -250,7 +250,7 @@ redline_fig <- rl2 %>%
             size = 2, 
             cex = 1.5,
             method = "compactswarm",
-            na.rm = T,
+            na.rm = TRUE,
             pch = 21, color = "grey40"
           ) +
   scale_fill_distiller(palette = "RdBu") + 
@@ -311,7 +311,7 @@ adapted from: <https://extension.umn.edu/managing-woodlands/carbon-minnesota-tre
 
 access on web at: <https://apps.fs.usda.gov/Evalidator/rest/Evalidator/fullreport?reptype=State&lat=0&lon=0&radius=0&snum=Aboveground> and belowground carbon in live trees (at least 1 inch d.b.h./d.r.c), in short tons, on forest land&sdenom=Area of forest land, in acres&wc=272019&pselected=None&rselected=Forest Type MnDNR&cselected=Stand age 20 yr classes (0 to 100 plus)&ptime=Current&rtime=Current&ctime=Current&wf=&wnum=&wnumdenom=&FIAorRPA=FIADEF&outputFormat=HTML&estOnly=Y&schemaName=FS_FIADB.
 
-```{r carbon-stand-age, include = F, eval = F}
+```{r carbon-stand-age, include = FALSE, eval = FALSE}
 usfs <- readxl::read_xlsx("../data-raw/evalidator fsusda.xlsx", 
                           skip = 1,
                           na = "-") %>%
@@ -401,7 +401,7 @@ mn_bgs %>% sf::st_drop_geometry() %>% group_by(highest_priority) %>% count() %>%
 
 # Export data for storymaps
 
-```{r storymap-shp, include = F, eval = F}
+```{r storymap-shp, include = FALSE, eval = FALSE}
 race_exp <- bg_growingshade_main %>%
   filter(variable == "pbipoc") %>%
   mutate(raw_value = raw_value * 100) %>%

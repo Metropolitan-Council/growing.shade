@@ -9,8 +9,8 @@ urlcolor: blue
 ---
 
 ```{r include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F,
-                      cache = F)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      cache = FALSE)
 library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble)
 library(tigris)
 library(sf)
@@ -101,7 +101,7 @@ list.files(temp2)
 ctu_geo <- sf::read_sf(paste0(temp2, pattern = "/CTUs.shp")) %>%
   transmute(GEO_NAME = CTU_NAME) 
 
-files <- list.files(temp2, full.names = T)
+files <- list.files(temp2, full.names = TRUE)
 file.remove(files)
 
 ```

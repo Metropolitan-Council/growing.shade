@@ -99,8 +99,6 @@ display:none!important
   tagList(
     tags$html(lang = "en"),
     tags$head(tags$style(HTML(navbar_js))),
-    # shiny::includeHTML("inst/app/www/google-analytics.html"),
-    # Leave this function for adding external resources
     golem_add_external_resources(),
     shinydisconnect::disconnectMessage(
       text = HTML("Your session timed out. Please refresh the application."),
@@ -110,7 +108,6 @@ display:none!important
 
 
     # List the first level UI elements here
-    # tags$head(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")), #,'.navbar-brand{display:none;}')),
     navbarPage(
       title = div(
         style = "align:center",
@@ -118,7 +115,6 @@ display:none!important
           href = "https://metrocouncil.org/", target = "_blank",
           img(
             src = "www/main-logo.png", alt = "Met Council logo",
-            # style="margin-top: -30px; padding-left:0px",
             height = 60
           )
         ),
@@ -126,7 +122,6 @@ display:none!important
           href = "https://treetrust.org/non-profit/", target = "_blank",
           img(
             src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
-            # style="margin-top: -25px;",
             height = 60
           )
         ),
@@ -151,8 +146,6 @@ display:none!important
       ),
       tabPanel(
         "HOME",
-        # id = "B",
-        # br(), # br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
@@ -172,21 +165,17 @@ display:none!important
               background-color: transparent;
               z-index: 1000;"
         ),
-        # id = "demo",
         div(
           style = "width:100% !important;
                     margin-left:0  !important; margin-top:30px  !important;
                     max-width: 4000px !important; min-width:100% !important",
           sidebarLayout(
             sidebarPanel(
-              # waiter::useWaitress(),
               width = 6,
               style = "height: 90vh; overflow-y: auto;",
 
               # width = 2,
               HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # HTML("<h1><section style='font-size: 22pt;' class='d-none d-lg-block'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # HTML("<h1><section style='font-size: 16pt;' class='d-block d-lg-none'>Welcome to the Growing Shade mapping tool</h1></section>"),
               br(class = "d-none d-lg-block"),
               p(
                 class = "d-none d-lg-block",
@@ -216,19 +205,15 @@ display:none!important
               ),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
-              # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
-
-              # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
               br(class = "d-none d-lg-block"),
               mod_report_ui("report_ui_1"),
             ),
             mainPanel(
               width = 6,
-              # div(class="outer3",
               fluidRow(div(
-                style = "top:25em !important;", # style = 'width:100% !important; top:25em !important; ',
+                style = "top:25em !important;",
                 mod_map_overview_ui("map_overview_ui_1")
               )),
             )
