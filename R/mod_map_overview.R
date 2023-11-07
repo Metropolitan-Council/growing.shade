@@ -213,7 +213,7 @@ mod_map_overview_server <- function(input, output, session,
             smoothFactor = 0.2,
             label = ~ (paste0("Priority score: ", 
                               ifelse(!is.na(map_util$map_data2$MEAN),
-                                     round(map_util$map_data2$MEAN, 3),
+                                     round(map_util$map_data2$MEAN, 2),
                                      "NA, this is a non-residential area"
                               ))),
             highlightOptions = highlightOptions(
@@ -229,13 +229,13 @@ mod_map_overview_server <- function(input, output, session,
               na.color = "#fff"
             )(map_util$map_data2 %>% select("MEAN") %>% .[[1]]),
             popup = ~ paste0(
-              "Geographic ID: ", map_util$map_data2$bg_string,
-              "<br>City: ", map_util$map_data2$jurisdiction,
-              "<br>Priority score: ", ifelse(!is.na(map_util$map_data2$MEAN),
-                                             round(map_util$map_data2$MEAN, 3),
+              "<b>Geographic ID</b> ", map_util$map_data2$bg_string,
+              "<br><b>City</b> ", map_util$map_data2$jurisdiction,
+              "<br><b>Priority score</b> ", ifelse(!is.na(map_util$map_data2$MEAN),
+                                             round(map_util$map_data2$MEAN, 2),
                                              "NA, this is a non-residential area"
               ),
-              "<br>Current tree canopy cover: ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
+              "<br><b>Current tree canopy cover</b> ", round(map_util$map_data2$canopy_percent * 100, 1), "%"
             ),
             options = pathOptions(pane = "Priority score"),
             layerId = ~bg_string
@@ -254,7 +254,7 @@ mod_map_overview_server <- function(input, output, session,
           addScaleBar(
             position = "bottomleft",
             options = c( 
-              imperial = T, metric = F
+              imperial = TRUE, metric = FALSE
             )
           )
         waitertest$hide()
