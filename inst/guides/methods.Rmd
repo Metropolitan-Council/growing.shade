@@ -40,7 +40,7 @@ Next, the tree canopy as identified with Sentinel-2 data was calibrated to the t
 
 
 
-```{r include = F, eval = F}
+```{r include = FALSE, eval = FALSE}
 # and processed in Google Earth Engine 
 # - Census tract average greenness was calculated from Sentinel-2 satellite data processed on Google Earth Engine. Briefly, the Normalized Difference Vegetation Index (NDVI) was used as a measure of greenness. A composite image of the year 2020 was made where each pixel contained the maximum NDVI observed within the calendar year. Sentinel-2 collects measurements approximately 2-3 times a week, with a pixel resolution of 10 meters x 10 meters. Then, the tract-average NDVI value from this 'maximum NDVI' composite image was taken. NDVI over water bodies (rivers or lakes) was not included.
 

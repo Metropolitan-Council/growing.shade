@@ -111,7 +111,7 @@ mod_map_selections_ui <- function(id) {
         "Environmental justice",
         "Public health",
         "Custom"
-      ), inline = T,
+      ), inline = TRUE,
       selected = "Environmental justice"
       # selected = "Custom"
     ),
@@ -146,7 +146,7 @@ mod_map_selections_ui <- function(id) {
           size = 20,
           `selected-text-format` = "count > 1"
         ),
-        multiple = T,
+        multiple = TRUE,
         selected = NULL # filter(metadata, type == "people")[1, 2]
       )
     ),
@@ -168,7 +168,7 @@ mod_map_selections_ui <- function(id) {
           size = 20,
           `selected-text-format` = "count > 1"
         ),
-        multiple = T,
+        multiple = TRUE,
         selected = dplyr::filter(metadata, type == "environment")[9, 2]
       )
     ),
@@ -187,7 +187,7 @@ mod_map_selections_ui <- function(id) {
           size = 20,
           `selected-text-format` = "count > 1"
         ),
-        multiple = T,
+        multiple = TRUE,
         selected = NULL
       )
     ),
@@ -206,7 +206,7 @@ mod_map_selections_ui <- function(id) {
           size = 20,
           `selected-text-format` = "count > 1"
         ),
-        multiple = T,
+        multiple = TRUE,
         selected = NULL
       )
     )

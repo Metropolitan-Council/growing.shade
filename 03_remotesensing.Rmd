@@ -13,8 +13,8 @@ For the Twin Cities, Growing Shade nests block groups (the core level of analyse
 **NOTE:** this script **DOES** rely on some parameters found inside the "global" `01_tutorial.Rmd` script, so please be sure to run that before running this script! It is okay if the tutorial script encounters an error and can't run all the way through, you'll still be saving information about which state/counties to use here!
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, message = F, warning = F,
-                      cache = F)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
+                      cache = FALSE)
 library(dplyr); library(tidyr); library(readr); library(stringr); library(tibble); library(ggplot2)
 library(tigris)
 library(sf)
@@ -133,9 +133,9 @@ process_gee <- function(x, .group = NULL){
            # using the calibration coefficient is important for twin cities
            canopy_percent = ifelse(is.na(canopy_percent), 0, canopy_percent)) %>%
     group_by(!!enquo(.group)) %>%
-    mutate(avgcanopy = mean(canopy_percent, na.rm = T)) %>%
-    # mutate(sum_trees = sum(trees, na.rm = T),
-    #        sum_treeless = sum(treeless, na.rm = T),
+    mutate(avgcanopy = mean(canopy_percent, na.rm = TRUE)) %>%
+    # mutate(sum_trees = sum(trees, na.rm = TRUE),
+    #        sum_treeless = sum(treeless, na.rm = TRUE),
     #        avgcanopy = sum_trees / (sum_trees + sum_treeless) * calib_coeff) %>%
     select(-ALAND, -trees, -treeless)
 }
