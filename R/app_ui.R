@@ -159,7 +159,7 @@ display:none!important
         "Mapping tool",
         tags$footer(
           class = "d-none d-lg-block", # desktop
-          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-05-04. '),
+          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2023-11-07. '),
           align = "right",
           style = "
               position:absolute;
