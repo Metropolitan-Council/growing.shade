@@ -126,3 +126,5 @@ data-raw/nhgis_bg2010_bg2020_27.zip
 data-raw/fgdb_society_equity_considerations.zip
 
 data-raw/EquityConsiderationsBlockGroups.csv
+
+data-raw/nhood_list_bundle.rda
