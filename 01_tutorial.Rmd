@@ -1275,3 +1275,39 @@ If platforms other than R are used for processing data, there shouldn't be any p
 # usethis::use_data(test, overwrite = TRUE)
 ```
 
+```{r}
+
+write.csv(bg_growingshade_main %>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/bg_growing_shade_main.csv",
+          row.names = FALSE)
+
+write.csv(ctu_crosswalk, "data-raw/csv_copies/ctu_crosswalk.csv",
+          row.names = FALSE)
+write.csv(ctu_list %>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/ctu_list.csv",
+          row.names = FALSE)
+write.csv(metadata, "data-raw/csv_copies/metadata.csv",
+          row.names = FALSE)
+
+write.csv(mn_bgs %>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/mn_bgs.csv",
+          row.names = FALSE)
+
+write.csv(nhood_crosswalk%>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/nhood_crosswalk.csv",
+          row.names = FALSE)
+
+write.csv(nhood_list%>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/nhood_list.csv",
+          row.names = FALSE)
+# write.csv(nhood_ui, "data-raw/csv_copies/nhood_ui.csv",
+#           row.names = FALSE)
+write.csv(redline%>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/redline.csv",
+          row.names = FALSE)
+write.csv(region_outline %>% 
+            sf::st_drop_geometry(), "data-raw/csv_copies/region_outline.csv",
+          row.names = FALSE)
+
+```
+
