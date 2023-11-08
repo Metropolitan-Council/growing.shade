@@ -8,18 +8,18 @@ webinar</a> or the
 user guide</a> for help using the tool. Short answers to frequently
 asked questions can be found below. <br>
 
-**Q. How are the priority layers created?** <span
-style="line-height: .1;"><br></span> A. Priority scores are calculated
-using equally-weighted variables.
+**Q. How are the priority layers created?**
+<span style="line-height: .1;"><br></span> A. Priority scores are
+calculated using equally-weighted variables.
 
-**Q. How did you choose the variables for the priority layers?** <span
-style="line-height: .1;"><br></span> A. Presets are developed to provide
-starting points for various stakeholder groups.
+**Q. How did you choose the variables for the priority layers?**
+<span style="line-height: .1;"><br></span> A. Presets are developed to
+provide starting points for various stakeholder groups.
 
 **Q. How can I isolate individual variables? Can I visualize the
-patterns for a single variable?** <span
-style="line-height: .1;"><br></span> A. Click on the “Custom” priority
-layer, then select a single variable.
+patterns for a single variable?**
+<span style="line-height: .1;"><br></span> A. Click on the “Custom”
+priority layer, then select a single variable.
 
 **Q. I’m interested in understanding how the tree canopy intersects with
 a specific racial or ethnic group rather than all communities of
@@ -90,21 +90,21 @@ tallgrass prairie should not be penalized, nor should prairie be
 converted into forest.
 
 **Q. Why doesn’t the tool show trees where there are trees? Why does the
-tool show trees where there are not trees?** <span
-style="line-height: .1;"><br></span> A. Calibration revealed that the
-tree layer mapped in Growing Shade identifies areas which have at least
-89% tree canopy cover. The tree canopy has been identified from
+tool show trees where there are not trees?**
+<span style="line-height: .1;"><br></span> A. Calibration revealed that
+the tree layer mapped in Growing Shade identifies areas which have at
+least 89% tree canopy cover. The tree canopy has been identified from
 satellite imagery using a machine learning method rather than collecting
 on-the-ground data. More information is given in the “methods” tab.
 
 **Q. Is it possible to get the type of information Growing Shade
 provides for other areas? Is it possible to get historic data about the
-tree canopy from Growing Shade?** <span
-style="line-height: .1;"><br></span> A. Right now the focus of Growing
-Shade is on current conditions within the 7-county Twin Cities metro. We
-do have future updates and new features of this tool planned, but cannot
-ensure that any updates will meet specific needs. Please look to the
-“resources” tab to see if another product might meet your needs, and
-thank you for your interest and understanding.
+tree canopy from Growing Shade?**
+<span style="line-height: .1;"><br></span> A. Right now the focus of
+Growing Shade is on current conditions within the 7-county Twin Cities
+metro. We do have future updates and new features of this tool planned,
+but cannot ensure that any updates will meet specific needs. Please look
+to the “resources” tab to see if another product might meet your needs,
+and thank you for your interest and understanding.
 
 <br> <br><br><br><br>

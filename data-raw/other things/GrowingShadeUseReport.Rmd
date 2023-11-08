@@ -25,7 +25,7 @@ always_allow_html: yes
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  echo = F, message = F, warning = F, results = "hide"#,
+  echo = FALSE, message = FALSE, warning = FALSE, results = "hide"#,
   # fig.pos = "H"
   # ,fig.height = 4
   , dpi = 300

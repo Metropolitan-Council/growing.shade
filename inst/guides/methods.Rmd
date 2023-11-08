@@ -19,8 +19,8 @@ Methods and data sources for the analyses presented within the Growing Shade are
 
 Priority variables were sourced from several locations including:
 
-- Demographic and socioeconomic information comes from the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census2020population' target = '_blank'>2020 decennial census</a>, <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American Community Survey 5-Year Summary File</a> (2016-2020), and the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity Considerations data</a> published by the Metropolitan Council. Census block group data is used. 
-- Health information comes from the <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES dataset</a> published by the Center of Disease Control and Prevention. PLACES data is reported by census tract.
+- Demographic and socioeconomic information comes from the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census2020population' target = '_blank'>2020 decennial census</a>, <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-census-acs' target = '_blank'>American Community Survey 5-Year Summary File</a> (2017-2021), and the <a href = 'https://gisdata.mn.gov/dataset/us-mn-state-metc-society-equity-considerations' target = '_blank'>Equity Considerations data</a> published by the Metropolitan Council. Census block group data is used. 
+- Health information comes from the <a href="https://www.cdc.gov/places/index.html" target="_blank">PLACES dataset</a> published by the Center of Disease Control and Prevention (2023). PLACES data is reported by census tract.
 - Tree canopy and green space information is obtained from the <a href = 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2' target = "_blank">Copernicus Sentinel-2 satellite mission</a>.
 - Climate data including temperatures and flood risk was processed using the <a href = 'https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/CVA.aspx' target = '_blank'>Climate Vulnerability Assessment</a> published by the Metropolitan Council.
 
@@ -40,7 +40,7 @@ Next, the tree canopy as identified with Sentinel-2 data was calibrated to the t
 
 
 
-```{r include = F, eval = F}
+```{r include = FALSE, eval = FALSE}
 # and processed in Google Earth Engine 
 # - Census tract average greenness was calculated from Sentinel-2 satellite data processed on Google Earth Engine. Briefly, the Normalized Difference Vegetation Index (NDVI) was used as a measure of greenness. A composite image of the year 2020 was made where each pixel contained the maximum NDVI observed within the calendar year. Sentinel-2 collects measurements approximately 2-3 times a week, with a pixel resolution of 10 meters x 10 meters. Then, the tract-average NDVI value from this 'maximum NDVI' composite image was taken. NDVI over water bodies (rivers or lakes) was not included.
 

@@ -34,7 +34,7 @@ library(tidyr)
 # knitr::opts_knit$set(eval.after = "fig.cap")
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
 
-# knitr::opts_chunk$set(echo = FALSE, message = F, warning = F, tidy.opts=list(width.cutoff=50))
+# knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, tidy.opts=list(width.cutoff=50))
          
 # output: 
 #   html_document:
@@ -92,7 +92,7 @@ canopycover <- if(params$selected_geo == "Selected tract") {
 
 # Report for `r reportfor`
 
-```{r map, echo = F, message = F, warning = F, fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
+```{r map, echo = FALSE, message = FALSE, warning = FALSE, fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
 if(params$selected_geo == "Selected tract") {
   metc_region %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
@@ -174,7 +174,7 @@ canopyhist
 
 
 
-```{r leafletmap, include=F, eval = F}
+```{r leafletmap, include=F, eval = FALSE}
 # We have chosen not to print an overview map in this space, because the time needed to generate the map adds considerably to the processing time of this report. Please note higher resolution images (and images with different underlying basemaps) can be obtained from the interactive tool - just zoom in to the desired level and take a screenshot. We recommend turning off the priority scores and using the "aerial imagery with roads" basemap. 
 
 # map_path <- paste0(tempdir(), "/map.png")
@@ -218,7 +218,7 @@ canopyhist
 #         ),
 #         overlayGroups = c(
 #           "Trees"),
-#         options = layersControlOptions(collapsed = T)
+#         options = layersControlOptions(collapsed = TRUE)
 #       ),
 #   file = map_path, cliprect = "viewport")
 # 
@@ -315,7 +315,7 @@ filter(name %in% selectedvariables) %>%
 
 
 
-```{r table, echo = F, mesasge = F, warning = F, fig.cap = "\\label{fig:table}A table comparing of the selected area to regional averages with respect to the variables selected for this report."}
+```{r table, echo = FALSE, mesasge = FALSE, warning = FALSE, fig.cap = "\\label{fig:table}A table comparing of the selected area to regional averages with respect to the variables selected for this report."}
 
 kableExtra::kbl(summary_table %>%
                ungroup() %>%
@@ -326,9 +326,9 @@ kableExtra::kbl(summary_table %>%
                       `Regional average` = MEANRAW,
                       `Ranking` = overall_rank,
                       `Total ranked areas` = n), 
-               booktabs = T) %>%
+               booktabs = TRUE) %>%
   kableExtra::kable_styling(#latex_options = "striped",
-                            full_width = F) %>%
+                            full_width = FALSE) %>%
   kableExtra::column_spec(1, width = "20em") %>%
   kableExtra::column_spec(2, width = "5em") %>%
   kableExtra::column_spec(3, width = "5em") %>%
@@ -348,7 +348,7 @@ Research shows that trees are unevenly distributed across communities. In partic
 At the MetCouncil, we have shown that areas where the median income is <100,000 and areas with high BIPOC populations have less tree canopy and greenness. We are specifically calling out these variables in figures here. The selected tract is in **green**, and the regional trend is in **blue**. *This relationship is falling apart a bit at the TRACT level. Ideally, it would be good to get down to the block group level, for everything in this report and in the tool*
 
 
-```{r equityfig, echo=F, message = F, warning = F, fig.width=8, fig.height = 4, fig.cap = "\\label{fig:equityfig}A figure showing how canopy coverage is related to race (A) and income (B). The selected area is shown in green and all other tracts are shown in grey. The regional trend line is blue."}
+```{r equityfig, echo=F, message = FALSE, warning = FALSE, fig.width=8, fig.height = 4, fig.cap = "\\label{fig:equityfig}A figure showing how canopy coverage is related to race (A) and income (B). The selected area is shown in green and all other tracts are shown in grey. The regional trend line is blue."}
 equityplot<-eva_data_main %>% filter(variable %in% c("pbipoc", "canopy_percent", "ndvi", "mdhhincnow")) %>%
   select(tract_string, variable, raw_value) %>%
   pivot_wider(names_from = variable, values_from = raw_value) 
@@ -410,7 +410,7 @@ Invasion by the Emerald ash borer (EAB) insect is a major threat to existing tre
 Low biodiversity is another threat to the tree canopy in the region. And knowing which species can adapt to a changing climate. Over the last 100 years, our region has seen a decline in oak trees, and an increase in ash, elm, and maple trees (<a href = 'https://gisdata.mn.gov/dataset/biota-original-pls-bearing-trees' target = '_blank'>Almendinger 1997</a>, <a href = 'https://www.nrs.fs.fed.us/data/urban/state/city/?city=6#ufore_data' target = '_blank'>Davey Resource Group 2004</a>). "Other" species make up a larger percent of the tree canopy today, but these species are mostly introduced species rather than a diverse assemblage of native species (as was the case before 1900). 
 
 
-```{r biodiv, message = F, warning = F, echo = F, fig.width=8, fig.height = 4,  fig.cap = "\\label{fig:biodiv}This figure shows changes observed in tree canopy species across the Twin Cities region. Point shape and size indicates species identity."}
+```{r biodiv, message = FALSE, warning = FALSE, echo = FALSE, fig.width=8, fig.height = 4,  fig.cap = "\\label{fig:biodiv}This figure shows changes observed in tree canopy species across the Twin Cities region. Point shape and size indicates species identity."}
 treebiodiv %>%
   ggplot(aes(x = (timepoint), y = percent, fill = spp_name, shape = spp_name)) +
   geom_line( position = position_dodge(width = 10))+#, aes(col = spp_name)) +
@@ -467,7 +467,7 @@ The Growing Shade is a unique tool offering users the ability to customize prior
 
 Because we believe that context is important, this is how the selected area compares to the regional average for all the presets available in the Growing Shade application. Do note that some variables are shared across presets. 
 
-```{r echo = F, message=F, warning = F, fig.height=9, fig.width=10}
+```{r echo = FALSE, message=F, warning = FALSE, fig.height=9, fig.width=10}
 # If the variable was used in the user-selected ranking, those bars are outlined in red. 
 
 forplot <- summary_table %>%
@@ -504,14 +504,14 @@ forplot %>%
         strip.text = element_text(size = 12),
         panel.grid.major.x = element_blank())#,
         # legend.position = "bottom")#  +
-  # guides(color = F)
+  # guides(color = FALSE)
   
 ```
 
 \newpage
 
 
-```{r tableall, echo = F, mesasge = F, warning = F}
+```{r tableall, echo = FALSE, mesasge = FALSE, warning = FALSE}
 kableExtra::kbl(summary_table %>%
                ungroup() %>%
                select(name, raw_value, MEANRAW, overall_rank, n) %>%
@@ -521,9 +521,9 @@ kableExtra::kbl(summary_table %>%
                       `Regional average` = MEANRAW,
                       `Ranking` = overall_rank,
                       `Total ranked areas` = n), 
-               booktabs = T) %>%
+               booktabs = TRUE) %>%
   kableExtra::kable_styling(#latex_options = "striped",
-                            full_width = F) %>%
+                            full_width = FALSE) %>%
   kableExtra::column_spec(1, width = "20em") %>%
   kableExtra::column_spec(2, width = "5em") %>%
   kableExtra::column_spec(3, width = "5em") %>%
@@ -543,7 +543,7 @@ kableExtra::kbl(summary_table %>%
 #   kableExtra::column_spec(1, width = "20em")
 
 
-# kableExtra::kable_styling(full_width = F)
+# kableExtra::kable_styling(full_width = FALSE)
 
 # (summary_table %>%
 #                ungroup() %>%
@@ -555,7 +555,7 @@ kableExtra::kbl(summary_table %>%
 #                       `Ranking (higher rank = higher priority)` = overall_rank,
 #                       `Total ranked areas` = n)) %>%
 #   kbl() %>%
-#   kable_styling(full_width = F)
+#   kable_styling(full_width = FALSE)
 
 ```
 

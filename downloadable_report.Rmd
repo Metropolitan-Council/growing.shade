@@ -22,7 +22,7 @@ always_allow_html: true
 
 
 
-```{css, echo=FALSE, include = F, eval =F}
+```{css, echo=FALSE, include = FALSE, eval =F}
 caption {
     font-size: .9em;
     font-color: #A9A9A9
@@ -37,7 +37,7 @@ library(stringr)
 library(ggplot2)
 library(tidyr)
 
-knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = FALSE)
 
 # fancyname <- params$param_area
 
@@ -48,7 +48,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align="center", echo = F)
 # Report for `r params$param_area`
 
 
-```{r map, echo = F, message = F, warning = F, fig.alt = "Outline of the Twin Cities region, the area which this report was made for is mapped in green.", fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
+```{r map, echo = FALSE, message = FALSE, warning = FALSE, fig.alt = "Outline of the Twin Cities region, the area which this report was made for is mapped in green.", fig.align="right", out.width= "43%", out.extra='style="float:right; padding:10px"'}
 #, fig.cap = "\\label{fig:map}The geographic location of the selected area. The selected area is highlighed in green."
 if(params$param_geo == "blockgroups") {
   region_outline %>% ggplot() + geom_sf(fill = NA, color = "grey80") +
@@ -91,7 +91,7 @@ params$param_treeplot
 
 ```
 
-```{r include = F, eval = F}
+```{r include = FALSE, eval = FALSE}
 ### Methodology note
 
 # The method used to detect tree canopy varies across tools. The 30% goal of canopy coverage and values about current canopy coverage in Growing Shade may not align with goals or values presented in other tools. In Growing Shade, we prioritize using current data. Current data is particularly important as our region continues to feel the impact of emerald ash borer on the tree canopy. 
@@ -114,12 +114,12 @@ params$param_rankplot
 
 <br>
 
-```{r priority-table, results='markup', tidy = F}
+```{r priority-table, results='markup', tidy = FALSE}
 knitr::kable(params$param_prioritytable,
              booktabs = TRUE) %>%
              # caption = "Average values for the selected area as compared to the region-wide average. Variables shown are those used in prioritization layer. Values for all potential variables can be obtained by downloading the raw data from the Growing Shade Mapping Tool.") %>%
-  # kableExtra::kable_styling(full_width = F) %>%
-    kableExtra::kable_classic("striped", full_width = F, html_font = "Cambria")# %>%
+  # kableExtra::kable_styling(full_width = FALSE) %>%
+    kableExtra::kable_classic("striped", full_width = FALSE, html_font = "Cambria")# %>%
   # kableExtra::footnote(general = "Average values for the selected area as compared to the region-wide average. Variables shown are those used in prioritization layer. Values for all potential variables can be obtained by downloading the raw data from the Growing Shade Mapping Tool.",
            # general_title = "")
 ```
@@ -128,7 +128,7 @@ knitr::kable(params$param_prioritytable,
 
 `r params$param_equitytext`
 
-```{r include = T, eval = F}
+```{r include = TRUE, eval = FALSE}
 # Research shows that trees are unevenly distributed across communities. In particular, areas with a high percent of the population identifying as a person of color or low-income populations have less tree canopy (<a href = "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249715" target="_blank">MacDonald 2021</a>) as do historically redlined areas (<a href = "https://www.npr.org/2020/01/14/795961381/racist-housing-practices-from-the-1930s-linked-to-hotter-neighborhoods-today" target = "_blank">NPR 2020</a>, <a href = "https://www.nature.com/articles/s42949-021-00022-0" target = "_blank">Locke et al. 2021</a>, <a href = "https://www.sciencedirect.com/science/article/abs/pii/S0277953619307531?via%3Dihub" target = "_blank">Namin et al. 2020</a>). Addressing inequity in tree canopy cover may reduce heat-related deaths by up to 25% (<a href = "https://www.fs.fed.us/nrs/pubs/jrnl/2021/nrs_2021_paramita_001.pdf" target = "_blank">Sinha 2021</a>). 
 
 # (358 / 2)/(.12*620961) * 100
@@ -181,7 +181,7 @@ params$param_equityplot
 
 
 
-```{r old_threats, include = F, eval = F}
+```{r old_threats, include = FALSE, eval = FALSE}
 ### Methodology note
 
 # The normalized difference vegetation index (NDVI) ranges from -1 to 1. Areas with bare ground, or brown vegetation have NDVI values closer to zero. Areas with lots of greenness have values closer to one. The calculation for land surface temperature *does* rely on information about NDVI, so these two variables are not fully independent from each other. Land surface temperature is calculated using other data as well. The NDVI data shown here comes from the Sentinel-2 satellite (resolution of 10 x 10 meters) and is from year 2021. Land surface temperature shown here comes from data collected by the Landsat-8 satellite (resolution of 30 x 30 meters) and is from year 2016.

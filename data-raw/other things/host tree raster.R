@@ -19,7 +19,7 @@ tiles <- "https://leonawicz.github.io/tiles/us48lr/tiles/{z}/{x}/{y}.png"
 leaflet(
   options = leafletOptions(minZoom = 0, maxZoom = 15), width = "100%"
 ) %>%
-  addProviderTiles("Stamen.Toner") %>%
+  addProviderTiles(providers$Stadia.StamenToner) %>%
   addTiles(tiles, options = tileOptions(opacity = 0.8))
 
 

@@ -26,7 +26,7 @@ mod_plot_tract_ui <- function(id){
       label = h3("Report region"),
       choices = c("Selected tract", "City (MetCouncil region only)"), #"County (within MN or WI)"),
       dplyr::selected = c("Selected tract"),#c("City (MetCouncil region only)"),
-      inline = F 
+      inline = FALSE 
       ),
       
       conditionalPanel(
@@ -37,7 +37,7 @@ mod_plot_tract_ui <- function(id){
                                   label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>City or township</span></h4>")),
                                   choices = ctus,
                                   options = list(size = 20),
-                                  multiple = F,
+                                  multiple = FALSE,
                                   dplyr::selected = "Afton" #filter(metadata, type == "people")[1, 2]
         )),
       # conditionalPanel(
@@ -48,7 +48,7 @@ mod_plot_tract_ui <- function(id){
       #                             label = shiny::HTML(paste0("<h4><span style='font-size:14pt'>Placeholder</span></h4>")),
       #                             choices = c("Minnesota", "Wisconsin"),
       #                             options = list(size = 5),
-      #                             multiple = F,
+      #                             multiple = FALSE,
       #                             dplyr::selected = "Minnesota" #filter(metadata, type == "people")[1, 2]
       #   )),
       
@@ -88,8 +88,8 @@ mod_plot_tract_server <- function(input, output, session,
   #     # eva_data_main %>%
   #     ungroup() %>%
   #     group_by(name) %>% 
-  #     summarise(SCALED_WTS = mean(weights_scaled, na.rm = T),
-  #               RAW = mean(raw_value, na.rm = T)) %>%
+  #     summarise(SCALED_WTS = mean(weights_scaled, na.rm = TRUE),
+  #               RAW = mean(raw_value, na.rm = TRUE)) %>%
   #     mutate(dsource = "All tracts \n(average)")
   #   
   #   toplot <- bind_rows(dplyr::selected_tract, tract_avgs)# %>%
@@ -168,7 +168,7 @@ mod_plot_tract_server <- function(input, output, session,
   #           legend.text = element_text(size = 15))+
   #     # scale_y_discrete(labels = function(x) stringr::str_wrap(x, width = 60)) +
   #     xlim(0, 10) +
-  #     # xlim(min(map_util$map_data2$MEAN, na.rm = T), max(map_util$map_data2$MEAN, na.rm = T)) +
+  #     # xlim(min(map_util$map_data2$MEAN, na.rm = TRUE), max(map_util$map_data2$MEAN, na.rm = TRUE)) +
   #   theme(legend.position = "top")
   #   } 
   # })
