@@ -1,7 +1,7 @@
 Package: planting.shade
 Title: Tree planting and preservation prioritization tool
 Version: 0.0.1
-Date: 2023-10-27
+Date: 2023-11-08
 Authors@R: c(
     person("Metropolitan Council", role = "cph"),
     person("Ellen", "Esch", , "ellen.esch@metc.state.mn.us", role = c("cre", "aut"),
