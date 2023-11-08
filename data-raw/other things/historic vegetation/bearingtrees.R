@@ -163,14 +163,14 @@ usethis::use_data(treebiodiv, overwrite = TRUE)
 
 treebiodiv %>%
   # mutate(spp_name2 = fct_reorder(spp_name, percent)) %>%
-  ggplot(aes(x = fct_reorder(spp_name, percent, .desc = F), y = percent, col = as.factor(timepoint))) +
+  ggplot(aes(x = fct_reorder(spp_name, percent, .desc = FALSE), y = percent, col = as.factor(timepoint))) +
   geom_point() +
   theme_minimal() +
   coord_flip()
 
 treebiodiv %>%
   # mutate(spp_name = fct_reorder(spp_name, (percent))) %>%
-  ggplot(aes(x = as.factor(timepoint), y = percent, fill = spp_name)) + # fill = fct_reorder(spp_name, percent, .desc = F))) +
+  ggplot(aes(x = as.factor(timepoint), y = percent, fill = spp_name)) + # fill = fct_reorder(spp_name, percent, .desc = FALSE))) +
   geom_bar(stat = "identity", col = "black") +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired")

@@ -1,10 +1,7 @@
-README
-================
-Ellen Esch
-03 October 2022
+07 November 2023
 
--   <a href="#overview" id="toc-overview">Overview</a>
--   <a href="#getting-started" id="toc-getting-started">Getting started</a>
+- [Overview](#overview)
+- [Getting started](#getting-started)
 
 ## Overview
 
@@ -37,17 +34,3 @@ other methods).
 Most packages are available on CRAN, so can be downloaded through
 standard procedures. There are two specific packages which should be
 downloaded from GitHub versions.
-
-``` r
-devtools::install_github("eclarke/ggbeeswarm")
-```
-
-    ## Skipping install of 'ggbeeswarm' from a github remote, the SHA1 (a7e38d33) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
-
-``` r
-devtools::install_github("Metropolitan-Council/councilR")
-```
-
-    ## Skipping install of 'councilR' from a github remote, the SHA1 (059f15b5) has not changed since last install.
-    ##   Use `force = TRUE` to force installation

@@ -1,0 +1,23 @@
+.here
+CODE_OF_CONDUCT.md
+LICENSE.md
+LICENSE
+NEWS.md
+README.md
+README.rmd
+dev
+data-raw
+man
+vignettes
+tests
+other docs
+.github
+01_tutorial.Rmd
+01_tutorial.md
+02_geographies.Rmd
+03_remotesensing.Rmd
+WelcomeHelper.Rmd
+.DS_Store
+water_lakes_rivers.gpkg
+storymap-info
+other_docs

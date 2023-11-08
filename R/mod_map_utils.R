@@ -22,7 +22,6 @@ mod_map_utils_server <- function(input, output, session,
   ns <- session$ns
 
   make_map_data <- reactive({
-
     faststep <- if (map_selections$preset == "Climate change") {
       mn_bgs %>%
         mutate(
@@ -51,20 +50,16 @@ mod_map_utils_server <- function(input, output, session,
       bg_growingshade_main %>%
         filter(name %in% map_selections$allInputs$value) %>%
         group_by(bg_string) %>%
-        summarise(MEAN = round(mean(weights_scaled, na.rm = T), 3)) %>%
-        # mutate(RANK = min_rank(desc(MEAN))) %>%
+        summarise(MEAN = round(mean(weights_scaled, na.rm = TRUE), 3)) %>%
         left_join(mn_bgs, by = c("bg_string" = "GEOID")) %>%
         st_as_sf()
     }
-    
-    return(faststep)
 
-  }) # %>%
-  # bindCache(map_selections$preset,
-  #           map_selections$allInputs$value)
+    return(faststep)
+  })
 
   make_map_data_filter <- reactive({
-    filterstep <- if(geo_selections$mapfilter == "above4") {
+    filterstep <- if (geo_selections$mapfilter == "above4") {
       make_map_data() %>%
         filter(MEAN >= 4)
     } else if (geo_selections$mapfilter == "above5") {
@@ -76,13 +71,13 @@ mod_map_utils_server <- function(input, output, session,
     } else if (geo_selections$mapfilter == "above7") {
       make_map_data() %>%
         filter(MEAN >= 7)
-    } else {make_map_data()}
-    
+    } else {
+      make_map_data()
+    }
+
     return(filterstep)
-    
   })
 
-  #------- reactive things
 
   vals <- reactiveValues()
 
@@ -91,9 +86,6 @@ mod_map_utils_server <- function(input, output, session,
     vals$map_data2 <- make_map_data_filter()
   })
 
-  # observe({
-  #   vals$canopycov <- make_ccp()
-  # })
 
   return(vals)
 }

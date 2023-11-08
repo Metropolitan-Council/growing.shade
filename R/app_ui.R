@@ -5,7 +5,6 @@
 #' @import shiny
 #' @noRd
 app_ui <- function(request) {
-  
   navbar_js <- "@media (max-width: 991px) {
     .navbar-header {
         float: none;
@@ -81,7 +80,7 @@ navbar-default .navbar-nav>li>a {
 
 .navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
     color: var(--council-blue);
-     background-color: #d6d6d6; 
+     background-color: #d6d6d6;
     padding: 5px;
 }
 a {
@@ -95,13 +94,11 @@ a {
 display:none!important
 }
 }"
-  
-  
+
+
   tagList(
     tags$html(lang = "en"),
     tags$head(tags$style(HTML(navbar_js))),
-    # shiny::includeHTML("inst/app/www/google-analytics.html"),
-    # Leave this function for adding external resources
     golem_add_external_resources(),
     shinydisconnect::disconnectMessage(
       text = HTML("Your session timed out. Please refresh the application."),
@@ -111,23 +108,31 @@ display:none!important
 
 
     # List the first level UI elements here
-    # tags$head(img(src = "www/main-logo.png", height = "60px", alt = "MetCouncil logo")), #,'.navbar-brand{display:none;}')),
     navbarPage(
-      title = div(style = "align:center",
-        a(href = "https://metrocouncil.org/", target = "_blank", 
-          img(src = "www/main-logo.png", alt = "Met Council logo",
-            # style="margin-top: -30px; padding-left:0px",
-            height = 60)),
-        a(href = "https://treetrust.org/non-profit/", target = "_blank", 
-          img(src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
-            # style="margin-top: -25px;",
+      title = div(
+        style = "align:center",
+        a(
+          href = "https://metrocouncil.org/", target = "_blank",
+          img(
+            src = "www/main-logo.png", alt = "Met Council logo",
             height = 60
-        )),
-        a(href = "https://www.nature.org/en-us/about-us/where-we-work/united-states/minnesota/", target = "_blank", 
-          img(src = "www/tnc-logo.svg", alt = "The Nature Conservancy logo",
-              style="margin-top: 15px;",
-              height = 45
-          ))
+          )
+        ),
+        a(
+          href = "https://treetrust.org/non-profit/", target = "_blank",
+          img(
+            src = "www/Tree Trust Logo Color w Transparent Background (Avatar).png", alt = "Tree Trust logo",
+            height = 60
+          )
+        ),
+        a(
+          href = "https://www.nature.org/en-us/about-us/where-we-work/united-states/minnesota/", target = "_blank",
+          img(
+            src = "www/tnc-logo.svg", alt = "The Nature Conservancy logo",
+            style = "margin-top: 15px;",
+            height = 45
+          )
+        )
       ),
       windowTitle = "Growing Shade Tool",
       id = "nav",
@@ -141,15 +146,13 @@ display:none!important
       ),
       tabPanel(
         "HOME",
-        # id = "B",
-        # br(), # br(),
         fluidRow((mod_storymap_ui("storymap_ui_1")))
       ),
       tabPanel(
         "Mapping tool",
         tags$footer(
-          class = 'd-none d-lg-block',#desktop
-          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2022-05-04. '),
+          class = "d-none d-lg-block", # desktop
+          HTML('Source: <a href = "https://metrocouncil.org/Communities/Planning/Local-Planning-Assistance/Tree-Canopy.aspx" target = "_blank">Growing Shade Project</a>. Last updated on 2023-11-07. '),
           align = "right",
           style = "
               position:absolute;
@@ -162,23 +165,20 @@ display:none!important
               background-color: transparent;
               z-index: 1000;"
         ),
-        # id = "demo",
         div(
           style = "width:100% !important;
                     margin-left:0  !important; margin-top:30px  !important;
                     max-width: 4000px !important; min-width:100% !important",
           sidebarLayout(
             sidebarPanel(
-              # waiter::useWaitress(),
               width = 6,
               style = "height: 90vh; overflow-y: auto;",
 
               # width = 2,
               HTML("<h1><section style='font-size: 22pt;'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # HTML("<h1><section style='font-size: 22pt;' class='d-none d-lg-block'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              # HTML("<h1><section style='font-size: 16pt;' class='d-block d-lg-none'>Welcome to the Growing Shade mapping tool</h1></section>"),
-              br(class="d-none d-lg-block"),
-              p(class="d-none d-lg-block",
+              br(class = "d-none d-lg-block"),
+              p(
+                class = "d-none d-lg-block",
                 "Please refer to the ", a("text user guide",
                   href = "www/Growing Shade User Guide (January 2022).pdf",
                   .noWS = "outside",
@@ -190,34 +190,30 @@ display:none!important
                   target = "_blank"
                 ), " for help. Customize and create reports using the options below. Zoom in, or turn on the tree layer, to explore the tree canopy in year 2021."
               ),
-              
-              p(class="d-block d-lg-none", 
+              p(
+                class = "d-block d-lg-none",
                 "Please refer to the ", a("text user guide",
-                                          href = "www/Growing Shade User Guide (January 2022).pdf",
-                                          .noWS = "outside",
-                                          target = "_blank"
+                  href = "www/Growing Shade User Guide (January 2022).pdf",
+                  .noWS = "outside",
+                  target = "_blank"
                 ),
                 " or a ", a("recorded webinar",
-                            href = "https://youtu.be/3SKC-29AwME?t=1944",
-                            .noWS = "outside",
-                            target = "_blank"
+                  href = "https://youtu.be/3SKC-29AwME?t=1944",
+                  .noWS = "outside",
+                  target = "_blank"
                 ), " for help."
               ),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
               mod_map_selections_ui("map_selections_ui_1"),
-              # HTML('<hr style="border-top: black;border-top-style: solid;border-right-width: 5px;">'),
               hr(style = "margin-top: 2px; margin-bottom: 2px "),
-
-              # br(),
               mod_geo_selection_ui("geo_selection_ui_1"),
-              br(class="d-none d-lg-block"),
+              br(class = "d-none d-lg-block"),
               mod_report_ui("report_ui_1"),
             ),
             mainPanel(
               width = 6,
-              # div(class="outer3",
               fluidRow(div(
-                style = "top:25em !important;", # style = 'width:100% !important; top:25em !important; ',
+                style = "top:25em !important;",
                 mod_map_overview_ui("map_overview_ui_1")
               )),
             )
