@@ -77,7 +77,7 @@ mod_report_server <- function(id,
 
     # the min/max/other data for all blockgroups within a given ctu/nhood/blockgroup
     # (n = 1 for blockgroups, n > 1 for most ctus/nhoods)
-    param_selectedblockgroupvalues <- reactive({
+    param_selected_block_group_values <- reactive({
       req(TEST() != "")
       output <- filter(
         (map_util$map_data),
@@ -95,7 +95,7 @@ mod_report_server <- function(id,
 
     selected_length <- reactive({
       req(TEST() != "")
-      nrow(param_selectedblockgroupvalues())
+      nrow(param_selected_block_group_values())
     })
 
     # all data with flag for selected areas
@@ -356,8 +356,8 @@ mod_report_server <- function(id,
           if (geo_selections$selected_geo == "blockgroups") {
             paste0(
               param_areasummary()$fancyname,
-              if (!is.na(param_selectedblockgroupvalues()$MEAN)) {
-                paste0(" has a score of ", round((param_selectedblockgroupvalues()$MEAN), 2))
+              if (!is.na(param_selected_block_group_values()$MEAN)) {
+                paste0(" has a score of ", round((param_selected_block_group_values()$MEAN), 2))
               } else {
                 paste0("'s priority score cannot be computed due to insufficient data ")
               },
@@ -369,7 +369,7 @@ mod_report_server <- function(id,
               "block groups within ",
               param_area(),
               " have priority scores ranging from ",
-              round(min(param_selectedblockgroupvalues()$MEAN, na.rm = TRUE), 2), " to ", round(max(param_selectedblockgroupvalues()$MEAN, na.rm = TRUE), 2),
+              round(min(param_selected_block_group_values()$MEAN, na.rm = TRUE), 2), " to ", round(max(param_selected_block_group_values()$MEAN, na.rm = TRUE), 2),
               "  (where 10 indicates highest priority; distance between priority scores can be interpreted on a continuous, linear scale). Scores for all priority layers are shown below. A table compares the values of the variables used in the ",
               tolower(map_selections$preset), " priority layer between the selected area (average of ", param_areasummary()$n_blockgroups, " block group values) and region-wide averages.<br>"
             )
@@ -384,11 +384,11 @@ mod_report_server <- function(id,
       test2 <- if (map_selections$preset != "Custom") {
         tibble()
       } else {
-        param_selectedblockgroupvalues() %>%
+        param_selected_block_group_values() %>%
           mutate(priority = " Custom")
       }
 
-      test <- param_selectedblockgroupvalues() %>%
+      test <- param_selected_block_group_values() %>%
         st_drop_geometry() %>%
         dplyr::select(`Public health`, Conservation, `Environmental justice`, `Climate change`, GEO_NAME) %>%
         pivot_longer(names_to = "priority", values_to = "score", -GEO_NAME) %>%
@@ -889,13 +889,13 @@ mod_report_server <- function(id,
                 `Number of block groups with data` = n
               ),
             "Selected Area" =
-              (param_selectedblockgroupvalues() %>%
+              (param_selected_block_group_values() %>%
                 select(
                   GEO_NAME, jurisdiction, canopy_percent, MEAN,
                   "Public health", Conservation,
                   "Environmental justice", "Climate change"
                 ) %>%
-                rename(
+                dplyr::rename(
                   GEO_ID = GEO_NAME,
                   `Selected priority score` = MEAN,
                   `Climate change priority score` = `Climate change`,
@@ -904,14 +904,14 @@ mod_report_server <- function(id,
                   `Public health priority score` = `Public health`,
                   `Percent tree cover` = canopy_percent
                 ) %>%
-                left_join(bg_growingshade_main %>%
+                dplyr::left_join(bg_growingshade_main %>%
                   select(bg_string, variable, raw_value) %>%
                   pivot_wider(names_from = variable, values_from = raw_value) %>%
-                  rename(GEO_ID = bg_string), by = c("GEO_ID"))),
+                  dplyr::rename(GEO_ID = bg_string), by = c("GEO_ID"))),
             "Entire Region" = bg_growingshade_main %>%
               select(bg_string, variable, raw_value) %>%
               pivot_wider(names_from = variable, values_from = raw_value) %>%
-              rename(GEO_ID = bg_string)
+              dplyr::rename(GEO_ID = bg_string)
           ),
           path = file
         )
@@ -935,12 +935,12 @@ mod_report_server <- function(id,
 
           if (length(Sys.glob(name.glob)) > 0) file.remove(Sys.glob(name.glob))
           sf::st_write(
-            (param_selectedblockgroupvalues() %>%
-              select(
+            (param_selected_block_group_values() %>%
+              dplyr::select(
                 GEO_NAME, jurisdiction, canopy_percent, MEAN,
                 "Public health", Conservation, "Environmental justice", "Climate change"
               ) %>%
-              rename(
+              dplyr::rename(
                 GEO_ID = GEO_NAME,
                 `Selected priority score` = MEAN,
                 `Climate change priority score` = `Climate change`,
@@ -949,11 +949,11 @@ mod_report_server <- function(id,
                 `Public health priority score` = `Public health`,
                 `Percent tree cover` = canopy_percent
               ) %>%
-              left_join(bg_growingshade_main %>%
-                select(bg_string, variable, raw_value) %>%
-                pivot_wider(names_from = variable, values_from = raw_value) %>%
-                select(-inverse_ndvi_uncultivated, -inverse_ndvi_land) %>%
-                rename(GEO_ID = bg_string), by = c("GEO_ID"))),
+              dplyr::left_join(bg_growingshade_main %>%
+                dplyr::select(bg_string, variable, raw_value) %>%
+                tidyr::pivot_wider(names_from = variable, values_from = raw_value) %>%
+                dplyr::select(-inverse_ndvi_uncultivated, -inverse_ndvi_land) %>%
+                dplyr::rename(GEO_ID = bg_string), by = c("GEO_ID"))),
             dsn = name.shp,
             driver = "ESRI Shapefile", quiet = TRUE
           )
@@ -1049,8 +1049,11 @@ mod_report_server <- function(id,
 
       shinydashboard::box(
         title = "Download data",
-        width = 12, collapsed = shinybrowser::get_device() == "Mobile",
-        status = "danger", solidHeader = FALSE, collapsible = TRUE,
+        width = 12, 
+        collapsed = shinybrowser::get_device() == "Mobile",
+        status = "danger", 
+        solidHeader = FALSE,
+        collapsible = TRUE,
         HTML("<section class='d-none d-lg-block'>
              Use the buttons below to download a version of this report which can be printed or shared.
              The raw data may also be downloaded as an excel or shapefile.<br></section>"),
