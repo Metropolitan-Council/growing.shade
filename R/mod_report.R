@@ -32,6 +32,7 @@ mod_report_ui <- function(id) {
 #' @import ggbeeswarm
 #' @import ggtext
 #' @import councilR
+#' @import zip
 mod_report_server <- function(id,
                               geo_selections,
                               map_selections,
