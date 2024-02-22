@@ -118,10 +118,9 @@ calibrate_trees %>%
 ```{r gee-canopy-fxn}
 # function for processing gee data
 process_gee <- function(x, .group = NULL){
-  browser()
   x %>%
     filter(ALAND != 0) %>% # new 2020 block groups sometimes are only water
-    mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  
+    mutate(sq_miles = stringr::str_remove_all(sq_miles, c("\\{groups=\\[|\\}\\]\\}")))  %>% 
     separate(sq_miles, sep = "\\},", into = c("treeless", "trees")) %>%
     rowwise() %>% 
     mutate(treeless = stringr::str_remove_all(treeless, "\\{classification=0, sum=|\\]\\}"),
@@ -172,7 +171,7 @@ ctu_list_raw <- read_csv(paste0(here::here(), "/data-raw/TreeMilesIncAg_ctus_yea
                          col_types = cols(sq_miles = "c", CTU_NAME = "c")) %>%
   mutate(CTU_NAME = ifelse(CTU_NAME == "Credit River Twp.", "Credit River", CTU_NAME),
          CTU_NAME = ifelse(CTU_NAME == "Empire Twp.", "Empire", CTU_NAME),
-         ALAND = 99) %>% #ALAND doesn't matter here, so just set it to a random number
+         ALAND = 99) %>% # ALAND doesn't matter here, so just set it to a random number
   rename(GEO_NAME = CTU_NAME) %>%
   process_gee() %>%
   ungroup() %>% 
